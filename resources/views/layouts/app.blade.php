@@ -499,10 +499,12 @@
     <script src="{{asset('plugins/apexchart/chart-data.js')}}"></script>
     
     <script src="{{asset('plugins/select2/js/select2.min.js')}}"></script>
+    <script src="{{ asset('plugins/select2/js/custom-select.js') }}"></script>
 
     <script src="{{asset('plugins/sweetalert/sweetalert2.all.min.js')}}"></script>
     <script src="{{asset('plugins/sweetalert/sweetalerts.min.js')}}"></script>
     
     <script src="{{asset('js/script.js')}}"></script>
+    @yield('scripts')
   </body>
 </html>

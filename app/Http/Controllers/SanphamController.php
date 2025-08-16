@@ -4,6 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Models\Sanpham;
+use App\Models\Thuonghieu;
+use App\Models\Danhmuc;
+use App\Models\Bienthesp;
+use App\Models\Loaibienthe;
 use Illuminate\Http\Request;
 
 class SanphamController extends Controller
@@ -49,12 +53,67 @@ class SanphamController extends Controller
         return view('sanpham', compact('sanpham'));
     }
 
+    public function create()
+    {
+        $thuonghieus = Thuonghieu::all();
+        $danhmucs = Danhmuc::all();
+        $loaibienthes = Loaibienthe::all();
+
+        return view('taosanpham', compact('thuonghieus', 'danhmucs', 'loaibienthes'));
+    }
+
     /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+        'ten' => 'required|string|max:255',
+        'thuonghieu_id' => 'required|exists:thuonghieu,id',
+        'danhmuc_ids.*' => 'exists:danhmuc,id',
+        'anh.*' => 'image|mimes:jpg,jpeg,png|max:2048',
+        'bienthe' => 'required|array|min:1',
+        'bienthe.*.id_tenloai' => 'required|exists:loaibienthe,id',
+        'bienthe.*.gia' => 'required|numeric|min:0',
+        'bienthe.*.soluong' => 'required|integer|min:0',
+    ]);
+
+    // Tạo sản phẩm
+    $sp = Sanpham::create([
+        'ten' => $validated['ten'],
+        'thuonghieu_id' => $validated['thuonghieu_id'],
+        'trangthai' => 1,
+    ]);
+
+    // Gắn danh mục
+    if (!empty($validated['danhmuc_ids'])) {
+        $sp->danhmuc()->attach($validated['danhmuc_ids']);
+    }
+
+    // Upload ảnh
+    if ($request->hasFile('anh')) {
+        foreach ($request->file('anh') as $file) {
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('img/product'), $filename);
+
+            $sp->anhSanPham()->create([
+                'media' => $filename,
+            ]);
+        }
+    }
+
+    // Thêm biến thể
+    foreach ($validated['bienthe'] as $bt) {
+        $sp->bienThe()->create([
+            'id_tenloai' => $bt['id_tenloai'],
+            'gia' => $bt['gia'],
+            'soluong' => $bt['soluong'],
+            'trangthai' => 1,
+            'uutien' => 0,
+        ]);
+        }
+
+    return redirect()->route('sanpham')->with('success', 'Thêm sản phẩm thành công!');
     }
 
     /**
