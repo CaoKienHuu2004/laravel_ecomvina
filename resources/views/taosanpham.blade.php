@@ -14,11 +14,15 @@
 
     <div class="card">
       <div class="card-body">
-        <div class="row">
+        <form class="row" action="" method="POST" enctype="multipart/form-data">
+          @csrf
           <div class="col-lg-4 col-sm-6 col-12">
             <div class="form-group">
               <label>Tên sản phẩm</label>
-              <input type="text" />
+              <input type="text" name="tensp" id="tensp" value="{{old('tensp')}}"/>
+              @error('tensp')
+                  <span class="text-danger">{{ $message }}</span>
+              @enderror
             </div>
           </div>
           <div class="col-lg-4 col-sm-6 col-12">
@@ -78,40 +82,34 @@
           </div>
 
           <div id="bienthe-wap">
-            <label>Biến thể sản phẩm</label>
-            <div class="row">
-              <div class="col-lg-3 col-sm-6 col-12">
-                <div class="form-group">
-                  <select class="select">
-                    <option>--Loại biến thể--</option>
-                    <option>hộp</option>
-                    <option>Lọ</option>
-                  </select>
+            <label>Biến thể sản phẩm</label> 
+
+            <div class="bienthe-item row mb-2">
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <select class="form-select" name="bienthe[0][id_tenloai]">
+                            <option>--Loại biến thể--</option>
+                            <option value="hop">Hộp</option>
+                            <option value="lo">Lọ</option>
+                        </select>
+                    </div>
                 </div>
-              </div>
-              <div class="col-lg-3 col-sm-6 col-12">
-                <div class="form-group">
-                  <input type="text" name="bienthe[0][gia]" placeholder="Giá" />
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <input type="text" name="bienthe[0][gia]" placeholder="Giá (*vd: 24000)" />
+                    </div>
                 </div>
-              </div>
-              <div class="col-lg-3 col-sm-6 col-12">
-                <div class="form-group">
-                  <input type="text" name="bienthe[0][soluong]" placeholder="Số lượng" />
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <div class="form-group">
+                        <input type="text" name="bienthe[0][soluong]" placeholder="Số lượng (*vd: 10)" />
+                    </div>
                 </div>
-              </div>
+                <div class="col-lg-3 col-sm-6 col-12">
+                    <button type="button" class="btn btn-outline-danger remove-btn" title="Xóa">X</button>
+                </div>
             </div>
 
-          </div>
-
-          <div class="col-lg-3 col-sm-6 col-12">
-            <div class="form-group">
-              <label>Áp dụng voucher</label>
-              <select class="select">
-                <option>không có</option>
-                <option>10%</option>
-                <option>20%</option>
-              </select>
-            </div>
+            <button class="btn btn-primary mb-4" type="button" id="add-bienthe">+ Thêm biến thể</button>
           </div>
 
           <div class="col-lg-12">
@@ -129,6 +127,7 @@
           <div class="col-lg-12">
             <a href="" class="btn btn-submit me-2">Tạo sản phẩm</a>
           </div>
+          </form>
         </div>
       </div>
     </div>
@@ -137,8 +136,75 @@
 @endsection
 
 @section('scripts')
-<script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
 <script>
-  CKEDITOR.replace('mo_ta');
+  ClassicEditor
+        .create(document.querySelector('#mo_ta'), {
+            toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote']
+        })
+        .catch(error => {
+            console.error(error);
+        });
 </script>
+
+<script>
+    let index = 1;
+
+    function updateRemoveButtons() {
+        const items = document.querySelectorAll('#bienthe-wap .bienthe-item .remove-btn');
+        if (items.length === 1) {
+            items[0].style.display = "none"; // ẩn nút xóa nếu chỉ có 1 biến thể
+        } else {
+            items.forEach(btn => btn.style.display = "inline-block"); // hiện lại nếu >1
+        }
+    }
+
+    // Thêm biến thể
+    document.getElementById('add-bienthe').addEventListener('click', function() {
+        let wrapper = document.getElementById('bienthe-wap');
+        let btnAdd = document.getElementById('add-bienthe');
+        let html = `
+        <div class="bienthe-item row mb-2">
+            <div class="col-lg-3 col-sm-6 col-12">
+                <div class="form-group">
+                    <select class="form-select" name="bienthe[${index}][id_tenloai]">
+                        <option>--Loại biến thể--</option>
+                        <option value="hop">Hộp</option>
+                        <option value="lo">Lọ</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6 col-12">
+                <div class="form-group">
+                    <input type="text" name="bienthe[${index}][gia]" placeholder="Giá" />
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6 col-12">
+                <div class="form-group">
+                    <input type="text" name="bienthe[${index}][soluong]" placeholder="Số lượng" />
+                </div>
+            </div>
+            <div class="col-lg-3 col-sm-6 col-12">
+                <button type="button" class="btn btn-outline-danger remove-btn" title="Xóa">X</button>
+            </div>
+        </div>`;
+        // chèn biến thể MỚI ngay TRƯỚC nút "Thêm biến thể"
+        btnAdd.insertAdjacentHTML('beforebegin', html);
+        index++;
+        updateRemoveButtons();
+    });
+
+    // Xóa biến thể
+    document.getElementById('bienthe-wap').addEventListener('click', function(e) {
+        if (e.target.classList.contains('remove-btn')) {
+            e.target.closest('.bienthe-item').remove();
+            updateRemoveButtons();
+        }
+    });
+
+    // chạy lần đầu để ẩn nút xóa (nếu chỉ có 1 biến thể ban đầu)
+    updateRemoveButtons();
+</script>
+
+
 @endsection

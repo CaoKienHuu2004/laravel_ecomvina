@@ -483,6 +483,7 @@
          @yield('content')
          
     </div>
+    @yield('scripts')
 
     <script src="{{asset('js/jquery-3.6.0.min.js')}}"></script>
 
@@ -505,6 +506,6 @@
     <script src="{{asset('plugins/sweetalert/sweetalerts.min.js')}}"></script>
     
     <script src="{{asset('js/script.js')}}"></script>
-    @yield('scripts')
+    
   </body>
 </html>

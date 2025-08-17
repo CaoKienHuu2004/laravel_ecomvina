@@ -67,16 +67,23 @@ class SanphamController extends Controller
      */
     public function store(Request $request)
     {
+        // Validate dữ liệu
         $validated = $request->validate([
-        'ten' => 'required|string|max:255',
-        'thuonghieu_id' => 'required|exists:thuonghieu,id',
-        'danhmuc_ids.*' => 'exists:danhmuc,id',
-        'anh.*' => 'image|mimes:jpg,jpeg,png|max:2048',
-        'bienthe' => 'required|array|min:1',
-        'bienthe.*.id_tenloai' => 'required|exists:loaibienthe,id',
-        'bienthe.*.gia' => 'required|numeric|min:0',
-        'bienthe.*.soluong' => 'required|integer|min:0',
-    ]);
+            'tensp' => 'required|string|max:255',
+            'mo_ta' => 'nullable|string',
+            'bienthe.*.id_tenloai' => 'required|string',
+            'bienthe.*.gia' => 'required|numeric|min:0',
+            'bienthe.*.soluong' => 'required|integer|min:1',
+        ], [
+            'tensp.required' => 'Tên sản phẩm không được bỏ trống',
+            'bienthe.*.id_tenloai.required' => 'Loại biến thể không được bỏ trống',
+            'bienthe.*.gia.required' => 'Giá biến thể bắt buộc nhập',
+            'bienthe.*.soluong.required' => 'Số lượng biến thể bắt buộc nhập',
+        ]);
+
+        // Sau khi validate ok thì xử lý lưu
+        // Ví dụ tạm thời chỉ in ra cho bạn thấy
+        // dd($validated);
 
     // Tạo sản phẩm
     $sp = Sanpham::create([
