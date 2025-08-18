@@ -20,7 +20,9 @@ Route::get('/', function () {
 Route::get('/trang-chu', function () {
     return view('trangchu');
 });
-Route::get('/danh-sach-san-pham', [SanphamController::class, 'index']);
-Route::get('/tao-san-pham', function () {
-    return view('taosanpham');
+
+Route::prefix('sanpham')->group(function () {
+    Route::get('/', [SanphamController::class, 'index'])->name('danh-sach-san-pham');
+    Route::get('/tao-san-pham', [SanphamController::class, 'create'])->name('tao-san-pham');
+    Route::post('/store', [SanphamController::class, 'store'])->name('luu-san-pham');
 });

@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class danhmuc extends Model
+class Danhmuc extends Model
 {
     use HasFactory;
     protected $table = 'danh_muc';

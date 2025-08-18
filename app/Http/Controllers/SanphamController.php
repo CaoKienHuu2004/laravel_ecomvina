@@ -9,6 +9,7 @@ use App\Models\Danhmuc;
 use App\Models\Bienthesp;
 use App\Models\Loaibienthe;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SanphamController extends Controller
 {
@@ -67,60 +68,65 @@ class SanphamController extends Controller
      */
     public function store(Request $request)
     {
-        // Validate dữ liệu
-        $validated = $request->validate([
-            'tensp' => 'required|string|max:255',
-            'mo_ta' => 'nullable|string',
-            'bienthe.*.id_tenloai' => 'required|string',
-            'bienthe.*.gia' => 'required|numeric|min:0',
-            'bienthe.*.soluong' => 'required|integer|min:1',
-        ], [
-            'tensp.required' => 'Tên sản phẩm không được bỏ trống',
-            'bienthe.*.id_tenloai.required' => 'Loại biến thể không được bỏ trống',
-            'bienthe.*.gia.required' => 'Giá biến thể bắt buộc nhập',
-            'bienthe.*.soluong.required' => 'Số lượng biến thể bắt buộc nhập',
+        $request->validate([
+            'tensp'        => 'required|string|max:255',
+            'id_danhmuc'   => 'required|integer',
+            'id_thuonghieu'=> 'required|integer',
+            'xuatxu'   => 'nullable|string|max:255',
+            'sanxuat'  => 'nullable|string|max:255',
+            'trangthai'    => 'required|boolean',
+            'mo_ta'        => 'nullable|string',
+            'anhsanpham.*'=> 'image|mimes:jpg,jpeg,png|max:2048',
+            'bienthe.*.gia'=> 'nullable|numeric|min:0',
+            'bienthe.*.soluong' => 'nullable|integer|min:0',
         ]);
 
-        // Sau khi validate ok thì xử lý lưu
-        // Ví dụ tạm thời chỉ in ra cho bạn thấy
-        // dd($validated);
-
-    // Tạo sản phẩm
-    $sp = Sanpham::create([
-        'ten' => $validated['ten'],
-        'thuonghieu_id' => $validated['thuonghieu_id'],
-        'trangthai' => 1,
-    ]);
-
-    // Gắn danh mục
-    if (!empty($validated['danhmuc_ids'])) {
-        $sp->danhmuc()->attach($validated['danhmuc_ids']);
-    }
-
-    // Upload ảnh
-    if ($request->hasFile('anh')) {
-        foreach ($request->file('anh') as $file) {
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('img/product'), $filename);
-
-            $sp->anhSanPham()->create([
-                'media' => $filename,
+        DB::beginTransaction();
+        try {
+            // Tạo sản phẩm
+            $sanpham = Sanpham::create([
+                'tensp'        => $request->tensp,
+                'id_danhmuc'   => $request->id_danhmuc,
+                'id_thuonghieu'=> $request->id_thuonghieu,
+                'xuatxu'   => $request->noi_xuatxu,
+                'sanxuat'  => $request->noi_sanxuat,
+                'mediaurl'      => $request->mediaurl ?? 0,
+                'trangthai'    => $request->trangthai,
+                'mota'         => $request->mo_ta,
             ]);
-        }
-    }
 
-    // Thêm biến thể
-    foreach ($validated['bienthe'] as $bt) {
-        $sp->bienThe()->create([
-            'id_tenloai' => $bt['id_tenloai'],
-            'gia' => $bt['gia'],
-            'soluong' => $bt['soluong'],
-            'trangthai' => 1,
-            'uutien' => 0,
-        ]);
-        }
+            // Upload ảnh sản phẩm
+            if($request->hasFile('anh_sanpham')){
+                foreach($request->file('anh_sanpham') as $file){
+                    $path = $file->store('uploads/sanpham', 'public');
+                    anhSanPham::create([
+                        'id_sanpham' => $sanpham->id,
+                        'duong_dan'  => $path,
+                    ]);
+                }
+            }
 
-    return redirect()->route('sanpham')->with('success', 'Thêm sản phẩm thành công!');
+            // Lưu biến thể
+            if($request->bienthe){
+                foreach($request->bienthe as $bt){
+                    if(!empty($bt['id_tenloai']) && !empty($bt['gia'])){
+                        Bienthesp::create([
+                            'id_sanpham' => $sanpham->id,
+                            'id_tenloai' => $bt['id_tenloai'],
+                            'gia'        => $bt['gia'],
+                            'soluong'    => $bt['soluong'] ?? 0,
+                            'trangthai'  => 1,
+                        ]);
+                    }
+                }
+            }
+
+            DB::commit();
+            return redirect()->route('sanpham.index')->with('success','Thêm sản phẩm thành công!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['msg' => 'Có lỗi: '.$e->getMessage()]);
+        }
     }
 
     /**
