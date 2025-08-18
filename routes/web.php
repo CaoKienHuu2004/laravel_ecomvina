@@ -22,7 +22,7 @@ Route::get('/trang-chu', function () {
 });
 
 Route::prefix('sanpham')->group(function () {
-    Route::get('/', [SanphamController::class, 'index'])->name('danh-sach-san-pham');
+    Route::get('/danh-sach', [SanphamController::class, 'index'])->name('danh-sach');
     Route::get('/tao-san-pham', [SanphamController::class, 'create'])->name('tao-san-pham');
     Route::post('/store', [SanphamController::class, 'store'])->name('luu-san-pham');
 });

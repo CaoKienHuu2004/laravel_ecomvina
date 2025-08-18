@@ -202,8 +202,8 @@
                   <span class="menu-arrow"></span
                 ></a>
                 <ul>
-                  <li><a href="{{ url('/danh-sach-san-pham') }}">Danh sách sản phẩm</a></li>
-                  <li><a href="{{ url('/tao-san-pham') }}">Thêm sản phẩm</a></li>
+                  <li><a href="{{ route('danh-sach') }}">Danh sách sản phẩm</a></li>
+                  <li><a href="{{ route('tao-san-pham') }}">Thêm sản phẩm</a></li>
                   <li><a href="categorylist.html">Danh mục sản phẩm</a></li>
                   <li><a href="brandlist.html">Thương hiệu sản phẩm</a></li>
                   <li><a href="barcode.html">In Barcode</a></li>

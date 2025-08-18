@@ -13,7 +13,7 @@
               </h6>
             </div>
             <div class="page-btn">
-              <a href="{{url('/tao-san-pham')}}" class="btn btn-added"
+              <a href="{{route('tao-san-pham')}}" class="btn btn-added"
                 ><img
                   src="{{asset('img/icons/plus.svg')}}"
                   alt="img"

@@ -14,13 +14,13 @@
 
     <div class="card">
       <div class="card-body">
-        <form class="row" action="" method="POST" enctype="multipart/form-data">
+        <form class="row" action="{{ route('luu-san-pham') }}" method="POST" enctype="multipart/form-data">
           @csrf
 
           <div class="col-lg-4 col-sm-6 col-12">
             <div class="form-group">
               <label>Tên sản phẩm*</label>
-              <input type="text" name="tensp" id="tensp" value="{{old('tensp')}}" placeholder="tên sản phẩm..."/>
+              <input class="form-control" type="text" name="tensp" id="tensp" value="{{old('tensp')}}" placeholder="tên sản phẩm..."/>
               @error('tensp')
                   <span class="text-danger">{{ $message }}</span>
               @enderror
@@ -30,7 +30,7 @@
           <div class="col-lg-4 col-sm-6 col-12">
             <div class="form-group">
               <label>Danh mục*</label>
-              <select class="select" name="id_danhmuc">
+              <select class="form-select" name="id_danhmuc">
                 <option class="text-secondary">--Chọn danh mục--</option>
                 @foreach ($danhmucs as $dm)
                     <option value="{{ $dm->id }}">{{ $dm->ten }}</option>
@@ -45,8 +45,8 @@
           <div class="col-lg-4 col-sm-6 col-12">
             <div class="form-group">
               <label>Thương hiệu*</label>
-              <select class="select" name="id_thuonghieu">
-                <option class="text-secondary" selected="selected">--Chọn thương hiệu--</option>
+              <select class="form-select" name="id_thuonghieu">
+                <option class="text-secondary">--Chọn thương hiệu--</option>
                 @foreach ($thuonghieus as $th)
                     <option value="{{ $th->id }}">{{ $th->ten }}</option>
                 @endforeach
@@ -81,7 +81,7 @@
             <div class="form-group">
               <label>Video giới thiệu sản phẩm</label>
               <input type="text" name="mediaurl" placeholder="Url Youtube..."/>
-              @error('sanxuat')
+              @error('mediaurl')
                   <span class="text-danger">{{ $message }}</span> 
                 @enderror
             </div>
@@ -90,7 +90,7 @@
           <div class="col-lg-3 col-sm-6 col-12">
             <div class="form-group">
               <label>Trạng thái</label>
-              <select class="select" name="trangthai">
+              <select class="form-select" name="trangthai">
                 <option value="0" {{ old('trangthai')==0?'selected':'' }}>Còn hàng</option>
                 <option value="1" {{ old('trangthai')==1?'selected':'' }}>Hết hàng</option>
               </select>
@@ -115,8 +115,9 @@
                     <div class="form-group">
                         <select class="form-select" name="bienthe[0][id_tenloai]">
                             <option>--Loại biến thể--</option>
-                            <option value="hop">Hộp</option>
-                            <option value="lo">Lọ</option>
+                            @foreach($loaibienthes as $loai)
+                                <option value="{{ $loai->id }}">{{ $loai->ten }}</option>
+                            @endforeach
                         </select>
                         @error('bienthe.0.id_tenloai')
                           <span class="text-danger">{{ $message }}</span> 
@@ -160,7 +161,7 @@
                   <h4>Tải lên file ảnh tại đây.</h4>
                 </div>
                 <div id="preview-anh" class="mt-2 d-flex flex-wrap"></div>
-                @error('anhsanpham')
+                @error('anhsanpham.*')
                     <span class="text-danger">{{ $message }}</span>
                 @enderror
               </div>
@@ -192,46 +193,47 @@
 
 <script>
     let index = 1;
-
+    const loaibienthe = @json($loaibienthes); // dữ liệu từ DB
+    console.log(loaibienthe);
     function updateRemoveButtons() {
         const items = document.querySelectorAll('#bienthe-wap .bienthe-item .remove-btn');
-        if (items.length === 1) {
-            items[0].style.display = "none"; // ẩn nút xóa nếu chỉ có 1 biến thể
-        } else {
-            items.forEach(btn => btn.style.display = "inline-block"); // hiện lại nếu >1
-        }
+        items.forEach(btn => btn.style.display = items.length === 1 ? 'none' : 'inline-block');
     }
 
     // Thêm biến thể
     document.getElementById('add-bienthe').addEventListener('click', function() {
-        let wrapper = document.getElementById('bienthe-wap');
         let btnAdd = document.getElementById('add-bienthe');
+
+        // Tạo options từ DB
+        let options = '<option value="">--Loại biến thể--</option>';
+        loaibienthe.forEach(loai => {
+            options += `<option value="${loai.id}">${loai.ten}</option>`;
+        });
+
         let html = `
         <div class="bienthe-item row mb-2">
             <div class="col-lg-3 col-sm-6 col-12">
                 <div class="form-group">
                     <select class="form-select" name="bienthe[${index}][id_tenloai]">
-                        <option>--Loại biến thể--</option>
-                        <option value="hop">Hộp</option>
-                        <option value="lo">Lọ</option>
+                        ${options}
                     </select>
                 </div>
             </div>
             <div class="col-lg-3 col-sm-6 col-12">
                 <div class="form-group">
-                    <input type="text" name="bienthe[${index}][gia]" placeholder="Giá" />
+                    <input type="text" name="bienthe[${index}][gia]" placeholder="Giá (*vd: 24000)" class="form-control"/>
                 </div>
             </div>
             <div class="col-lg-3 col-sm-6 col-12">
                 <div class="form-group">
-                    <input type="text" name="bienthe[${index}][soluong]" placeholder="Số lượng" />
+                    <input type="text" name="bienthe[${index}][soluong]" placeholder="Số lượng (*vd: 10)" class="form-control"/>
                 </div>
             </div>
             <div class="col-lg-3 col-sm-6 col-12">
-                <button type="button" class="btn btn-outline-danger remove-btn" title="Xóa">X</button>
+                <button type="button" class="btn btn-outline-danger remove-btn">X</button>
             </div>
         </div>`;
-        // chèn biến thể MỚI ngay TRƯỚC nút "Thêm biến thể"
+        
         btnAdd.insertAdjacentHTML('beforebegin', html);
         index++;
         updateRemoveButtons();
@@ -239,15 +241,16 @@
 
     // Xóa biến thể
     document.getElementById('bienthe-wap').addEventListener('click', function(e) {
-        if (e.target.classList.contains('remove-btn')) {
+        if(e.target.classList.contains('remove-btn')) {
             e.target.closest('.bienthe-item').remove();
             updateRemoveButtons();
         }
     });
 
-    // chạy lần đầu để ẩn nút xóa (nếu chỉ có 1 biến thể ban đầu)
+    // Chạy lần đầu để ẩn nút xóa nếu chỉ có 1 biến thể
     updateRemoveButtons();
 </script>
+
 
 <script>
 let selectedFiles = []; // mảng lưu file đã chọn
