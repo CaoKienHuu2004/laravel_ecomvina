@@ -28,12 +28,10 @@
               <div class="table-top">
                 <div class="search-set">
                   <div class="search-path">
-                    <a class="btn btn-filter" id="filter_search">
-                      <img src="{{asset('img/icons/filter.svg')}}" alt="img" />
-                      <span
-                        ><img src="{{asset('img/icons/closes.svg')}}" alt="img"
-                      /></span>
-                    </a>
+                    <!-- id="filter_search" -->
+                      
+                      
+                    
                   </div>
                   <div class="search-input">
                     <a class="btn btn-searchset"
@@ -71,10 +69,11 @@
                 </div>
               </div>
 
-              <div class="card mb-0" id="filter_inputs">
+              <div class="card mb-0"> <!-- id="filter_inputs" -->
                 <div class="card-body pb-0">
+                  <label for="" class="mb-2"><strong>Lọc danh sách sản phẩm</strong></label>
                   <div class="row">
-                    <form class="col-lg-12 col-sm-12" method="GET" action="{{ route('danh-sach') }}">
+                    <form id="filterForm" class="col-lg-12 col-sm-12" method="GET" action="{{ route('danh-sach') }}">
                       <div class="row">
                         <div class="col-lg col-sm-6 col-12">
                           <div class="form-group">
@@ -110,9 +109,10 @@
                             <input type="number" class="form-control" name="gia_max" value="{{ request('gia_max') }}" placeholder="giá lớn nhất">
                           </div>
                         </div>
-                        <div class="col-lg-1 col-sm-6 col-12">
-                          <div class="form-group">
-                            <button type="submit" class="btn btn-filters ms-auto">
+                        <div class="col-lg col-sm-6 col-12">
+                          <div class="form-group row">
+                            <a class="btn btn-outline-danger col-lg-3" href="{{ route('danh-sach') }}">X</a>
+                            <button type="submit" class="btn btn-filters ms-2 col-lg-3">
                               <img src="{{asset('img/icons/search-whites.svg')}}" alt="img" />
                             </button>
                           </div>
@@ -212,4 +212,16 @@
           </div>
         </div>
       </div>
+@endsection
+@section('scripts')
+  <script>
+  document.getElementById('filterForm').addEventListener('submit', function (e) {
+      // lấy tất cả input/select trong form
+      this.querySelectorAll('input, select').forEach(function(el) {
+          if (!el.value) {
+              el.removeAttribute('name'); // xoá name để nó không lên URL
+          }
+      });
+  });
+  </script>
 @endsection

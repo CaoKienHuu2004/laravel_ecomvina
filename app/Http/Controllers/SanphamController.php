@@ -23,7 +23,7 @@ class SanphamController extends Controller
 
         // Filter theo thương hiệu
         if ($request->filled('thuonghieu')) {
-            $query->where('id_thuonghieu', $request->brand);
+            $query->where('id_thuonghieu', $request->thuonghieu);
         }
 
         // Filter theo danh mục (many-to-many)
@@ -35,15 +35,15 @@ class SanphamController extends Controller
 
         // Filter giá (dựa trên bảng bienThe_sp)
         if ($request->filled('gia_min') && $request->filled('gia_max')) {
-            $query->whereHas('bienThes', function ($q) use ($request) {
+            $query->whereHas('bienThe', function ($q) use ($request) {
                 $q->whereBetween('gia', [$request->gia_min, $request->gia_max]);
             });
         } elseif ($request->filled('gia_min')) {
-            $query->whereHas('bienThes', function ($q) use ($request) {
+            $query->whereHas('bienThe', function ($q) use ($request) {
                 $q->where('gia', '>=', $request->gia_min);
             });
         } elseif ($request->filled('gia_max')) {
-            $query->whereHas('bienThes', function ($q) use ($request) {
+            $query->whereHas('bienThe', function ($q) use ($request) {
                 $q->where('gia', '<=', $request->gia_max);
             });
         }
