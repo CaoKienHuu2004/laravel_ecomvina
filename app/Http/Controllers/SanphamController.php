@@ -19,40 +19,49 @@ class SanphamController extends Controller
      */
     public function index(Request $request)
     {
-        // $query = Sanpham::with(['bienThe.loaiBienThe', 'anhSanPham']);
+        $query = SanPham::with('bienThe', 'danhmuc');
 
-        // // Filter theo tên
-        // if ($request->filled('ten')) {
-        //     $query->where('ten', 'like', '%' . $request->ten . '%');
-        // }
+        // Filter theo thương hiệu
+        if ($request->filled('thuonghieu')) {
+            $query->where('id_thuonghieu', $request->brand);
+        }
 
-        // // Filter theo giá (dùng bảng biến thể)
-        // if ($request->filled('gia_min') || $request->filled('gia_max')) {
-        //     $query->whereHas('bienThe', function ($q) use ($request) {
-        //         if ($request->gia_min) {
-        //             $q->where('gia', '>=', $request->gia_min);
-        //         }
-        //         if ($request->gia_max) {
-        //             $q->where('gia', '<=', $request->gia_max);
-        //         }
-        //     });
-        // }
+        // Filter theo danh mục (many-to-many)
+        if ($request->filled('danhmuc')) {
+            $query->whereHas('danhmuc', function ($q) use ($request) {
+                $q->where('id_danhmuc', $request->danhmuc);
+            });
+        }
 
-        // // Filter theo thương hiệu
-        // if ($request->filled('id_thuonghieu')) {
-        //     $query->where('id_thuonghieu', $request->id_thuonghieu);
-        // }
+        // Filter giá (dựa trên bảng bienThe_sp)
+        if ($request->filled('gia_min') && $request->filled('gia_max')) {
+            $query->whereHas('bienThes', function ($q) use ($request) {
+                $q->whereBetween('gia', [$request->gia_min, $request->gia_max]);
+            });
+        } elseif ($request->filled('gia_min')) {
+            $query->whereHas('bienThes', function ($q) use ($request) {
+                $q->where('gia', '>=', $request->gia_min);
+            });
+        } elseif ($request->filled('gia_max')) {
+            $query->whereHas('bienThes', function ($q) use ($request) {
+                $q->where('gia', '<=', $request->gia_max);
+            });
+        }
 
-        // // Filter theo trạng thái
-        // if ($request->filled('trangthai')) {
-        //     $query->where('trangthai', $request->trangthai);
-        // }
+        // Lấy kết quả
+        $sanphams = $query->get();
 
-        // Lấy toàn bộ sản phẩm kèm quan hệ
-        $sanpham = Sanpham::with(['bienThe.loaiBienThe', 'anhSanPham', 'danhmuc', 'thuonghieu'])->get();
+        // Lấy thêm list danh mục & thương hiệu để render filter
+        $thuonghieus = ThuongHieu::all();
+        $danhmucs = DanhMuc::all();
 
-        // Render view với dữ liệu
-        return view('sanpham', compact('sanpham'));
+        return view('sanpham', compact('sanphams', 'thuonghieus', 'danhmucs'));
+
+        // // Lấy toàn bộ sản phẩm kèm quan hệ
+        // $sanpham = Sanpham::with(['bienThe.loaiBienThe', 'anhSanPham', 'danhmuc', 'thuonghieu'])->get();
+
+        // // Render view với dữ liệu
+        // return view('sanpham', compact('sanpham'));
     }
 
     public function create()

@@ -9,7 +9,7 @@
             <div class="page-title">
               <h4>DANH SÁCH SẢN PHẨM</h4>
               <h6>
-                Quản lý {{ $sanpham->where('trangthai', 0)->count() }} sản phẩm của bạn
+                Quản lý {{ $sanphams->where('trangthai', 0)->count() }} sản phẩm của bạn
               </h6>
             </div>
             <div class="page-btn">
@@ -74,61 +74,51 @@
               <div class="card mb-0" id="filter_inputs">
                 <div class="card-body pb-0">
                   <div class="row">
-                    <div class="col-lg-12 col-sm-12">
+                    <form class="col-lg-12 col-sm-12" method="GET" action="{{ route('danh-sach') }}">
                       <div class="row">
                         <div class="col-lg col-sm-6 col-12">
                           <div class="form-group">
-                            <select class="select">
-                              <option>Choose Product</option>
-                              <option>Macbook pro</option>
-                              <option>Orange</option>
+                            <select class="select" name="danhmuc">
+                              <option value="">--Danh mục--</option>
+                              @foreach($danhmucs as $dm)
+                                  <option value="{{ $dm->id }}" {{ request('danhmuc') == $dm->id ? 'selected' : '' }}>
+                                      {{ $dm->ten }}
+                                  </option>
+                              @endforeach
                             </select>
                           </div>
                         </div>
                         <div class="col-lg col-sm-6 col-12">
                           <div class="form-group">
-                            <select class="select">
-                              <option>Choose Category</option>
-                              <option>Computers</option>
-                              <option>Fruits</option>
+                            <select class="select" name="thuonghieu">
+                              <option value="">--Thương hiệu--</option>
+                              @foreach($thuonghieus as $th)
+                                  <option value="{{ $th->id }}" {{ request('thuonghieu') == $th->id ? 'selected' : '' }}>
+                                      {{ $th->ten }}
+                                  </option>
+                              @endforeach
                             </select>
                           </div>
                         </div>
                         <div class="col-lg col-sm-6 col-12">
                           <div class="form-group">
-                            <select class="select">
-                              <option>Choose Sub Category</option>
-                              <option>Computer</option>
-                            </select>
+                            <input type="number" class="form-control" name="gia_min" value="{{ request('gia_min') }}" placeholder="giá nhỏ nhất">
                           </div>
                         </div>
                         <div class="col-lg col-sm-6 col-12">
                           <div class="form-group">
-                            <select class="select">
-                              <option>Brand</option>
-                              <option>N/D</option>
-                            </select>
-                          </div>
-                        </div>
-                        <div class="col-lg col-sm-6 col-12">
-                          <div class="form-group">
-                            <select class="select">
-                              <option>Price</option>
-                              <option>150.00</option>
-                            </select>
+                            <input type="number" class="form-control" name="gia_max" value="{{ request('gia_max') }}" placeholder="giá lớn nhất">
                           </div>
                         </div>
                         <div class="col-lg-1 col-sm-6 col-12">
                           <div class="form-group">
-                            <a class="btn btn-filters ms-auto"
-                              ><img
-                                src="{{asset('img/icons/search-whites.svg')}}"
-                                alt="img"
-                            /></a>
+                            <button type="submit" class="btn btn-filters ms-auto">
+                              <img src="{{asset('img/icons/search-whites.svg')}}" alt="img" />
+                            </button>
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </form>
                   </div>
                 </div>
               </div>
@@ -156,7 +146,7 @@
                   </thead>
                   <tbody>
 
-                    @foreach($sanpham as $sp)
+                    @foreach($sanphams as $sp)
                     <tr>
                       <!-- <td>
                         <label class="checkboxs">

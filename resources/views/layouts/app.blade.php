@@ -506,6 +506,8 @@
     <script src="{{asset('plugins/sweetalert/sweetalerts.min.js')}}"></script>
 
     <script src="{{asset('plugins/fileupload/fileupload.min.js')}}"></script>
+
+    <script src="{{ asset('plugins/summernote/summernote-bs4.min.js') }}"></script>
     
     <script src="{{asset('js/script.js')}}"></script>
     
