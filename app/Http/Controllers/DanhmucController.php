@@ -2,64 +2,47 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\danhmuc;
+use App\Models\Danhmuc;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\DanhmucExport;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class DanhmucController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $danhmuc = Danhmuc::all();
+        return view('danhmuc', compact('danhmuc'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('taodanhmuc');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        Danhmuc::create($request->only(['ten', 'trang_thai']));
+        return redirect()->route('danh-sach');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(danhmuc $danhmuc)
+    public function edit($id)
     {
-        //
+        $danhmuc = Danhmuc::findOrFail($id);
+        return view('danhmuc.edit', compact('danhmuc'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(danhmuc $danhmuc)
+    public function update(Request $request, $id)
     {
-        //
+        $danhmuc = Danhmuc::findOrFail($id);
+        $danhmuc->update($request->only(['ten', 'trang_thai']));
+        return redirect()->route('danhmuc.index');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, danhmuc $danhmuc)
+    public function destroy($id)
     {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(danhmuc $danhmuc)
-    {
-        //
+        Danhmuc::destroy($id);
+        return redirect()->route('danh-sach-danh-muc');
     }
 }
