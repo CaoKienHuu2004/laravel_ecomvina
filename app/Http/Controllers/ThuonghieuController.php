@@ -7,59 +7,49 @@ use Illuminate\Http\Request;
 
 class ThuonghieuController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        $thuonghieu = Thuonghieu::withCount('sanpham')->get();
+        return view('thuonghieu', compact('thuonghieu'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
+        return view('taothuonghieu');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        Thuonghieu::create($request->only(['ten', 'mota', 'trangthai']));
+        return redirect()->route('danh-sach-thuong-hieu')->with('success', 'Tạo thương hiệu thành công!');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Thuonghieu $thuonghieu)
+    public function edit($id)
     {
-        //
+        $thuonghieu = Thuonghieu::findOrFail($id);
+        return view('suathuonghieu', compact('thuonghieu'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Thuonghieu $thuonghieu)
+    public function update(Request $request, $id)
     {
-        //
+        $thuonghieu = Thuonghieu::findOrFail($id);
+        $thuonghieu->update($request->only(['ten', 'mota', 'trangthai']));
+        return redirect()->route('danh-sach-thuong-hieu')->with('success', 'Đã cập nhật thành công!');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Thuonghieu $thuonghieu)
+    public function destroy($id)
     {
-        //
-    }
+        $thuonghieu = Thuonghieu::findOrFail($id);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Thuonghieu $thuonghieu)
-    {
-        //
+        // Check nếu có sản phẩm thì không cho xóa
+        if ($thuonghieu->sanpham()->count() > 0) {
+            return redirect()->route('danh-sach-thuong-hieu')
+                ->with('error', 'Không thể xóa! thương hiệu này vẫn còn sản phẩm.');
+        }
+
+        $thuonghieu->delete();
+
+        return redirect()->route('danh-sach-thuong-hieu')
+            ->with('success', 'Xóa thương hiệu thành công!');
     }
 }

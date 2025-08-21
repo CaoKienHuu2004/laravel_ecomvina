@@ -19,7 +19,7 @@
 
           <div class="col-lg-4 col-sm-6 col-12">
             <div class="form-group">
-              <label>Tên sản phẩm*</label>
+              <label>Tên sản phẩm <span class="text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Bắt buộc">*</span></label>
               <input class="form-control" type="text" name="tensp" id="tensp" value="{{old('tensp')}}" placeholder="tên sản phẩm..."/>
               @error('tensp')
                   <span class="text-danger">{{ $message }}</span>
@@ -29,7 +29,7 @@
 
           <div class="col-lg-4 col-sm-6 col-12">
             <div class="form-group">
-              <label>Danh mục*</label>
+              <label>Danh mục <span class="text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Bắt buộc">*</span></label>
               <select class="form-select" name="id_danhmuc">
                 <option class="text-secondary">--Chọn danh mục--</option>
                 @foreach ($danhmucs as $dm)
@@ -44,7 +44,7 @@
 
           <div class="col-lg-4 col-sm-6 col-12">
             <div class="form-group">
-              <label>Thương hiệu*</label>
+              <label>Thương hiệu <span class="text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Bắt buộc">*</span></label>
               <select class="form-select" name="id_thuonghieu">
                 <option class="text-secondary">--Chọn thương hiệu--</option>
                 @foreach ($thuonghieus as $th)
@@ -59,7 +59,7 @@
 
           <div class="col-lg-3 col-sm-6 col-12">
             <div class="form-group">
-              <label>Nơi xuất xứ*</label>
+              <label>Nơi xuất xứ <span class="text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Bắt buộc">*</span></label>
               <input type="text" name="xuatxu" value="{{ old('xuatxu') }}" class="form-control" placeholder="xuất xứ ở..."/>
               @error('xuatxu')
                   <span class="text-danger">{{ $message }}</span> 
@@ -69,7 +69,7 @@
 
           <div class="col-lg-3 col-sm-6 col-12">
             <div class="form-group">
-              <label>Nơi sản xuất*</label>
+              <label>Nơi sản xuất <span class="text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Bắt buộc">*</span></label>
               <input type="text" name="sanxuat" value="{{ old('sanxuat') }}" class="form-control" placeholder="sản xuất tại..."/>
               @error('sanxuat')
                   <span class="text-danger">{{ $message }}</span> 
@@ -99,7 +99,7 @@
 
           <div class="col-lg-12">
             <div class="form-group">
-              <label>Mô tả sản phẩm*</label>
+              <label>Mô tả sản phẩm <span class="text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Bắt buộc">*</span></label>
               <textarea name="mo_ta" id="mo_ta" class="form-control">{{ old('mo_ta') }}</textarea>
               @error('mo_ta')
                   <span class="text-danger">{{ $message }}</span> 
@@ -108,7 +108,7 @@
           </div>
 
           <div id="bienthe-wap">
-            <label>Biến thể sản phẩm*</label> 
+            <label>Biến thể sản phẩm <span class="text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Bắt buộc">*</span></label> 
 
             <div class="bienthe-item row mb-2">
                 <div class="col-lg-3 col-sm-6 col-12">
@@ -153,7 +153,7 @@
 
           <div class="col-lg-12">
             <div class="form-group">
-              <label>Ảnh sản phẩm*</label>
+              <label>Ảnh sản phẩm<span class="text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Bắt buộc"> *</span></label>
               <div class="image-upload">
                 <input type="file" name="anhsanpham[]" multiple class="form-control" id="anhsanpham"/>
                 <div class="image-uploads">
@@ -180,15 +180,14 @@
 @endsection
 
 @section('scripts')
-<script src="https://cdn.ckeditor.com/ckeditor5/41.4.2/classic/ckeditor.js"></script>
 <script>
-  ClassicEditor
-        .create(document.querySelector('#mo_ta'), {
-            toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote']
-        })
-        .catch(error => {
-            console.error(error);
-        });
+  /**
+ * This configuration was generated using the CKEditor 5 Builder. You can modify it anytime using this link:
+ * https://ckeditor.com/ckeditor-5/builder/?redirect=portal#installation/NoNgNARATAdA7DKFIhATgIwBY0gKwZxwAccaZW6xIWeeUAzFgAzEFZT4jIQBuAlsmZhgGMMOFjJAXUhYAZgEM089BGlA
+ */
+
+ClassicEditor.create(document.querySelector('#mo_ta'), editorConfig);
+
 </script>
 
 <script>

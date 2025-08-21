@@ -11,6 +11,7 @@ use App\Models\Bienthesp;
 use App\Models\Loaibienthe;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class SanphamController extends Controller
 {
@@ -49,7 +50,7 @@ class SanphamController extends Controller
         }
 
         // Lấy kết quả
-        $sanphams = $query->get();
+        $sanphams = $query->orderBy('updated_at', 'desc')->get();
 
         // Lấy thêm list danh mục & thương hiệu để render filter
         $thuonghieus = ThuongHieu::all();
@@ -141,22 +142,44 @@ class SanphamController extends Controller
 
             $sanpham->danhmuc()->attach($request->id_danhmuc);
 
-            // Upload ảnh sản phẩm
             if ($request->hasFile('anhsanpham')) {
-                foreach ($request->file('anhsanpham') as $file) {
-                    // Tạo tên file mới để tránh trùng
-                    $fileName = time() . '_' . $file->getClientOriginalName();
+                $i = 1;
+                // Chuẩn hóa tên sản phẩm thành slug để đặt tên file
+                $slugName = Str::slug($request->tensp);
 
-                    // Di chuyển file vào thư mục public/img/product
-                    $file->move(public_path('img/product'), $fileName);
+                foreach ($request->file('anhsanpham') as $file) {
+                    $extension = $file->getClientOriginalExtension();
+                    $filename = $slugName . '-' . $i . '.' . $extension;
+
+                    // Lưu vào thư mục public/storage/images
+                    $file->move(public_path('img/product'), $filename);
 
                     // Lưu thông tin vào DB
                     Anhsp::create([
                         'id_sanpham' => $sanpham->id,
-                        'media'      => $fileName,
+                        'media'      => $filename,
                     ]);
+
+                    $i++;
                 }
             }
+
+            // // Upload ảnh sản phẩm
+            // if ($request->hasFile('anhsanpham')) {
+            //     foreach ($request->file('anhsanpham') as $file) {
+            //         // Tạo tên file mới để tránh trùng
+            //         $fileName = time() . '_' . $file->getClientOriginalName();
+
+            //         // Di chuyển file vào thư mục public/img/product
+            //         $file->move(public_path('img/product'), $fileName);
+
+            //         // Lưu thông tin vào DB
+            //         Anhsp::create([
+            //             'id_sanpham' => $sanpham->id,
+            //             'media'      => $fileName,
+            //         ]);
+            //     }
+            // }
 
 
             // Lưu biến thể

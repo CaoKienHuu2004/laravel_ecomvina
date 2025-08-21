@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SanphamController;
 use App\Http\Controllers\DanhmucController;
+use App\Http\Controllers\ThuonghieuController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,21 +32,31 @@ Route::prefix('san-pham')->group(function () {
 Route::prefix('danh-muc')->group(function () {
     // Danh sách danh mục
     Route::get('/danh-sach', [DanhmucController::class, 'index'])->name('danh-sach-danh-muc');
-    // Export PDF
-    Route::get('/xuat-pdf', [DanhmucController::class, 'exportPdf'])->name('xuat-danh-muc-pdf');
-    // Export Excel
-    Route::get('/xuat-excel', [DanhmucController::class, 'exportExcel'])->name('xuat-danh-muc-excel');
-    // Print
-    Route::get('/in', [DanhmucController::class, 'print'])->name('in-danh-muc');
 
     // Form thêm mới
-    Route::get('/create', [DanhmucController::class, 'create'])->name('tao-danh-muc');
-    Route::post('/store', [DanhmucController::class, 'store'])->name('danhmuc.store');
+    Route::get('/tao-danh-muc', [DanhmucController::class, 'create'])->name('tao-danh-muc');
+    Route::post('/luu', [DanhmucController::class, 'store'])->name('luu-danh-muc');
 
     // Form sửa
-    Route::get('/{id}/edit', [DanhmucController::class, 'edit'])->name('danhmuc.edit');
-    Route::post('/{id}/update', [DanhmucController::class, 'update'])->name('danhmuc.update');
+    Route::get('/{id}/chinh-sua', [DanhmucController::class, 'edit'])->name('chinh-sua-danh-muc');
+    Route::post('/{id}/cap-nhat', [DanhmucController::class, 'update'])->name('cap-nhat-danh-muc');
 
     // Xóa
-    Route::get('/{id}/delete', [DanhmucController::class, 'destroy'])->name('danhmuc.destroy');
+    Route::delete('/{id}/xoa', [DanhmucController::class, 'destroy'])->name('xoa-danh-muc');
+});
+
+Route::prefix('thuong-hieu')->group(function () {
+    // Danh sách danh mục
+    Route::get('/danh-sach', [ThuonghieuController::class, 'index'])->name('danh-sach-thuong-hieu');
+
+    // Form thêm mới
+    Route::get('/tao-thuong-hieu', [ThuonghieuController::class, 'create'])->name('tao-thuong-hieu');
+    Route::post('/luu', [ThuonghieuController::class, 'store'])->name('luu-thuong-hieu');
+
+    // Form sửa
+    Route::get('/{id}/chinh-sua', [ThuonghieuController::class, 'edit'])->name('chinh-sua-thuong-hieu');
+    Route::post('/{id}/cap-nhat', [ThuonghieuController::class, 'update'])->name('cap-nhat-thuong-hieu');
+
+    // Xóa
+    Route::delete('/{id}/xoa', [ThuonghieuController::class, 'destroy'])->name('xoa-thuong-hieu');
 });

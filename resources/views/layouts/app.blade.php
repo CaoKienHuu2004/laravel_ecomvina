@@ -27,6 +27,10 @@
 
     <link rel="stylesheet" href="{{asset('css/dataTables.bootstrap4.min.css')}}" />
 
+    <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"> -->
+
+    <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/46.0.2/ckeditor5.css" crossorigin>
+
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
 
     <link rel="stylesheet" href="{{asset('plugins/select2/css/select2.min.css')}}" />
@@ -40,9 +44,9 @@
     <link rel="stylesheet" href="{{asset('css/style.css')}}" />
   </head>
   <body>
-    <div id="global-loader">
+    <!-- <div id="global-loader">
       <div class="whirly-loader"></div>
-    </div>
+    </div> -->
 
     <div class="main-wrapper">
       <div class="header">
@@ -205,10 +209,9 @@
                 ></a>
                 <ul>
                   <li><a href="{{ route('danh-sach') }}">Danh sách sản phẩm</a></li>
-                  <li><a href="{{ route('tao-san-pham') }}">Thêm sản phẩm</a></li>
                   <li><a href="{{ route('danh-sach-danh-muc') }}">Danh mục sản phẩm</a></li>
-                  <li><a href="brandlist.html">Thương hiệu sản phẩm</a></li>
-                  <li><a href="barcode.html">In Barcode</a></li>
+                  <li><a href="{{ route('danh-sach-thuong-hieu') }}">Thương hiệu sản phẩm</a></li>
+                  <li><a href="barcode.html">Biến thể sản phẩm</a></li>
                 </ul>
               </li>
               <li class="{{ Request::is('/don-hang') ? 'active' : 'submenu' }}">
@@ -485,8 +488,8 @@
          @yield('content')
          
     </div>
-    @yield('scripts')
-
+    
+    
     <script src="{{asset('js/jquery-3.6.0.min.js')}}"></script>
 
     <script src="{{asset('js/feather.min.js')}}"></script>
@@ -516,8 +519,105 @@
     <script src="{{asset('plugins/fileupload/fileupload.min.js')}}"></script>
 
     <script src="{{ asset('plugins/summernote/summernote-bs4.min.js') }}"></script>
+
+    <script src="https://cdn.ckeditor.com/ckeditor5/46.0.2/ckeditor5.umd.js" crossorigin></script>
+		<script src="https://cdn.ckeditor.com/ckeditor5/46.0.2/translations/vi.umd.js" crossorigin></script>
     
     <script src="{{asset('js/script.js')}}"></script>
-    
+    <script>
+      const {
+	ClassicEditor,
+	Autosave,
+	Bold,
+	Code,
+	Essentials,
+	FontBackgroundColor,
+	FontColor,
+	FontFamily,
+	FontSize,
+	Highlight,
+	Italic,
+	Paragraph,
+	RemoveFormat,
+	Strikethrough,
+	Subscript,
+	Superscript,
+	Table,
+	TableCaption,
+	TableCellProperties,
+	TableColumnResize,
+	TableProperties,
+	TableToolbar,
+	Underline
+} = window.CKEDITOR;
+
+const LICENSE_KEY =
+	'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3NTcwMzAzOTksImp0aSI6Ijk1NjE3Y2JjLTY4NmMtNGEwYy05MTM0LTlmMzAzZTJkNzRhZiIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiLCJzaCJdLCJ3aGl0ZUxhYmVsIjp0cnVlLCJsaWNlbnNlVHlwZSI6InRyaWFsIiwiZmVhdHVyZXMiOlsiKiJdLCJ2YyI6ImM4YTIwNWI5In0.r0v27tGY3hB_JrMUxfglAMXyk_loUVxkD2hdszAEIGy092ru-RKEHcYZVj6eqMmB_-_aXcWydns8drQgMtuLvQ';
+
+const editorConfig = {
+	toolbar: {
+		items: [
+			'undo',
+			'redo',
+			'|',
+			'fontSize',
+			'fontFamily',
+			'fontColor',
+			'fontBackgroundColor',
+			'|',
+			'bold',
+			'italic',
+			'underline',
+			'strikethrough',
+			'subscript',
+			'superscript',
+			'code',
+			'removeFormat',
+			'|',
+			'insertTable',
+			'highlight'
+		],
+		shouldNotGroupWhenFull: false
+	},
+	plugins: [
+		Autosave,
+		Bold,
+		Code,
+		Essentials,
+		FontBackgroundColor,
+		FontColor,
+		FontFamily,
+		FontSize,
+		Highlight,
+		Italic,
+		Paragraph,
+		RemoveFormat,
+		Strikethrough,
+		Subscript,
+		Superscript,
+		Table,
+		TableCaption,
+		TableCellProperties,
+		TableColumnResize,
+		TableProperties,
+		TableToolbar,
+		Underline
+	],
+	fontFamily: {
+		supportAllValues: true
+	},
+	fontSize: {
+		options: [10, 12, 14, 'default', 18, 20, 22],
+		supportAllValues: true
+	},
+	language: 'vi',
+	licenseKey: LICENSE_KEY,
+	placeholder: 'Type or paste your content here!',
+	table: {
+		contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']
+	}
+};
+    </script>
+    @yield('scripts')
   </body>
 </html>

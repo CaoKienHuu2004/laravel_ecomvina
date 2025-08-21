@@ -1,21 +1,21 @@
 @extends('layouts.app')
 
-@section('title', 'Danh sách danh mục | Quản trị hệ thống Siêu Thị Vina')
+@section('title', 'Danh sách thương hiệu | Quản trị hệ thống Siêu Thị Vina')
 
 @section('content')
 <div class="page-wrapper">
     <div class="content">
         <div class="page-header">
             <div class="page-title">
-                <h4>Danh mục sản phẩm</h4>
-                <h6>Theo dõi {{ $danhmuc->where('trangthai', 0)->count() }} danh mục của sản phẩm</h6>
+                <h4>Thương hiệu sản phẩm</h4>
+                <h6>Theo dõi {{ $thuonghieu->count() }} thương hiệu của sản phẩm</h6>
             </div>
             <div class="page-btn">
-                <a href="{{ route('tao-danh-muc') }}" class="btn btn-added">
+                <a href="{{ route('tao-thuong-hieu') }}" class="btn btn-added">
                     <img
                         src="{{asset('')}}img/icons/plus.svg"
                         class="me-1"
-                        alt="img" />Thêm danh mục
+                        alt="img" />Thêm thương hiệu
                 </a>
             </div>
         </div>
@@ -74,23 +74,25 @@
                     <table class="table datanew">
                         <thead>
                             <tr>
-                                <th>Tên danh mục</th>
+                                <th>Tên thương hiệu</th>
+                                <th>Mô tả</th>
                                 <th>Số sản phẩm</th>
                                 <th>Cập nhật</th>
                                 <th>Hành động</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($danhmuc as $dm)
+                            @foreach ($thuonghieu as $th)
                             <tr>
-                                <td>{{ $dm->ten }}</td>
-                                <td data-bs-toggle="tooltip" data-bs-placement="top" title="danh mục này có {{ $dm->sanpham_count }} sản phẩm">{{ $dm->sanpham_count }}</td>
-                                <td>{{ $dm->updated_at->format('d/m/Y - H:i') }}</td>
+                                <td>{{ $th->ten }}</td>
+                                <td>{{ strip_tags($th->mota) }}</td>
+                                <td data-bs-toggle="tooltip" data-bs-placement="top" title="danh mục này có {{ $th->sanpham_count }} sản phẩm">{{ $th->sanpham_count }}</td>
+                                <td>{{ $th->updated_at->format('d/m/Y - H:i') }}</td>
                                 <td>
-                                    <a class="me-3 btn" href="{{ route('chinh-sua-danh-muc',$dm->id) }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Sửa">
+                                    <a class="me-3 btn" href="{{ route('chinh-sua-thuong-hieu',$th->id) }}" data-bs-toggle="tooltip" data-bs-placement="top" title="Sửa">
                                         <img src="{{asset('')}}img/icons/edit.svg" alt="img" />
                                     </a>
-                                    <form action="{{ route('xoa-danh-muc', $dm->id) }}" method="POST" class="d-inline"
+                                    <form action="{{ route('xoa-thuong-hieu', $th->id) }}" method="POST" class="d-inline"
                                         onsubmit="return confirm('Bạn chắc chắn muốn xóa danh mục này?')">
                                         @csrf
                                         @method('DELETE')
