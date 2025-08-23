@@ -20,7 +20,7 @@
           <div class="col-lg-4 col-sm-6 col-12">
             <div class="form-group">
               <label>Tên sản phẩm <span class="text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Bắt buộc">*</span></label>
-              <input class="form-control" type="text" name="tensp" id="tensp" value="{{old('tensp')}}" placeholder="tên sản phẩm..."/>
+              <input class="form-control" type="text" name="tensp" id="tensp" value="{{ old('tensp') }}" placeholder="tên sản phẩm..."/>
               @error('tensp')
                   <span class="text-danger">{{ $message }}</span>
               @enderror

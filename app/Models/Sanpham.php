@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class Sanpham extends Model
 {
     protected $table = 'san_pham';
+    public $timestamps = true;
     protected $fillable = ['id',
         'ten', 'mota', 'xuatxu', 'sanxuat', 'baohanh', 
         'mediaurl', 'trangthai', 'luotxem', 'id_thuonghieu',

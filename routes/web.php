@@ -25,13 +25,17 @@ Route::get('/trang-chu', function () {
 
 Route::prefix('san-pham')->group(function () {
     Route::get('/danh-sach', [SanphamController::class, 'index'])->name('danh-sach');
+    Route::get('/', [SanphamController::class, 'index']);
     Route::get('/tao-san-pham', [SanphamController::class, 'create'])->name('tao-san-pham');
     Route::post('/store', [SanphamController::class, 'store'])->name('luu-san-pham');
+    Route::get('/{id}/sua', [SanphamController::class, 'edit'])->name('chinh-sua-san-pham');
+    Route::post('/{id}/capnhat', [SanphamController::class, 'update'])->name('cap-nhat-san-pham');
 });
 
 Route::prefix('danh-muc')->group(function () {
     // Danh sách danh mục
     Route::get('/danh-sach', [DanhmucController::class, 'index'])->name('danh-sach-danh-muc');
+    Route::get('/', [DanhmucController::class, 'index']);
 
     // Form thêm mới
     Route::get('/tao-danh-muc', [DanhmucController::class, 'create'])->name('tao-danh-muc');

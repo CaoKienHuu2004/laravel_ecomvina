@@ -12,6 +12,7 @@ use App\Models\Loaibienthe;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class SanphamController extends Controller
 {
@@ -163,25 +164,6 @@ class SanphamController extends Controller
                     $i++;
                 }
             }
-
-            // // Upload ảnh sản phẩm
-            // if ($request->hasFile('anhsanpham')) {
-            //     foreach ($request->file('anhsanpham') as $file) {
-            //         // Tạo tên file mới để tránh trùng
-            //         $fileName = time() . '_' . $file->getClientOriginalName();
-
-            //         // Di chuyển file vào thư mục public/img/product
-            //         $file->move(public_path('img/product'), $fileName);
-
-            //         // Lưu thông tin vào DB
-            //         Anhsp::create([
-            //             'id_sanpham' => $sanpham->id,
-            //             'media'      => $fileName,
-            //         ]);
-            //     }
-            // }
-
-
             // Lưu biến thể
             if ($request->bienthe) {
                 foreach ($request->bienthe as $bt) {
@@ -205,22 +187,102 @@ class SanphamController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function edit(Request $request, $id)
     {
-        //
+        $sanpham = Sanpham::with(['bienthe', 'anhsanpham', 'danhmuc'])->findOrFail($id);
+        $danhmucs = DanhMuc::all();
+        $thuonghieus = ThuongHieu::all();
+        $loaibienthes = LoaiBienThe::all();
+
+        return view('suasanpham', compact('sanpham', 'danhmucs', 'thuonghieus', 'loaibienthes'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
-    }
+        $sanpham = Sanpham::with(['bienthe', 'anhsanpham'])->findOrFail($id);
 
+        // Update thông tin sản phẩm
+        $sanpham->ten = $request->ten;
+        $sanpham->id_thuonghieu = $request->id_thuonghieu;
+        $sanpham->xuatxu = $request->xuatxu;
+        $sanpham->sanxuat = $request->sanxuat;
+        $sanpham->mediaurl = $request->mediaurl;
+        $sanpham->trangthai = $request->trangthai;
+        $sanpham->mota = $request->mo_ta;
+        $sanpham->save();
+
+        // Nếu sản phẩm có nhiều danh mục (many-to-many)
+        if ($request->id_danhmuc) {
+            $sanpham->danhmuc()->sync($request->id_danhmuc); // sync để giữ những danh mục mới và remove danh mục bị bỏ
+        }
+
+        // --- Xử lý biến thể ---
+        $bienthesInput = $request->bienthe ?? [];
+
+        // 1. Lấy tất cả biến thể hiện tại
+        $existingIds = $sanpham->bienthe->pluck('id')->toArray();
+        $newIds = [];
+
+        foreach ($bienthesInput as $i => $bt) {
+            if (isset($bt['id'])) {
+                // Nếu biến thể đã có id -> update
+                $b = Bienthesp::find($bt['id']);
+                if ($b) {
+                    $b->id_tenloai = $bt['id_tenloai'];
+                    $b->gia = $bt['gia'];
+                    $b->soluong = $bt['soluong'];
+                    $b->save();
+                    $newIds[] = $b->id;
+                }
+            } else {
+                // Thêm biến thể mới
+                $b = new Bienthesp();
+                $b->id_sanpham = $sanpham->id;
+                $b->id_tenloai = $bt['id_tenloai'];
+                $b->gia = $bt['gia'];
+                $b->soluong = $bt['soluong'];
+                $b->save();
+                $newIds[] = $b->id;
+            }
+        }
+
+        // Xóa biến thể cũ mà bị remove
+        $toDelete = array_diff($existingIds, $newIds);
+        if (!empty($toDelete)) {
+            Bienthesp::destroy($toDelete);
+        }
+
+        // --- Xử lý ảnh ---
+        $deletedImages = $request->deleted_image_ids ?? []; // chỉ những ảnh user muốn xóa
+        foreach ($sanpham->anhsanpham as $anh) {
+            if (in_array($anh->id, $deletedImages)) {
+                // xóa file và bản ghi
+                Storage::disk('public')->delete('img/product/' . $anh->media);
+                $anh->delete();
+            }
+        }
+
+        if ($request->hasFile('anhsanpham')) {
+            $slugName = Str::slug($request->ten);
+
+            foreach ($request->file('anhsanpham') as $i => $file) {
+                $extension = $file->getClientOriginalExtension();
+                $filename = $slugName . '-' . ($i + 1) . '.' . $extension;
+
+                // Lưu file trực tiếp vào public/img/product
+                $file->move(public_path('img/product'), $filename);
+
+                // Lưu tên file vào DB
+                $anh = new Anhsp();
+                $anh->id_sanpham = $sanpham->id;
+                $anh->media = $filename;
+                $anh->save();
+            }
+        }
+
+
+        return redirect()->route('danh-sach')->with('success', 'Cập nhật sản phẩm thành công!');
+    }
     /**
      * Remove the specified resource from storage.
      */

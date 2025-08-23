@@ -44,17 +44,17 @@
     <link rel="stylesheet" href="{{asset('css/style.css')}}" />
   </head>
   <body>
-    <!-- <div id="global-loader">
+    <div id="global-loader">
       <div class="whirly-loader"></div>
-    </div> -->
+    </div>
 
     <div class="main-wrapper">
       <div class="header">
         <div class="header-left active">
-          <a href="{{ url('/') }}" class="logo">
+          <a href="/" class="logo">
             <img src="{{asset('img/logo.png')}}" alt="" />
           </a>
-          <a href="{{ url('/') }}" class="logo-small">
+          <a href="/" class="logo-small">
             <img src="{{asset('img/logo-small.png')}}" alt="" />
           </a>
           <a id="toggle_btn" href="javascript:void(0);"> </a>
@@ -69,26 +69,6 @@
         </a>
 
         <ul class="nav user-menu">
-          <li class="nav-item">
-            <div class="top-nav-search">
-              <a href="javascript:void(0);" class="responsive-search">
-                <i class="fa fa-search"></i>
-              </a>
-              <form action="#">
-                <div class="searchinputs">
-                  <input type="text" placeholder="Tìm kiếm ..." />
-                  <div class="search-addon">
-                    <span
-                      ><img src="{{asset('img/icons/closes.svg')}}" alt="img"
-                    /></span>
-                  </div>
-                </div>
-                <a class="btn" id="searchdiv"
-                  ><img src="{{asset('img/icons/search.svg')}}" alt="img"
-                /></a>
-              </form>
-            </div>
-          </li>
 
           <li class="nav-item dropdown">
             <a
@@ -194,7 +174,7 @@
           <div id="sidebar-menu" class="sidebar-menu">
             <ul>
               <li class="{{ Request::is('/') ? 'strong' : 'submenu' }}">
-                <a href="{{ url('/') }}"
+                <a href="/"
                   ><img src="{{asset('img/icons/dashboard.svg')}}" alt="img" /><span>
                     Tổng quan</span
                   >

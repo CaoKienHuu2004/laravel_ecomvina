@@ -19,7 +19,18 @@
             class="me-1" />Tạo sản phẩm</a>
       </div>
     </div>
-
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        @endif
+        @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        @endif
     <div class="card">
       <div class="card-body">
         <div class="table-top">
@@ -163,7 +174,7 @@
                   <a class="me-3" href="{{url('/')}}">
                     <img src="{{asset('img/icons/eye.svg')}}" alt="img" />
                   </a>
-                  <a class="me-3" href="{{url('/')}}">
+                  <a class="me-3" href="{{ route('chinh-sua-san-pham',$sp->id) }}">
                     <img src="{{asset('img/icons/edit.svg')}}" alt="img" />
                   </a>
                   <a class="confirm-text" href="{{url('/')}}">
