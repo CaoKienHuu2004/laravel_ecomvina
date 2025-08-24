@@ -278,7 +278,14 @@ ClassicEditor.create(document.querySelector('#mo_ta'), editorConfig);
     updateRemoveButtons();
 </script>
 
-
+<style>
+    #preview-anh li .productviewsname h2 {
+    white-space: nowrap;      /* không xuống dòng */
+    overflow: hidden;         /* ẩn phần vượt quá */
+    text-overflow: ellipsis;  /* hiển thị dấu ... */
+    max-width: 200px;         /* điều chỉnh theo width thumbnail */
+}
+</style>
 <script>
 let selectedFiles = [];
 
