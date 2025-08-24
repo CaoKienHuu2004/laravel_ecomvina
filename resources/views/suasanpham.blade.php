@@ -136,7 +136,7 @@
                             <input type="hidden" name="bienthe[{{ $i }}][id]" value="{{ $bienthe->id }}">
                             <div class="col-lg-3 col-sm-6 col-12">
                                 <div class="form-group">
-                                    <select class="form-select" name="bienthe[{{ $i }}][id_tenloai]">
+                                    <select class="form-select sua_bienthe" name="bienthe[{{ $i }}][id_tenloai]">
                                         @foreach($loaibienthes as $loai)
                                         <option value="{{ $loai->id }}"
                                             {{ $bienthe->id_tenloai == $loai->id ? 'selected' : '' }}>{{ $loai->ten }}
@@ -180,13 +180,33 @@
                                     <img src="{{ asset('img/icons/upload.svg') }}" alt="img" />
                                     <h4>Tải lên file ảnh tại đây.</h4>
                                 </div>
-                                <div id="preview-anh" class="mt-2 d-flex flex-wrap"></div>
+                                <!-- <div id="preview-anh" class="mt-2 d-flex flex-wrap"></div> -->
                                 @error('anhsanpham.*')
                                 <span class="text-danger">{{ $message }}</span>
                                 @enderror
                             </div>
                         </div>
                     </div>
+                    <div class="col-12">
+                  <div class="product-list">
+                    <ul class="row" id="preview-anh">
+                      <!-- <li>
+                        <div class="productviews">
+                          <div class="productviewsimg">
+                            <img src="assets/img/icons/macbook.svg" alt="img" />
+                          </div>
+                          <div class="productviewscontent">
+                            <div class="productviewsname">
+                              <h2>macbookpro.jpg</h2>
+                              <h3>581kb</h3>
+                            </div>
+                            <a href="javascript:void(0);" class="hideset">x</a>
+                          </div>
+                        </div>
+                      </li> -->
+                    </ul>
+                  </div>
+                </div>
 
                     <div class="col-lg-12">
                         <button type="submit" class="btn btn-submit me-2" title="Cập nhật">Cập nhật</button>
@@ -207,6 +227,13 @@
      */
 
     ClassicEditor.create(document.querySelector('#mo_ta_suasp'), editorConfig);
+</script>
+
+<script>
+    $('.sua_bienthe').select2({
+    tags: true,   // Cho phép nhập thêm
+    placeholder: "Chọn hoặc nhập tên loại biến thể",
+});
 </script>
 
 <script>
@@ -232,7 +259,7 @@
     <div class="bienthe-item row mb-2">
         <div class="col-lg-3 col-sm-6 col-12">
             <div class="form-group">
-                <select class="form-select" name="bienthe[${index}][id_tenloai]">${options}</select>
+                <select class="form-select sua_bienthe select2" name="bienthe[${index}][id_tenloai]">${options}</select>
             </div>
         </div>
         <div class="col-lg-3 col-sm-6 col-12">
@@ -251,6 +278,11 @@
     </div>`;
 
         document.getElementById('add-bienthe').insertAdjacentHTML('beforebegin', html);
+        $(`.sua_bienthe`).select2({
+            tags: true,
+            placeholder: "--Loại biến thể--",
+            allowClear: true
+        });
         index++;
         updateRemoveButtons();
     });
@@ -278,79 +310,87 @@
     // Chạy lần đầu
     updateRemoveButtons();
 </script>
+<style>
+    #preview-anh li .productviewsname h2 {
+    white-space: nowrap;      /* không xuống dòng */
+    overflow: hidden;         /* ẩn phần vượt quá */
+    text-overflow: ellipsis;  /* hiển thị dấu ... */
+    max-width: 200px;         /* điều chỉnh theo width thumbnail */
+}
+</style>
 <script>
-let existingImages = @json($sanpham->anhsanpham);
-let selectedFiles = [];
+let existingImages = @json($sanpham->anhsanpham); // ảnh cũ
+let selectedFiles = []; // ảnh mới
 
 const previewContainer = document.getElementById('preview-anh');
 const fileInput = document.getElementById('anhsanpham');
 
-// render ảnh
 function renderPreview() {
-    previewContainer.innerHTML = "";
+    previewContainer.innerHTML = '';
 
-    // 1. Ảnh cũ
+    // 1. Render ảnh cũ
     existingImages.forEach(img => {
-        let div = document.createElement('div');
-        div.classList.add("m-2", "position-relative");
+        const li = document.createElement('li');
 
-        let image = document.createElement('img');
-        image.src = `/img/product/${img.media}`;
-        image.width = 120;
-        image.classList.add("border", "rounded");
+        li.innerHTML = `
+            <div class="productviews">
+                <div class="productviewsimg">
+                    <img src="/img/product/${img.media}" alt="img" />
+                </div>
+                <div class="productviewscontent">
+                    <div class="productviewsname">
+                        <h2>${img.media}</h2>
+                        <h3>Ảnh cũ</h3>
+                    </div>
+                    <a href="javascript:void(0);" class="hideset">x</a>
+                </div>
+            </div>
+        `;
 
-        let btn = document.createElement('button');
-        btn.type = "button";
-        btn.innerHTML = "X";
-        btn.classList.add("btn", "btn-sm", "btn-danger", "position-absolute");
-        btn.style.top = "0";
-        btn.style.right = "0";
-        btn.onclick = function() {
-            // thêm input hidden thông báo backend xóa
+        li.querySelector('.hideset').addEventListener('click', function() {
+            // thêm input hidden để backend biết xóa
             document.querySelector('form').insertAdjacentHTML('beforeend',
                 `<input type="hidden" name="deleted_image_ids[]" value="${img.id}">`
             );
-            // lọc ảnh cũ ra
             existingImages = existingImages.filter(i => i.id !== img.id);
             renderPreview();
-        };
+        });
 
-        div.appendChild(image);
-        div.appendChild(btn);
-        previewContainer.appendChild(div);
+        previewContainer.appendChild(li);
     });
 
-    // 2. Ảnh mới
+    // 2. Render ảnh mới
     selectedFiles.forEach((file, idx) => {
-        let reader = new FileReader();
+        const reader = new FileReader();
         reader.onload = function(e) {
-            let div = document.createElement('div');
-            div.classList.add("m-2", "position-relative");
+            const li = document.createElement('li');
 
-            let img = document.createElement('img');
-            img.src = e.target.result;
-            img.width = 120;
-            img.classList.add("border", "rounded");
+            li.innerHTML = `
+                <div class="productviews">
+                    <div class="productviewsimg">
+                        <img src="${e.target.result}" alt="img" />
+                    </div>
+                    <div class="productviewscontent">
+                        <div class="productviewsname">
+                            <h2>${file.name}</h2>
+                            <h3>${(file.size / 1024).toFixed(1)}kb</h3>
+                        </div>
+                        <a href="javascript:void(0);" class="hideset">x</a>
+                    </div>
+                </div>
+            `;
 
-            let btn = document.createElement('button');
-            btn.type = "button";
-            btn.innerHTML = "X";
-            btn.classList.add("btn", "btn-sm", "btn-danger", "position-absolute");
-            btn.style.top = "0";
-            btn.style.right = "0";
-            btn.onclick = function() {
+            li.querySelector('.hideset').addEventListener('click', function() {
                 selectedFiles.splice(idx, 1);
                 renderPreview();
-            }
+            });
 
-            div.appendChild(img);
-            div.appendChild(btn);
-            previewContainer.appendChild(div);
-        }
+            previewContainer.appendChild(li);
+        };
         reader.readAsDataURL(file);
     });
 
-    // update lại input file
+    // 3. Cập nhật lại input file
     const dt = new DataTransfer();
     selectedFiles.forEach(f => dt.items.add(f));
     fileInput.files = dt.files;
@@ -362,8 +402,9 @@ fileInput.addEventListener('change', function(e) {
     renderPreview();
 });
 
-// lần đầu render ảnh cũ
+// render lần đầu ảnh cũ
 renderPreview();
+
 
 </script>
 

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SanphamController;
 use App\Http\Controllers\DanhmucController;
 use App\Http\Controllers\ThuonghieuController;
+use App\Models\Sanpham;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,9 +28,10 @@ Route::prefix('san-pham')->group(function () {
     Route::get('/danh-sach', [SanphamController::class, 'index'])->name('danh-sach');
     Route::get('/', [SanphamController::class, 'index']);
     Route::get('/tao-san-pham', [SanphamController::class, 'create'])->name('tao-san-pham');
-    Route::post('/store', [SanphamController::class, 'store'])->name('luu-san-pham');
-    Route::get('/{id}/sua', [SanphamController::class, 'edit'])->name('chinh-sua-san-pham');
-    Route::post('/{id}/capnhat', [SanphamController::class, 'update'])->name('cap-nhat-san-pham');
+    Route::post('/luu', [SanphamController::class, 'store'])->name('luu-san-pham');
+    Route::get('/{id}/chinh-sua', [SanphamController::class, 'edit'])->name('chinh-sua-san-pham');
+    Route::post('/{id}/cap-nhat', [SanphamController::class, 'update'])->name('cap-nhat-san-pham');
+    Route::get('/{id}/xoa', [SanphamController::class, 'destroy'])->name('xoa-san-pham');
 });
 
 Route::prefix('danh-muc')->group(function () {

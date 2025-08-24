@@ -30,14 +30,13 @@
           <div class="col-lg-4 col-sm-6 col-12">
             <div class="form-group">
               <label>Danh mục <span class="text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Bắt buộc">*</span></label>
-              <select class="form-select" name="id_danhmuc">
-                <option class="text-secondary">--Chọn danh mục--</option>
-                @foreach ($danhmucs as $dm)
-                    <option value="{{ $dm->id }}">{{ $dm->ten }}</option>
+              <select class="form-control select" name="id_danhmuc[]" id="id_danhmuc" multiple>
+                @foreach($danhmucs as $dm)
+                  <option value="{{ $dm->id }}">
+                    {{ $dm->ten }}
+                  </option>
                 @endforeach
-                @error('id_danhmuc')
-                  <span class="text-danger">{{ $message }}</span> 
-                @enderror
+                @error('id_danhmuc') <span class="text-danger">{{ $message }}</span> @enderror
               </select>
             </div>
           </div>
@@ -113,7 +112,7 @@
             <div class="bienthe-item row mb-2">
                 <div class="col-lg-3 col-sm-6 col-12">
                     <div class="form-group">
-                        <select class="form-select" name="bienthe[0][id_tenloai]">
+                        <select class="form-control loai_bienthe" name="bienthe[0][id_tenloai]">
                             <option>--Loại biến thể--</option>
                             @foreach($loaibienthes as $loai)
                                 <option value="{{ $loai->id }}">{{ $loai->ten }}</option>
@@ -160,13 +159,35 @@
                   <img src="{{ asset('img/icons/upload.svg') }}" alt="img" />
                   <h4>Tải lên file ảnh tại đây.</h4>
                 </div>
-                <div id="preview-anh" class="mt-2 d-flex flex-wrap"></div>
+                  <!-- <div id="preview-anh" class="mt-2 d-flex flex-wrap"></div> -->
+
+                
                 @error('anhsanpham.*')
                     <span class="text-danger">{{ $message }}</span>
                 @enderror
               </div>
             </div>
           </div>
+          <div class="col-12">
+                  <div class="product-list">
+                    <ul class="row" id="preview-anh">
+                      <!-- <li>
+                        <div class="productviews">
+                          <div class="productviewsimg">
+                            <img src="assets/img/icons/macbook.svg" alt="img" />
+                          </div>
+                          <div class="productviewscontent">
+                            <div class="productviewsname">
+                              <h2>macbookpro.jpg</h2>
+                              <h3>581kb</h3>
+                            </div>
+                            <a href="javascript:void(0);" class="hideset">x</a>
+                          </div>
+                        </div>
+                      </li> -->
+                    </ul>
+                  </div>
+                </div>
 
           <div class="col-lg-12">
             <button type="submit" class="btn btn-submit me-2" title="Tạo sản phẩm">Tạo sản phẩm</button>
@@ -213,7 +234,7 @@ ClassicEditor.create(document.querySelector('#mo_ta'), editorConfig);
         <div class="bienthe-item row mb-2">
             <div class="col-lg-3 col-sm-6 col-12">
                 <div class="form-group">
-                    <select class="form-select" name="bienthe[${index}][id_tenloai]">
+                    <select class="form-select loai_bienthe select2" name="bienthe[${index}][id_tenloai]">
                         ${options}
                     </select>
                 </div>
@@ -233,7 +254,14 @@ ClassicEditor.create(document.querySelector('#mo_ta'), editorConfig);
             </div>
         </div>`;
         
+        // Sau khi thêm html vào DOM
         btnAdd.insertAdjacentHTML('beforebegin', html);
+        $(`.loai_bienthe`).select2({
+            tags: true,
+            placeholder: "--Loại biến thể--",
+            allowClear: true
+        });
+
         index++;
         updateRemoveButtons();
     });
@@ -252,63 +280,60 @@ ClassicEditor.create(document.querySelector('#mo_ta'), editorConfig);
 
 
 <script>
-let selectedFiles = []; // mảng lưu file đã chọn
+let selectedFiles = [];
 
 document.getElementById('anhsanpham').addEventListener('change', function(e) {
-    // gộp file mới vào mảng
     selectedFiles = [...selectedFiles, ...e.target.files];
     renderPreview();
 });
 
-// render preview với nút xóa
 function renderPreview() {
-    let preview = document.getElementById('preview-anh');
-    preview.innerHTML = "";
+    const preview = document.getElementById('preview-anh');
+    preview.innerHTML = '';
+
     selectedFiles.forEach((file, index) => {
-        let reader = new FileReader();
+        const reader = new FileReader();
         reader.onload = function(event) {
-            let div = document.createElement('div');
-            div.classList.add("m-2", "position-relative");
+            const li = document.createElement('li');
 
-            let img = document.createElement('img');
-            img.src = event.target.result;
-            img.width = 120;
-            img.classList.add("border", "rounded");
+            li.innerHTML = `
+                <div class="productviews">
+                    <div class="productviewsimg">
+                        <img src="${event.target.result}" alt="img" />
+                    </div>
+                    <div class="productviewscontent">
+                        <div class="productviewsname">
+                            <h2>${file.name}</h2>
+                            <h3>${(file.size / 1024).toFixed(1)}kb</h3>
+                        </div>
+                        <a href="javascript:void(0);" class="hideset">x</a>
+                    </div>
+                </div>
+            `;
 
-            // nút xóa
-            let btn = document.createElement('button');
-            btn.type = "button";
-            btn.innerHTML = "X";
-            btn.classList.add("btn", "btn-sm", "btn-danger", "position-absolute");
-            btn.style.top = "0";
-            btn.style.right = "0";
-            btn.onclick = function() {
-                removeFile(index);
-            };
+            // Xử lý nút xóa
+            li.querySelector('.hideset').addEventListener('click', function() {
+                selectedFiles.splice(index, 1);
+                renderPreview();
+            });
 
-            div.appendChild(img);
-            div.appendChild(btn);
-            preview.appendChild(div);
+            preview.appendChild(li);
         }
         reader.readAsDataURL(file);
     });
 
-    // cập nhật lại input file (vì mặc định ko xóa đc file trong FileList)
-    updateFileInput();
-}
-
-// xóa file trong mảng
-function removeFile(index) {
-    selectedFiles.splice(index, 1);
-    renderPreview();
-}
-
-// cập nhật lại input file để submit đúng
-function updateFileInput() {
+    // Cập nhật lại input để submit đúng
     const dataTransfer = new DataTransfer();
     selectedFiles.forEach(file => dataTransfer.items.add(file));
     document.getElementById('anhsanpham').files = dataTransfer.files;
 }
+
+</script>
+<script>
+    $('.loai_bienthe').select2({
+    tags: true,   // Cho phép nhập thêm
+    placeholder: "Chọn hoặc nhập tên loại biến thể",
+});
 </script>
 
 @endsection

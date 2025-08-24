@@ -83,7 +83,8 @@ class SanphamController extends Controller
         $request->validate(
             [
                 'tensp'        => 'required|string|max:255',
-                'id_danhmuc'   => 'required|integer',
+                'id_danhmuc'   => 'required|array',
+                'id_danhmuc.*' => 'integer|exists:danh_muc,id',
                 'id_thuonghieu' => 'required|integer',
                 'xuatxu'   => 'required|string|max:255',
                 'sanxuat'  => 'nullable|string|max:255',
@@ -98,8 +99,10 @@ class SanphamController extends Controller
                 'tensp.string'           => 'Tên sản phẩm phải là chuỗi ký tự',
                 'tensp.max'              => 'Tên sản phẩm không quá 255 ký tự',
 
-                'id_danhmuc.required'    => 'Vui lòng chọn danh mục',
-                'id_danhmuc.integer'     => 'Danh mục không hợp lệ',
+                'id_danhmuc.required'    => 'Vui lòng chọn ít nhất một danh mục',
+                'id_danhmuc.array'       => 'Danh mục không hợp lệ',
+                'id_danhmuc.*.integer'   => 'Danh mục không hợp lệ',
+                'id_danhmuc.*.exists'    => 'Danh mục đã chọn không tồn tại',
 
                 'id_thuonghieu.required' => 'Vui lòng chọn thương hiệu',
                 'id_thuonghieu.integer'  => 'Thương hiệu không hợp lệ',
@@ -141,7 +144,10 @@ class SanphamController extends Controller
                 'mota'         => $request->mo_ta,
             ]);
 
-            $sanpham->danhmuc()->attach($request->id_danhmuc);
+            // $sanpham->danhmuc()->attach($request->id_danhmuc);
+            if ($request->id_danhmuc) {
+                $sanpham->danhmuc()->attach($request->id_danhmuc);
+            }
 
             if ($request->hasFile('anhsanpham')) {
                 $i = 1;
@@ -164,20 +170,57 @@ class SanphamController extends Controller
                     $i++;
                 }
             }
-            // Lưu biến thể
-            if ($request->bienthe) {
-                foreach ($request->bienthe as $bt) {
-                    if (!empty($bt['id_tenloai']) && !empty($bt['gia'])) {
-                        Bienthesp::create([
-                            'id_sanpham' => $sanpham->id,
-                            'id_tenloai' => $bt['id_tenloai'],
-                            'gia'        => $bt['gia'],
-                            'soluong'    => $bt['soluong'] ?? 0,
-                            'trangthai'  => 0,
-                        ]);
+
+            foreach ($request->bienthe as $bt) {
+                if (!empty($bt['id_tenloai']) && !empty($bt['gia'])) {
+
+                    // Nếu chọn từ select => id là số
+                    if (is_numeric($bt['id_tenloai'])) {
+                        $id_tenloai = $bt['id_tenloai'];
+
+                    } else {
+                        // Chuẩn hóa text (trim + strtolower cho chắc)
+                        $tenLoai = trim($bt['id_tenloai']);
+
+                        // Tìm trong DB xem đã có chưa
+                        $existingLoai = Loaibienthe::whereRaw('LOWER(ten) = ?', [strtolower($tenLoai)])->first();
+
+                        if ($existingLoai) {
+                            // Nếu đã có -> lấy id cũ
+                            $id_tenloai = $existingLoai->id;
+                        } else {
+                            // Nếu chưa có -> tạo mới
+                            $newLoai = Loaibienthe::create(['ten' => $tenLoai]);
+                            $id_tenloai = $newLoai->id;
+                        }
                     }
+
+                    // Tạo biến thể sản phẩm
+                    Bienthesp::create([
+                        'id_sanpham' => $sanpham->id,
+                        'id_tenloai' => $id_tenloai,
+                        'gia'        => $bt['gia'],
+                        'soluong'    => $bt['soluong'] ?? 0,
+                        'trangthai'  => 0,
+                    ]);
                 }
             }
+
+
+            // // Lưu biến thể
+            // if ($request->bienthe) {
+            //     foreach ($request->bienthe as $bt) {
+            //         if (!empty($bt['id_tenloai']) && !empty($bt['gia'])) {
+            //             Bienthesp::create([
+            //                 'id_sanpham' => $sanpham->id,
+            //                 'id_tenloai' => $bt['id_tenloai'],
+            //                 'gia'        => $bt['gia'],
+            //                 'soluong'    => $bt['soluong'] ?? 0,
+            //                 'trangthai'  => 0,
+            //             ]);
+            //         }
+            //     }
+            // }
 
             DB::commit();
             return redirect()->route('danh-sach')->with('success', 'Thêm sản phẩm thành công!');
@@ -224,11 +267,30 @@ class SanphamController extends Controller
         $newIds = [];
 
         foreach ($bienthesInput as $i => $bt) {
+            // Xử lý id_tenloai: có thể là id (int) hoặc tên mới (string)
+            $idTenLoai = null;
+            if (is_numeric($bt['id_tenloai'])) {
+                // chọn có sẵn
+                $idTenLoai = $bt['id_tenloai'];
+            } else {
+                // nhập mới (string)
+                $tenLoai = trim($bt['id_tenloai']);
+                if ($tenLoai != '') {
+                    $loai = LoaiBienThe::firstOrCreate(
+                        ['ten' => $tenLoai],
+                        ['ten' => $tenLoai] // nếu chưa có thì tạo mới
+                    );
+                    $idTenLoai = $loai->id;
+                }
+            }
+
+            if (!$idTenLoai) continue; // bỏ qua nếu không hợp lệ
+
             if (isset($bt['id'])) {
                 // Nếu biến thể đã có id -> update
                 $b = Bienthesp::find($bt['id']);
                 if ($b) {
-                    $b->id_tenloai = $bt['id_tenloai'];
+                    $b->id_tenloai = $idTenLoai;
                     $b->gia = $bt['gia'];
                     $b->soluong = $bt['soluong'];
                     $b->save();
@@ -238,7 +300,7 @@ class SanphamController extends Controller
                 // Thêm biến thể mới
                 $b = new Bienthesp();
                 $b->id_sanpham = $sanpham->id;
-                $b->id_tenloai = $bt['id_tenloai'];
+                $b->id_tenloai = $idTenLoai;
                 $b->gia = $bt['gia'];
                 $b->soluong = $bt['soluong'];
                 $b->save();
@@ -246,18 +308,22 @@ class SanphamController extends Controller
             }
         }
 
-        // Xóa biến thể cũ mà bị remove
-        $toDelete = array_diff($existingIds, $newIds);
-        if (!empty($toDelete)) {
-            Bienthesp::destroy($toDelete);
-        }
+// Xóa biến thể cũ mà bị remove
+$toDelete = array_diff($existingIds, $newIds);
+if (!empty($toDelete)) {
+    Bienthesp::destroy($toDelete);
+}
 
         // --- Xử lý ảnh ---
-        $deletedImages = $request->deleted_image_ids ?? []; // chỉ những ảnh user muốn xóa
+        $deletedImages = $request->deleted_image_ids ?? []; // những ảnh user muốn xóa
         foreach ($sanpham->anhsanpham as $anh) {
             if (in_array($anh->id, $deletedImages)) {
-                // xóa file và bản ghi
-                Storage::disk('public')->delete('img/product/' . $anh->media);
+                // kiểm tra file tồn tại trước khi xóa
+                $filePath = public_path('img/product/' . $anh->media);
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+                // xóa bản ghi DB
                 $anh->delete();
             }
         }
@@ -286,8 +352,38 @@ class SanphamController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
+        $sanpham = Sanpham::findOrFail($id);
+
+        DB::beginTransaction();
+        try {
+            // Xoá ảnh sản phẩm
+            if ($sanpham->anhSanPham && $sanpham->anhSanPham->count()) {
+                foreach ($sanpham->anhSanPham as $anh) {
+                    $filePath = public_path('img/product/' . $anh->media);
+                    if (file_exists($filePath)) {
+                        unlink($filePath); // xoá file thật
+                    }
+                    $anh->delete(); // xoá record DB
+                }
+            }
+
+            // Xoá biến thể
+            Bienthesp::where('id_sanpham', $sanpham->id)->delete();
+
+            // Xoá liên kết danh mục (nếu có belongsToMany)
+            $sanpham->danhmuc()->detach();
+
+            // Xoá sản phẩm chính
+            $sanpham->delete();
+
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Xoá sản phẩm thành công!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Có lỗi khi xoá: ' . $e->getMessage());
+        }
     }
 }

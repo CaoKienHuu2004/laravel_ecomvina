@@ -29,6 +29,8 @@
 
     <!-- <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"> -->
 
+    <link rel="stylesheet" href="{{ asset('plugins/dragula/css/dragula.min.css') }}" />
+
     <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/46.0.2/ckeditor5.css" crossorigin>
 
     <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css">
@@ -495,6 +497,9 @@
 
     <script src="{{asset('plugins/sweetalert/sweetalert2.all.min.js')}}"></script>
     <script src="{{asset('plugins/sweetalert/sweetalerts.min.js')}}"></script>
+
+    <script src="{{ asset('plugins/dragula/js/dragula.min.js') }}"></script>
+    <script src="{{ asset('plugins/dragula/js/drag-drop.min.js') }}"></script>
 
     <script src="{{asset('plugins/fileupload/fileupload.min.js')}}"></script>
 
