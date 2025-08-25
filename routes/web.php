@@ -29,6 +29,9 @@ Route::prefix('san-pham')->group(function () {
     Route::get('/', [SanphamController::class, 'index']);
     Route::get('/tao-san-pham', [SanphamController::class, 'create'])->name('tao-san-pham');
     Route::post('/luu', [SanphamController::class, 'store'])->name('luu-san-pham');
+    Route::get('/{slug}-{id}', [SanPhamController::class, 'show'])
+    ->where(['id' => '[0-9]+', 'slug' => '[a-z0-9-]+'])
+    ->name('chi-tiet-san-pham');
     Route::get('/{id}/chinh-sua', [SanphamController::class, 'edit'])->name('chinh-sua-san-pham');
     Route::post('/{id}/cap-nhat', [SanphamController::class, 'update'])->name('cap-nhat-san-pham');
     Route::get('/{id}/xoa', [SanphamController::class, 'destroy'])->name('xoa-san-pham');

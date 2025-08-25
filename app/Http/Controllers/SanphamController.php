@@ -177,7 +177,6 @@ class SanphamController extends Controller
                     // Nếu chọn từ select => id là số
                     if (is_numeric($bt['id_tenloai'])) {
                         $id_tenloai = $bt['id_tenloai'];
-
                     } else {
                         // Chuẩn hóa text (trim + strtolower cho chắc)
                         $tenLoai = trim($bt['id_tenloai']);
@@ -308,11 +307,11 @@ class SanphamController extends Controller
             }
         }
 
-// Xóa biến thể cũ mà bị remove
-$toDelete = array_diff($existingIds, $newIds);
-if (!empty($toDelete)) {
-    Bienthesp::destroy($toDelete);
-}
+        // Xóa biến thể cũ mà bị remove
+        $toDelete = array_diff($existingIds, $newIds);
+        if (!empty($toDelete)) {
+            Bienthesp::destroy($toDelete);
+        }
 
         // --- Xử lý ảnh ---
         $deletedImages = $request->deleted_image_ids ?? []; // những ảnh user muốn xóa
@@ -385,5 +384,21 @@ if (!empty($toDelete)) {
             DB::rollBack();
             return redirect()->back()->with('error', 'Có lỗi khi xoá: ' . $e->getMessage());
         }
+    }
+
+    public function show($slug,$id)
+    {
+        $sanpham = SanPham::with(['anhsanpham', 'danhmuc', 'bienthe.loaiBienThe'])->findOrFail($id);
+
+        // kiểm tra slug có đúng không, nếu không thì redirect về slug đúng
+        $correctSlug = \Illuminate\Support\Str::slug($sanpham->ten);
+        if ($slug !== $correctSlug) {
+            return redirect()->route('sanpham.show', [
+                'id' => $sanpham->id,
+                'slug' => $correctSlug
+            ]);
+        }
+
+        return view('chitietsanpham', compact('sanpham'));
     }
 }

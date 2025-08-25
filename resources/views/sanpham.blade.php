@@ -171,7 +171,7 @@
                 <td>Không có</td>
                 <td>{{ $sp->updated_at->format('H:j - d/m/Y') }}</td>
                 <td>
-                  <a class="me-3" href="{{url('/')}}">
+                  <a class="me-3" href="{{ route('chi-tiet-san-pham', ['id' => $sp->id, 'slug' => Str::slug($sp->ten)]) }}" title="xem chi tiết">
                     <img src="{{asset('img/icons/eye.svg')}}" alt="img" />
                   </a>
                   <a class="me-3" href="{{ route('chinh-sua-san-pham',$sp->id) }}">

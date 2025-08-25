@@ -37,6 +37,10 @@
 
     <link rel="stylesheet" href="{{asset('plugins/select2/css/select2.min.css')}}" />
 
+    <link rel="stylesheet" href="{{ asset('plugins/owlcarousel/owl.carousel.min.css') }}"/>
+
+    <link rel="stylesheet" href="{{ asset('plugins/lightbox/glightbox.min.css') }}" />
+
     <link
       rel="stylesheet"
       href="{{asset('plugins/fontawesome/css/fontawesome.min.css')}}"
@@ -504,6 +508,11 @@
     <script src="{{asset('plugins/fileupload/fileupload.min.js')}}"></script>
 
     <script src="{{ asset('plugins/summernote/summernote-bs4.min.js') }}"></script>
+
+    <script src="{{ asset('plugins/owlcarousel/owl.carousel.min.js') }}"></script>
+
+    <script src="{{ asset('plugins/lightbox/glightbox.min.js') }}"></script>
+    <script src="{{ asset('plugins/lightbox/lightbox.js') }}"></script>
 
     <script src="https://cdn.ckeditor.com/ckeditor5/46.0.2/ckeditor5.umd.js" crossorigin></script>
 		<script src="https://cdn.ckeditor.com/ckeditor5/46.0.2/translations/vi.umd.js" crossorigin></script>
