@@ -52,10 +52,12 @@
                                         <ul>
                                             <li>
                                                 @foreach ($sanpham->bienthe as $bt)
-                                                @if ($bt->soluong > 0)
-                                                <span class="text-success fs-6" title="Còn hàng"><strong>Loại: </strong> {{ $bt->loaiBienThe->ten }}</span>
+                                                @if ($bt->soluong > 10)
+                                                <span class="text-success fs-6" title="Còn hàng"><strong>Loại: </strong> {{ $bt->loaiBienThe->ten }} <span class="badges bg-lightgreen p-1">Còn hàng</span></span>
+                                                @elseif($bt->soluong == 0)
+                                                <span class="text-danger fs-6" title="Hết hàng"><strong>Loại: </strong> {{ $bt->loaiBienThe->ten }} <span class="badges bg-lightred p-1">Hết hàng</span></span>
                                                 @else
-                                                <span class="text-warning fs-6" title="Hết hàng"><strong>Loại: </strong> {{ $bt->loaiBienThe->ten }}</span>
+                                                <span class="text-warning fs-6" title="Sắp hết hàng"><strong>Loại: </strong> {{ $bt->loaiBienThe->ten }} <span class="badges bg-lightyellow p-1">Sắp hết hàng</span></span>
                                                 @endif
 
                                                 <ul>

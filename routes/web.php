@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SanphamController;
 use App\Http\Controllers\DanhmucController;
 use App\Http\Controllers\ThuonghieuController;
+use App\Http\Controllers\BientheController;
 use App\Models\Sanpham;
 
 /*
@@ -19,7 +20,7 @@ use App\Models\Sanpham;
 
 Route::get('/', function () {
     return view('trangchu');
-});
+})->name('trang-chu');
 Route::get('/trang-chu', function () {
     return view('trangchu');
 });
@@ -57,6 +58,7 @@ Route::prefix('danh-muc')->group(function () {
 Route::prefix('thuong-hieu')->group(function () {
     // Danh sách danh mục
     Route::get('/danh-sach', [ThuonghieuController::class, 'index'])->name('danh-sach-thuong-hieu');
+    Route::get('/', [ThuonghieuController::class, 'index']);
 
     // Form thêm mới
     Route::get('/tao-thuong-hieu', [ThuonghieuController::class, 'create'])->name('tao-thuong-hieu');
@@ -69,3 +71,12 @@ Route::prefix('thuong-hieu')->group(function () {
     // Xóa
     Route::delete('/{id}/xoa', [ThuonghieuController::class, 'destroy'])->name('xoa-thuong-hieu');
 });
+
+Route::prefix('kho-hang')->group(function () {
+    Route::get('/', [BientheController::class, 'index'])->name('danh-sach-kho-hang');
+    Route::get('/danh-sach', [BientheController::class, 'index']);
+    Route::get('/{id}/chinh-sua', [BientheController::class, 'edit'])->name('chinh-sua-hang-ton-kho');
+    Route::post('/{id}/cap-nhat', [BientheController::class, 'update'])->name('cap-nhat-hang-ton-kho');
+    Route::get('/{id}/xoa', [BientheController::class, 'destroy'])->name('xoa-hang-ton-kho');
+});
+

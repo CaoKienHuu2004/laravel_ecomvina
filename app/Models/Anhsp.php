@@ -7,7 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Anhsp extends Model
 {
-    protected $table = 'anh_sanpham';
-    protected $fillable = ['media', 'trang_thai', 'id_sanpham', 'created_at', 'updated_at'];
     use HasFactory;
+    protected $table = 'anh_sanpham';
+    public $timestamps = true;
+
+    protected $fillable = ['media', 'trang_thai', 'id_sanpham', 'created_at', 'updated_at'];
+    
 }

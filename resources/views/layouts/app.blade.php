@@ -50,14 +50,14 @@
     <link rel="stylesheet" href="{{asset('css/style.css')}}" />
   </head>
   <body>
-    <div id="global-loader">
+    <!-- <div id="global-loader">
       <div class="whirly-loader"></div>
-    </div>
+    </div> -->
 
     <div class="main-wrapper">
       <div class="header">
         <div class="header-left active">
-          <a href="/" class="logo">
+          <a href="{{ route ('trang-chu') }}" class="logo">
             <img src="{{asset('img/logo.png')}}" alt="" />
           </a>
           <a href="/" class="logo-small">
@@ -179,14 +179,14 @@
         <div class="sidebar-inner slimscroll">
           <div id="sidebar-menu" class="sidebar-menu">
             <ul>
-              <li class="{{ Request::is('/') ? 'strong' : 'submenu' }}">
+              <li class="{{ request()->routeIs('trang-chu') ? 'active' : '' }}">
                 <a href="/"
                   ><img src="{{asset('img/icons/dashboard.svg')}}" alt="img" /><span>
                     Tổng quan</span
                   >
                 </a>
               </li>
-              <li class="{{ Request::is('danh-sach-san-pham') || Request::is('danh-muc') || Request::is('thuong-hieu') ? 'submenu' : 'submenu' }}">
+              <li class="submenu">
                 <a href="javascript:void(0);"
                   ><img src="{{asset('img/icons/product.svg')}}" alt="img" /><span>
                     Sản phẩm</span
@@ -197,10 +197,10 @@
                   <li><a class="{{ request()->routeIs('danh-sach') || request()->routeIs('chinh-sua-san-pham') || request()->routeIs('tao-san-pham') || request()->routeIs('chi-tiet-san-pham') ? 'active' : '' }}" href="{{ route('danh-sach') }}">Danh sách sản phẩm</a></li>
                   <li><a class="{{ request()->routeIs('danh-sach-danh-muc') || request()->routeIs('chinh-sua-danh-muc') || request()->routeIs('tao-danh-muc') ? 'active' : '' }}" href="{{ route('danh-sach-danh-muc') }}">Danh mục sản phẩm</a></li>
                   <li><a class="{{ request()->routeIs('danh-sach-thuong-hieu') || request()->routeIs('chinh-sua-thuong-hieu') || request()->routeIs('tao-thuong-hieu') ? 'active' : '' }}" href="{{ route('danh-sach-thuong-hieu') }}">Thương hiệu sản phẩm</a></li>
-                  <li><a href="/">Kho hàng</a></li>
+                  <li><a class="{{ request()->routeIs('danh-sach-kho-hang') ? 'active' : '' }}" href="{{ route('danh-sach-kho-hang') }}">Kho hàng</a></li>
                 </ul>
               </li>
-              <li class="{{ Request::is('/don-hang') ? 'active' : 'submenu' }}">
+              <li class="submenu">
                 <a href="javascript:void(0);"
                   ><img src="{{asset('img/icons/sales1.svg')}}" alt="img" /><span>
                     Bán hàng</span
@@ -208,22 +208,24 @@
                   <span class="menu-arrow"></span
                 ></a>
                 <ul>
-                  <li><a href="saleslist.html">Danh sách hàng đã bán</a></li>
-                  <li><a href="pos.html">Trạm POS</a></li>
-                  <li><a href="pos.html">Danh sách hóa đơn</a></li>
+                  <li><a href="saleslist.html">Voucher</a></li>
+                  <li><a href="pos.html">Ưu đãi sản phẩm</a></li>
+                  <li><a href="pos.html">Sự kiện khuyến mãi</a></li>
+                  <li><a href="/">Đánh giá sản phẩm</a></li>
+                  <li><a href="pos.html">Danh sách đơn hàng</a></li>
+                  
                 </ul>
               </li>
               <li class="submenu">
                 <a href="javascript:void(0);"
                   ><img src="{{asset('img/icons/expense1.svg')}}" alt="img" /><span>
-                    Chi phí</span
+                    Thanh toán</span
                   >
                   <span class="menu-arrow"></span
                 ></a>
                 <ul>
-                  <li><a href="expenselist.html">Expense List</a></li>
-                  <li><a href="createexpense.html">Add Expense</a></li>
-                  <li><a href="expensecategory.html">Expense Category</a></li>
+                  <li><a href="expenselist.html">Phương thức thanh toán</a></li>
+                  <li><a href="createexpense.html">Lịch sử thanh toán</a></li>
                 </ul>
               </li>
               <li class="submenu">
@@ -274,13 +276,13 @@
               <li class="submenu">
                 <a href="javascript:void(0);"
                   ><img src="{{asset('img/icons/users1.svg')}}" alt="img" /><span>
-                    People</span
+                    Người dùng</span
                   >
                   <span class="menu-arrow"></span
                 ></a>
                 <ul>
-                  <li><a href="customerlist.html">Customer List</a></li>
-                  <li><a href="addcustomer.html">Add Customer </a></li>
+                  <li><a href="customerlist.html">Danh sách khách hàng</a></li>
+                  <li><a href="addcustomer.html">Danh sách quản trị viên</a></li>
                   <li><a href="supplierlist.html">Supplier List</a></li>
                   <li><a href="addsupplier.html">Add Supplier </a></li>
                   <li><a href="userlist.html">User List</a></li>
