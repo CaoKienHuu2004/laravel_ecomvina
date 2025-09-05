@@ -136,7 +136,7 @@
                 </td>
 
                 <td>{{ $bt->soluong ? $bt->soluong : 0 }}</td>
-                <td align="center">
+                <td>
                   @if ($bt->soluong > 10)
                   <span class="badges bg-lightgreen">Còn hàng</span>
                   @elseif ($bt->soluong === 0)

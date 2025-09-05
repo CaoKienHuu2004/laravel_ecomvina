@@ -230,6 +230,19 @@
               </li>
               <li class="submenu">
                 <a href="javascript:void(0);"
+                  ><img src="{{asset('img/icons/users1.svg')}}" alt="img" /><span>
+                    Người dùng</span
+                  >
+                  <span class="menu-arrow"></span
+                ></a>
+                <ul>
+                  <li><a href="customerlist.html">Danh sách khách hàng</a></li>
+                  <li><a href="addcustomer.html">Danh sách quản trị viên</a></li>
+                  <li><a href="{{ route('danh-sach-uu-dai') }}">Cấp độ thành viên</a></li>
+                </ul>
+              </li>
+              <li class="submenu">
+                <a href="javascript:void(0);"
                   ><img src="{{asset('mg/icons/quotation1.svg')}}i" alt="img" /><span>
                     Quotation</span
                   >
@@ -273,24 +286,7 @@
                   </li>
                 </ul>
               </li>
-              <li class="submenu">
-                <a href="javascript:void(0);"
-                  ><img src="{{asset('img/icons/users1.svg')}}" alt="img" /><span>
-                    Người dùng</span
-                  >
-                  <span class="menu-arrow"></span
-                ></a>
-                <ul>
-                  <li><a href="customerlist.html">Danh sách khách hàng</a></li>
-                  <li><a href="addcustomer.html">Danh sách quản trị viên</a></li>
-                  <li><a href="supplierlist.html">Supplier List</a></li>
-                  <li><a href="addsupplier.html">Add Supplier </a></li>
-                  <li><a href="userlist.html">User List</a></li>
-                  <li><a href="adduser.html">Add User</a></li>
-                  <li><a href="storelist.html">Store List</a></li>
-                  <li><a href="addstore.html">Add Store</a></li>
-                </ul>
-              </li>
+              
               <li class="submenu">
                 <a href="javascript:void(0);"
                   ><img src="{{asset('img/icons/places.svg')}}" alt="img" /><span>

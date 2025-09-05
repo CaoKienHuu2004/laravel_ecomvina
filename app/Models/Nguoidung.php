@@ -8,12 +8,19 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable
+class Nguoidung extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
     /**
-     * The attributes that are mass assignable.
+     * Tên bảng trong database mà model này sẽ quản lý.
+     *
+     * @var string
+     */
+    protected $table = 'nguoi_dung'; // Hoặc 'users' tùy theo tên bảng của bạn
+
+    /**
+     * Các thuộc tính có thể được gán hàng loạt (mass assignable).
      *
      * @var array<int, string>
      */
@@ -21,10 +28,12 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'phone', // Ví dụ thêm một trường số điện thoại
+        'address', // Ví dụ thêm một trường địa chỉ
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * Các thuộc tính nên được ẩn khi chuyển thành dạng mảng hoặc JSON.
      *
      * @var array<int, string>
      */
@@ -34,7 +43,7 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be cast.
+     * Các thuộc tính nên được chuyển đổi (cast) sang các kiểu dữ liệu gốc.
      *
      * @var array<string, string>
      */
