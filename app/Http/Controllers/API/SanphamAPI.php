@@ -1,26 +1,29 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Resources\SanphamResources;
+use App\Models\Sanpham;
 
-class UudaithanhvienController extends Controller
+class SanphamAPI extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
-        return view("uudaithanhvien");
-    }
+        $sanphams = Sanpham::with([
+            "bienThe",
+            "bienThe.loaiBienThe",
+            "anhSanPham",
+            "danhmuc",
+            "thuonghieu",
+        ])->paginate(20);
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
+        // Trả về dữ liệu qua API Resource Collection
+        return SanphamResources::collection($sanphams);
     }
 
     /**
@@ -35,14 +38,6 @@ class UudaithanhvienController extends Controller
      * Display the specified resource.
      */
     public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
     {
         //
     }

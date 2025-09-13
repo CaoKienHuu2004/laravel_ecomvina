@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\SanphamController;
+use App\Http\Controllers\API\SanphamAPI;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -15,9 +15,6 @@ use App\Http\Controllers\SanphamController;
 */
 
 Route::prefix('sanpham')->group(function () {
-    Route::get('/', [SanphamController::class, 'index']);        // Lấy danh sách + filter
-    Route::post('/', [SanphamController::class, 'store']);       // Thêm mới
-    Route::get('/{id}', [SanphamController::class, 'show']);     // Xem chi tiết
-    Route::put('/{id}', [SanphamController::class, 'update']);   // Cập nhật
-    Route::delete('/{id}', [SanphamController::class, 'destroy']);// Xoá
+    Route::get('/', [SanphamAPI::class, 'index']);        
+    
 });

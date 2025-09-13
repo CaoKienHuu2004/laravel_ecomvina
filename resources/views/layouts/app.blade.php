@@ -236,9 +236,9 @@
                   <span class="menu-arrow"></span
                 ></a>
                 <ul>
-                  <li><a href="customerlist.html">Danh sách khách hàng</a></li>
+                  <li><a href="{{ route('danh-sach-khach-hang') }}">Danh sách khách hàng</a></li>
                   <li><a href="addcustomer.html">Danh sách quản trị viên</a></li>
-                  <li><a href="{{ route('danh-sach-uu-dai') }}">Cấp độ thành viên</a></li>
+                  <li><a href="">Cấp độ thành viên</a></li>
                 </ul>
               </li>
               <li class="submenu">
@@ -517,98 +517,310 @@
     
     <script src="{{asset('js/script.js')}}"></script>
     <script>
-      const {
-	ClassicEditor,
-	Autosave,
-	Bold,
-	Code,
-	Essentials,
-	FontBackgroundColor,
-	FontColor,
-	FontFamily,
-	FontSize,
-	Highlight,
-	Italic,
-	Paragraph,
-	RemoveFormat,
-	Strikethrough,
-	Subscript,
-	Superscript,
-	Table,
-	TableCaption,
-	TableCellProperties,
-	TableColumnResize,
-	TableProperties,
-	TableToolbar,
-	Underline
-} = window.CKEDITOR;
+      /**
+        * This configuration was generated using the CKEditor 5 Builder. You can modify it anytime using this link:
+        * https://ckeditor.com/ckeditor-5/builder/?redirect=portal#installation/NoNgNARATAdA7DAzBSU5RAFgIwAZeYCcucAHNnAKzoXG6mlyGam6FSVQOUgoQBuASxS4wwbGFGiJ0gLqQApgEMARriVLCEWUA===
+        */
 
-const LICENSE_KEY =
-	'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3NTcwMzAzOTksImp0aSI6Ijk1NjE3Y2JjLTY4NmMtNGEwYy05MTM0LTlmMzAzZTJkNzRhZiIsInVzYWdlRW5kcG9pbnQiOiJodHRwczovL3Byb3h5LWV2ZW50LmNrZWRpdG9yLmNvbSIsImRpc3RyaWJ1dGlvbkNoYW5uZWwiOlsiY2xvdWQiLCJkcnVwYWwiLCJzaCJdLCJ3aGl0ZUxhYmVsIjp0cnVlLCJsaWNlbnNlVHlwZSI6InRyaWFsIiwiZmVhdHVyZXMiOlsiKiJdLCJ2YyI6ImM4YTIwNWI5In0.r0v27tGY3hB_JrMUxfglAMXyk_loUVxkD2hdszAEIGy092ru-RKEHcYZVj6eqMmB_-_aXcWydns8drQgMtuLvQ';
+        const {
+          ClassicEditor,
+          Alignment,
+          AutoImage,
+          AutoLink,
+          Autosave,
+          BlockQuote,
+          Bold,
+          Bookmark,
+          Code,
+          CodeBlock,
+          Essentials,
+          FindAndReplace,
+          FontBackgroundColor,
+          FontColor,
+          FontFamily,
+          FontSize,
+          GeneralHtmlSupport,
+          Heading,
+          Highlight,
+          HorizontalLine,
+          ImageBlock,
+          ImageCaption,
+          ImageInsert,
+          ImageInsertViaUrl,
+          ImageToolbar,
+          ImageUpload,
+          Indent,
+          IndentBlock,
+          Italic,
+          Link,
+          LinkImage,
+          Markdown,
+          Paragraph,
+          PasteFromOffice,
+          RemoveFormat,
+          SimpleUploadAdapter,
+          SpecialCharacters,
+          SpecialCharactersArrows,
+          SpecialCharactersCurrency,
+          SpecialCharactersEssentials,
+          SpecialCharactersLatin,
+          SpecialCharactersMathematical,
+          SpecialCharactersText,
+          Strikethrough,
+          Style,
+          Subscript,
+          Superscript,
+          Table,
+          TableCaption,
+          TableCellProperties,
+          TableColumnResize,
+          TableProperties,
+          TableToolbar,
+          TextPartLanguage,
+          Underline,
+          WordCount
+        } = window.CKEDITOR;
 
-const editorConfig = {
-	toolbar: {
-		items: [
-			'undo',
-			'redo',
-			'|',
-			'fontSize',
-			'fontFamily',
-			'fontColor',
-			'fontBackgroundColor',
-			'|',
-			'bold',
-			'italic',
-			'underline',
-			'strikethrough',
-			'subscript',
-			'superscript',
-			'code',
-			'removeFormat',
-			'|',
-			'insertTable',
-			'highlight'
-		],
-		shouldNotGroupWhenFull: false
-	},
-	plugins: [
-		Autosave,
-		Bold,
-		Code,
-		Essentials,
-		FontBackgroundColor,
-		FontColor,
-		FontFamily,
-		FontSize,
-		Highlight,
-		Italic,
-		Paragraph,
-		RemoveFormat,
-		Strikethrough,
-		Subscript,
-		Superscript,
-		Table,
-		TableCaption,
-		TableCellProperties,
-		TableColumnResize,
-		TableProperties,
-		TableToolbar,
-		Underline
-	],
-	fontFamily: {
-		supportAllValues: true
-	},
-	fontSize: {
-		options: [10, 12, 14, 'default', 18, 20, 22],
-		supportAllValues: true
-	},
-	language: 'vi',
-	licenseKey: LICENSE_KEY,
-	placeholder: 'Type or paste your content here!',
-	table: {
-		contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']
-	}
-};
+        const LICENSE_KEY =
+          'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3ODczNTY3OTksImp0aSI6IjM3OTJmZDBhLTgxOTQtNDRlZi05MDFmLTRhMjAwOWQ2NDAyMiIsImxpY2Vuc2VkSG9zdHMiOlsiMTI3LjAuMC4xIiwibG9jYWxob3N0IiwiMTkyLjE2OC4qLioiLCIxMC4qLiouKiIsIjE3Mi4qLiouKiIsIioudGVzdCIsIioubG9jYWxob3N0IiwiKi5sb2NhbCJdLCJ1c2FnZUVuZHBvaW50IjoiaHR0cHM6Ly9wcm94eS1ldmVudC5ja2VkaXRvci5jb20iLCJkaXN0cmlidXRpb25DaGFubmVsIjpbImNsb3VkIiwiZHJ1cGFsIl0sImxpY2Vuc2VUeXBlIjoiZGV2ZWxvcG1lbnQiLCJmZWF0dXJlcyI6WyJEUlVQIiwiRTJQIiwiRTJXIl0sInZjIjoiNDExMjYxNTkifQ.9YG3z9toN0pcTRdXGXTj42xVsK5KTxt-ZUqJpw-6QeaoPtDbkgbY3CjMdxWNi7Dorln7D8yWImhoSrcWHIqZEg';
+
+        const editorConfig = {
+          toolbar: {
+            items: [
+              'undo',
+              'redo',
+              '|',
+              'findAndReplace',
+              'textPartLanguage',
+              '|',
+              'heading',
+              'style',
+              '|',
+              'fontSize',
+              'fontFamily',
+              'fontColor',
+              'fontBackgroundColor',
+              '|',
+              'bold',
+              'italic',
+              'underline',
+              'strikethrough',
+              'subscript',
+              'superscript',
+              'code',
+              'removeFormat',
+              '|',
+              'specialCharacters',
+              'horizontalLine',
+              'link',
+              'bookmark',
+              'insertImage',
+              'insertTable',
+              'highlight',
+              'blockQuote',
+              'codeBlock',
+              '|',
+              'alignment',
+              '|',
+              'outdent',
+              'indent'
+            ],
+            shouldNotGroupWhenFull: false
+          },
+          plugins: [
+            Alignment,
+            AutoImage,
+            AutoLink,
+            Autosave,
+            BlockQuote,
+            Bold,
+            Bookmark,
+            Code,
+            CodeBlock,
+            Essentials,
+            FindAndReplace,
+            FontBackgroundColor,
+            FontColor,
+            FontFamily,
+            FontSize,
+            GeneralHtmlSupport,
+            Heading,
+            Highlight,
+            HorizontalLine,
+            ImageBlock,
+            ImageCaption,
+            ImageInsert,
+            ImageInsertViaUrl,
+            ImageToolbar,
+            ImageUpload,
+            Indent,
+            IndentBlock,
+            Italic,
+            Link,
+            LinkImage,
+            Markdown,
+            Paragraph,
+            PasteFromOffice,
+            RemoveFormat,
+            SimpleUploadAdapter,
+            SpecialCharacters,
+            SpecialCharactersArrows,
+            SpecialCharactersCurrency,
+            SpecialCharactersEssentials,
+            SpecialCharactersLatin,
+            SpecialCharactersMathematical,
+            SpecialCharactersText,
+            Strikethrough,
+            Style,
+            Subscript,
+            Superscript,
+            Table,
+            TableCaption,
+            TableCellProperties,
+            TableColumnResize,
+            TableProperties,
+            TableToolbar,
+            TextPartLanguage,
+            Underline,
+            WordCount
+          ],
+          fontFamily: {
+            supportAllValues: true
+          },
+          fontSize: {
+            options: [10, 12, 14, 'default', 18, 20, 22],
+            supportAllValues: true
+          },
+          heading: {
+            options: [
+              {
+                model: 'paragraph',
+                title: 'Paragraph',
+                class: 'ck-heading_paragraph'
+              },
+              {
+                model: 'heading1',
+                view: 'h1',
+                title: 'Heading 1',
+                class: 'ck-heading_heading1'
+              },
+              {
+                model: 'heading2',
+                view: 'h2',
+                title: 'Heading 2',
+                class: 'ck-heading_heading2'
+              },
+              {
+                model: 'heading3',
+                view: 'h3',
+                title: 'Heading 3',
+                class: 'ck-heading_heading3'
+              },
+              {
+                model: 'heading4',
+                view: 'h4',
+                title: 'Heading 4',
+                class: 'ck-heading_heading4'
+              },
+              {
+                model: 'heading5',
+                view: 'h5',
+                title: 'Heading 5',
+                class: 'ck-heading_heading5'
+              },
+              {
+                model: 'heading6',
+                view: 'h6',
+                title: 'Heading 6',
+                class: 'ck-heading_heading6'
+              }
+            ]
+          },
+          htmlSupport: {
+            allow: [
+              {
+                name: /^.*$/,
+                styles: true,
+                attributes: true,
+                classes: true
+              }
+            ]
+          },
+          image: {
+            toolbar: ['toggleImageCaption']
+          },
+          language: 'vi',
+          licenseKey: LICENSE_KEY,
+          link: {
+            addTargetToExternalLinks: true,
+            defaultProtocol: 'https://',
+            decorators: {
+              toggleDownloadable: {
+                mode: 'manual',
+                label: 'Downloadable',
+                attributes: {
+                  download: 'file'
+                }
+              }
+            }
+          },
+          placeholder: 'Type or paste your content here!',
+          style: {
+            definitions: [
+              {
+                name: 'Article category',
+                element: 'h3',
+                classes: ['category']
+              },
+              {
+                name: 'Title',
+                element: 'h2',
+                classes: ['document-title']
+              },
+              {
+                name: 'Subtitle',
+                element: 'h3',
+                classes: ['document-subtitle']
+              },
+              {
+                name: 'Info box',
+                element: 'p',
+                classes: ['info-box']
+              },
+              {
+                name: 'CTA Link Primary',
+                element: 'a',
+                classes: ['button', 'button--green']
+              },
+              {
+                name: 'CTA Link Secondary',
+                element: 'a',
+                classes: ['button', 'button--black']
+              },
+              {
+                name: 'Marker',
+                element: 'span',
+                classes: ['marker']
+              },
+              {
+                name: 'Spoiler',
+                element: 'span',
+                classes: ['spoiler']
+              }
+            ]
+          },
+          table: {
+            contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']
+          }
+        };
+
+        ClassicEditor.create(document.querySelector('#editor'), editorConfig).then(editor => {
+          const wordCount = editor.plugins.get('WordCount');
+          document.querySelector('#editor-word-count').appendChild(wordCount.wordCountContainer);
+
+          return editor;
+        });
+
     </script>
     @yield('scripts')
   </body>

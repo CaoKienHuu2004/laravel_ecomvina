@@ -93,7 +93,7 @@
                                         <img src="{{asset('')}}img/icons/edit.svg" alt="img" />
                                     </a>
                                     <form action="{{ route('xoa-thuong-hieu', $th->id) }}" method="POST" class="d-inline"
-                                        onsubmit="return confirm('Bạn chắc chắn muốn xóa danh mục này?')">
+                                        onsubmit="return confirm('Bạn chắc chắn muốn xóa thương hiệu này?')">
                                         @csrf
                                         @method('DELETE')
                                         <button class="me-3 btn" data-bs-toggle="tooltip" data-bs-placement="top" title="Xóa"><img src="{{asset('img/icons/delete.svg')}}" alt="img" /></button>

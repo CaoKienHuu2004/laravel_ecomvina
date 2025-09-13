@@ -5,9 +5,7 @@ use App\Http\Controllers\SanphamController;
 use App\Http\Controllers\DanhmucController;
 use App\Http\Controllers\ThuonghieuController;
 use App\Http\Controllers\BientheController;
-use App\Http\Controllers\UudaithanhvienController;
-use App\Models\Sanpham;
-use App\Models\Uudaithanhvien;
+use App\Http\Controllers\NguoidungController;
 
 /*
 |--------------------------------------------------------------------------
@@ -82,7 +80,8 @@ Route::prefix('kho-hang')->group(function () {
     Route::get('/{id}/xoa', [BientheController::class, 'destroy'])->name('xoa-hang-ton-kho');
 });
 
-Route::prefix('uu-dai-thanh-vien')->group(function () {
-    Route::get('/danh-sach', [UudaithanhvienController::class,'index'])->name('danh-sach-uu-dai');
+Route::prefix('khach-hang')->group(function () {
+    Route::get('/', [NguoidungController::class,'index'])->name('danh-sach-khach-hang');
+    Route::get('/danh-sach', [NguoidungController::class,'index']);
 });
 

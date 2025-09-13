@@ -25,11 +25,16 @@ class Nguoidung extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
+        'username',
         'email',
         'password',
-        'phone', // Ví dụ thêm một trường số điện thoại
-        'address', // Ví dụ thêm một trường địa chỉ
+        'sodienthoai',
+        'ngaysinh',
+        'hoten',
+        'gioitinh',
+        'trangthai',
+        'created_at',
+        'updated_at',
     ];
 
     /**
@@ -51,4 +56,11 @@ class Nguoidung extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    public function diachi()
+    {
+        return $this->hasMany(Diachi::class);
+    }
+
+    
 }

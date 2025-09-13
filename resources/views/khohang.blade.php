@@ -151,7 +151,7 @@
                     <img src="{{asset('img/icons/edit.svg')}}" alt="img" />
                   </a>
 
-                  <a class="me-3" href="{{ route('xoa-hang-ton-kho',$bt->id) }}" onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">
+                  <a class="me-3" href="{{ route('xoa-hang-ton-kho',$bt->id) }}" onclick="return confirm('Bạn có chắc chắn muốn xóa hàng tồn kho này?');">
                     <img src="{{asset('img/icons/delete.svg')}}" alt="img" />
                   </a>
                 </td>

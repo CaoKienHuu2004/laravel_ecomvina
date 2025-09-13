@@ -2,16 +2,14 @@
 
 @section('title','Danh sách khách hàng | Quản trị hệ thống Siêu Thị Vina')
 
-@endsection
-
 @section('content')
 
 <div class="page-wrapper">
     <div class="content">
         <div class="page-header">
             <div class="page-title">
-                <h4>User List</h4>
-                <h6>Manage your User</h6>
+                <h4>Danh sách khách hàng</h4>
+                <h6>Quản lý các mục trong danh sách khách hàng của bạn</h6>
             </div>
             <div class="page-btn">
                 <a href="newuser.html" class="btn btn-added"><img src="{{asset('')}}img/icons/plus.svg" alt="img" />Add User</a>
@@ -105,12 +103,6 @@
                     <table class="table datanew">
                         <thead>
                             <tr>
-                                <th>
-                                    <label class="checkboxs">
-                                        <input type="checkbox" />
-                                        <span class="checkmarks"></span>
-                                    </label>
-                                </th>
                                 <th>User name</th>
                                 <th>Phone</th>
                                 <th>email</th>
@@ -122,13 +114,13 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td>
-                                    <label class="checkboxs">
-                                        <input type="checkbox" />
-                                        <span class="checkmarks"></span>
-                                    </label>
+                                <td class="productimgname"><a href="{{url('/')}}" class="product-img">
+                                    <img
+                                    src="{{ asset('img/customer/customer.jpg') }}"
+                                    alt="Not found" />
+                                </a>
+                                <a href="{{url('/')}}" style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" data-bs-toggle="tooltip" data-bs-placement="top" title="">Cao Kiến Hựu</a>
                                 </td>
-                                <td>Thomas</td>
                                 <td>+12163547758</td>
                                 <td>
                                     <a
@@ -149,13 +141,13 @@
                                 </td>
                             </tr>
                             <tr>
-                                <td>
-                                    <label class="checkboxs">
-                                        <input type="checkbox" />
-                                        <span class="checkmarks"></span>
-                                    </label>
+                                <td class="productimgname"><a href="{{url('/')}}" class="product-img">
+                                    <img
+                                    src="{{ asset('img/customer/customer.jpg') }}"
+                                    alt="Not found" />
+                                </a>
+                                <a href="{{url('/')}}" style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" data-bs-toggle="tooltip" data-bs-placement="top" title="">Cao Kiến Hựu</a>
                                 </td>
-                                <td>504Benjamin</td>
                                 <td>123-456-888</td>
                                 <td>
                                     <a
@@ -177,340 +169,7 @@
                                     </a>
                                 </td>
                             </tr>
-                            <tr>
-                                <td>
-                                    <label class="checkboxs">
-                                        <input type="checkbox" />
-                                        <span class="checkmarks"></span>
-                                    </label>
-                                </td>
-                                <td>James 524</td>
-                                <td>+12163547758</td>
-                                <td>
-                                    <a
-                                        href="/cdn-cgi/l/email-protection"
-                                        class="__cf_email__"
-                                        data-cfemail="a0cac1cdc5d3e0c5d8c1cdd0ccc58ec3cfcd">[email&#160;protected]</a>
-                                </td>
-                                <td>Salesman</td>
-                                <td>2/27/2022</td>
-                                <td>
-                                    <span class="bg-lightred badges">Restricted</span>
-                                </td>
-                                <td>
-                                    <a class="me-3" href="newuseredit.html">
-                                        <img src="{{asset('')}}img/icons/edit.svg" alt="img" />
-                                    </a>
-                                    <a class="me-3 confirm-text" href="javascript:void(0);">
-                                        <img src="{{asset('')}}img/icons/delete.svg" alt="img" />
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <label class="checkboxs">
-                                        <input type="checkbox" />
-                                        <span class="checkmarks"></span>
-                                    </label>
-                                </td>
-                                <td>James 524</td>
-                                <td>+12163547758</td>
-                                <td>
-                                    <a
-                                        href="/cdn-cgi/l/email-protection"
-                                        class="__cf_email__"
-                                        data-cfemail="94fef5f9f1e7d4f1ecf5f9e4f8f1baf7fbf9">[email&#160;protected]</a>
-                                </td>
-                                <td>Salesman</td>
-                                <td>2/27/2022</td>
-                                <td>
-                                    <span class="bg-lightred badges">Restricted</span>
-                                </td>
-                                <td>
-                                    <a class="me-3" href="newuseredit.html">
-                                        <img src="{{asset('')}}img/icons/edit.svg" alt="img" />
-                                    </a>
-                                    <a class="me-3 confirm-text" href="javascript:void(0);">
-                                        <img src="{{asset('')}}img/icons/delete.svg" alt="img" />
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <label class="checkboxs">
-                                        <input type="checkbox" />
-                                        <span class="checkmarks"></span>
-                                    </label>
-                                </td>
-                                <td>Bruklin2022</td>
-                                <td>123-456-888</td>
-                                <td>
-                                    <a
-                                        href="/cdn-cgi/l/email-protection"
-                                        class="__cf_email__"
-                                        data-cfemail="d4b6a6a1bfb8bdba94b1acb5b9a4b8b1fab7bbb9">[email&#160;protected]</a>
-                                </td>
-                                <td>Delivery Biker</td>
-                                <td>2/27/2022</td>
-                                <td><span class="bg-lightgreen badges">Active</span></td>
-                                <td>
-                                    <a class="me-3" href="newuseredit.html">
-                                        <img src="{{asset('')}}img/icons/edit.svg" alt="img" />
-                                    </a>
-                                    <a class="me-3 confirm-text" href="javascript:void(0);">
-                                        <img src="{{asset('')}}img/icons/delete.svg" alt="img" />
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <label class="checkboxs">
-                                        <input type="checkbox" />
-                                        <span class="checkmarks"></span>
-                                    </label>
-                                </td>
-                                <td>BeverlyWIN25</td>
-                                <td>+12163547758</td>
-                                <td>
-                                    <a
-                                        href="/cdn-cgi/l/email-protection"
-                                        class="__cf_email__"
-                                        data-cfemail="6e0c1c1b050207002e0b160f031e020b400d0103">[email&#160;protected]</a>
-                                </td>
-                                <td>Delivery Biker</td>
-                                <td>2/27/2022</td>
-                                <td><span class="bg-lightgreen badges">Active</span></td>
-                                <td>
-                                    <a class="me-3" href="newuseredit.html">
-                                        <img src="{{asset('')}}img/icons/edit.svg" alt="img" />
-                                    </a>
-                                    <a class="me-3 confirm-text" href="javascript:void(0);">
-                                        <img src="{{asset('')}}img/icons/delete.svg" alt="img" />
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <label class="checkboxs">
-                                        <input type="checkbox" />
-                                        <span class="checkmarks"></span>
-                                    </label>
-                                </td>
-                                <td>BHR256</td>
-                                <td>123-456-888</td>
-                                <td>
-                                    <a
-                                        href="/cdn-cgi/l/email-protection"
-                                        class="__cf_email__"
-                                        data-cfemail="d098a5b2b5a290b5a8b1bda0bcb5feb3bfbd">[email&#160;protected]</a>
-                                </td>
-                                <td>Sales Executive</td>
-                                <td>3/15/2022</td>
-                                <td><span class="bg-lightgreen badges">Active</span></td>
-                                <td>
-                                    <a class="me-3" href="newuseredit.html">
-                                        <img src="{{asset('')}}img/icons/edit.svg" alt="img" />
-                                    </a>
-                                    <a class="me-3 confirm-text" href="javascript:void(0);">
-                                        <img src="{{asset('')}}img/icons/delete.svg" alt="img" />
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <label class="checkboxs">
-                                        <input type="checkbox" />
-                                        <span class="checkmarks"></span>
-                                    </label>
-                                </td>
-                                <td>Thomas</td>
-                                <td>+12163547758</td>
-                                <td>
-                                    <a
-                                        href="/cdn-cgi/l/email-protection"
-                                        class="__cf_email__"
-                                        data-cfemail="c5b1adaaa8a4b685a0bda4a8b5a9a0eba6aaa8">[email&#160;protected]</a>
-                                </td>
-                                <td>Admin</td>
-                                <td>3/15/2022</td>
-                                <td><span class="bg-lightgreen badges">Active</span></td>
-                                <td>
-                                    <a class="me-3" href="newuseredit.html">
-                                        <img src="{{asset('')}}img/icons/edit.svg" alt="img" />
-                                    </a>
-                                    <a class="me-3 confirm-text" href="javascript:void(0);">
-                                        <img src="{{asset('')}}img/icons/delete.svg" alt="img" />
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <label class="checkboxs">
-                                        <input type="checkbox" />
-                                        <span class="checkmarks"></span>
-                                    </label>
-                                </td>
-                                <td>504Benjamin</td>
-                                <td>123-456-888</td>
-                                <td>
-                                    <a
-                                        href="/cdn-cgi/l/email-protection"
-                                        class="__cf_email__"
-                                        data-cfemail="62011711160d0f071022071a030f120e074c010d0f">[email&#160;protected]</a>
-                                </td>
-                                <td>Manager</td>
-                                <td>2/27/2022</td>
-                                <td>
-                                    <span class="bg-lightred badges">Restricted</span>
-                                </td>
-                                <td>
-                                    <a class="me-3" href="newuseredit.html">
-                                        <img src="{{asset('')}}img/icons/edit.svg" alt="img" />
-                                    </a>
-                                    <a class="me-3 confirm-text" href="javascript:void(0);">
-                                        <img src="{{asset('')}}img/icons/delete.svg" alt="img" />
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <label class="checkboxs">
-                                        <input type="checkbox" />
-                                        <span class="checkmarks"></span>
-                                    </label>
-                                </td>
-                                <td>James 524</td>
-                                <td>+12163547758</td>
-                                <td>
-                                    <a
-                                        href="/cdn-cgi/l/email-protection"
-                                        class="__cf_email__"
-                                        data-cfemail="274d464a425467425f464a574b420944484a">[email&#160;protected]</a>
-                                </td>
-                                <td>Salesman</td>
-                                <td>2/27/2022</td>
-                                <td>
-                                    <span class="bg-lightred badges">Restricted</span>
-                                </td>
-                                <td>
-                                    <a class="me-3" href="newuseredit.html">
-                                        <img src="{{asset('')}}img/icons/edit.svg" alt="img" />
-                                    </a>
-                                    <a class="me-3 confirm-text" href="javascript:void(0);">
-                                        <img src="{{asset('')}}img/icons/delete.svg" alt="img" />
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <label class="checkboxs">
-                                        <input type="checkbox" />
-                                        <span class="checkmarks"></span>
-                                    </label>
-                                </td>
-                                <td>James 524</td>
-                                <td>+12163547758</td>
-                                <td>
-                                    <a
-                                        href="/cdn-cgi/l/email-protection"
-                                        class="__cf_email__"
-                                        data-cfemail="e48e85898197a4819c8589948881ca878b89">[email&#160;protected]</a>
-                                </td>
-                                <td>Salesman</td>
-                                <td>2/27/2022</td>
-                                <td>
-                                    <span class="bg-lightred badges">Restricted</span>
-                                </td>
-                                <td>
-                                    <a class="me-3" href="newuseredit.html">
-                                        <img src="{{asset('')}}img/icons/edit.svg" alt="img" />
-                                    </a>
-                                    <a class="me-3 confirm-text" href="javascript:void(0);">
-                                        <img src="{{asset('')}}img/icons/delete.svg" alt="img" />
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <label class="checkboxs">
-                                        <input type="checkbox" />
-                                        <span class="checkmarks"></span>
-                                    </label>
-                                </td>
-                                <td>Bruklin2022</td>
-                                <td>123-456-888</td>
-                                <td>
-                                    <a
-                                        href="/cdn-cgi/l/email-protection"
-                                        class="__cf_email__"
-                                        data-cfemail="3b59494e505752557b5e435a564b575e15585456">[email&#160;protected]</a>
-                                </td>
-                                <td>Delivery Biker</td>
-                                <td>2/27/2022</td>
-                                <td><span class="bg-lightgreen badges">Active</span></td>
-                                <td>
-                                    <a class="me-3" href="newuseredit.html">
-                                        <img src="{{asset('')}}img/icons/edit.svg" alt="img" />
-                                    </a>
-                                    <a class="me-3 confirm-text" href="javascript:void(0);">
-                                        <img src="{{asset('')}}img/icons/delete.svg" alt="img" />
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <label class="checkboxs">
-                                        <input type="checkbox" />
-                                        <span class="checkmarks"></span>
-                                    </label>
-                                </td>
-                                <td>BeverlyWIN25</td>
-                                <td>+12163547758</td>
-                                <td>
-                                    <a
-                                        href="/cdn-cgi/l/email-protection"
-                                        class="__cf_email__"
-                                        data-cfemail="52302027393e3b3c12372a333f223e377c313d3f">[email&#160;protected]</a>
-                                </td>
-                                <td>Delivery Biker</td>
-                                <td>2/27/2022</td>
-                                <td><span class="bg-lightgreen badges">Active</span></td>
-                                <td>
-                                    <a class="me-3" href="newuseredit.html">
-                                        <img src="{{asset('')}}img/icons/edit.svg" alt="img" />
-                                    </a>
-                                    <a class="me-3 confirm-text" href="javascript:void(0);">
-                                        <img src="{{asset('')}}img/icons/delete.svg" alt="img" />
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>
-                                    <label class="checkboxs">
-                                        <input type="checkbox" />
-                                        <span class="checkmarks"></span>
-                                    </label>
-                                </td>
-                                <td>BHR256</td>
-                                <td>123-456-888</td>
-                                <td>
-                                    <a
-                                        href="/cdn-cgi/l/email-protection"
-                                        class="__cf_email__"
-                                        data-cfemail="1b536e797e695b7e637a766b777e35787476">[email&#160;protected]</a>
-                                </td>
-                                <td>Sales Executive</td>
-                                <td>3/15/2022</td>
-                                <td><span class="bg-lightgreen badges">Active</span></td>
-                                <td>
-                                    <a class="me-3" href="newuseredit.html">
-                                        <img src="{{asset('')}}img/icons/edit.svg" alt="img" />
-                                    </a>
-                                    <a class="me-3 confirm-text" href="javascript:void(0);">
-                                        <img src="{{asset('')}}img/icons/delete.svg" alt="img" />
-                                    </a>
-                                </td>
-                            </tr>
+                            
                         </tbody>
                     </table>
                 </div>
@@ -518,4 +177,14 @@
         </div>
     </div>
 </div>
+@endsection
+@section('scripts')
+<style>
+    .dt-buttons {
+        display: none !important;
+    }
+</style>
+
+
+
 @endsection
