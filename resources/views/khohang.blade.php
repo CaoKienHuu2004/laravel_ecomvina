@@ -106,6 +106,7 @@
                 <th>Loại hàng</th>
                 <th>Giá mặt hàng</th>
                 <th>Số lượng</th>
+                <th>Tổng tồn</th>
                 <th>Trạng thái</th>
                 <th>Ngày cập nhật</th>
                 <th>Hành động</th>
@@ -131,11 +132,18 @@
                   {{ $bt->loaiBienThe->ten }}
                 </td>
                 <td>
-                  <!-- {{ $bt->gia }} -->
-                  {{ number_format($bt->gia, 0, ',', '.') }} đ
+
+                  {{ number_format($bt->gia, 0, ',', '.')  }} đ
                 </td>
 
                 <td>{{ $bt->soluong ? $bt->soluong : 0 }}</td>
+                <td>
+                  @if ($bt->soluong > 0)
+                    {{ number_format($bt->gia * $bt->soluong, 0, ',', '.')}} đ
+                  @else
+                      Không có
+                  @endif
+                </td>
                 <td>
                   @if ($bt->soluong > 10)
                   <span class="badges bg-lightgreen">Còn hàng</span>
