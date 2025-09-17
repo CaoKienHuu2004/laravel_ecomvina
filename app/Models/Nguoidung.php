@@ -59,7 +59,7 @@ class Nguoidung extends Authenticatable
 
     public function diachi()
     {
-        return $this->hasMany(Diachi::class);
+        return $this->hasMany(Diachi::class,'id_nguoidung');
     }
 
     

@@ -243,7 +243,7 @@
               </li>
               <li class="submenu">
                 <a href="javascript:void(0);"
-                  ><img src="{{asset('mg/icons/quotation1.svg')}}i" alt="img" /><span>
+                  ><img src="{{asset('img/icons/quotation1.svg')}}" alt="img" /><span>
                     Quotation</span
                   >
                   <span class="menu-arrow"></span

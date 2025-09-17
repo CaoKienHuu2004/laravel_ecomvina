@@ -10,7 +10,7 @@
               <div class="dash-widget">
                 <div class="dash-widgetimg">
                   <span
-                    ><img src="assets/img/icons/dash1.svg" alt="img"
+                    ><img src="{{asset('')}}img/icons/dash1.svg" alt="img"
                   /></span>
                 </div>
                 <div class="dash-widgetcontent">
@@ -27,7 +27,7 @@
               <div class="dash-widget dash1">
                 <div class="dash-widgetimg">
                   <span
-                    ><img src="assets/img/icons/dash2.svg" alt="img"
+                    ><img src="{{asset('')}}img/icons/dash2.svg" alt="img"
                   /></span>
                 </div>
                 <div class="dash-widgetcontent">
@@ -44,7 +44,7 @@
               <div class="dash-widget dash2">
                 <div class="dash-widgetimg">
                   <span
-                    ><img src="assets/img/icons/dash3.svg" alt="img"
+                    ><img src="{{asset('')}}img/icons/dash3.svg" alt="img"
                   /></span>
                 </div>
                 <div class="dash-widgetcontent">
@@ -61,7 +61,7 @@
               <div class="dash-widget dash3">
                 <div class="dash-widgetimg">
                   <span
-                    ><img src="assets/img/icons/dash4.svg" alt="img"
+                    ><img src="{{asset('')}}img/icons/dash4.svg" alt="img"
                   /></span>
                 </div>
                 <div class="dash-widgetcontent">
@@ -144,7 +144,7 @@
                       >
                         2022
                         <img
-                          src="assets/img/icons/dropdown.svg"
+                          src="{{asset('')}}img/icons/dropdown.svg"
                           alt="img"
                           class="ms-2"
                         />
@@ -225,7 +225,7 @@
                           <td class="productimgname">
                             <a href="productlist.html" class="product-img">
                               <img
-                                src="assets/img/product/product22.jpg"
+                                src="{{asset('')}}img/product/product22.jpg"
                                 alt="product"
                               />
                             </a>
@@ -238,7 +238,7 @@
                           <td class="productimgname">
                             <a href="productlist.html" class="product-img">
                               <img
-                                src="assets/img/product/product23.jpg"
+                                src="{{asset('')}}img/product/product23.jpg"
                                 alt="product"
                               />
                             </a>
@@ -251,7 +251,7 @@
                           <td class="productimgname">
                             <a href="productlist.html" class="product-img">
                               <img
-                                src="assets/img/product/product24.jpg"
+                                src="{{asset('')}}img/product/product24.jpg"
                                 alt="product"
                               />
                             </a>
@@ -264,7 +264,7 @@
                           <td class="productimgname">
                             <a href="productlist.html" class="product-img">
                               <img
-                                src="assets/img/product/product6.jpg"
+                                src="{{asset('')}}img/product/product6.jpg"
                                 alt="product"
                               />
                             </a>
@@ -301,7 +301,7 @@
                       <td class="productimgname">
                         <a class="product-img" href="productlist.html">
                           <img
-                            src="assets/img/product/product2.jpg"
+                            src="{{asset('')}}img/product/product2.jpg"
                             alt="product"
                           />
                         </a>
@@ -317,7 +317,7 @@
                       <td class="productimgname">
                         <a class="product-img" href="productlist.html">
                           <img
-                            src="assets/img/product/product3.jpg"
+                            src="{{asset('')}}img/product/product3.jpg"
                             alt="product"
                           />
                         </a>
@@ -333,7 +333,7 @@
                       <td class="productimgname">
                         <a class="product-img" href="productlist.html">
                           <img
-                            src="assets/img/product/product4.jpg"
+                            src="{{asset('')}}img/product/product4.jpg"
                             alt="product"
                           />
                         </a>
@@ -349,7 +349,7 @@
                       <td class="productimgname">
                         <a class="product-img" href="productlist.html">
                           <img
-                            src="assets/img/product/product5.jpg"
+                            src="{{asset('')}}img/product/product5.jpg"
                             alt="product"
                           />
                         </a>

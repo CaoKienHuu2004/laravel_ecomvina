@@ -3,15 +3,20 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Nguoidung;
+use App\Models\Diachi;
 
 class NguoidungController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return view("khachhang");
+        $danhsach = Nguoidung::with('diachi')->get();
+        $diachi = Diachi::all();
+        
+        return view("khachhang", compact("danhsach","diachi"));
     }
 
     /**

@@ -24,6 +24,6 @@ class Diachi extends Model
 
     public function nguoidung()
     {
-        return $this->belongsTo(Nguoidung::class);
+        return $this->belongsTo(Nguoidung::class,'id_nguoidung','id');
     }
 }
