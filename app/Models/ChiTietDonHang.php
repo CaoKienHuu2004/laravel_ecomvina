@@ -1,0 +1,39 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class ChiTietDonHang extends Model
+{
+    use HasFactory, SoftDeletes;
+
+    protected $table = 'chitiet_donhang';
+
+    protected $fillable = [
+        'gia',
+        'soluong',
+        'tongtien',
+        'id_donhang',
+        'id_bienthe',
+    ];
+
+    protected $casts = [
+        'gia'      => 'decimal:2',
+        'tongtien' => 'decimal:2',
+    ];
+
+    // Quan hệ với đơn hàng
+    public function donhang()
+    {
+        return $this->belongsTo(DonHang::class, 'id_donhang');
+    }
+
+    // Quan hệ với biến thể sản phẩm
+    public function bienthe()
+    {
+        return $this->belongsTo(Bienthesp::class, 'id_bienthe');
+    }
+}

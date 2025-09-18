@@ -4,20 +4,33 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Sanpham extends Model
+class SanPham extends Model
 {
+    use HasFactory, SoftDeletes;
+
     protected $table = 'san_pham';
-    public $timestamps = true;
-    protected $fillable = ['id',
-        'ten', 'mota', 'xuatxu', 'sanxuat', 'baohanh', 
-        'mediaurl', 'trangthai', 'luotxem', 'id_thuonghieu',
-        'created_at', 'updated_at'
+
+    protected $fillable = [
+        'ten',
+        'mota',
+        'xuatxu',
+        'sanxuat',
+        'mediaurl',
+        'trangthai',
+        'luotxem',
+        'id_thuonghieu'
     ];
 
-     public function bienThe()
+
+    public function thuonghieu()
     {
-        return $this->hasMany(Bienthesp::class, 'id_sanpham'); 
+        return $this->belongsTo(\App\Models\ThuongHieu::class, 'id_thuonghieu');
+    }
+    public function bienThe()
+    {
+        return $this->hasMany(Bienthesp::class, 'id_sanpham');
     }
 
     public function anhSanPham()
@@ -29,11 +42,6 @@ class Sanpham extends Model
         return $this->belongsToMany(Danhmuc::class, 'sanpham_danhmuc', 'id_sanpham', 'id_danhmuc');
     }
 
-    public function thuonghieu()
-    {
-        return $this->belongsTo(Thuonghieu::class, 'id_thuonghieu', 'id');
-    }
-
-    
-    use HasFactory;
 }
+
+

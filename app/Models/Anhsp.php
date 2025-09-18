@@ -12,5 +12,5 @@ class Anhsp extends Model
     public $timestamps = true;
 
     protected $fillable = ['media', 'trang_thai', 'id_sanpham', 'created_at', 'updated_at'];
-    
+
 }

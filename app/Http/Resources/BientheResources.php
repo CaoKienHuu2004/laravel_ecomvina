@@ -19,11 +19,11 @@ class BientheResources extends JsonResource
         'gia' => $this->gia,
         'so_luong' => $this->soluong,
         'uu_tien' => $this->uutien,
-        
+
         // Tải có điều kiện các mối quan hệ
         // Sử dụng whenLoaded để tránh lỗi N+1 query
         'loai_bien_the' => new LoaibientheResources($this->whenLoaded('loaiBienThe')),
-        
+
     ];
     }
 }

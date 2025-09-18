@@ -15,7 +15,7 @@ class NguoidungController extends Controller
     {
         $danhsach = Nguoidung::with('diachi')->get();
         $diachi = Diachi::all();
-        
+
         return view("khachhang", compact("danhsach","diachi"));
     }
 

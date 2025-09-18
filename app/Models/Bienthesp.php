@@ -23,5 +23,5 @@ class Bienthesp extends Model
         // trỏ đến 'id' trong bảng 'san_pham'
         return $this->belongsTo(Sanpham::class, 'id_sanpham');
     }
-    
+
 }

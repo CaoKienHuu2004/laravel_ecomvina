@@ -2,54 +2,79 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\Controller;
 use App\Models\Danhmuc;
 use Illuminate\Http\Request;
 
 class DanhmucController extends Controller
 {
-    public function index()
+    // API lấy danh mục có phân trang
+    public function index(Request $request)
     {
-        $danhmuc = Danhmuc::withCount('sanpham')->get();
-        return view('danhmuc', compact('danhmuc'));
+        // pageSize mặc định là 10, có thể truyền ?per_page=5
+        $perPage = $request->get('per_page', 10);
+
+        $danhmuc = Danhmuc::withCount('sanpham')->paginate($perPage);
+
+        return response()->json($danhmuc);
     }
 
-    public function create()
-    {
-        return view('taodanhmuc');
-    }
-
+    // API tạo danh mục
     public function store(Request $request)
     {
-        Danhmuc::create($request->only(['ten', 'trangthai']));
-        return redirect()->route('danh-sach-danh-muc')->with('success', 'Tạo danh mục thành công!');
+        $data = $request->validate([
+            'ten' => 'required|string|max:255',
+            'trangthai' => 'required|boolean',
+        ]);
+
+        $danhmuc = Danhmuc::create($data);
+
+        return response()->json([
+            'message' => 'Tạo danh mục thành công!',
+            'data' => $danhmuc
+        ], 201);
     }
 
-    public function edit($id)
+    // API xem chi tiết
+    public function show($id)
     {
-        $danhmuc = Danhmuc::findOrFail($id);
-        return view('suadanhmuc', compact('danhmuc'));
+        $danhmuc = Danhmuc::with('sanpham')->findOrFail($id);
+
+        return response()->json($danhmuc);
     }
 
+    // API cập nhật
     public function update(Request $request, $id)
     {
+        $data = $request->validate([
+            'ten' => 'required|string|max:255',
+            'trangthai' => 'required|boolean',
+        ]);
+
         $danhmuc = Danhmuc::findOrFail($id);
-        $danhmuc->update($request->only(['ten', 'trangthai']));
-        return redirect()->route('danh-sach-danh-muc')->with('success', 'Đã cập nhật thành công!');
+        $danhmuc->update($data);
+
+        return response()->json([
+            'message' => 'Cập nhật thành công!',
+            'data' => $danhmuc
+        ]);
     }
 
+    // API xóa
     public function destroy($id)
     {
         $danhmuc = Danhmuc::findOrFail($id);
 
-        // Check nếu có sản phẩm thì không cho xóa
         if ($danhmuc->sanpham()->count() > 0) {
-            return redirect()->route('danh-sach-danh-muc')
-                ->with('error', 'Không thể xóa! Danh mục này vẫn còn sản phẩm.');
+            return response()->json([
+                'message' => 'Không thể xóa! Danh mục này vẫn còn sản phẩm.'
+            ], 400);
         }
 
         $danhmuc->delete();
 
-        return redirect()->route('danh-sach-danh-muc')
-            ->with('success', 'Xóa danh mục thành công!');
+        return response()->json([
+            'message' => 'Xóa danh mục thành công!'
+        ]);
     }
 }
