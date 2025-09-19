@@ -56,3 +56,10 @@ Route::middleware(['auth:sanctum','role:admin'])->group(function () {
     Route::apiResource('yeuthichs', YeuThichAPI::class)->only(['store','update','destroy']);
 });
 
+// Route::middleware(['auth:sanctum','role:admin,assistant'])->group(function () {
+//     Route::get('/dashboard', [DashboardController::class, 'index']);
+// });
+
+Route::middleware('apikey')->group(function () {
+    // Route::get('/articles', [ArticleController::class, 'index']);
+});

@@ -77,6 +77,7 @@ class Nguoidung extends Authenticatable
     public function hasRole(string $role): bool
     {
         return strtolower((string) ($this->vaitro ?? '')) === strtolower($role);
+        // return $this->vaitro === $role;
     }
 
     /**
