@@ -14,7 +14,7 @@ class DanhmucController extends Controller
         // pageSize mặc định là 10, có thể truyền ?per_page=5
         $perPage = $request->get('per_page', 10);
 
-        $danhmuc = Danhmuc::withCount('sanpham')->paginate($perPage);
+        $danhmuc = Danhmuc::withCount('sanphams')->paginate($perPage);
 
         return response()->json($danhmuc);
     }

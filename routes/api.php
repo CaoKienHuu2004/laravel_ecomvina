@@ -31,6 +31,7 @@ use App\Http\Controllers\API\ChuongTrinhSuKienAPI;
 Route::apiResource('sanphams', SanphamAPI::class)->only(['index','show']);
 Route::apiResource('danhmucs', DanhmucAPI::class)->only(['index','show']);
 Route::apiResource('nguoidungs', NguoidungAPI::class)->only(['index','show']);
+Route::apiResource('giohangs', GioHangAPI::class)->only(['index','show']);
 
 Route::apiResource('diachis', DiaChiNguoiDungAPI::class)->only(['index','show']);
 Route::apiResource('thanhtoans', ThanhToanAPI::class)->only(['index','show']);
@@ -45,6 +46,7 @@ Route::middleware(['auth:sanctum','role:admin'])->group(function () {
     Route::apiResource('sanphams', SanphamAPI::class)->only(['store','update','destroy']);
     Route::apiResource('danhmucs', DanhmucAPI::class)->only(['store','update','destroy']);
     Route::apiResource('nguoidungs', NguoidungAPI::class)->only(['store','update','destroy']);
+    Route::apiResource('giohangs', GioHangAPI::class)->only(['store','update','destroy']);
 
     Route::apiResource('diachis', DiaChiNguoiDungAPI::class)->only(['store','update','destroy']);
     Route::apiResource('thanhtoans', ThanhToanAPI::class)->only(['store','update','destroy']);

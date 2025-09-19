@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\DiaChiNguoiDungResource;
+use App\Http\Resources\DiaChiNguoiDungResources;
 use App\Models\DiaChi;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -19,7 +19,7 @@ class DiaChiNguoiDungAPI extends Controller
 
         $diachis = DiaChi::latest('updated_at')->paginate($perPage);
 
-        return DiaChiNguoiDungResource::collection($diachis)
+        return DiaChiNguoiDungResources::collection($diachis)
             ->additional([
                 'meta' => [
                     'current_page' => $diachis->currentPage(),
@@ -48,7 +48,7 @@ class DiaChiNguoiDungAPI extends Controller
 
         $diachi = DiaChi::create($validated);
 
-        return (new DiaChiNguoiDungResource($diachi))
+        return (new DiaChiNguoiDungResources($diachi))
             ->response()
             ->setStatusCode(Response::HTTP_CREATED);
     }
@@ -59,7 +59,7 @@ class DiaChiNguoiDungAPI extends Controller
     public function show(Request $request, $id)
     {
         $diachi = DiaChi::findOrFail($id);
-        return new DiaChiNguoiDungResource($diachi);
+        return new DiaChiNguoiDungResources($diachi);
     }
 
     /**
@@ -82,7 +82,7 @@ class DiaChiNguoiDungAPI extends Controller
 
         $diachi->update($validated);
 
-        return new DiaChiNguoiDungResource($diachi);
+        return new DiaChiNguoiDungResources($diachi);
     }
 
     /**

@@ -20,7 +20,7 @@ class NguoidungAPI extends Controller
         $items = Nguoidung::latest('updated_at')->paginate($perPage);
 
         // Load quan hệ luôn
-        $items->load(['diachi', 'phienDangNhap']);
+        $items->load(['diachi', 'phiendangnhap']);
 
         return response()->json([
             'data' => NguoidungResources::collection($items),
@@ -56,7 +56,7 @@ class NguoidungAPI extends Controller
         $user = Nguoidung::create($validated);
 
         // Load quan hệ nếu cần
-        $user->load(['diachi', 'phienDangNhap']);
+        $user->load(['diachi', 'phiendangnhap']);
 
         return response()->json(new NguoidungResources($user), Response::HTTP_CREATED);
     }
@@ -66,7 +66,7 @@ class NguoidungAPI extends Controller
      */
     public function show(string $id)
     {
-        $user = Nguoidung::with(['diachi', 'phienDangNhap'])->findOrFail($id);
+        $user = Nguoidung::with(['diachi', 'phiendangnhap'])->findOrFail($id);
 
         return response()->json(new NguoidungResources($user), Response::HTTP_OK);
     }
@@ -99,7 +99,7 @@ class NguoidungAPI extends Controller
 
         $user->update($validated);
 
-        $user->load(['diachi', 'phienDangNhap']);
+        $user->load(['diachi', 'phiendangnhap']);
 
         return response()->json(new NguoidungResources($user), Response::HTTP_OK);
     }

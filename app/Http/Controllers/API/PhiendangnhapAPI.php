@@ -15,7 +15,7 @@ class PhienDangNhapAPI extends Controller
     {
         $perPage = $request->get('per_page', 10);
 
-        $phienDangNhaps = PhienDangNhap::with('nguoiDung')
+        $phienDangNhaps = PhienDangNhap::with('nguoidung')
             ->latest('created_at')
             ->paginate($perPage);
 
@@ -33,7 +33,7 @@ class PhienDangNhapAPI extends Controller
     // Lấy chi tiết 1 phiên
     public function show(Request $request, string $id)
     {
-        $phien = PhienDangNhap::with('nguoiDung')->findOrFail($id);
+        $phien = PhienDangNhap::with('nguoidung')->findOrFail($id);
         return new PhienDangNhapResource($phien, $request);
     }
 

@@ -18,7 +18,7 @@ class DanhmucAPI extends Controller
     {
         $perPage = $request->get('per_page', 10);
 
-        $query = Danhmuc::withCount('sanpham');
+        $query = Danhmuc::withCount('sanphams');
 
         // Nếu không phải admin (hoặc chưa đăng nhập), loại bỏ soft deleted
         if (!optional($request->user())->isAdmin()) {
@@ -68,7 +68,7 @@ class DanhmucAPI extends Controller
      */
     public function show(Request $request, string $id)
     {
-        $query = Danhmuc::withCount('sanpham');
+        $query = Danhmuc::withCount('sanphams');
 
         // Admin có thể xem cả soft deleted
         if (!optional($request->user())->isAdmin()) {
