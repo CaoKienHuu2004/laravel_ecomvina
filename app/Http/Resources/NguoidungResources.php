@@ -23,7 +23,7 @@ class NguoidungResources extends JsonResource
             'sodienthoai' => $this->sodienthoai,
             'vaitro'      => $this->vaitro,
             'trangthai'   => $this->trangthai,
-            'diachis'     => DiaChiNguoiDungResource::collection($this->whenLoaded('diachi')),
+            'diachis'     => DiaChiNguoiDungResources::collection($this->whenLoaded('diachi')),
         ];
 
         // Nếu là admin, trả thêm thông tin quản trị

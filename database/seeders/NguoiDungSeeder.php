@@ -16,9 +16,9 @@ class NguoiDungSeeder extends Seeder
     {
         //
 
+
         $users = [
             [
-                "username" => "Admin",
                 "email" => "admin@example.com",
                 "password" => Hash::make("admin1234"),
                 "avatar" => "https://multiavatar.com/api/admin.png",
@@ -31,11 +31,7 @@ class NguoiDungSeeder extends Seeder
                 "created_at" => now(),
                 "updated_at" => now(),
             ],
-        ];
-
-        $users = [
             [
-                "username" => "Assistant",
                 "email" => "assistant@example.com",
                 "password" => Hash::make("assistant1234"),
                 "avatar" => "https://multiavatar.com/api/assistant.png",
@@ -48,11 +44,7 @@ class NguoiDungSeeder extends Seeder
                 "created_at" => now(),
                 "updated_at" => now(),
             ],
-        ];
-
-        $users = [
             [
-                "username" => "Anonymous",
                 "email" => "anonymous@example.com",
                 "password" => Hash::make("anonymous1234"),
                 "avatar" => "https://multiavatar.com/api/anonymous.png",
@@ -70,12 +62,11 @@ class NguoiDungSeeder extends Seeder
         //
         for ($i = 4; $i <= 70; $i++) {
             $users[] = [
-                "username" => "User$i",
                 "email" => "user$i@example.com",
                 "password" => Hash::make("password123"),
                 "avatar" => "https://i.pravatar.cc/150?img=$i",
                 "hoten" => "User $i",
-                "gioitinh" => $i % 2 == 0 ? "nam" : "Nữ",
+                "gioitinh" => $i % 2 == 0 ? "nam" : "nữ",
                 "ngaysinh" => "2000-0$i-0$i",
                 "sodienthoai" => "098765432$i",
                 "vaitro" => "user",

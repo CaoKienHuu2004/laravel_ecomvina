@@ -17,6 +17,9 @@ use App\Http\Controllers\API\ThanhToanAPI;
 use App\Http\Controllers\API\YeuThichAPI;
 use App\Http\Controllers\API\ChuongTrinhSuKienAPI;
 
+use App\Http\Controllers\AuthController;
+
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -27,6 +30,15 @@ use App\Http\Controllers\API\ChuongTrinhSuKienAPI;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+
+
+//////////////// begin:auth
+Route::post('login', [AuthController::class, 'login']);
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('logout', [AuthController::class, 'logout']);
+});
+//////////////// end:auth
 
 Route::apiResource('sanphams', SanphamAPI::class)->only(['index','show']);
 Route::apiResource('danhmucs', DanhmucAPI::class)->only(['index','show']);
@@ -43,6 +55,7 @@ Route::apiResource('danhgias', DanhGiaAPI::class)->only(['index','show']);
 Route::apiResource('yeuthichs', YeuThichAPI::class)->only(['index','show']);
 
 Route::middleware(['auth:sanctum','role:admin'])->group(function () {
+
     Route::apiResource('sanphams', SanphamAPI::class)->only(['store','update','destroy']);
     Route::apiResource('danhmucs', DanhmucAPI::class)->only(['store','update','destroy']);
     Route::apiResource('nguoidungs', NguoidungAPI::class)->only(['store','update','destroy']);

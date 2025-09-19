@@ -5,12 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Notifications\Notifiable; //Cho phép gửi thông báo đến model (mail, database, SMS…)
+use Laravel\Sanctum\HasApiTokens; //Cho phép model tạo và quản lý API token (dùng Sanctum)
+use Laravel\Fortify\TwoFactorAuthenticatable;
 
 class Nguoidung extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes, TwoFactorAuthenticatable;
 
     /**
      * Tên bảng trong database mà model này sẽ quản lý.
@@ -21,11 +22,9 @@ class Nguoidung extends Authenticatable
 
     /**
      * Các thuộc tính có thể được gán hàng loạt (mass assignable).
-     *
-     * ⚠️ Chú ý: trong migration cột là "usename" (thiếu "r").
      */
     protected $fillable = [
-        'usename',
+        'usename', // chú ý: nếu muốn sửa tên thành username, hãy đồng bộ migration
         'email',
         'password',
         'avatar',
@@ -45,6 +44,8 @@ class Nguoidung extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_recovery_codes',
+        'two_factor_secret',
     ];
 
     /**
@@ -77,22 +78,23 @@ class Nguoidung extends Authenticatable
     public function hasRole(string $role): bool
     {
         return strtolower((string) ($this->vaitro ?? '')) === strtolower($role);
-        // return $this->vaitro === $role;
     }
 
-    /**
-     * Người dùng là admin?
-     */
     public function isAdmin(): bool
     {
         return $this->hasRole('admin');
     }
 
-    /**
-     * Người dùng là assistant?
-     */
     public function isAssistant(): bool
     {
         return $this->hasRole('assistant');
+    }
+
+    /**
+     * Gửi thông báo xác thực email (Fortify yêu cầu).
+     */
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new \Illuminate\Auth\Notifications\VerifyEmail);
     }
 }

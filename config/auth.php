@@ -63,6 +63,7 @@ return [
         'users' => [
             'driver' => 'eloquent',
             'model' => App\Models\Nguoidung::class,
+            'table' => 'nguoi_dung', // không bắt buộc nếu đã khai báo $table trong model
         ],
 
         // 'users' => [
