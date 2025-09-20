@@ -2,39 +2,60 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
-use App\Models\PhienDangNhap;
 use Illuminate\Http\Request;
+use App\Models\PhienDangNhap;
 use App\Http\Resources\PhienDangNhapResource;
 use Illuminate\Http\Response;
 
-class PhienDangNhapAPI extends Controller
+class PhienDangNhapAPI extends BaseController
 {
     // Lấy danh sách phiên đăng nhập (có phân trang)
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
+        $currentPage = $request->get('page', 1);
 
         $phienDangNhaps = PhienDangNhap::with('nguoidung')
             ->latest('created_at')
-            ->paginate($perPage);
+            ->paginate($perPage, ['*'], 'page', $currentPage);
 
-        return PhienDangNhapResource::collection($phienDangNhaps)
-            ->additional([
+        // Kiểm tra nếu trang yêu cầu vượt quá tổng số trang
+        if ($currentPage > $phienDangNhaps->lastPage() && $currentPage > 1) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $phienDangNhaps->lastPage(),
                 'meta' => [
-                    'current_page' => $phienDangNhaps->currentPage(),
-                    'last_page'    => $phienDangNhaps->lastPage(),
-                    'per_page'     => $phienDangNhaps->perPage(),
-                    'total'        => $phienDangNhaps->total(),
+                    'current_page' => $currentPage,
+                    'last_page' => $phienDangNhaps->lastPage(),
+                    'per_page' => $perPage,
+                    'total' => $phienDangNhaps->total(),
                 ]
-            ]);
+            ], 404);
+        }
+
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Danh sách phiên đăng nhập',
+            'data' => PhienDangNhapResource::collection($phienDangNhaps),
+            'meta' => [
+                'current_page' => $phienDangNhaps->currentPage(),
+                'last_page'    => $phienDangNhaps->lastPage(),
+                'per_page'     => $phienDangNhaps->perPage(),
+                'total'        => $phienDangNhaps->total(),
+            ]
+        ], Response::HTTP_OK);
     }
 
     // Lấy chi tiết 1 phiên
     public function show(Request $request, string $id)
     {
         $phien = PhienDangNhap::with('nguoidung')->findOrFail($id);
-        return new PhienDangNhapResource($phien, $request);
+
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Chi tiết phiên đăng nhập',
+            'data' => new PhienDangNhapResource($phien)
+        ], Response::HTTP_OK);
     }
 
     // Tạo mới phiên (ví dụ khi login)
@@ -51,18 +72,30 @@ class PhienDangNhapAPI extends Controller
 
         $phien = PhienDangNhap::create($validated);
 
-        return (new PhienDangNhapResource($phien))
-            ->response()
-            ->setStatusCode(Response::HTTP_CREATED);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Tạo phiên đăng nhập thành công',
+            'data' => new PhienDangNhapResource($phien)
+        ], Response::HTTP_CREATED);
     }
 
     // Cập nhật phiên (khi user hoạt động lại)
     public function update(Request $request, string $id)
     {
         $phien = PhienDangNhap::findOrFail($id);
-        $phien->update($request->only(['du_lieu', 'hoat_dong_cuoi']));
 
-        return new PhienDangNhapResource($phien);
+        $validated = $request->validate([
+            'du_lieu' => 'sometimes|required|string',
+            'hoat_dong_cuoi' => 'sometimes|required|integer',
+        ]);
+
+        $phien->update($validated);
+
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Cập nhật phiên đăng nhập thành công',
+            'data' => new PhienDangNhapResource($phien)
+        ], Response::HTTP_OK);
     }
 
     // Xóa phiên
@@ -71,6 +104,9 @@ class PhienDangNhapAPI extends Controller
         $phien = PhienDangNhap::findOrFail($id);
         $phien->delete();
 
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Xóa phiên đăng nhập thành công'
+        ], Response::HTTP_NO_CONTENT);
     }
 }

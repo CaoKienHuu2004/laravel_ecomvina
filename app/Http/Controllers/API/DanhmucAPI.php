@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Danhmuc;
 use App\Http\Resources\DanhmucResources;
 use Illuminate\Http\Response;
 
-class DanhmucAPI extends Controller
+class DanhmucAPI extends BaseController
 {
     /**
      * Lấy danh sách danh mục (có phân trang + đếm số sản phẩm).
@@ -17,6 +16,7 @@ class DanhmucAPI extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
+        $currentPage = $request->get('page', 1);
 
         $query = Danhmuc::withCount('sanphams');
 
@@ -25,21 +25,35 @@ class DanhmucAPI extends Controller
             $query->whereNull('deleted_at');
         }
 
-        $items = $query->latest('updated_at')->paginate($perPage);
+        $items = $query->latest('updated_at')->paginate($perPage, ['*'], 'page', $currentPage);
 
-        return DanhmucResources::collection($items)
-            ->additional([
-                'status' => true,
-                'message' => 'Danh sách danh mục',
+        // Kiểm tra nếu trang yêu cầu vượt quá tổng số trang
+        if ($currentPage > $items->lastPage() && $currentPage > 1) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $items->lastPage(),
                 'meta' => [
-                    'current_page' => $items->currentPage(),
-                    'last_page'    => $items->lastPage(),
-                    'per_page'     => $items->perPage(),
-                    'total'        => $items->total(),
-                    'next_page_url'=> $items->nextPageUrl(),
-                    'prev_page_url'=> $items->previousPageUrl(),
+                    'current_page' => $currentPage,
+                    'last_page' => $items->lastPage(),
+                    'per_page' => $perPage,
+                    'total' => $items->total(),
                 ]
-            ]);
+            ], 404);
+        }
+
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Danh sách danh mục',
+            'data' => DanhmucResources::collection($items),
+            'meta' => [
+                'current_page' => $items->currentPage(),
+                'last_page'    => $items->lastPage(),
+                'per_page'     => $items->perPage(),
+                'total'        => $items->total(),
+                'next_page_url'=> $items->nextPageUrl(),
+                'prev_page_url'=> $items->previousPageUrl(),
+            ]
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -54,13 +68,11 @@ class DanhmucAPI extends Controller
 
         $dm = Danhmuc::create($validated);
 
-        return (new DanhmucResources($dm))
-            ->additional([
-                'status' => true,
-                'message' => 'Tạo danh mục thành công'
-            ])
-            ->response()
-            ->setStatusCode(Response::HTTP_CREATED);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Tạo danh mục thành công',
+            'data' => new DanhmucResources($dm)
+        ], Response::HTTP_CREATED);
     }
 
     /**
@@ -77,11 +89,11 @@ class DanhmucAPI extends Controller
 
         $dm = $query->findOrFail($id);
 
-        return (new DanhmucResources($dm))
-            ->additional([
-                'status' => true,
-                'message' => 'Chi tiết danh mục'
-            ]);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Chi tiết danh mục',
+            'data' => new DanhmucResources($dm)
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -98,11 +110,11 @@ class DanhmucAPI extends Controller
 
         $dm->update($validated);
 
-        return (new DanhmucResources($dm))
-            ->additional([
-                'status' => true,
-                'message' => 'Cập nhật danh mục thành công'
-            ]);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Cập nhật danh mục thành công',
+            'data' => new DanhmucResources($dm)
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -112,8 +124,8 @@ class DanhmucAPI extends Controller
     {
         $dm = Danhmuc::findOrFail($id);
 
-        if ($dm->sanpham()->count() > 0) {
-            return response()->json([
+        if ($dm->sanphams()->count() > 0) {
+            return $this->jsonResponse([
                 'status' => false,
                 'message' => 'Không thể xóa! Danh mục này vẫn còn sản phẩm.'
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
@@ -121,7 +133,7 @@ class DanhmucAPI extends Controller
 
         $dm->delete();
 
-        return response()->json([
+        return $this->jsonResponse([
             'status' => true,
             'message' => 'Xóa danh mục thành công'
         ], Response::HTTP_NO_CONTENT);

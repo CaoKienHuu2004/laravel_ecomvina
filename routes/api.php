@@ -50,41 +50,38 @@ Route::prefix('auth')->group(function () {
 });
 //////////////// end:auth
 
+// guest
 Route::apiResource('sanphams', SanphamAPI::class)->only(['index','show']);
 Route::apiResource('danhmucs', DanhmucAPI::class)->only(['index','show']);
-Route::apiResource('nguoidungs', NguoidungAPI::class)->only(['index','show']);
-Route::apiResource('giohangs', GioHangAPI::class)->only(['index','show']);
-
-Route::apiResource('diachis', DiaChiNguoiDungAPI::class)->only(['index','show']);
-Route::apiResource('thanhtoans', ThanhToanAPI::class)->only(['index','show']);
 Route::apiResource('chuongtrinhsukiens', ChuongTrinhSuKienAPI::class)->only(['index','show']);
 Route::apiResource('quatangkhuyenmais', QuatangKhuyenMaiAPI::class)->only(['index','show']);
 Route::apiResource('magiamgias', MaGiamGiaAPI::class)->only(['index','show']);
 Route::apiResource('danhgias', DanhGiaAPI::class)->only(['index','show']);
+// guest
 
-Route::apiResource('yeuthichs', YeuThichAPI::class)->only(['index','show']);
+// User + Admin
+Route::middleware(['auth:sanctum','role:user,admin'])->group(function () {
+    Route::apiResource('giohangs', GioHangAPI::class);
+    Route::apiResource('diachis', DiaChiNguoiDungAPI::class);
+    Route::apiResource('thanhtoans', ThanhToanAPI::class)->only(['index','show','store']);
+    Route::apiResource('yeuthichs', YeuThichAPI::class)->only(['index','show','store','destroy']);
+});
 
+// Admin only
 Route::middleware(['auth:sanctum','role:admin'])->group(function () {
-
     Route::apiResource('sanphams', SanphamAPI::class)->only(['store','update','destroy']);
     Route::apiResource('danhmucs', DanhmucAPI::class)->only(['store','update','destroy']);
-    Route::apiResource('nguoidungs', NguoidungAPI::class)->only(['store','update','destroy']);
-    Route::apiResource('giohangs', GioHangAPI::class)->only(['store','update','destroy']);
-
-    Route::apiResource('diachis', DiaChiNguoiDungAPI::class)->only(['store','update','destroy']);
-    Route::apiResource('thanhtoans', ThanhToanAPI::class)->only(['store','update','destroy']);
+    Route::apiResource('nguoidungs', NguoidungAPI::class);
     Route::apiResource('chuongtrinhsukiens', ChuongTrinhSuKienAPI::class)->only(['store','update','destroy']);
     Route::apiResource('quatangkhuyenmais', QuatangKhuyenMaiAPI::class)->only(['store','update','destroy']);
     Route::apiResource('magiamgias', MaGiamGiaAPI::class)->only(['store','update','destroy']);
     Route::apiResource('danhgias', DanhGiaAPI::class)->only(['store','update','destroy']);
-
-    Route::apiResource('yeuthichs', YeuThichAPI::class)->only(['store','update','destroy']);
 });
 
 // Route::middleware(['auth:sanctum','role:admin,assistant'])->group(function () {
 //     Route::get('/dashboard', [DashboardController::class, 'index']);
 // });
 
-Route::middleware('apikey')->group(function () {
-    // Route::get('/articles', [ArticleController::class, 'index']);
-});
+// Route::middleware('apikey')->group(function () {
+//     // Route::get('/articles', [ArticleController::class, 'index']);
+// });

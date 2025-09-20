@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
-use App\Models\ThanhToan;
 use Illuminate\Http\Request;
+use App\Models\ThanhToan;
 use App\Http\Resources\ThanhToanResource;
 use Illuminate\Http\Response;
 
-class ThanhToanAPI extends Controller
+class ThanhToanAPI extends BaseController
 {
     /**
      * Lấy danh sách thanh toán (có phân trang)
@@ -16,12 +15,29 @@ class ThanhToanAPI extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
+        $currentPage = $request->get('page', 1);
 
         $query = ThanhToan::with('donhang')->latest('ngaythanhtoan');
 
-        $items = $query->paginate($perPage);
+        $items = $query->paginate($perPage, ['*'], 'page', $currentPage);
 
-        return response()->json([
+        // Kiểm tra nếu trang yêu cầu vượt quá tổng số trang
+        if ($currentPage > $items->lastPage() && $currentPage > 1) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $items->lastPage(),
+                'meta' => [
+                    'current_page' => $currentPage,
+                    'last_page' => $items->lastPage(),
+                    'per_page' => $perPage,
+                    'total' => $items->total(),
+                ]
+            ], 404);
+        }
+
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Danh sách thanh toán',
             'data' => ThanhToanResource::collection($items),
             'meta' => [
                 'current_page' => $items->currentPage(),
@@ -39,7 +55,11 @@ class ThanhToanAPI extends Controller
     {
         $item = ThanhToan::with('donhang')->findOrFail($id);
 
-        return new ThanhToanResource($item);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Chi tiết thanh toán',
+            'data' => new ThanhToanResource($item)
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -59,10 +79,11 @@ class ThanhToanAPI extends Controller
 
         $item = ThanhToan::create($validated);
 
-        return (new ThanhToanResource($item))
-            ->additional(['status'=>true,'message'=>'Tạo thanh toán thành công'])
-            ->response()
-            ->setStatusCode(Response::HTTP_CREATED);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Tạo thanh toán thành công',
+            'data' => new ThanhToanResource($item)
+        ], Response::HTTP_CREATED);
     }
 
     /**
@@ -84,8 +105,11 @@ class ThanhToanAPI extends Controller
 
         $item->update($validated);
 
-        return (new ThanhToanResource($item))
-            ->additional(['status'=>true,'message'=>'Cập nhật thanh toán thành công']);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Cập nhật thanh toán thành công',
+            'data' => new ThanhToanResource($item)
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -96,9 +120,9 @@ class ThanhToanAPI extends Controller
         $item = ThanhToan::findOrFail($id);
         $item->delete();
 
-        return response()->json([
-            'status'=>true,
-            'message'=>'Xóa thanh toán thành công'
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Xóa thanh toán thành công'
         ], Response::HTTP_NO_CONTENT);
     }
 }

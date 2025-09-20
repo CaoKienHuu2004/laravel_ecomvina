@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
-use App\Models\YeuThich;
 use Illuminate\Http\Request;
+use App\Models\YeuThich;
 use App\Http\Resources\YeuThichResource;
 use Illuminate\Http\Response;
 
-class YeuThichAPI extends Controller
+class YeuThichAPI extends BaseController
 {
     /**
      * Lấy danh sách yêu thích
@@ -16,12 +15,29 @@ class YeuThichAPI extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
+        $currentPage = $request->get('page', 1);
 
         $items = YeuThich::with(['sanpham', 'nguoidung'])
             ->latest('created_at')
-            ->paginate($perPage);
+            ->paginate($perPage, ['*'], 'page', $currentPage);
 
-        return response()->json([
+        // Kiểm tra nếu trang yêu cầu vượt quá tổng số trang
+        if ($currentPage > $items->lastPage() && $currentPage > 1) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $items->lastPage(),
+                'meta' => [
+                    'current_page' => $currentPage,
+                    'last_page' => $items->lastPage(),
+                    'per_page' => $perPage,
+                    'total' => $items->total(),
+                ]
+            ], 404);
+        }
+
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Danh sách yêu thích',
             'data' => YeuThichResource::collection($items),
             'meta' => [
                 'current_page' => $items->currentPage(),
@@ -39,7 +55,11 @@ class YeuThichAPI extends Controller
     {
         $item = YeuThich::with(['sanpham', 'nguoidung'])->findOrFail($id);
 
-        return new YeuThichResource($item);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Chi tiết yêu thích',
+            'data' => new YeuThichResource($item)
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -55,7 +75,11 @@ class YeuThichAPI extends Controller
 
         $item = YeuThich::create($validated);
 
-        return new YeuThichResource($item);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Thêm vào danh sách yêu thích thành công',
+            'data' => new YeuThichResource($item->load(['sanpham', 'nguoidung']))
+        ], Response::HTTP_CREATED);
     }
 
     /**
@@ -71,7 +95,11 @@ class YeuThichAPI extends Controller
 
         $item->update($validated);
 
-        return new YeuThichResource($item);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Cập nhật trạng thái yêu thích thành công',
+            'data' => new YeuThichResource($item->load(['sanpham', 'nguoidung']))
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -82,7 +110,7 @@ class YeuThichAPI extends Controller
         $item = YeuThich::findOrFail($id);
         $item->delete();
 
-        return response()->json([
+        return $this->jsonResponse([
             'status' => true,
             'message' => 'Xóa yêu thích thành công'
         ], Response::HTTP_NO_CONTENT);

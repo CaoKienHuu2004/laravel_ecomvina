@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
-use App\Http\Resources\DiaChiNguoiDungResources;
-use App\Models\DiaChi;
 use Illuminate\Http\Request;
+use App\Models\DiaChi;
+use App\Http\Resources\DiaChiNguoiDungResources;
 use Illuminate\Http\Response;
 
-class DiaChiNguoiDungAPI extends Controller
+class DiaChiNguoiDungAPI extends BaseController
 {
     /**
      * Danh sách địa chỉ người dùng (có phân trang)
@@ -16,18 +15,35 @@ class DiaChiNguoiDungAPI extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
+        $currentPage = $request->get('page', 1);
 
-        $diachis = DiaChi::latest('updated_at')->paginate($perPage);
+        $diachis = DiaChi::latest('updated_at')->paginate($perPage, ['*'], 'page', $currentPage);
 
-        return DiaChiNguoiDungResources::collection($diachis)
-            ->additional([
+        // Kiểm tra nếu trang yêu cầu vượt quá tổng số trang
+        if ($currentPage > $diachis->lastPage() && $currentPage > 1) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $diachis->lastPage(),
                 'meta' => [
-                    'current_page' => $diachis->currentPage(),
-                    'last_page'    => $diachis->lastPage(),
-                    'per_page'     => $diachis->perPage(),
-                    'total'        => $diachis->total(),
+                    'current_page' => $currentPage,
+                    'last_page' => $diachis->lastPage(),
+                    'per_page' => $perPage,
+                    'total' => $diachis->total(),
                 ]
-            ]);
+            ], 404);
+        }
+
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Danh sách địa chỉ người dùng',
+            'data' => DiaChiNguoiDungResources::collection($diachis),
+            'meta' => [
+                'current_page' => $diachis->currentPage(),
+                'last_page'    => $diachis->lastPage(),
+                'per_page'     => $diachis->perPage(),
+                'total'        => $diachis->total(),
+            ]
+        ], 200);
     }
 
     /**
@@ -48,9 +64,11 @@ class DiaChiNguoiDungAPI extends Controller
 
         $diachi = DiaChi::create($validated);
 
-        return (new DiaChiNguoiDungResources($diachi))
-            ->response()
-            ->setStatusCode(Response::HTTP_CREATED);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Tạo địa chỉ người dùng thành công',
+            'data' => new DiaChiNguoiDungResources($diachi)
+        ], Response::HTTP_CREATED);
     }
 
     /**
@@ -59,7 +77,12 @@ class DiaChiNguoiDungAPI extends Controller
     public function show(Request $request, $id)
     {
         $diachi = DiaChi::findOrFail($id);
-        return new DiaChiNguoiDungResources($diachi);
+
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Chi tiết địa chỉ người dùng',
+            'data' => new DiaChiNguoiDungResources($diachi)
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -82,7 +105,11 @@ class DiaChiNguoiDungAPI extends Controller
 
         $diachi->update($validated);
 
-        return new DiaChiNguoiDungResources($diachi);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Cập nhật địa chỉ người dùng thành công',
+            'data' => new DiaChiNguoiDungResources($diachi)
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -93,7 +120,8 @@ class DiaChiNguoiDungAPI extends Controller
         $diachi = DiaChi::findOrFail($id);
         $diachi->delete();
 
-        return response()->json([
+        return $this->jsonResponse([
+            'status' => true,
             'message' => 'Xóa địa chỉ người dùng thành công'
         ], Response::HTTP_NO_CONTENT);
     }

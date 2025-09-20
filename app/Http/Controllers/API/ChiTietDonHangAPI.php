@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
-use App\Models\ChiTietDonHang;
 use Illuminate\Http\Request;
+use App\Models\ChiTietDonHang;
 use App\Http\Resources\ChiTietDonHangResource;
 use Illuminate\Http\Response;
 
-class ChiTietDonHangAPI extends Controller
+class ChiTietDonHangAPI extends BaseController
 {
     /**
      * Lấy danh sách chi tiết đơn hàng (có phân trang)
@@ -16,12 +15,29 @@ class ChiTietDonHangAPI extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
+        $currentPage = $request->get('page', 1);
 
         $query = ChiTietDonHang::with(['donhang', 'bienthe'])->latest('updated_at');
 
-        $items = $query->paginate($perPage);
+        $items = $query->paginate($perPage, ['*'], 'page', $currentPage);
 
-        return response()->json([
+        // Kiểm tra nếu trang yêu cầu vượt quá tổng số trang
+        if ($currentPage > $items->lastPage() && $currentPage > 1) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $items->lastPage(),
+                'meta' => [
+                    'current_page' => $currentPage,
+                    'last_page' => $items->lastPage(),
+                    'per_page' => $perPage,
+                    'total' => $items->total(),
+                ]
+            ], 404);
+        }
+
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Danh sách chi tiết đơn hàng',
             'data' => ChiTietDonHangResource::collection($items),
             'meta' => [
                 'current_page' => $items->currentPage(),
@@ -39,7 +55,11 @@ class ChiTietDonHangAPI extends Controller
     {
         $item = ChiTietDonHang::with(['donhang', 'bienthe'])->findOrFail($id);
 
-        return new ChiTietDonHangResource($item);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Chi tiết đơn hàng',
+            'data' => new ChiTietDonHangResource($item)
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -57,10 +77,11 @@ class ChiTietDonHangAPI extends Controller
 
         $item = ChiTietDonHang::create($validated);
 
-        return (new ChiTietDonHangResource($item))
-            ->additional(['status'=>true,'message'=>'Tạo chi tiết đơn hàng thành công'])
-            ->response()
-            ->setStatusCode(Response::HTTP_CREATED);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Tạo chi tiết đơn hàng thành công',
+            'data' => new ChiTietDonHangResource($item)
+        ], Response::HTTP_CREATED);
     }
 
     /**
@@ -80,8 +101,11 @@ class ChiTietDonHangAPI extends Controller
 
         $item->update($validated);
 
-        return (new ChiTietDonHangResource($item))
-            ->additional(['status'=>true,'message'=>'Cập nhật chi tiết đơn hàng thành công']);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Cập nhật chi tiết đơn hàng thành công',
+            'data' => new ChiTietDonHangResource($item)
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -92,9 +116,9 @@ class ChiTietDonHangAPI extends Controller
         $item = ChiTietDonHang::findOrFail($id);
         $item->delete();
 
-        return response()->json([
+        return $this->jsonResponse([
             'status' => true,
-            'message'=> 'Xóa chi tiết đơn hàng thành công'
+            'message' => 'Xóa chi tiết đơn hàng thành công'
         ], Response::HTTP_NO_CONTENT);
     }
 }

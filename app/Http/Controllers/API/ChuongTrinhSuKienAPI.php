@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
-use App\Models\ChuongTrinhSuKien;
 use Illuminate\Http\Request;
+use App\Models\ChuongTrinhSuKien;
 use App\Http\Resources\ChuongTrinhSuKienResource;
 use Illuminate\Http\Response;
 
-class ChuongTrinhSuKienAPI extends Controller
+class ChuongTrinhSuKienAPI extends BaseController
 {
     /**
      * Lấy danh sách chương trình sự kiện
@@ -16,12 +15,29 @@ class ChuongTrinhSuKienAPI extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
+        $currentPage = $request->get('page', 1);
 
         $query = ChuongTrinhSuKien::latest('ngaybatdau');
 
-        $items = $query->paginate($perPage);
+        $items = $query->paginate($perPage, ['*'], 'page', $currentPage);
 
-        return response()->json([
+        // Kiểm tra nếu trang yêu cầu vượt quá tổng số trang
+        if ($currentPage > $items->lastPage() && $currentPage > 1) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $items->lastPage(),
+                'meta' => [
+                    'current_page' => $currentPage,
+                    'last_page' => $items->lastPage(),
+                    'per_page' => $perPage,
+                    'total' => $items->total(),
+                ]
+            ], 404);
+        }
+
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Danh sách chương trình sự kiện',
             'data' => ChuongTrinhSuKienResource::collection($items),
             'meta' => [
                 'current_page' => $items->currentPage(),
@@ -39,7 +55,11 @@ class ChuongTrinhSuKienAPI extends Controller
     {
         $item = ChuongTrinhSuKien::findOrFail($id);
 
-        return new ChuongTrinhSuKienResource($item);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Chi tiết chương trình sự kiện',
+            'data' => new ChuongTrinhSuKienResource($item)
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -59,10 +79,11 @@ class ChuongTrinhSuKienAPI extends Controller
 
         $item = ChuongTrinhSuKien::create($validated);
 
-        return (new ChuongTrinhSuKienResource($item))
-            ->additional(['status'=>true,'message'=>'Tạo sự kiện thành công'])
-            ->response()
-            ->setStatusCode(Response::HTTP_CREATED);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Tạo sự kiện thành công',
+            'data' => new ChuongTrinhSuKienResource($item)
+        ], Response::HTTP_CREATED);
     }
 
     /**
@@ -84,8 +105,11 @@ class ChuongTrinhSuKienAPI extends Controller
 
         $item->update($validated);
 
-        return (new ChuongTrinhSuKienResource($item))
-            ->additional(['status'=>true,'message'=>'Cập nhật sự kiện thành công']);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Cập nhật sự kiện thành công',
+            'data' => new ChuongTrinhSuKienResource($item)
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -96,9 +120,9 @@ class ChuongTrinhSuKienAPI extends Controller
         $item = ChuongTrinhSuKien::findOrFail($id);
         $item->delete();
 
-        return response()->json([
-            'status'=>true,
-            'message'=>'Xóa sự kiện thành công'
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Xóa sự kiện thành công'
         ], Response::HTTP_OK);
     }
 }

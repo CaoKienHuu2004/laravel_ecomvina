@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Nguoidung;
 use App\Http\Resources\NguoidungResources;
 use Illuminate\Http\Response;
 
-class NguoidungAPI extends Controller
+class NguoidungAPI extends BaseController
 {
     /**
      * Lấy danh sách người dùng (có phân trang).
@@ -16,13 +15,26 @@ class NguoidungAPI extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
+        $currentPage = $request->get('page', 1);
 
-        $items = Nguoidung::latest('updated_at')->paginate($perPage);
+        $items = Nguoidung::orderBy('id', 'asc')->paginate($perPage, ['*'], 'page', $currentPage);
 
-        // Load quan hệ luôn
+        // Kiểm tra nếu trang yêu cầu vượt quá tổng số trang
+        if ($currentPage > $items->lastPage() && $currentPage > 1) {
+            return $this->jsonResponse([
+                'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $items->lastPage(),
+                'meta' => [
+                    'current_page' => $currentPage,
+                    'last_page' => $items->lastPage(),
+                    'per_page' => $perPage,
+                    'total' => $items->total(),
+                ]
+            ], 404);
+        }
+
         $items->load(['diachi', 'phiendangnhap']);
 
-        return response()->json([
+        return $this->jsonResponse([
             'data' => NguoidungResources::collection($items),
             'meta' => [
                 'current_page' => $items->currentPage(),
@@ -30,7 +42,7 @@ class NguoidungAPI extends Controller
                 'per_page'     => $items->perPage(),
                 'total'        => $items->total(),
             ]
-        ], Response::HTTP_OK);
+        ], 200);
     }
 
     /**
@@ -58,7 +70,7 @@ class NguoidungAPI extends Controller
         // Load quan hệ nếu cần
         $user->load(['diachi', 'phiendangnhap']);
 
-        return response()->json(new NguoidungResources($user), Response::HTTP_CREATED);
+        return $this->jsonResponse(new NguoidungResources($user), Response::HTTP_CREATED);
     }
 
     /**
@@ -68,7 +80,7 @@ class NguoidungAPI extends Controller
     {
         $user = Nguoidung::with(['diachi', 'phiendangnhap'])->findOrFail($id);
 
-        return response()->json(new NguoidungResources($user), Response::HTTP_OK);
+        return $this->jsonResponse(new NguoidungResources($user), Response::HTTP_OK);
     }
 
     /**
@@ -101,7 +113,7 @@ class NguoidungAPI extends Controller
 
         $user->load(['diachi', 'phiendangnhap']);
 
-        return response()->json(new NguoidungResources($user), Response::HTTP_OK);
+        return $this->jsonResponse(new NguoidungResources($user), Response::HTTP_OK);
     }
 
     /**
@@ -112,13 +124,13 @@ class NguoidungAPI extends Controller
         $user = Nguoidung::findOrFail($id);
 
         if ($user->diachi()->count() > 0) {
-            return response()->json([
+            return $this->jsonResponse([
                 'message' => 'Không thể xóa! Người dùng này vẫn còn địa chỉ.'
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         $user->delete();
 
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return $this->jsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 }

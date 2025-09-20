@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
-use App\Models\MaGiamGia;
 use Illuminate\Http\Request;
+use App\Models\MaGiamGia;
 use App\Http\Resources\MaGiamGiaResource;
 use Illuminate\Http\Response;
 
-class MaGiamGiaAPI extends Controller
+class MaGiamGiaAPI extends BaseController
 {
     /**
      * Lấy danh sách mã giảm giá (có phân trang)
@@ -16,12 +15,29 @@ class MaGiamGiaAPI extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
+        $currentPage = $request->get('page', 1);
 
         $query = MaGiamGia::latest('updated_at');
 
-        $items = $query->paginate($perPage);
+        $items = $query->paginate($perPage, ['*'], 'page', $currentPage);
 
-        return response()->json([
+        // Kiểm tra nếu trang yêu cầu vượt quá tổng số trang
+        if ($currentPage > $items->lastPage() && $currentPage > 1) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $items->lastPage(),
+                'meta' => [
+                    'current_page' => $currentPage,
+                    'last_page' => $items->lastPage(),
+                    'per_page' => $perPage,
+                    'total' => $items->total(),
+                ]
+            ], 404);
+        }
+
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Danh sách mã giảm giá',
             'data' => MaGiamGiaResource::collection($items),
             'meta' => [
                 'current_page' => $items->currentPage(),
@@ -39,7 +55,11 @@ class MaGiamGiaAPI extends Controller
     {
         $item = MaGiamGia::with('donHang')->findOrFail($id);
 
-        return new MaGiamGiaResource($item);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Chi tiết mã giảm giá',
+            'data' => new MaGiamGiaResource($item)
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -59,10 +79,11 @@ class MaGiamGiaAPI extends Controller
 
         $item = MaGiamGia::create($validated);
 
-        return (new MaGiamGiaResource($item))
-            ->additional(['status'=>true,'message'=>'Tạo mã giảm giá thành công'])
-            ->response()
-            ->setStatusCode(Response::HTTP_CREATED);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Tạo mã giảm giá thành công',
+            'data' => new MaGiamGiaResource($item)
+        ], Response::HTTP_CREATED);
     }
 
     /**
@@ -84,8 +105,11 @@ class MaGiamGiaAPI extends Controller
 
         $item->update($validated);
 
-        return (new MaGiamGiaResource($item))
-            ->additional(['status'=>true,'message'=>'Cập nhật mã giảm giá thành công']);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Cập nhật mã giảm giá thành công',
+            'data' => new MaGiamGiaResource($item)
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -96,9 +120,9 @@ class MaGiamGiaAPI extends Controller
         $item = MaGiamGia::findOrFail($id);
         $item->delete();
 
-        return response()->json([
+        return $this->jsonResponse([
             'status' => true,
-            'message'=> 'Xóa mã giảm giá thành công'
+            'message' => 'Xóa mã giảm giá thành công'
         ], Response::HTTP_NO_CONTENT);
     }
 }

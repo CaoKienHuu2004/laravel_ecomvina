@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\GioHang;
 use App\Http\Resources\GioHangResource;
 use Illuminate\Http\Response;
 
-class GioHangAPI extends Controller
+class GioHangAPI extends BaseController
 {
     /**
      * Danh sách giỏ hàng (có phân trang)
@@ -16,22 +15,37 @@ class GioHangAPI extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
+        $currentPage = $request->get('page', 1);
 
         $giohangs = GioHang::with(['nguoidung', 'sanpham'])
             ->latest('updated_at')
-            ->paginate($perPage);
+            ->paginate($perPage, ['*'], 'page', $currentPage);
 
-        return GioHangResource::collection($giohangs)
-            ->additional([
-                'status' => true,
-                'message' => 'Danh sách giỏ hàng',
+        // Kiểm tra nếu trang yêu cầu vượt quá tổng số trang
+        if ($currentPage > $giohangs->lastPage() && $currentPage > 1) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $giohangs->lastPage(),
                 'meta' => [
-                    'current_page' => $giohangs->currentPage(),
-                    'last_page'    => $giohangs->lastPage(),
-                    'per_page'     => $giohangs->perPage(),
-                    'total'        => $giohangs->total(),
+                    'current_page' => $currentPage,
+                    'last_page' => $giohangs->lastPage(),
+                    'per_page' => $perPage,
+                    'total' => $giohangs->total(),
                 ]
-            ]);
+            ], 404);
+        }
+
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Danh sách giỏ hàng',
+            'data' => GioHangResource::collection($giohangs),
+            'meta' => [
+                'current_page' => $giohangs->currentPage(),
+                'last_page'    => $giohangs->lastPage(),
+                'per_page'     => $giohangs->perPage(),
+                'total'        => $giohangs->total(),
+            ]
+        ], 200);
     }
 
     /**
@@ -48,13 +62,11 @@ class GioHangAPI extends Controller
 
         $giohang = GioHang::create($validated);
 
-        return (new GioHangResource($giohang->load(['nguoidung', 'sanpham'])))
-            ->additional([
-                'status' => true,
-                'message' => 'Tạo giỏ hàng thành công'
-            ])
-            ->response()
-            ->setStatusCode(Response::HTTP_CREATED);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Tạo giỏ hàng thành công',
+            'data' => new GioHangResource($giohang->load(['nguoidung', 'sanpham']))
+        ], Response::HTTP_CREATED);
     }
 
     /**
@@ -64,11 +76,11 @@ class GioHangAPI extends Controller
     {
         $giohang = GioHang::with(['nguoidung', 'sanpham'])->findOrFail($id);
 
-        return (new GioHangResource($giohang))
-            ->additional([
-                'status' => true,
-                'message' => 'Chi tiết giỏ hàng'
-            ]);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Chi tiết giỏ hàng',
+            'data' => new GioHangResource($giohang)
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -87,11 +99,11 @@ class GioHangAPI extends Controller
 
         $giohang->update($validated);
 
-        return (new GioHangResource($giohang->refresh()->load(['nguoidung', 'sanpham'])))
-            ->additional([
-                'status' => true,
-                'message' => 'Cập nhật giỏ hàng thành công'
-            ]);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Cập nhật giỏ hàng thành công',
+            'data' => new GioHangResource($giohang->refresh()->load(['nguoidung', 'sanpham']))
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -102,7 +114,7 @@ class GioHangAPI extends Controller
         $giohang = GioHang::findOrFail($id);
         $giohang->delete();
 
-        return response()->json([
+        return $this->jsonResponse([
             'status' => true,
             'message' => 'Xóa giỏ hàng thành công'
         ], Response::HTTP_NO_CONTENT);

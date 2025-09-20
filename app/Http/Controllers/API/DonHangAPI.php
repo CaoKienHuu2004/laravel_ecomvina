@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
-use App\Models\DonHang;
 use Illuminate\Http\Request;
+use App\Models\DonHang;
 use App\Http\Resources\DonHangResource;
 use Illuminate\Http\Response;
 
-class DonHangAPI extends Controller
+class DonHangAPI extends BaseController
 {
     /**
      * Lấy danh sách đơn hàng (có phân trang)
@@ -16,12 +15,29 @@ class DonHangAPI extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
+        $currentPage = $request->get('page', 1);
 
-        $query = DonHang::with(['nguoidung', 'magiamgia'])->latest('ngaytao');
+        $query = DonHang::with(['nguoidung', 'magiamgia'])->latest('updated_at');
 
-        $items = $query->paginate($perPage);
+        $items = $query->paginate($perPage, ['*'], 'page', $currentPage);
 
-        return response()->json([
+        // Kiểm tra nếu trang yêu cầu vượt quá tổng số trang
+        if ($currentPage > $items->lastPage() && $currentPage > 1) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $items->lastPage(),
+                'meta' => [
+                    'current_page' => $currentPage,
+                    'last_page' => $items->lastPage(),
+                    'per_page' => $perPage,
+                    'total' => $items->total(),
+                ]
+            ], 404);
+        }
+
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Danh sách đơn hàng',
             'data' => DonHangResource::collection($items),
             'meta' => [
                 'current_page' => $items->currentPage(),
@@ -39,7 +55,11 @@ class DonHangAPI extends Controller
     {
         $item = DonHang::with(['nguoidung', 'magiamgia'])->findOrFail($id);
 
-        return new DonHangResource($item);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Chi tiết đơn hàng',
+            'data' => new DonHangResource($item)
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -60,10 +80,11 @@ class DonHangAPI extends Controller
 
         $item = DonHang::create($validated);
 
-        return (new DonHangResource($item))
-            ->additional(['status'=>true,'message'=>'Tạo đơn hàng thành công'])
-            ->response()
-            ->setStatusCode(Response::HTTP_CREATED);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Tạo đơn hàng thành công',
+            'data' => new DonHangResource($item)
+        ], Response::HTTP_CREATED);
     }
 
     /**
@@ -86,8 +107,11 @@ class DonHangAPI extends Controller
 
         $item->update($validated);
 
-        return (new DonHangResource($item))
-            ->additional(['status'=>true,'message'=>'Cập nhật đơn hàng thành công']);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Cập nhật đơn hàng thành công',
+            'data' => new DonHangResource($item)
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -98,9 +122,9 @@ class DonHangAPI extends Controller
         $item = DonHang::findOrFail($id);
         $item->delete();
 
-        return response()->json([
+        return $this->jsonResponse([
             'status' => true,
-            'message'=> 'Xóa đơn hàng thành công'
+            'message' => 'Xóa đơn hàng thành công'
         ], Response::HTTP_NO_CONTENT);
     }
 }

@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
-use App\Models\QuatangKhuyenMai;
 use Illuminate\Http\Request;
+use App\Models\QuatangKhuyenMai;
 use App\Http\Resources\QuatangKhuyenMaiResource;
 use Illuminate\Http\Response;
 
-class QuatangKhuyenMaiAPI extends Controller
+class QuatangKhuyenMaiAPI extends BaseController
 {
     /**
      * Lấy danh sách quà tặng khuyến mãi (có phân trang)
@@ -16,12 +15,29 @@ class QuatangKhuyenMaiAPI extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
+        $currentPage = $request->get('page', 1);
 
         $items = QuatangKhuyenMai::with(['bienthe', 'thuonghieu'])
                     ->latest('ngaybatdau')
-                    ->paginate($perPage);
+                    ->paginate($perPage, ['*'], 'page', $currentPage);
 
-        return response()->json([
+        // Kiểm tra nếu trang yêu cầu vượt quá tổng số trang
+        if ($currentPage > $items->lastPage() && $currentPage > 1) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $items->lastPage(),
+                'meta' => [
+                    'current_page' => $currentPage,
+                    'last_page' => $items->lastPage(),
+                    'per_page' => $perPage,
+                    'total' => $items->total(),
+                ]
+            ], 404);
+        }
+
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Danh sách quà tặng khuyến mãi',
             'data' => QuatangKhuyenMaiResource::collection($items),
             'meta' => [
                 'current_page' => $items->currentPage(),
@@ -39,7 +55,11 @@ class QuatangKhuyenMaiAPI extends Controller
     {
         $item = QuatangKhuyenMai::with(['bienthe', 'thuonghieu'])->findOrFail($id);
 
-        return new QuatangKhuyenMaiResource($item);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Chi tiết quà tặng khuyến mãi',
+            'data' => new QuatangKhuyenMaiResource($item)
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -59,9 +79,11 @@ class QuatangKhuyenMaiAPI extends Controller
 
         $item = QuatangKhuyenMai::create($validated);
 
-        return (new QuatangKhuyenMaiResource($item))
-            ->response()
-            ->setStatusCode(Response::HTTP_CREATED);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Tạo quà tặng khuyến mãi thành công',
+            'data' => new QuatangKhuyenMaiResource($item->load(['bienthe', 'thuonghieu']))
+        ], Response::HTTP_CREATED);
     }
 
     /**
@@ -83,7 +105,11 @@ class QuatangKhuyenMaiAPI extends Controller
 
         $item->update($validated);
 
-        return new QuatangKhuyenMaiResource($item);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Cập nhật quà tặng khuyến mãi thành công',
+            'data' => new QuatangKhuyenMaiResource($item->load(['bienthe', 'thuonghieu']))
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -94,9 +120,9 @@ class QuatangKhuyenMaiAPI extends Controller
         $item = QuatangKhuyenMai::findOrFail($id);
         $item->delete();
 
-        return response()->json([
-            'status'=>true,
-            'message'=>'Xóa quà tặng thành công'
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Xóa quà tặng thành công'
         ], Response::HTTP_OK);
     }
 }

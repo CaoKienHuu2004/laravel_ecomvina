@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
-use App\Models\DanhGia;
 use Illuminate\Http\Request;
+use App\Models\DanhGia;
 use App\Http\Resources\DanhGiaResource;
 use Illuminate\Http\Response;
 
-class DanhGiaAPI extends Controller
+class DanhGiaAPI extends BaseController
 {
     /**
      * Lấy danh sách đánh giá (có phân trang)
@@ -16,12 +15,29 @@ class DanhGiaAPI extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
+        $currentPage = $request->get('page', 1);
 
-        $query = DanhGia::with(['sanpham', 'nguoidung'])->latest('ngaydang');
+        $query = DanhGia::with(['sanpham', 'nguoidung'])->latest('updated_at');
 
-        $items = $query->paginate($perPage);
+        $items = $query->paginate($perPage, ['*'], 'page', $currentPage);
 
-        return response()->json([
+        // Kiểm tra nếu trang yêu cầu vượt quá tổng số trang
+        if ($currentPage > $items->lastPage() && $currentPage > 1) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $items->lastPage(),
+                'meta' => [
+                    'current_page' => $currentPage,
+                    'last_page' => $items->lastPage(),
+                    'per_page' => $perPage,
+                    'total' => $items->total(),
+                ]
+            ], 404);
+        }
+
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Danh sách đánh giá',
             'data' => DanhGiaResource::collection($items),
             'meta' => [
                 'current_page' => $items->currentPage(),
@@ -39,7 +55,11 @@ class DanhGiaAPI extends Controller
     {
         $item = DanhGia::with(['sanpham', 'nguoidung'])->findOrFail($id);
 
-        return new DanhGiaResource($item);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Chi tiết đánh giá',
+            'data' => new DanhGiaResource($item)
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -59,10 +79,11 @@ class DanhGiaAPI extends Controller
 
         $item = DanhGia::create($validated);
 
-        return (new DanhGiaResource($item))
-            ->additional(['status'=>true,'message'=>'Tạo đánh giá thành công'])
-            ->response()
-            ->setStatusCode(Response::HTTP_CREATED);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Tạo đánh giá thành công',
+            'data' => new DanhGiaResource($item->load(['sanpham', 'nguoidung']))
+        ], Response::HTTP_CREATED);
     }
 
     /**
@@ -84,8 +105,11 @@ class DanhGiaAPI extends Controller
 
         $item->update($validated);
 
-        return (new DanhGiaResource($item))
-            ->additional(['status'=>true,'message'=>'Cập nhật đánh giá thành công']);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Cập nhật đánh giá thành công',
+            'data' => new DanhGiaResource($item->load(['sanpham', 'nguoidung']))
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -96,9 +120,9 @@ class DanhGiaAPI extends Controller
         $item = DanhGia::findOrFail($id);
         $item->delete();
 
-        return response()->json([
-            'status'=>true,
-            'message'=>'Xóa đánh giá thành công'
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Xóa đánh giá thành công'
         ], Response::HTTP_NO_CONTENT);
     }
 }

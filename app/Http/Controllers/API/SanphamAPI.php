@@ -2,13 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Resources\SanphamResources;
 use App\Models\Sanpham;
 use Illuminate\Http\Response;
 
-class SanphamAPI extends Controller
+class SanphamAPI extends BaseController
 {
     /**
      * Display a listing of the resource with filters + pagination.
@@ -16,6 +15,7 @@ class SanphamAPI extends Controller
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 20);
+        $currentPage = $request->get('page', 1);
 
         $query = Sanpham::query()->with([
             'bienThe.loaiBienThe',
@@ -44,17 +44,33 @@ class SanphamAPI extends Controller
             $query->whereHas('bienThe', fn($q) => $q->where('gia', '<=', (int) $request->gia_max));
         }
 
-        $sanphams = $query->latest('updated_at')->paginate($perPage);
+        $sanphams = $query->latest('updated_at')->paginate($perPage, ['*'], 'page', $currentPage);
 
-        return SanphamResources::collection($sanphams)
-            ->additional([
+        // Kiểm tra nếu trang yêu cầu vượt quá tổng số trang
+        if ($currentPage > $sanphams->lastPage() && $currentPage > 1) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $sanphams->lastPage(),
                 'meta' => [
-                    'current_page' => $sanphams->currentPage(),
-                    'last_page'    => $sanphams->lastPage(),
-                    'per_page'     => $sanphams->perPage(),
-                    'total'        => $sanphams->total(),
+                    'current_page' => $currentPage,
+                    'last_page' => $sanphams->lastPage(),
+                    'per_page' => $perPage,
+                    'total' => $sanphams->total(),
                 ]
-            ]);
+            ], 404);
+        }
+
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Danh sách sản phẩm',
+            'data' => SanphamResources::collection($sanphams),
+            'meta' => [
+                'current_page' => $sanphams->currentPage(),
+                'last_page'    => $sanphams->lastPage(),
+                'per_page'     => $sanphams->perPage(),
+                'total'        => $sanphams->total(),
+            ]
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -76,9 +92,11 @@ class SanphamAPI extends Controller
             $product->danhmuc()->sync($request->id_danhmuc);
         }
 
-        return (new SanphamResources($product->load(['thuonghieu', 'danhmuc'])))
-            ->response()
-            ->setStatusCode(Response::HTTP_CREATED);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Tạo sản phẩm thành công',
+            'data' => new SanphamResources($product->load(['thuonghieu', 'danhmuc']))
+        ], Response::HTTP_CREATED);
     }
 
     /**
@@ -93,7 +111,11 @@ class SanphamAPI extends Controller
             'thuonghieu',
         ])->findOrFail($id);
 
-        return new SanphamResources($product);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Chi tiết sản phẩm',
+            'data' => new SanphamResources($product)
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -116,7 +138,11 @@ class SanphamAPI extends Controller
             $product->danhmuc()->sync($request->id_danhmuc);
         }
 
-        return new SanphamResources($product->refresh()->load(['thuonghieu', 'danhmuc']));
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Cập nhật sản phẩm thành công',
+            'data' => new SanphamResources($product->refresh()->load(['thuonghieu', 'danhmuc']))
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -127,6 +153,9 @@ class SanphamAPI extends Controller
         $product = Sanpham::findOrFail($id);
         $product->delete();
 
-        return response()->json(null, Response::HTTP_NO_CONTENT);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Xóa sản phẩm thành công'
+        ], Response::HTTP_NO_CONTENT);
     }
 }
