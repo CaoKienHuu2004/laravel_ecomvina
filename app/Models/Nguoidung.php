@@ -9,6 +9,8 @@ use Illuminate\Notifications\Notifiable; //Cho phép gửi thông báo đến mo
 use Laravel\Sanctum\HasApiTokens; //Cho phép model tạo và quản lý API token (dùng Sanctum)
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
+use App\Notifications\ResetPasswordNotification;
+
 class Nguoidung extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes, TwoFactorAuthenticatable;
@@ -96,5 +98,9 @@ class Nguoidung extends Authenticatable
     public function sendEmailVerificationNotification()
     {
         $this->notify(new \Illuminate\Auth\Notifications\VerifyEmail);
+    }
+    public function sendPasswordResetNotification($token)
+    {
+        $this->notify(new ResetPasswordNotification($token));
     }
 }

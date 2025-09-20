@@ -1,5 +1,6 @@
 <?php
 
+
 use App\Http\Controllers\API\DanhGiaAPI;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -17,7 +18,7 @@ use App\Http\Controllers\API\ThanhToanAPI;
 use App\Http\Controllers\API\YeuThichAPI;
 use App\Http\Controllers\API\ChuongTrinhSuKienAPI;
 
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\API\AuthController;
 
 
 /*
@@ -33,10 +34,19 @@ use App\Http\Controllers\AuthController;
 
 
 //////////////// begin:auth
-Route::post('login', [AuthController::class, 'login']);
-
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::post('logout', [AuthController::class, 'logout']);
+Route::prefix('auth')->group(function () {
+    Route::post('dang-nhap', [AuthController::class, 'login']);
+    Route::post('dang-ky', [AuthController::class, 'register']);
+    Route::post('quen-mat-khau', [AuthController::class, 'forgotPassword']);
+    Route::post('dat-lai-mat-khau', [AuthController::class, 'resetPassword']);
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::get('thong-tin-nguoi-dung', function () {
+            return response()->json(auth()->user());
+        });
+        Route::post('dang-xuat', [AuthController::class, 'logout']);
+        Route::put('cap-nhat-ho-so', [AuthController::class, 'updateProfile']);
+        Route::put('doi-mat-khau', [AuthController::class, 'changePassword']); // Đổi mật khẩu khi đã đăng nhập
+    });
 });
 //////////////// end:auth
 

@@ -49,6 +49,11 @@ return [
         'ses' => [
             'transport' => 'ses',
         ],
+        'ssl' => [
+            'allow_self_signed' => true,
+            'verify_peer' => false,
+            'verify_peer_name' => false,
+        ],
 
         'postmark' => [
             'transport' => 'postmark',
