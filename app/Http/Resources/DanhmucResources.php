@@ -16,8 +16,8 @@ class DanhmucResources extends JsonResource
             'id'    => $this->id,
             'ten'   => $this->ten,
             'trangthai' => $this->trangthai,
+            'sanphams'   => SanphamResources::collection($this->whenLoaded('sanPham')),
         ];
-
         // Nếu admin, thêm thông tin thời gian
         if ($isAdmin) {
             $data['created_at'] = $this->created_at?->format('d-m-Y H:i:s');

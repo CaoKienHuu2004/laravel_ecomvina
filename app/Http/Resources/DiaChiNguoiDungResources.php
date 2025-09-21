@@ -24,15 +24,16 @@ class DiaChiNguoiDungResources extends JsonResource
             'sonha'       => $this->sonha,
             'diachi'      => $this->diachi,
             'trangthai'   => $this->trangthai,
-            'id_nguoidung'=> $this->id_nguoidung,
+
+            'nguoi_dung'=> new NguoidungResources($this->whenLoaded('nguoiDung')),
         ];
 
         // Nếu là admin, thêm created_at & updated_at
         if ($isAdmin) {
             $data['created_at'] = $this->created_at?->format('d-m-Y H:i:s');
             $data['updated_at'] = $this->updated_at?->format('d-m-Y H:i:s');
+            $data['deleted_at'] = $this->deleted_at?->format('d-m-Y H:i:s');
         }
-
         return $data;
     }
 }

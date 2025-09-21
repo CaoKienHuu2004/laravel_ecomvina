@@ -21,11 +21,20 @@ class DonHang extends Model
         'trangthai',
         'id_nguoidung',
         'id_magiamgia',
+
+        'created_at',
+        'updated_at',
+        'deleted_at'
     ];
 
     protected $casts = [
         'tongtien'  => 'decimal:2',
         'ngaytao'   => 'datetime',
+
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+
     ];
 
     // Quan hệ với người dùng

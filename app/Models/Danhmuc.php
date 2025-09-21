@@ -14,7 +14,17 @@ class Danhmuc extends Model
     public $timestamps = true;
 
     // Chỉ cần cột cho phép mass assignment
-    protected $fillable = ['ten', 'trangthai'];
+    protected $fillable = ['ten', 'trangthai',
+        'created_at',
+        'updated_at',
+        'deleted_at'
+    ];
+
+    // protected $hidden = [
+    //     'created_at',
+    //     'updated_at',
+    //     'deleted_at',
+    // ];
 
     // Cast datetime
     protected $casts = [
@@ -23,27 +33,26 @@ class Danhmuc extends Model
         'deleted_at' => 'datetime',
     ];
 
-    // Trả về nhãn tiếng Việt cho trạng thái
-    public function getTrangthaiLabelAttribute(): string
-    {
-        return match ($this->trangthai) {
-            'hoat_dong' => 'Hoạt động',
-            'ngung_hoat_dong' => 'Ngừng hoạt động',
-            'bi_khoa' => 'Bị khóa',
-            'cho_duyet' => 'Chờ duyệt',
-            default => 'Không xác định',
-        };
-    }
+    // // Trả về nhãn tiếng Việt cho trạng thái
+    // public function getTrangthaiLabelAttribute(): string
+    // {
+    //     return match ($this->trangthai) {
+    //         'hoat_dong' => 'Hoạt động',
+    //         'ngung_hoat_dong' => 'Ngừng hoạt động',
+    //         'bi_khoa' => 'Bị khóa',
+    //         'cho_duyet' => 'Chờ duyệt',
+    //         default => 'Không xác định',
+    //     };
+    // }
 
     // Nếu sản phẩm có nhiều danh mục (many-to-many)
-    public function sanphams()
+    // vì đở khai báo là dài dòng cho sanpham_danhmuc
+    public function sanPham()
     {
         return $this->belongsToMany(Sanpham::class, 'sanpham_danhmuc', 'id_danhmuc', 'id_sanpham');
     }
-
     // Nếu sản phẩm chỉ thuộc 1 danh mục thì thay bằng:
-    // public function sanphams()
-    // {
+    // public function sanPham()
     //     return $this->hasMany(Sanpham::class, 'danh_muc_id');
     // }
 }

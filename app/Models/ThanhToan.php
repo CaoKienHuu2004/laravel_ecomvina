@@ -20,11 +20,17 @@ class ThanhToan extends Model
         'ngaythanhtoan',
         'trangthai',
         'id_donhang',
+
+        'created_at','updated_at','deleted_at'
     ];
 
     protected $casts = [
         'gia'           => 'decimal:2',
         'ngaythanhtoan' => 'datetime',
+
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime'
     ];
 
     // Quan hệ với đơn hàng

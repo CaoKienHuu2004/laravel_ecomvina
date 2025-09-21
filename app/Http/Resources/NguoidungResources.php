@@ -14,23 +14,23 @@ class NguoidungResources extends JsonResource
 
         $data = [
             'id'          => $this->id,
-            'username'    => $this->username,
             'email'       => $this->email,
             'avatar'      => $this->avatar,
             'hoten'       => $this->hoten,
             'gioitinh'    => $this->gioitinh,
             'ngaysinh'    => optional($this->ngaysinh)->format('d-m-Y'),
             'sodienthoai' => $this->sodienthoai,
-            'vaitro'      => $this->vaitro,
             'trangthai'   => $this->trangthai,
             'diachis'     => DiaChiNguoiDungResources::collection($this->whenLoaded('diachi')),
         ];
 
         // Nếu là admin, trả thêm thông tin quản trị
         if ($isAdmin) {
-            $data['created_at'] = $this->created_at->toISOString();
-            $data['updated_at'] = $this->updated_at->toISOString();
-            $data['phien_dang_nhap'] = PhienDangNhapResource::collection($this->whenLoaded('phienDangNhap'));
+            $data['created_at'] = $this->created_at?->format('d-m-Y H:i:s');
+            $data['updated_at'] = $this->updated_at?->format('d-m-Y H:i:s');
+            $data['deleted_at'] = $this->deleted_at?->format('d-m-Y H:i:s');
+            $data['vaitro'] = $this->vaitro;
+            $data['phienDangNhaps'] = PhienDangNhapResource::collection($this->whenLoaded('phienDangNhap'));
         }
 
         return $data;

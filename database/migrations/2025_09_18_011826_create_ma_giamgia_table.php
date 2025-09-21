@@ -19,8 +19,8 @@ return new class extends Migration
             $table->mediumText('mota')->nullable();
             $table->decimal('giatri', 15, 2);
             $table->string('dieukien')->nullable();
-            $table->date('ngaybatdau');
-            $table->date('ngayketthuc');
+            $table->datetime('ngaybatdau');
+            $table->datetime('ngayketthuc');
             $table->enum('trangthai', [
                 'hoat_dong',       // Mã đang hoạt động, còn hạn và có thể sử dụng
                 'het_han',         // Mã đã hết hạn (dựa trên ngayketthuc)

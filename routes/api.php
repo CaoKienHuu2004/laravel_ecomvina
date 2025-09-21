@@ -1,6 +1,6 @@
 <?php
 
-
+use App\Http\Controllers\Admin\AIController;
 use App\Http\Controllers\API\DanhGiaAPI;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -19,7 +19,8 @@ use App\Http\Controllers\API\YeuThichAPI;
 use App\Http\Controllers\API\ChuongTrinhSuKienAPI;
 
 use App\Http\Controllers\API\AuthController;
-
+use App\Http\Controllers\API\ChatController;
+use App\Http\Controllers\API\LoaiBienTheAPI;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,8 +51,38 @@ Route::prefix('auth')->group(function () {
 });
 //////////////// end:auth
 
+//////////////// begin:admin ai
+// Admin routes - Web interface
+Route::prefix('admin')->name('admin.')->middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::prefix('ai')->name('ai.')->group(function () {
+        Route::get('/', [AIController::class, 'index'])->name('index');
+        Route::get('/intents/create', [AIController::class, 'createIntent'])->name('intents.create');
+        Route::post('/intents', [AIController::class, 'storeIntent'])->name('intents.store');
+        Route::get('/intents/{id}', [AIController::class, 'showIntent'])->name('intents.show');
+        Route::post('/intents/{id}/training-data', [AIController::class, 'addTrainingData'])->name('intents.add-training');
+        Route::post('/intents/{id}/responses', [AIController::class, 'addResponse'])->name('intents.add-response');
+        Route::get('/conversations', [AIController::class, 'conversations'])->name('conversations');
+        Route::get('/analytics', [AIController::class, 'analytics'])->name('analytics');
+    });
+});
+// API routes
+Route::prefix('api')->group(function () {
+    Route::post('/chat', [ChatController::class, 'processChat']);
+
+    // Admin-only AI management endpoints
+    Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+        Route::post('/chat/train', [ChatController::class, 'addTrainingData']);
+        Route::post('/chat/retrain', [ChatController::class, 'retrainModel']);
+        Route::get('/chat/model-info', [ChatController::class, 'getModelInfo']);
+        Route::get('/chat/debug', [ChatController::class, 'debugModel']);
+    });
+});
+//////////////// end:admin ai
+
+
 // guest
 Route::apiResource('sanphams', SanphamAPI::class)->only(['index','show']);
+Route::apiResource('loaibienthes', LoaiBienTheAPI::class)->only(['index','show']); // làm menu khi hover list products da cấp
 Route::apiResource('danhmucs', DanhmucAPI::class)->only(['index','show']);
 Route::apiResource('chuongtrinhsukiens', ChuongTrinhSuKienAPI::class)->only(['index','show']);
 Route::apiResource('quatangkhuyenmais', QuatangKhuyenMaiAPI::class)->only(['index','show']);
@@ -67,9 +98,10 @@ Route::middleware(['auth:sanctum','role:user,admin'])->group(function () {
     Route::apiResource('yeuthichs', YeuThichAPI::class)->only(['index','show','store','destroy']);
 });
 
-// Admin only
+// Admin only + have api-key
 Route::middleware(['auth:sanctum','role:admin'])->group(function () {
     Route::apiResource('sanphams', SanphamAPI::class)->only(['store','update','destroy']);
+    Route::apiResource('loaibienthes', LoaiBienTheAPI::class)->only(['store','update','destroy']); // làm menu khi hover list products da cấp
     Route::apiResource('danhmucs', DanhmucAPI::class)->only(['store','update','destroy']);
     Route::apiResource('nguoidungs', NguoidungAPI::class);
     Route::apiResource('chuongtrinhsukiens', ChuongTrinhSuKienAPI::class)->only(['store','update','destroy']);

@@ -26,7 +26,7 @@ class Nguoidung extends Authenticatable
      * Các thuộc tính có thể được gán hàng loạt (mass assignable).
      */
     protected $fillable = [
-        'usename', // chú ý: nếu muốn sửa tên thành username, hãy đồng bộ migration
+        // 'usename', // chú ý: nếu muốn sửa tên thành username, hãy đồng bộ migration
         'email',
         'password',
         'avatar',
@@ -36,8 +36,10 @@ class Nguoidung extends Authenticatable
         'sodienthoai',
         'vaitro',
         'trangthai',
+
         'created_at',
         'updated_at',
+        'deleted_at',
     ];
 
     /**
@@ -56,6 +58,10 @@ class Nguoidung extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed', // Laravel 10+ tự hash khi set
+
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     /**

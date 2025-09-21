@@ -20,6 +20,13 @@ class PhienDangNhap extends Model
         'trinh_duyet',
         'du_lieu',
         'hoat_dong_cuoi',
+
+        'created_at',
+        'updated_at',
+    ];
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
     ];
 
     // Quan hệ ngược về Nguoidung

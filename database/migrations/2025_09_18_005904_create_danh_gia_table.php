@@ -18,7 +18,7 @@ return new class extends Migration
             $table->float('diem');
             $table->mediumText('noidung')->nullable();
             $table->mediumText('media')->nullable()->comment('phần nội dung đa phương tiện đi kèm với đánh giá (ảnh/video).');
-            $table->date('ngaydang');
+            $table->datetime('ngaydang');
             $table->enum('trangthai', ['hoat_dong', 'ngung_hoat_dong', 'bi_khoa', 'cho_duyet'])->default('hoat_dong');
             $table->foreignId('id_sanpham')->constrained('san_pham');
             $table->foreignId('id_nguoidung')->constrained('nguoi_dung');

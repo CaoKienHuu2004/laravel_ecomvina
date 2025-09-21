@@ -18,11 +18,11 @@ return new class extends Migration
             $table->integer('soluong');
             $table->decimal('tongtien', 15, 2);
 
-            $table->foreignId('id_sanpham')->constrained('san_pham');
+            $table->foreignId('id_bienthesp')->constrained('bienthe_sp');
             $table->foreignId('id_nguoidung')->constrained('nguoi_dung');
 
             $table->timestamps();
-            $table->softDeletes(); // nhầm phân tích hành vi người dùng và kiệt vụ thống kê đã chọn nhưng chưa mua hàng
+            $table->softDeletes(); // nhầm phân tích hành vi người dùng và nghiệp vụ thống kê đã chọn nhưng chưa mua hàng
         });
     }
 

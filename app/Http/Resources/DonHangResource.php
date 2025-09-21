@@ -11,7 +11,7 @@ class DonHangResource extends JsonResource
     {
         $isAdmin = $request->user()?->isAdmin() ?? false;
 
-        return [
+        $data = [
             'id'           => $this->id,
             'ma_donhang'   => $this->ma_donhang,
             'tongtien'     => $this->tongtien,
@@ -19,10 +19,14 @@ class DonHangResource extends JsonResource
             'ghichu'       => $this->ghichu,
             'ngaytao'      => $this->ngaytao?->format('d-m-Y H:i:s'),
             'trangthai'    => $this->trangthai,
-
-            // Chỉ admin mới thấy thông tin người dùng và mã giảm giá
-            'nguoidung'    => $isAdmin ? new NguoidungResources($this->whenLoaded('nguoidung')) : null,
-            'magiamgia'    => $isAdmin ? new MaGiamGiaResource($this->whenLoaded('magiamgia')) : null,
+            'nguoidung'    => new NguoidungResources($this->whenLoaded('nguoidung')),
+            'magiamgia'    => new MaGiamGiaResource($this->whenLoaded('magiamgia')),
         ];
+        if ($isAdmin) {
+            $data['created_at'] = $this->created_at?->format('d-m-Y H:i:s');
+            $data['updated_at'] = $this->updated_at?->format('d-m-Y H:i:s');
+            $data['deleted_at'] = $this->deleted_at?->format('d-m-Y H:i:s');
+        }
+        return $data;
     }
 }

@@ -17,7 +17,7 @@ class GioHangAPI extends BaseController
         $perPage = $request->get('per_page', 10);
         $currentPage = $request->get('page', 1);
 
-        $giohangs = GioHang::with(['nguoidung', 'sanpham'])
+        $giohangs = GioHang::with(['nguoidung', 'bienthesp'])
             ->latest('updated_at')
             ->paginate($perPage, ['*'], 'page', $currentPage);
 
@@ -28,18 +28,18 @@ class GioHangAPI extends BaseController
                 'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $giohangs->lastPage(),
                 'meta' => [
                     'current_page' => $currentPage,
-                    'last_page' => $giohangs->lastPage(),
-                    'per_page' => $perPage,
-                    'total' => $giohangs->total(),
+                    'last_page'    => $giohangs->lastPage(),
+                    'per_page'     => $perPage,
+                    'total'        => $giohangs->total(),
                 ]
             ], 404);
         }
 
         return $this->jsonResponse([
-            'status' => true,
+            'status'  => true,
             'message' => 'Danh sách giỏ hàng',
-            'data' => GioHangResource::collection($giohangs),
-            'meta' => [
+            'data'    => GioHangResource::collection($giohangs),
+            'meta'    => [
                 'current_page' => $giohangs->currentPage(),
                 'last_page'    => $giohangs->lastPage(),
                 'per_page'     => $giohangs->perPage(),
@@ -56,16 +56,16 @@ class GioHangAPI extends BaseController
         $validated = $request->validate([
             'soluong'      => 'required|integer|min:1',
             'tongtien'     => 'required|numeric|min:0',
-            'id_sanpham'   => 'required|exists:san_pham,id',
+            'id_bienthesp' => 'required|exists:bienthe_sp,id',
             'id_nguoidung' => 'required|exists:nguoi_dung,id',
         ]);
 
         $giohang = GioHang::create($validated);
 
         return $this->jsonResponse([
-            'status' => true,
+            'status'  => true,
             'message' => 'Tạo giỏ hàng thành công',
-            'data' => new GioHangResource($giohang->load(['nguoidung', 'sanpham']))
+            'data'    => new GioHangResource($giohang->load(['nguoidung', 'bienthesp']))
         ], Response::HTTP_CREATED);
     }
 
@@ -74,12 +74,12 @@ class GioHangAPI extends BaseController
      */
     public function show(string $id)
     {
-        $giohang = GioHang::with(['nguoidung', 'sanpham'])->findOrFail($id);
+        $giohang = GioHang::with(['nguoidung', 'bienthesp'])->findOrFail($id);
 
         return $this->jsonResponse([
-            'status' => true,
+            'status'  => true,
             'message' => 'Chi tiết giỏ hàng',
-            'data' => new GioHangResource($giohang)
+            'data'    => new GioHangResource($giohang)
         ], Response::HTTP_OK);
     }
 
@@ -93,16 +93,16 @@ class GioHangAPI extends BaseController
         $validated = $request->validate([
             'soluong'      => 'sometimes|integer|min:1',
             'tongtien'     => 'sometimes|numeric|min:0',
-            'id_sanpham'   => 'sometimes|exists:san_pham,id',
+            'id_bienthesp' => 'sometimes|exists:bienthe_sp,id',
             'id_nguoidung' => 'sometimes|exists:nguoi_dung,id',
         ]);
 
         $giohang->update($validated);
 
         return $this->jsonResponse([
-            'status' => true,
+            'status'  => true,
             'message' => 'Cập nhật giỏ hàng thành công',
-            'data' => new GioHangResource($giohang->refresh()->load(['nguoidung', 'sanpham']))
+            'data'    => new GioHangResource($giohang->refresh()->load(['nguoidung', 'bienthesp']))
         ], Response::HTTP_OK);
     }
 
@@ -115,7 +115,7 @@ class GioHangAPI extends BaseController
         $giohang->delete();
 
         return $this->jsonResponse([
-            'status' => true,
+            'status'  => true,
             'message' => 'Xóa giỏ hàng thành công'
         ], Response::HTTP_NO_CONTENT);
     }

@@ -20,21 +20,29 @@ class DanhGia extends Model
         'trangthai',
         'id_sanpham',
         'id_nguoidung',
+
+        'created_at',
+        'updated_at',
+        'deleted_at'
     ];
 
     protected $casts = [
         'diem'    => 'float',
-        'ngaydang'=> 'date',
+        'ngaydang'=> 'datetime',
+
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     // Quan hệ với sản phẩm
-    public function sanpham()
+    public function sanPham()
     {
         return $this->belongsTo(Sanpham::class, 'id_sanpham');
     }
 
     // Quan hệ với người dùng
-    public function nguoidung()
+    public function nguoiDung()
     {
         return $this->belongsTo(Nguoidung::class, 'id_nguoidung');
     }

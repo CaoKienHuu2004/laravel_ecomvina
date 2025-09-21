@@ -20,7 +20,17 @@ class SanPham extends Model
         'mediaurl',
         'trangthai',
         'luotxem',
-        'id_thuonghieu'
+        'id_thuonghieu',
+
+        'created_at',
+        'updated_at',
+        'deleted_at'
+    ];
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+
     ];
 
 
@@ -40,6 +50,10 @@ class SanPham extends Model
     public function danhmuc()
     {
         return $this->belongsToMany(Danhmuc::class, 'sanpham_danhmuc', 'id_sanpham', 'id_danhmuc');
+    }
+    public function loaibienthe()
+    {
+        return $this->belongsToMany(Loaibienthe::class, 'bienthe_sp', 'id_sanpham', 'id_tenloai'); // làm phần tabs để SEO,  để làm 1 sản phẩm có ở nhiều loại sản phẩm và 1 loai san phẩm có thể có nhiều loại sản phẩm
     }
 
 }

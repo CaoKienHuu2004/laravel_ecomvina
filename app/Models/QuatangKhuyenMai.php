@@ -20,6 +20,16 @@ class QuatangKhuyenMai extends Model
         'min_donhang',
         'id_bienthe',
         'id_thuonghieu',
+
+        'created_at',
+        'updated_at',
+        'deleted_at'
+    ];
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
+
     ];
 
     // Quan hệ với biến thể sản phẩm

@@ -11,7 +11,7 @@ class ThanhToanResource extends JsonResource
     {
         $isAdmin = $request->user()?->isAdmin() ?? false;
 
-        return [
+        $data[] = [
             'id'           => $this->id,
             'nganhang'     => $this->nganhang,
             'gia'          => $this->gia,
@@ -19,9 +19,16 @@ class ThanhToanResource extends JsonResource
             'magiaodich'   => $this->magiaodich,
             'ngaythanhtoan'=> $this->ngaythanhtoan?->format('d-m-Y H:i:s'),
             'trangthai'    => $this->trangthai,
-
-            // Chỉ admin mới thấy thông tin đơn hàng liên quan
-            'donhang'      => $isAdmin ? new DonHangResource($this->whenLoaded('donhang')) : null,
+            'donhang'  => new DonHangResource($this->whenLoaded('donhang'))
         ];
+        // Nếu admin, thêm thông tin thời gian
+        if ($isAdmin) {
+            $data['created_at'] = $this->created_at?->format('d-m-Y H:i:s');
+            $data['updated_at'] = $this->updated_at?->format('d-m-Y H:i:s');
+            $data['deleted_at'] = $this->deleted_at?->format('d-m-Y H:i:s');
+        }
+        return $data;
+
+
     }
 }

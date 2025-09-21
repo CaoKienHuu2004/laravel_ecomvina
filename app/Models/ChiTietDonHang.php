@@ -18,11 +18,19 @@ class ChiTietDonHang extends Model
         'tongtien',
         'id_donhang',
         'id_bienthe',
+
+        'created_at',
+        'updated_at',
+        'deleted_at'
     ];
 
     protected $casts = [
         'gia'      => 'decimal:2',
         'tongtien' => 'decimal:2',
+
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
     // Quan hệ với đơn hàng

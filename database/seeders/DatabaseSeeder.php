@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
+use App\Models\AITrainingData;
 use App\Models\DanhGia;
 use App\Models\SanPham;
 use Illuminate\Database\Seeder;
@@ -38,6 +39,8 @@ class DatabaseSeeder extends Seeder
             SuKienKhuyenMaiSeeder::class,
             MaGiamGiaSeeder::class,
             DanhGiaSeeder::class
+            // ai training data
+            // AITrainingData::class
         ]);
     }
 }
