@@ -3,87 +3,102 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Services\VnpayService;
+use App\Models\ThanhToan;
 use App\Services\MomoService;
+use App\Services\VnpayService;
 use Illuminate\Http\Request;
 
 class CheckOutController extends BaseController
 {
-
-    private $vnpayService;
     private $momoService;
+    private $vnpayService;
 
-    public function __construct(VnpayService $vnpayService, MomoService $momoService)
+    public function __construct(MomoService $momoService, VnpayService $vnpayService)
     {
+        $this->momoService = $momoService;
         $this->vnpayService = $vnpayService;
-        $this->momoService  = $momoService;
     }
 
-    public function vnpayPayment(Request $request)
+    // Tạo thanh toán VNPay
+    public function vnpayCheckout(Request $request)
     {
-        $url = $this->vnpayService->createPaymentUrl([
-            'amount'     => $request->input('total_vnpay'),
-            'order_id'   => rand(1000,9999),
-            'order_desc' => "Thanh toán đơn hàng test",
-            'locale'     => 'vn',
-            'bank_code'  => 'NCB'
+        $donHangId = $request->input('id_donhang');
+        $soTien = $request->input('gia');
+
+        // Tạo bản ghi thanh toán (trạng thái mặc định: chờ xác nhận)
+        $thanhToan = ThanhToan::create([
+            'nganhang' => 'VNPay',
+            'gia' => $soTien,
+            'noidung' => 'Thanh toán đơn hàng ' . $donHangId,
+            'magiaodich' => null,
+            'ngaythanhtoan' => now(),
+            'trangthai' => 'cho_xac_nhan',
+            'id_donhang' => $donHangId,
         ]);
+
+        // Gọi service để tạo URL thanh toán
+        $paymentUrl = $this->vnpayService->createPayment($thanhToan);
 
         return $this->jsonResponse([
-            'code'    => '00',
+            'code' => '00',
             'message' => 'success',
-            'data'    => $url
+            'data' => $paymentUrl
         ]);
     }
 
-    public function momoPayment(Request $request)
+    // Tạo thanh toán MoMo
+    public function momoCheckout(Request $request)
     {
-        $result = $this->momoService->createPayment([
-            'amount'     => $request->input('amount', 10000),
-            'order_id'   => time(),
-            'order_desc' => "Thanh toán qua MoMo",
+        $donHangId = $request->input('id_donhang');
+        $soTien = $request->input('gia');
+
+        $thanhToan = ThanhToan::create([
+            'nganhang' => 'MoMo',
+            'gia' => $soTien,
+            'noidung' => 'Thanh toán đơn hàng ' . $donHangId,
+            'magiaodich' => null,
+            'ngaythanhtoan' => now(),
+            'trangthai' => 'cho_xac_nhan',
+            'id_donhang' => $donHangId,
         ]);
 
-        return $this->jsonResponse($result);
+        $paymentUrl = $this->momoService->createPayment($thanhToan);
+
+        return $this->jsonResponse([
+            'code' => '00',
+            'message' => 'success',
+            'data' => $paymentUrl
+        ]);
     }
 
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
 
     /**
-     * Store a newly created resource in storage.
+     * Callback cập nhật kết quả từ MoMo / VNPay
      */
-    public function store(Request $request)
+    public function vnpayReturn(Request $request)
     {
-        //
+        $magiaodich = $request->input('vnp_TransactionNo');
+        $orderId = $request->input('vnp_TxnRef');
+        $status = $request->input('vnp_ResponseCode') === "00" ? "thanh_cong" : "that_bai";
+
+        $thanhToan = ThanhToan::where('id_donhang', $orderId)
+            ->where('nganhang', 'VNPay')
+            ->latest()
+            ->first();
+
+        if ($thanhToan) {
+            $thanhToan->update([
+                'magiaodich' => $magiaodich,
+                'trangthai' => $status,
+                'ngaythanhtoan' => now(),
+            ]);
+        }
+
+        return $this->jsonResponse([
+            'message' => 'Cập nhật kết quả thanh toán thành công',
+            'status' => $status
+        ]);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }

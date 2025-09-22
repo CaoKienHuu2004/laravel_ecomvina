@@ -1,7 +1,8 @@
 <?php
 return [
-    'url'         => "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html",
-    'return_url'  => "https://localhost/vnpay_php/vnpay_return.php",
+    'url'        => env('VNPAY_URL'),
+    'return_url' => env('VNPAY_RETURN_URL'),
     'tmn_code'    => env('VNPAY_TMN_CODE'),
     'hash_secret' => env('VNPAY_HASH_SECRET'),
 ];
+

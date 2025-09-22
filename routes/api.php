@@ -22,7 +22,6 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\ChatController;
 use App\Http\Controllers\API\LoaiBienTheAPI;
 
-use App\Http\Controllers\API\CheckOutController;
 
 /*
 |--------------------------------------------------------------------------
@@ -116,8 +115,17 @@ Route::middleware(['auth:sanctum','role:admin'])->group(function () {
 // Route::post('/vnpay_payment', 'CheckoutController@vnpay_payment');
 // Route::get('/momo_payment', 'CheckoutController@momo_payment');
 
-Route::post('/checkout/vnpay', [CheckOutController::class, 'vnpayPayment']);// POST /api/checkout/vnpay → tạo link thanh toán VNPay
-Route::post('/checkout/momo',  [CheckOutController::class, 'momoPayment']);
+// Route::post('/checkout/vnpay', [CheckOutController::class, 'vnpayPayment']);// POST /api/checkout/vnpay → tạo link thanh toán VNPay
+// Route::post('/checkout/momo',  [CheckOutController::class, 'momoPayment']);
+use App\Http\Controllers\API\CheckOutController;
+use App\Http\Controllers\API\PaymentCallbackController;
+Route::post('/checkout/vnpay', [CheckOutController::class, 'vnpayCheckout']);
+Route::post('/checkout/momo', [CheckOutController::class, 'momoCheckout']);
+// Callback từ VNPay
+Route::get('/payment/vnpay-return', [PaymentCallbackController::class, 'vnpayReturn']);
+// Callback từ MoMo
+Route::get('/payment/momo-return', [PaymentCallbackController::class, 'momoReturn']);
+Route::post('/payment/momo-notify', [PaymentCallbackController::class, 'momoNotify']);
 // cổng thành toán vnpay
 
 
