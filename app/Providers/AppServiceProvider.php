@@ -2,9 +2,10 @@
 
 namespace App\Providers;
 use App\Services\ChatAIService;
+use App\Services\MomoService;
 use App\Services\PasswordResetService;
 use App\Services\SemanticProcessor;
-
+use App\Services\VnpayService;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -23,6 +24,12 @@ class AppServiceProvider extends ServiceProvider
         });
         $this->app->singleton(SemanticProcessor ::class, function ($app) {
             return new PasswordResetService();
+        });
+        $this->app->singleton(VnpayService ::class, function ($app) {
+            return new VnpayService();
+        });
+        $this->app->singleton(MomoService ::class, function ($app) {
+            return new MomoService();
         });
     }
 

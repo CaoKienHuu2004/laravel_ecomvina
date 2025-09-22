@@ -22,6 +22,8 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\ChatController;
 use App\Http\Controllers\API\LoaiBienTheAPI;
 
+use App\Http\Controllers\API\CheckOutController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -109,6 +111,15 @@ Route::middleware(['auth:sanctum','role:admin'])->group(function () {
     Route::apiResource('magiamgias', MaGiamGiaAPI::class)->only(['store','update','destroy']);
     Route::apiResource('danhgias', DanhGiaAPI::class)->only(['store','update','destroy']);
 });
+
+// cổng thành toán vnpay, momo
+// Route::post('/vnpay_payment', 'CheckoutController@vnpay_payment');
+// Route::get('/momo_payment', 'CheckoutController@momo_payment');
+
+Route::post('/checkout/vnpay', [CheckOutController::class, 'vnpayPayment']);// POST /api/checkout/vnpay → tạo link thanh toán VNPay
+Route::post('/checkout/momo',  [CheckOutController::class, 'momoPayment']);
+// cổng thành toán vnpay
+
 
 // Route::middleware(['auth:sanctum','role:admin,assistant'])->group(function () {
 //     Route::get('/dashboard', [DashboardController::class, 'index']);
