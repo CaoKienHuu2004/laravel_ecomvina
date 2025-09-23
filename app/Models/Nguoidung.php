@@ -11,10 +11,13 @@ use Laravel\Fortify\TwoFactorAuthenticatable;
 
 use App\Notifications\ResetPasswordNotification;
 
+use Laravel\Jetstream\HasProfilePhoto; // của jetstream
+
+
 class Nguoidung extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, SoftDeletes, TwoFactorAuthenticatable;
-
+    use HasProfilePhoto; // của jetstream
     /**
      * Tên bảng trong database mà model này sẽ quản lý.
      *
@@ -64,6 +67,17 @@ class Nguoidung extends Authenticatable
         'deleted_at' => 'datetime',
     ];
 
+    ///////////// vì jetstem nó có UI để field là name
+    public function getNameAttribute()
+    {
+        return $this->hoten; // Khi gọi $user->name → nó sẽ trả về hoten
+    }
+    public function setNameAttribute($value)
+    {
+        $this->attributes['hoten'] = $value; // Nếu bạn muốn khi gán $user->name = '...' thì nó update hoten luôn
+    }
+    ///////////// vì jetstem nó có UI để field là name
+
     /**
      * Quan hệ: Người dùng có nhiều địa chỉ.
      */
@@ -75,9 +89,9 @@ class Nguoidung extends Authenticatable
     /**
      * Quan hệ: Người dùng có nhiều phiên đăng nhập.
      */
-    public function phienDangNhap()
+    public function session()
     {
-        return $this->hasMany(PhienDangNhap::class, 'nguoi_dung_id');
+        return $this->hasMany(Session::class, 'user_id');
     }
 
     /**
@@ -97,6 +111,14 @@ class Nguoidung extends Authenticatable
     {
         return $this->hasRole('assistant');
     }
+    public function isUser(): bool
+    {
+        return $this->hasRole('user');
+    }
+    public function isAnonymous(): bool
+    {
+        return $this->hasRole('anonymous');
+    }
 
     /**
      * Gửi thông báo xác thực email (Fortify yêu cầu).
@@ -109,4 +131,12 @@ class Nguoidung extends Authenticatable
     {
         $this->notify(new ResetPasswordNotification($token));
     }
+    /**
+     * The accessors to append to the model's array form. của jetstream
+     *
+     * @var array<int, string>
+     */
+    protected $appends = [
+        'profile_photo_url',
+    ];
 }

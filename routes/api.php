@@ -9,7 +9,7 @@ use App\Http\Controllers\API\DanhmucAPI;
 use App\Http\Controllers\API\DiaChiNguoiDungAPI;
 use App\Http\Controllers\API\GioHangAPI;
 use App\Http\Controllers\API\NguoidungAPI;
-use App\Http\Controllers\Api\PhienDangNhapAPI;
+
 use App\Http\Controllers\API\HanhviNguoidungAPI;
 use App\Http\Controllers\API\MaGiamGiaAPI;
 use App\Http\Controllers\API\QuatangKhuyenMaiAPI;
