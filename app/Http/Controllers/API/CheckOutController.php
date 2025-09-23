@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
 use App\Models\ThanhToan;
 use App\Services\MomoService;
 use App\Services\VnpayService;

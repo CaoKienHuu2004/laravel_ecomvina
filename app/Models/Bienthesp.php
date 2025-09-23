@@ -24,11 +24,11 @@ class Bienthesp extends Model
         'deleted_at' => 'datetime',
     ];
 
-    public function loaiBienThe()
+    public function loaibienthe()
     {
         return $this->belongsTo(Loaibienthe::class, 'id_tenloai');
     }
-    public function sanPham()
+    public function sanpham()
     {
         // 'id_sanpham' là khóa ngoại trong bảng 'bienthe_sp'
         // trỏ đến 'id' trong bảng 'san_pham'

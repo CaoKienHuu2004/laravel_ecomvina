@@ -31,7 +31,7 @@ class GioHang extends Model
 
 
     // Quan hệ với người dùng
-    public function nguoiDung()
+    public function nguoidung()
     {
         return $this->belongsTo(Nguoidung::class, 'id_nguoidung');
     }

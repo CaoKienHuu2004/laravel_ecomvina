@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
 use App\Http\Resources\NguoiDungAuthResource;
 use App\Models\Nguoidung;
 use Illuminate\Http\Request;
@@ -13,8 +12,9 @@ use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\UpdateUserProfileInformation;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\ResetUserPassword;
+use Illuminate\Support\Facades\Hash;
 
-class AuthController extends Controller
+class AuthController extends BaseController
 {
     protected $createNewUser;
     protected $updateProfile;
@@ -53,7 +53,7 @@ class AuthController extends Controller
         // $this->setMailer($request);
         // Mail::to($user->email)->send(new WelcomeMail($user));
 
-        return response()->json([
+        return $this->jsonResponse([
             'message'      => 'Chào mừng ' . $user->hoten . '! Bạn đã đăng ký thành công.',
             'access_token' => $token,
             'token_type'   => 'Bearer',
@@ -68,14 +68,19 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json(['message' => 'Unauthorized'], 401);
+        // Tìm user theo email
+        $user = Nguoidung::where('email', $request->email)->first();
+
+        // Nếu không tồn tại user hoặc password sai
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return $this->jsonResponse(['message' => 'Unauthorized'], 401);
         }
 
-        $user  = Nguoidung::where('email', $request->email)->firstOrFail();
+        // Tạo token Sanctum
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json([
+        // Trả JSON
+        return $this->jsonResponse([
             'message'      => 'Chào ' . $user->hoten . '! Chúc bạn an lành!',
             'access_token' => $token,
             'token_type'   => 'Bearer',
@@ -83,11 +88,33 @@ class AuthController extends Controller
         ]);
     }
 
+    // public function login(Request $request)
+    // {
+    //     $request->validate([
+    //         'email'    => 'required|email',
+    //         'password' => 'required'
+    //     ]);
+
+    //     if (!Auth::attempt($request->only('email', 'password'))) {
+    //         return response()->json(['message' => 'Unauthorized'], 401);
+    //     }
+
+    //     $user  = Nguoidung::where('email', $request->email)->firstOrFail();
+    //     $token = $user->createToken('auth_token')->plainTextToken;
+
+    //     return $this->jsonResponse([
+    //         'message'      => 'Chào ' . $user->hoten . '! Chúc bạn an lành!',
+    //         'access_token' => $token,
+    //         'token_type'   => 'Bearer',
+    //         'user'         => new NguoiDungAuthResource($user),
+    //     ]);
+    // }
+
     public function logout(Request $request)
     {
         $request->user()->tokens()->delete();
 
-        return response()->json([
+        return $this->jsonResponse([
             'message' => 'Bạn đã thoát ứng dụng và token đã xóa'
         ]);
     }
@@ -97,7 +124,7 @@ class AuthController extends Controller
         $user = $request->user();
         $this->updateProfile->update($user, $request->all());
 
-        return response()->json([
+        return $this->jsonResponse([
             'message' => 'Thông tin đã được cập nhật',
             'user'    => new NguoiDungAuthResource($user),
         ]);
@@ -108,7 +135,7 @@ class AuthController extends Controller
         $user = $request->user();
         $this->updatePassword->update($user, $request->all());
 
-        return response()->json([
+        return $this->jsonResponse([
             'message' => 'Mật khẩu đã được thay đổi',
         ]);
     }
@@ -130,7 +157,7 @@ class AuthController extends Controller
             ]);
         }
 
-        return response()->json([
+        return $this->jsonResponse([
             'message' => __($status)
         ], 400);
     }
@@ -154,12 +181,12 @@ class AuthController extends Controller
         );
 
         if ($status === Password::PASSWORD_RESET) {
-            return response()->json([
+            return $this->jsonResponse([
                 'message' => 'Mật khẩu đã được đặt lại thành công'
             ]);
         }
 
-        return response()->json([
+        return $this->jsonResponse([
             'message' => __($status)
         ], 400);
     }

@@ -47,12 +47,13 @@ class Danhmuc extends Model
 
     // Nếu sản phẩm có nhiều danh mục (many-to-many)
     // vì đở khai báo là dài dòng cho sanpham_danhmuc
-    public function sanPham()
+    public function sanphams()
     {
-        return $this->belongsToMany(Sanpham::class, 'sanpham_danhmuc', 'id_danhmuc', 'id_sanpham');
+        return $this->belongsToMany(SanPham::class, 'sanpham_danhmuc', 'id_danhmuc', 'id_sanpham');
     }
     // Nếu sản phẩm chỉ thuộc 1 danh mục thì thay bằng:
     // public function sanPham()
     //     return $this->hasMany(Sanpham::class, 'danh_muc_id');
     // }
+
 }

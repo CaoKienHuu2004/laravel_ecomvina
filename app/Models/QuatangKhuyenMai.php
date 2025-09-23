@@ -26,6 +26,8 @@ class QuatangKhuyenMai extends Model
         'deleted_at'
     ];
     protected $casts = [
+        'ngaybatdau' => 'datetime',
+        'ngayketthuc' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',

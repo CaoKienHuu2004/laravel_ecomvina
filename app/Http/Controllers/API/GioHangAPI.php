@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Resources\GioHangCollectionResource;
 use Illuminate\Http\Request;
 use App\Models\GioHang;
 use App\Http\Resources\GioHangResource;
@@ -17,7 +18,7 @@ class GioHangAPI extends BaseController
         $perPage = $request->get('per_page', 10);
         $currentPage = $request->get('page', 1);
 
-        $giohangs = GioHang::with(['nguoidung', 'bienthesp'])
+        $giohangs = GioHang::with(['nguoidung', 'bienthesp.sanpham'])
             ->latest('updated_at')
             ->paginate($perPage, ['*'], 'page', $currentPage);
 
@@ -26,6 +27,7 @@ class GioHangAPI extends BaseController
             return $this->jsonResponse([
                 'status' => false,
                 'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $giohangs->lastPage(),
+                'data'    => GioHangResource::collection($giohangs),
                 'meta' => [
                     'current_page' => $currentPage,
                     'last_page'    => $giohangs->lastPage(),
@@ -74,12 +76,12 @@ class GioHangAPI extends BaseController
      */
     public function show(string $id)
     {
-        $giohang = GioHang::with(['nguoidung', 'bienthesp'])->findOrFail($id);
+        $giohang = GioHang::with(['nguoidung', 'bienthesp.sanpham'])->findOrFail($id);
 
         return $this->jsonResponse([
             'status'  => true,
             'message' => 'Chi tiết giỏ hàng',
-            'data'    => new GioHangResource($giohang)
+            'data'    => new GioHangResource($giohang) // đang sai login quan Hệ N-N phải sửa database them chi tiet gio hang mới giải quyết được GioHangResource::collection mới đúng
         ], Response::HTTP_OK);
     }
 

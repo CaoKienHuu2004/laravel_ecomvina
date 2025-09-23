@@ -35,6 +35,12 @@ class FortifyServiceProvider extends ServiceProvider
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
         Fortify::redirectUserForTwoFactorAuthenticationUsing(RedirectIfTwoFactorAuthenticatable::class);
 
+        // Disable tất cả view mặc định của Fortify → trả JSON/SPA
+        // Fortify::loginView(fn() => abort(404));
+        // Fortify::registerView(fn() => abort(404));
+        // Fortify::requestPasswordResetLinkView(fn() => abort(404));
+        // Fortify::resetPasswordView(fn($request) => abort(404));
+
         RateLimiter::for('login', function (Request $request) {
             $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());
 

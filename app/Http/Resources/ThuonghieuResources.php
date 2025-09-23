@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use App\Models\SanPham;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -23,7 +22,7 @@ class ThuonghieuResources extends JsonResource
             'ten'   => $this->ten,
             'mota'        => $this->mota,
             'trangthai' => $this->trangthai,
-            'sanphams' => SanPham::collection($this->whenLoaded('sanpham'))
+            'sanphams' => SanphamResources::collection($this->whenLoaded('sanpham'))
         ];
         // Nếu admin, thêm thông tin thời gian
         if ($isAdmin) {

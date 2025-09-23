@@ -15,6 +15,7 @@ return [
     |
     */
 
+    // 'guard' => 'api',
     'guard' => 'web',
 
     /*
@@ -101,6 +102,7 @@ return [
     |
     */
 
+    // 'middleware' => ['api'],
     'middleware' => ['web'],
 
     /*
@@ -130,7 +132,8 @@ return [
     |
     */
 
-    'views' => false,
+    'views' => true,
+    // 'views' => false,
 
 
 

@@ -17,7 +17,7 @@ class BientheController extends Controller
     public function index(Request $request)
     {
         $query = SanPham::with('bienThe', 'danhmuc');
-        $bienthe = Bienthesp::with('sanpham', 'loaiBienThe');
+        $bienthe = Bienthesp::with('sanpham', 'loaibienthe');
 
         // Lấy kết quả
         $sanphams = $query->orderBydesc('updated_at')->get();

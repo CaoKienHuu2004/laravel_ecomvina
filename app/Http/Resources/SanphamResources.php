@@ -20,13 +20,13 @@ class SanphamResources extends JsonResource
 
         $data = [
             'id'           => $this->id,
-            'ten_san_pham' => $this->ten,
-            'mo_ta'        => $this->mota,
-            'xuat_xu'      => $this->xuatxu,
-            'san_xuat'     => $this->sanxuat,
-            'url_video'    => $this->mediaurl,
-            'luot_xem'     => $this->luotxem,
-            'ngay_cap_nhat'=> $this->updated_at?->format('d-m-Y H:i:s'),
+            'ten'           => $this->ten,
+            'mota'        => $this->mota,
+            'xuatxu'      => $this->xuatxu,
+            'sanxuat'     => $this->sanxuat,
+            'mediaurl'    => $this->mediaurl,
+            'luotxem'     => $this->luotxem,
+            'ngaycapnhat'=> $this->updated_at?->format('d-m-Y H:i:s'),
             // Tải các mối quan hệ có điều kiện
             'thuonghieu'  => new ThuonghieuResources($this->whenLoaded('thuonghieu')),
             'danhmucs'     => DanhmucResources::collection($this->whenLoaded('danhmuc')),

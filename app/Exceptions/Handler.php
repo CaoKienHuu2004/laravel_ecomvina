@@ -1,54 +1,17 @@
 <?php
 
-// namespace App\Exceptions;
-
-// use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-// use Throwable;
-
-// class Handler extends ExceptionHandler
-// {
-//     /**
-//      * The list of the inputs that are never flashed to the session on validation exceptions.
-//      *
-//      * @var array<int, string>
-//      */
-//     protected $dontFlash = [
-//         'current_password',
-//         'password',
-//         'password_confirmation',
-//     ];
-
-//     /**
-//      * Register the exception handling callbacks for the application.
-//      */
-//     public function register(): void
-//     {
-//         $this->reportable(function (Throwable $e) {
-//             //
-//         });
-//     }
-// }
-
 namespace App\Exceptions;
 
+use App\Traits\ApiResponse;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 class Handler extends ExceptionHandler
 {
-    /**
-     * A list of the exception types that are not reported.
-     *
-     * @var array<int, class-string<\Throwable>>
-     */
-    protected $dontReport = [];
-
-    /**
-     * A list of the inputs that are never flashed for validation exceptions.
-     *
-     * @var array<int, string>
-     */
+    use ApiResponse;
     protected $dontFlash = [
         'current_password',
         'password',
@@ -60,13 +23,40 @@ class Handler extends ExceptionHandler
         //
     }
 
+    // Xử lý khi chưa đăng nhập
     protected function unauthenticated($request, AuthenticationException $exception)
     {
-        return response()->json([
-            'message' => 'Bạn chưa đăng nhập hoặc token không hợp lệ',
-        ], 401);
+        if ($request->expectsJson()) {
+            return $this->jsonResponse([
+                'message' => 'Bạn chưa đăng nhập hoặc token không hợp lệ',
+            ], 401);
+        }
+
+        return response()->view('errors.401', [], 401);
+    }
+
+    // Render lỗi chung
+    public function render($request, Throwable $exception)
+    {
+        // ❌ Lỗi validate
+        if ($exception instanceof ValidationException) {
+            if ($request->expectsJson()) {
+                return $this->jsonResponse([
+                    'message' => 'Dữ liệu không hợp lệ',
+                    'errors'  => $exception->errors(),
+                ], 422);
+            }
+        }
+
+        // ❌ Lỗi 404
+        if ($exception instanceof NotFoundHttpException) {
+            if ($request->expectsJson()) {
+                return $this->jsonResponse(['message' => 'Không tìm thấy'], 404);
+            }
+
+            return response()->view('errors.404', [], 404);
+        }
+
+        return parent::render($request, $exception);
     }
 }
-
-
-

@@ -26,7 +26,7 @@ class Loaibienthe extends Model
     }
     public function sanphams()
     {
-        return $this->belongsToMany(Bienthesp::class, 'id_tenloai','id_sanpham');
+        return $this->belongsToMany(Sanpham::class, 'bienthe_sp', 'id_tenloai', 'id_sanpham');
     }
 
 }

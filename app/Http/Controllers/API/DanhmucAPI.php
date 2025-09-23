@@ -18,7 +18,8 @@ class DanhmucAPI extends BaseController
         $perPage = $request->get('per_page', 10);
         $currentPage = $request->get('page', 1);
 
-        $query = Danhmuc::withCount('sanphams');
+        $query = Danhmuc::with(['sanphams'])
+            ->withCount('sanphams');
 
         // Nếu không phải admin (hoặc chưa đăng nhập), loại bỏ soft deleted
         if (!optional($request->user())->isAdmin()) {

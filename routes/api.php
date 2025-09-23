@@ -20,6 +20,7 @@ use App\Http\Controllers\API\ChuongTrinhSuKienAPI;
 
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\ChatController;
+use App\Http\Controllers\API\Frontend\GioHangFrontendAPI;
 use App\Http\Controllers\API\LoaiBienTheAPI;
 
 
@@ -41,15 +42,18 @@ Route::prefix('auth')->group(function () {
     Route::post('dang-ky', [AuthController::class, 'register']);
     Route::post('quen-mat-khau', [AuthController::class, 'forgotPassword']);
     Route::post('dat-lai-mat-khau', [AuthController::class, 'resetPassword']);
-    Route::middleware(['auth:sanctum'])->group(function () {
-        Route::get('thong-tin-nguoi-dung', function () {
-            return response()->json(auth()->user());
-        });
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('thong-tin-nguoi-dung', [AuthController::class, 'userInfo']);
+        // Route::get('thong-tin-nguoi-dung', function () {
+        //     return response()->json(auth()->user());
+        // });
         Route::post('dang-xuat', [AuthController::class, 'logout']);
         Route::put('cap-nhat-ho-so', [AuthController::class, 'updateProfile']);
         Route::put('doi-mat-khau', [AuthController::class, 'changePassword']); // Đổi mật khẩu khi đã đăng nhập
     });
 });
+
 //////////////// end:auth
 
 //////////////// begin:admin ai
@@ -67,16 +71,14 @@ Route::prefix('admin')->name('admin.')->middleware(['auth:sanctum', 'role:admin'
     });
 });
 // API routes
-Route::prefix('api')->group(function () {
-    Route::post('/chat', [ChatController::class, 'processChat']);
+Route::post('/chat', [ChatController::class, 'processChat']);
 
     // Admin-only AI management endpoints
-    Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
-        Route::post('/chat/train', [ChatController::class, 'addTrainingData']);
-        Route::post('/chat/retrain', [ChatController::class, 'retrainModel']);
-        Route::get('/chat/model-info', [ChatController::class, 'getModelInfo']);
-        Route::get('/chat/debug', [ChatController::class, 'debugModel']);
-    });
+Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+    Route::post('/chat/train', [ChatController::class, 'addTrainingData']);
+    Route::post('/chat/retrain', [ChatController::class, 'retrainModel']);
+    Route::get('/chat/model-info', [ChatController::class, 'getModelInfo']);
+    Route::get('/chat/debug', [ChatController::class, 'debugModel']);
 });
 //////////////// end:admin ai
 
@@ -91,34 +93,48 @@ Route::apiResource('magiamgias', MaGiamGiaAPI::class)->only(['index','show']);
 Route::apiResource('danhgias', DanhGiaAPI::class)->only(['index','show']);
 // guest
 
-// User + Admin
-Route::middleware(['auth:sanctum','role:user,admin'])->group(function () {
-    Route::apiResource('giohangs', GioHangAPI::class);
-    Route::apiResource('diachis', DiaChiNguoiDungAPI::class);
-    Route::apiResource('thanhtoans', ThanhToanAPI::class)->only(['index','show','store']);
-    Route::apiResource('yeuthichs', YeuThichAPI::class)->only(['index','show','store','destroy']);
+//begin: Api frontend // User + anonymous + admin
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/me/giohang', [GioHangFrontendAPI::class, 'index']); // ở đây auth:sanctum ko giải quyết được nguoidungandanh guest phải dùng cách new Object(guest_id,session_id) hoặc Sử dụng cookies. 3. Khi người dùng đăng nhập  thì gộp giỏ hàng guest_id với user_id vào . Khi người dùng chưa đăng nhập, tạo một mã định danh tạm (guest_id) cho giỏ hàng..Lưu giỏ hàng trong database với cột guest_id
+    Route::post('/me/giohang', [GioHangFrontendAPI::class, 'store']);
+    Route::put('/me/giohang/{id_bienthesp}', [GioHangFrontendAPI::class, 'update']);
+    Route::delete('/me/giohang/{id_bienthesp}', [GioHangFrontendAPI::class, 'destroy']);
 });
+// Route::middleware(['auth:sanctum','role:user,anonymous,admin'])->group(function () {
+//     Route::get('giohang', [GioHangAPI::class, 'index']);
+//     Route::get('diachi', [DiaChiNguoiDungAPI::class, 'index']); // chưa
+//     Route::get('thanhtoan', [ThanhToanAPI::class, 'index']); // chưa
+//     Route::get('yeuthich', [YeuThichAPI::class, 'index']); // chưa
+// });
+//end:Api frontend
+
+
+//begin: Api back-end
 
 // Admin only + have api-key
 Route::middleware(['auth:sanctum','role:admin'])->group(function () {
+
+    Route::apiResource('magiamgias', MaGiamGiaAPI::class)->only(['store','update','destroy']);
+    Route::apiResource('danhgias', DanhGiaAPI::class)->only(['store','update','destroy']);
     Route::apiResource('sanphams', SanphamAPI::class)->only(['store','update','destroy']);
     Route::apiResource('loaibienthes', LoaiBienTheAPI::class)->only(['store','update','destroy']); // làm menu khi hover list products da cấp
     Route::apiResource('danhmucs', DanhmucAPI::class)->only(['store','update','destroy']);
-    Route::apiResource('nguoidungs', NguoidungAPI::class);
     Route::apiResource('chuongtrinhsukiens', ChuongTrinhSuKienAPI::class)->only(['store','update','destroy']);
     Route::apiResource('quatangkhuyenmais', QuatangKhuyenMaiAPI::class)->only(['store','update','destroy']);
-    Route::apiResource('magiamgias', MaGiamGiaAPI::class)->only(['store','update','destroy']);
-    Route::apiResource('danhgias', DanhGiaAPI::class)->only(['store','update','destroy']);
+
+    Route::apiResource('giohangs', GioHangAPI::class)->only(['index','show','store','update','destroy']);
+    Route::apiResource('diachis', DiaChiNguoiDungAPI::class)->only(['index','show','store','update','destroy']);
+    Route::apiResource('thanhtoans', ThanhToanAPI::class)->only(['index','show','store','update','destroy']);
+    Route::apiResource('yeuthichs', YeuThichAPI::class)->only(['index','show','store','update','destroy']);
+    Route::apiResource('nguoidungs', NguoidungAPI::class)->only(['index','show','store','update','destroy']);
 });
+//end:Api back-end
 
 // cổng thành toán vnpay, momo
-// Route::post('/vnpay_payment', 'CheckoutController@vnpay_payment');
-// Route::get('/momo_payment', 'CheckoutController@momo_payment');
-
-// Route::post('/checkout/vnpay', [CheckOutController::class, 'vnpayPayment']);// POST /api/checkout/vnpay → tạo link thanh toán VNPay
-// Route::post('/checkout/momo',  [CheckOutController::class, 'momoPayment']);
 use App\Http\Controllers\API\CheckOutController;
 use App\Http\Controllers\API\PaymentCallbackController;
+// POST /api/checkout/vnpay → tạo link thanh toán VNPay
 Route::post('/checkout/vnpay', [CheckOutController::class, 'vnpayCheckout']);
 Route::post('/checkout/momo', [CheckOutController::class, 'momoCheckout']);
 // Callback từ VNPay

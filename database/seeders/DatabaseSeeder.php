@@ -38,7 +38,8 @@ class DatabaseSeeder extends Seeder
             QuatangKhuyenMaiSeeder::class,
             SuKienKhuyenMaiSeeder::class,
             MaGiamGiaSeeder::class,
-            DanhGiaSeeder::class
+            DanhGiaSeeder::class,
+            GioHangSeeder::class
             // ai training data
             // AITrainingData::class
         ]);

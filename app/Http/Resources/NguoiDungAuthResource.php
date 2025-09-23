@@ -24,6 +24,7 @@ class NguoiDungAuthResource extends JsonResource
                 'hoten' => $this->name,
                 'email' => $this->email,
                 // Thêm các trường khác của người dùng mà bạn muốn trả về
+                // 'token'     => $this->when(isset($this->token), $this->token),
             ];
     }
 }

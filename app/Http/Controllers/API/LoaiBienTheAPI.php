@@ -18,7 +18,9 @@ class LoaibientheAPI extends BaseController
         $perPage = $request->get('per_page', 10);
         $currentPage = $request->get('page', 1);
 
-        $query = Loaibienthe::withCount('bienthesps');
+        // $query = Loaibienthe::withCount('bienthesps');
+        $query = Loaibienthe::with(['bienthesps', 'sanphams'])
+                ->withCount('bienthesps');
 
         $items = $query->latest('updated_at')->paginate($perPage, ['*'], 'page', $currentPage);
 

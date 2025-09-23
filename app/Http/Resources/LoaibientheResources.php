@@ -22,6 +22,7 @@ class LoaibientheResources extends JsonResource
             'trangthai' => $this->trangthai,
             'bienthesps'    => BientheResources::collection($this->whenLoaded('bienthesps')),
             'sanphams'      => SanphamResources::collection($this->whenLoaded('sanphams')),
+            'bienthesps_count' => $this->when(isset($this->bienthesps_count), $this->bienthesps_count),
         ];
         if ($isAdmin) {
             $data['created_at'] = $this->created_at?->format('d-m-Y H:i:s');
