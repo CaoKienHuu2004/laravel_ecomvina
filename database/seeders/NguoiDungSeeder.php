@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Carbon\Carbon;
 
 class NguoiDungSeeder extends Seeder
 {
@@ -14,8 +14,8 @@ class NguoiDungSeeder extends Seeder
      */
     public function run(): void
     {
-        //
-
+        // Thời gian hiện tại GMT+7
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
 
         $users = [
             [
@@ -24,12 +24,12 @@ class NguoiDungSeeder extends Seeder
                 "avatar" => "https://multiavatar.com/api/admin.png",
                 "hoten" => "Admin",
                 "gioitinh" => "nam",
-                "ngaysinh" => "1990-01-01",
+                "ngaysinh" => "2000-12-13", // sửa hợp lệ
                 "sodienthoai" => "0997654321",
                 "vaitro" => "admin",
                 "trangthai" => "hoat_dong",
-                "created_at" => now(),
-                "updated_at" => now(),
+                "created_at" => $now,
+                "updated_at" => $now,
             ],
             [
                 "email" => "assistant@example.com",
@@ -37,12 +37,12 @@ class NguoiDungSeeder extends Seeder
                 "avatar" => "https://multiavatar.com/api/assistant.png",
                 "hoten" => "Assistant",
                 "gioitinh" => "nam",
-                "ngaysinh" => "1990-02-02",
+                "ngaysinh" => "2000-11-11", // sửa hợp lệ
                 "sodienthoai" => "0991654321",
                 "vaitro" => "assistant",
                 "trangthai" => "hoat_dong",
-                "created_at" => now(),
-                "updated_at" => now(),
+                "created_at" => $now,
+                "updated_at" => $now,
             ],
             [
                 "email" => "anonymous@example.com",
@@ -50,51 +50,36 @@ class NguoiDungSeeder extends Seeder
                 "avatar" => "https://multiavatar.com/api/anonymous.png",
                 "hoten" => "Anonymous",
                 "gioitinh" => "nam",
-                "ngaysinh" => "1990-03-02",
+                "ngaysinh" => "2000-10-10", // sửa hợp lệ
                 "sodienthoai" => "0992654321",
                 "vaitro" => "anonymous",
                 "trangthai" => "hoat_dong",
-                "created_at" => now(),
-                "updated_at" => now(),
+                "created_at" => $now,
+                "updated_at" => $now,
             ],
         ];
 
-        //
+        // Thêm user từ 4 -> 70
         for ($i = 4; $i <= 70; $i++) {
+            $month = ($i % 12) + 1; // 1 -> 12
+            $day   = ($i % 28) + 1; // 1 -> 28 (tránh ngày sai)
+
             $users[] = [
                 "email" => "user$i@example.com",
                 "password" => Hash::make("password123"),
                 "avatar" => "https://i.pravatar.cc/150?img=$i",
                 "hoten" => "User $i",
                 "gioitinh" => $i % 2 == 0 ? "nam" : "nữ",
-                "ngaysinh" => "2000-0$i-0$i",
+                "ngaysinh" => sprintf("2000-%02d-%02d", $month, $day),
                 "sodienthoai" => "098765432$i",
                 "vaitro" => "user",
                 "trangthai" => "hoat_dong",
-                "created_at" => now(),
-                "updated_at" => now(),
+                "created_at" => $now,
+                "updated_at" => $now,
             ];
         }
 
-
-
+        // Insert vào DB
         DB::table('nguoi_dung')->insert($users);
-
-        // for ($i = 1; $i <= 5; $i++) {
-        //     User::create([
-        //         'name' => "User$i",
-        //         'email' => "user$i@example.com",
-        //         'password' => Hash::make('password123'), // password mặc định
-        //         'avatar' => "https://i.pravatar.cc/150?img=$i", // URL avatar mẫu
-        //     ]);
-        // }
-
-        // // Tạo user admin riêng (tùy chọn)
-        // User::create([
-        //     'name' => 'Admin',
-        //     'email' => 'admin@example.com',
-        //     'password' => Hash::make('admin123'),
-        //     'avatar' => "https://i.pravatar.cc/150?img=99",
-        // ]);
     }
 }

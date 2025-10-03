@@ -27,7 +27,6 @@ class DanhGia extends Model
     ];
 
     protected $casts = [
-        'diem'    => 'float',
         'ngaydang'=> 'datetime',
 
         'created_at' => 'datetime',
@@ -36,13 +35,13 @@ class DanhGia extends Model
     ];
 
     // Quan hệ với sản phẩm
-    public function sanPham()
+    public function sanpham()
     {
         return $this->belongsTo(Sanpham::class, 'id_sanpham');
     }
 
     // Quan hệ với người dùng
-    public function nguoiDung()
+    public function nguoidung()
     {
         return $this->belongsTo(Nguoidung::class, 'id_nguoidung');
     }

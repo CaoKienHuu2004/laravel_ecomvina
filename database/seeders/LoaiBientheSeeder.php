@@ -13,27 +13,28 @@ class LoaiBientheSeeder extends Seeder
      */
     public function run(): void
     {
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
         DB::table('loai_bienthe')->insert([
             [
                 'id' => 1,
                 'ten' => 'lọ',
                 'trangthai' => 'hoat_dong',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'id' => 2,
                 'ten' => 'hộp',
                 'trangthai' => 'hoat_dong',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'id' => 3,
                 'ten' => 'chai',
                 'trangthai' => 'hoat_dong',
-                'created_at' => Carbon::now(),
-                'updated_at' => Carbon::now(),
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'id' => 4,

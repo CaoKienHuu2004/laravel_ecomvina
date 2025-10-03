@@ -15,14 +15,39 @@ class LoaibientheAPI extends BaseController
      */
     public function index(Request $request)
     {
-        $perPage = $request->get('per_page', 10);
+        $perPage     = $request->get('per_page', 10);
         $currentPage = $request->get('page', 1);
+        $q           = $request->get('q'); // từ khóa tìm kiếm
 
-        // $query = Loaibienthe::withCount('bienthesps');
         $query = Loaibienthe::with(['bienthesps', 'sanphams'])
-                ->withCount('bienthesps');
-
+            ->withCount('bienthesps')
+            ->when($q, function ($query) use ($q) {
+                $query->where(function ($sub) use ($q) {
+                    $sub->where('ten', 'like', "%$q%")
+                        ->orWhere('trangthai', 'like', "%$q%")
+                        ->orWhereHas('sanphams', function ($sp) use ($q) {
+                            $sp->where('ten', 'like', "%$q%");
+                        });
+                });
+            });
         $items = $query->latest('updated_at')->paginate($perPage, ['*'], 'page', $currentPage);
+
+        //---------------- Nếu Muốn Dùng Train và Các fiter lọc ko quá phức tạp ----------------
+        // $query = Loaibienthe::query();
+        // $result = $this->paginateAndFilter(
+        //     $query,$request,
+        //     ['ten', 'trangthai','sanphams'], // columns search
+        //     ['bienthesps','sanphams'] // relations
+        // );
+        // return $this->jsonResponse([
+        //     'status'  => $result['status'],
+        //     'message' => $result['status'] ? 'Danh sách sản phẩm' : $result['message'],
+        //     'data'    => LoaibientheResources::collection($result['data']),
+        //     'meta'    => $result['meta']
+        // ], $result['http_code']);
+        //---------------- Nếu Muốn Dùng Train và Các fiter lọc ko quá phức tạp ----------------
+
+
 
         if ($currentPage > $items->lastPage() && $currentPage > 1) {
             return $this->jsonResponse([
@@ -51,6 +76,7 @@ class LoaibientheAPI extends BaseController
             ]
         ], Response::HTTP_OK);
     }
+
 
     /**
      * Tạo mới loại biến thể.

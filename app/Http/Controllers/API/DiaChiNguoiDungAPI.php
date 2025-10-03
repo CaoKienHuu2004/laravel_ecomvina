@@ -14,21 +14,37 @@ class DiaChiNguoiDungAPI extends BaseController
      */
     public function index(Request $request)
     {
-        $perPage = $request->get('per_page', 10);
+        $perPage     = $request->get('per_page', 10);
         $currentPage = $request->get('page', 1);
+        $q           = $request->get('q'); // từ khóa tìm kiếm
 
-        $diachis = DiaChi::latest('updated_at')->paginate($perPage, ['*'], 'page', $currentPage);
+        $query = DiaChi::with('nguoiDung')
+            ->latest('updated_at')
+            ->when($q, function ($query) use ($q) {
+                $query->where(function ($sub) use ($q) {
+                    $sub->where('ten', 'like', "%$q%")
+                        ->orWhere('sodienthoai', 'like', "%$q%")
+                        ->orWhere('diachi', 'like', "%$q%")
+                        ->orWhere('thanhpho', 'like', "%$q%")
+                        ->orWhere('xaphuong', 'like', "%$q%")
+                        ->orWhere('sonha', 'like', "%$q%")
+                        ->orWhereHas('nguoiDung', function ($u) use ($q) {
+                            $u->where('hoten', 'like', "%$q%");
+                        });
+                });
+            });
 
-        // Kiểm tra nếu trang yêu cầu vượt quá tổng số trang
+        $diachis = $query->paginate($perPage, ['*'], 'page', $currentPage);
+
         if ($currentPage > $diachis->lastPage() && $currentPage > 1) {
             return $this->jsonResponse([
                 'status' => false,
                 'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $diachis->lastPage(),
                 'meta' => [
                     'current_page' => $currentPage,
-                    'last_page' => $diachis->lastPage(),
-                    'per_page' => $perPage,
-                    'total' => $diachis->total(),
+                    'last_page'    => $diachis->lastPage(),
+                    'per_page'     => $perPage,
+                    'total'        => $diachis->total(),
                 ]
             ], 404);
         }

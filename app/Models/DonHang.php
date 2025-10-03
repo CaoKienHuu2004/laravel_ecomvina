@@ -40,12 +40,19 @@ class DonHang extends Model
     // Quan hệ với người dùng
     public function nguoidung()
     {
-        return $this->belongsTo(NguoiDung::class, 'id_nguoidung');
+        // return $this->hasMany(DonHang::class, 'id_nguoidung');
+        return $this->belongsTo(Nguoidung::class, 'id_nguoidung');
     }
 
     // Quan hệ với mã giảm giá
     public function magiamgia()
     {
         return $this->belongsTo(MaGiamGia::class, 'id_magiamgia');
+        // return $this->hasMany(DonHang::class, 'id_magiamgia');
+
     }
+    public function thanhtoan() {
+        return $this->hasOne(ThanhToan::class, 'id_donhang');
+    }
+
 }

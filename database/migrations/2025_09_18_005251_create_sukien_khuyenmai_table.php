@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('id_khuyenmai')->constrained('quatang_khuyenmai')->onDelete('cascade');
             $table->foreignId('id_sukien')->constrained('chuongtrinhsukien')->onDelete('cascade');
-
+            $table->unique(['id_khuyenmai', 'id_sukien']);
             $table->timestamps();
             // $table->softDeletes(); bảng trung gian ko cần xóa mềm mà nên xóa hẳn, trước khi xóa hẳn thì field của các bảng tham gia môi quan hệ n - n này phải được xóa trước
         });

@@ -14,14 +14,25 @@ class DonHangAPI extends BaseController
      */
     public function index(Request $request)
     {
-        $perPage = $request->get('per_page', 10);
+        $perPage     = $request->get('per_page', 10);
         $currentPage = $request->get('page', 1);
+        $q           = $request->get('q'); // từ khóa tìm kiếm
 
-        $query = DonHang::with(['nguoidung', 'magiamgia'])->latest('updated_at');
+        $query = DonHang::with(['nguoidung', 'magiamgia'])
+            ->latest('updated_at')
+            ->when($q, function ($query) use ($q) {
+                $query->where(function ($sub) use ($q) {
+                    $sub->where('ma_donhang', 'like', "%$q%")
+                        ->orWhere('ghichu', 'like', "%$q%")
+                        ->orWhere('trangthai', 'like', "%$q%")
+                        ->orWhereHas('nguoidung', function ($u) use ($q) {
+                            $u->where('hoten', 'like', "%$q%");
+                        });
+                });
+            });
 
         $items = $query->paginate($perPage, ['*'], 'page', $currentPage);
 
-        // Kiểm tra nếu trang yêu cầu vượt quá tổng số trang
         if ($currentPage > $items->lastPage() && $currentPage > 1) {
             return $this->jsonResponse([
                 'status' => false,

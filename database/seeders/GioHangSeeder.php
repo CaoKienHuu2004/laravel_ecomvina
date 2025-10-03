@@ -2,45 +2,43 @@
 
 namespace Database\Seeders;
 
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class GioHangSeeder extends Seeder
 {
     public function run(): void
     {
-        // Map id_bienthesp => giá
-        $giaBienthe = [
-            1  => 34500.00,
-            13 => 109000.00,
-            14 => 395000.00,
-            15 => 360000.00,
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
+        $gioHangs = [
+            [
+                'id' => 1,
+                'id_nguoidung' => 1, // user admin
+                'guest_id' => null,
+                'tongtien' => 0,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'id' => 2,
+                'id_nguoidung' => 2, // user assistant
+                'guest_id' => null,
+                'tongtien' => 0,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'id' => 3,
+                'id_nguoidung' => null,
+                'guest_id' => (string) Str::uuid(), // guest user
+                'tongtien' => 0,
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
         ];
 
-        // Lấy user theo role (admin, user, anonymous)
-        $userIds = DB::table('nguoi_dung')
-            ->whereIn('vaitro', ['admin', 'user', 'anonymous'])
-            ->pluck('id')
-            ->toArray();
-
-        $bientheIds = array_keys($giaBienthe);
-        $gioHang = [];
-
-        for ($i = 0; $i < 30; $i++) {
-            $idBienthe = $bientheIds[array_rand($bientheIds)];
-            $soluong   = rand(1, 5);
-            $gia       = $giaBienthe[$idBienthe];
-
-            $gioHang[] = [
-                'soluong'      => $soluong,
-                'tongtien'     => $soluong * $gia,
-                'id_bienthesp' => $idBienthe,
-                'id_nguoidung' => $userIds[array_rand($userIds)],
-                'created_at'   => now(),
-                'updated_at'   => now(),
-            ];
-        }
-
-        DB::table('gio_hang')->insert($gioHang);
+        DB::table('gio_hang')->insert($gioHangs);
     }
 }

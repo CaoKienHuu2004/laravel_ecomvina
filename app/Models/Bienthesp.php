@@ -12,13 +12,14 @@ class Bienthesp extends Model
     public $timestamps = true;
 
     protected $table = 'bienthe_sp';
-    protected $fillable = [ 'gia', 'soluong', 'trangthai', 'uutien', 'id_sanpham','id_tenloai',
+    protected $fillable = [ 'gia','giagiam', 'soluong', 'trangthai', 'uutien', 'id_sanpham','id_tenloai',
         'created_at',
         'updated_at',
         'deleted_at'
     ];
     protected $casts = [
         'gia'      => 'decimal:2',
+        'giagiam'      => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
@@ -33,6 +34,11 @@ class Bienthesp extends Model
         // 'id_sanpham' là khóa ngoại trong bảng 'bienthe_sp'
         // trỏ đến 'id' trong bảng 'san_pham'
         return $this->belongsTo(Sanpham::class, 'id_sanpham');
+    }
+    /// --------------------------- làm bảng trung gian cho SanPham ----------------------- ///
+    public function chiTietDonHang()
+    {
+        return $this->hasMany(ChiTietDonHang::class, 'id_bienthe', 'id');
     }
 
 }

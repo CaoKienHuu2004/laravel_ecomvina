@@ -10,11 +10,11 @@ class DanhGiaSeeder extends Seeder
 {
     public function run(): void
     {
-        $now = Carbon::now();
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
 
         $data = [
             [
-                'diem' => 4.5,
+                'diem' => 4,
                 'noidung' => 'Sản phẩm rất tốt, chất lượng đúng như mô tả. Giao hàng nhanh.',
                 'media' => 'https://example.com/reviews/review1.jpg',
                 'ngaydang' => $now->subDays(5),
@@ -25,7 +25,7 @@ class DanhGiaSeeder extends Seeder
                 'updated_at' => $now,
             ],
             [
-                'diem' => 3.8,
+                'diem' => 3,
                 'noidung' => 'Hàng ổn, nhưng đóng gói chưa kỹ. Cần cải thiện thêm.',
                 'media' => 'https://example.com/reviews/review2.jpg',
                 'ngaydang' => $now->subDays(2),
@@ -40,7 +40,7 @@ class DanhGiaSeeder extends Seeder
         // Tạo thêm 18 đánh giá ngẫu nhiên
         for ($i = 3; $i <= 20; $i++) {
             $data[] = [
-                'diem' => rand(30, 50) / 10, // điểm 3.0 -> 5.0
+                'diem' => rand(3, 5), // điểm 3 -> 5
                 'noidung' => "Đánh giá thử số $i: chất lượng sản phẩm tốt, hài lòng.",
                 'media' => "https://example.com/reviews/review$i.jpg",
                 'ngaydang' => $now->subDays(rand(1, 30)),

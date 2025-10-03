@@ -34,6 +34,7 @@ return new class extends Migration
 
             $table->foreignId('id_nguoidung')->constrained('nguoi_dung');
             $table->foreignId('id_magiamgia')->constrained('ma_giamgia');
+            $table->unique(['id_nguoidung', 'id_magiamgia']);
 
             $table->timestamps();
             $table->softDeletes();

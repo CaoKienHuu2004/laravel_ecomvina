@@ -17,6 +17,8 @@ return new class extends Migration
             $table->id();
             $table->text('ten')->unique();
             $table->text('mota')->nullable();
+            // $table->integer('namthanhlap');
+            $table->text('media');
             $table->enum('trangthai', ['hoat_dong', 'ngung_hoat_dong', 'bi_khoa', 'cho_duyet'])->default('hoat_dong');
             $table->timestamps();
             $table->softDeletes();

@@ -10,7 +10,7 @@ class SuKienKhuyenMaiSeeder extends Seeder
 {
     public function run(): void
     {
-        $now = Carbon::now();
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
 
         DB::table('sukien_khuyenmai')->insert([
             [

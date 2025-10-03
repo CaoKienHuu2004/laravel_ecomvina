@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
 
             $table->decimal('gia', 15, 2);
+            $table->decimal('giagiam', 15, 2)->default(0);
             $table->integer('soluong');
             $table->enum('trangthai', ['hoat_dong', 'ngung_hoat_dong', 'bi_khoa', 'cho_duyet'])->default('hoat_dong');
             $table->integer('uutien')->comment('Độ ưu tiên hiển thị của biến thể (số nhỏ hơn = ưu tiên cao hơn)');

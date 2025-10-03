@@ -40,6 +40,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'api' => [
+            'driver' => 'sanctum', //token nếu dung auth:api
+            'provider' => 'users',
+        ],
     ],
 
     /*

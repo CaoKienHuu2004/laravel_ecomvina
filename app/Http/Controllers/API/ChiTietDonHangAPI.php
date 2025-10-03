@@ -14,39 +14,57 @@ class ChiTietDonHangAPI extends BaseController
      */
     public function index(Request $request)
     {
-        $perPage = $request->get('per_page', 10);
+        $perPage     = $request->get('per_page', 10);
         $currentPage = $request->get('page', 1);
+        $q           = $request->get('q', null); // query tìm kiếm
 
         $query = ChiTietDonHang::with(['donhang', 'bienthe'])->latest('updated_at');
 
+        // Nếu có $q, lọc theo nhiều trường
+        if ($q) {
+            $query->where(function($query) use ($q) {
+                $query->whereHas('donhang', fn($q1) =>
+                        $q1->where('id', $q))
+                    ->orWhereHas('bienthe', fn($q2) =>
+                        $q2->where('ten', 'like', "%$q%")
+                        ->orWhere('ma', 'like', "%$q%"))
+                    ->orWhere('gia', 'like', "%$q%")
+                    ->orWhere('tongtien', 'like', "%$q%");
+            });
+        }
+
         $items = $query->paginate($perPage, ['*'], 'page', $currentPage);
 
-        // Kiểm tra nếu trang yêu cầu vượt quá tổng số trang
+        // Kiểm tra nếu page vượt quá tổng số trang
         if ($currentPage > $items->lastPage() && $currentPage > 1) {
             return $this->jsonResponse([
-                'status' => false,
+                'status'  => false,
                 'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $items->lastPage(),
-                'meta' => [
+                'data'    => ChiTietDonHangResource::collection($items),
+                'meta'    => [
                     'current_page' => $currentPage,
-                    'last_page' => $items->lastPage(),
-                    'per_page' => $perPage,
-                    'total' => $items->total(),
+                    'last_page'    => $items->lastPage(),
+                    'per_page'     => $perPage,
+                    'total'        => $items->total(),
                 ]
             ], 404);
         }
 
         return $this->jsonResponse([
-            'status' => true,
+            'status'  => true,
             'message' => 'Danh sách chi tiết đơn hàng',
-            'data' => ChiTietDonHangResource::collection($items),
-            'meta' => [
+            'data'    => ChiTietDonHangResource::collection($items),
+            'meta'    => [
                 'current_page' => $items->currentPage(),
                 'last_page'    => $items->lastPage(),
                 'per_page'     => $items->perPage(),
                 'total'        => $items->total(),
+                'next_page_url'=> $items->nextPageUrl(),
+                'prev_page_url'=> $items->previousPageUrl(),
             ]
-        ], Response::HTTP_OK);
+        ], 200);
     }
+
 
     /**
      * Xem chi tiết 1 bản ghi

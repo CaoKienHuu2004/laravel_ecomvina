@@ -14,39 +14,52 @@ class YeuThichAPI extends BaseController
      */
     public function index(Request $request)
     {
-        $perPage = $request->get('per_page', 10);
+        $perPage     = $request->get('per_page', 10);
         $currentPage = $request->get('page', 1);
+        $q           = $request->get('q'); // từ khóa tìm kiếm
 
-        $items = YeuThich::with(['sanpham', 'nguoidung'])
+        $query = YeuThich::with(['sanpham', 'nguoidung'])
             ->latest('created_at')
-            ->paginate($perPage, ['*'], 'page', $currentPage);
+            ->when($q, function ($query) use ($q) {
+                $query->where(function ($sub) use ($q) {
+                    $sub->where('trangthai', 'like', "%$q%")
+                        ->orWhereHas('sanpham', function ($p) use ($q) {
+                            $p->where('ten', 'like', "%$q%");
+                        })
+                        ->orWhereHas('nguoidung', function ($u) use ($q) {
+                            $u->where('ten', 'like', "%$q%");
+                        });
+                });
+            });
 
-        // Kiểm tra nếu trang yêu cầu vượt quá tổng số trang
+        $items = $query->paginate($perPage, ['*'], 'page', $currentPage);
+
         if ($currentPage > $items->lastPage() && $currentPage > 1) {
             return $this->jsonResponse([
                 'status' => false,
                 'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $items->lastPage(),
                 'meta' => [
                     'current_page' => $currentPage,
-                    'last_page' => $items->lastPage(),
-                    'per_page' => $perPage,
-                    'total' => $items->total(),
+                    'last_page'    => $items->lastPage(),
+                    'per_page'     => $perPage,
+                    'total'        => $items->total(),
                 ]
             ], 404);
-        }
-
-        return $this->jsonResponse([
-            'status' => true,
-            'message' => 'Danh sách yêu thích',
-            'data' => YeuThichResource::collection($items),
-            'meta' => [
-                'current_page' => $items->currentPage(),
-                'last_page'    => $items->lastPage(),
-                'per_page'     => $items->perPage(),
-                'total'        => $items->total(),
-            ]
-        ], Response::HTTP_OK);
     }
+
+    return $this->jsonResponse([
+        'status' => true,
+        'message' => 'Danh sách yêu thích',
+        'data' => YeuThichResource::collection($items),
+        'meta' => [
+            'current_page' => $items->currentPage(),
+            'last_page'    => $items->lastPage(),
+            'per_page'     => $items->perPage(),
+            'total'        => $items->total(),
+        ]
+    ], Response::HTTP_OK);
+}
+
 
     /**
      * Xem chi tiết

@@ -21,6 +21,8 @@ class ThuonghieuResources extends JsonResource
             'id'    => $this->id,
             'ten'   => $this->ten,
             'mota'        => $this->mota,
+            // 'namthanhlap'        => $this->namthanhlap,
+            'media'        => $this->media,
             'trangthai' => $this->trangthai,
             'sanphams' => SanphamResources::collection($this->whenLoaded('sanpham'))
         ];

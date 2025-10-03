@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -9,6 +10,7 @@ class DiaChiNguoiDungSeeder extends Seeder
 {
     public function run()
     {
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
         $diachi = [];
         $diachi[] = [
             'ten' => "Admin",
@@ -20,8 +22,8 @@ class DiaChiNguoiDungSeeder extends Seeder
             'diachi' => "Số 1, Đường ABC, Phường 1, Q.1, Thành phố Hồ Chí Minh",
             'trangthai' => 'hoat_dong',
             'id_nguoidung' => 1,
-            'created_at' => now(),
-            'updated_at' => now(),
+            'created_at' => $now,
+            'updated_at' => $now,
         ];
         $diachi[] = [
             'ten' => "Assistant",
@@ -32,9 +34,9 @@ class DiaChiNguoiDungSeeder extends Seeder
             'sonha' => "Số 1, Đường ABC",
             'diachi' => "Số 1, Đường ABC, Phường 1, Q.1, Thành phố Hồ Chí Minh",
             'trangthai' => 'hoat_dong',
-            'id_nguoidung' => 3,
-            'created_at' => now(),
-            'updated_at' => now(),
+            'id_nguoidung' => 2,
+            'created_at' => $now,
+            'updated_at' => $now,
         ];
         $diachi[] = [
             'ten' => "Anonymous",
@@ -45,9 +47,9 @@ class DiaChiNguoiDungSeeder extends Seeder
             'sonha' => "Số 1, Đường ABC",
             'diachi' => "Số 1, Đường ABC, Phường 1, Q.1, Thành phố Hồ Chí Minh",
             'trangthai' => 'hoat_dong',
-            'id_nguoidung' => 1,
-            'created_at' => now(),
-            'updated_at' => now(),
+            'id_nguoidung' => 3,
+            'created_at' => $now,
+            'updated_at' => $now,
         ];
 
         for ($i = 4; $i <= 70; $i++) {
@@ -61,8 +63,8 @@ class DiaChiNguoiDungSeeder extends Seeder
                 'diachi' => "Số $i, Đường ABC, Phường $i, Q.$i, Thành phố " . ($i % 2 == 0 ? 'Hà Nội' : 'Hồ Chí Minh'),
                 'trangthai' => 'hoat_dong',
                 'id_nguoidung' => $i, // giả sử bảng nguoi_dung đã có user với id từ 2–70
-                'created_at' => now(),
-                'updated_at' => now(),
+                'created_at' => $now,
+                'updated_at' => $now,
             ];
         }
 

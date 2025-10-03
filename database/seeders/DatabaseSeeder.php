@@ -33,13 +33,16 @@ class DatabaseSeeder extends Seeder
             SanPhamSeeder::class,
             SanPhamDanhMucSeeder::class,
             AnhSanPhamSeeder::class,
+            GioHangSeeder::class,
             BientheSpSeeder::class,
             ChuongTrinhSuKienSeeder::class,
             QuatangKhuyenMaiSeeder::class,
             SuKienKhuyenMaiSeeder::class,
             MaGiamGiaSeeder::class,
             DanhGiaSeeder::class,
-            GioHangSeeder::class
+            ChiTietGioHangSeeder::class,
+            TuKhoaSeeder::class,
+            BannerQuangCaoSeeder::class,
             // ai training data
             // AITrainingData::class
         ]);

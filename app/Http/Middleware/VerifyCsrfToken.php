@@ -16,5 +16,6 @@ class VerifyCsrfToken extends Middleware
         '/login',
         '/register',
         '/reset-password',
+        'api/*' // dung cho API token của santum
     ];
 }

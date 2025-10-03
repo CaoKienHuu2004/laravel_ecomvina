@@ -12,7 +12,7 @@ class Thuonghieu extends Model
     public $timestamps = true;
 
     protected $table = 'thuong_hieu';
-    protected $fillable = ['ten', 'mota','trangthai',
+    protected $fillable = ['ten', 'mota','trangthai','media',//'namthanhlap',
         'created_at', 'updated_at','deleted_at'
     ];
     protected $casts = [

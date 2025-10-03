@@ -16,6 +16,10 @@ class YeuThich extends Model
         'id_sanpham',
         'id_nguoidung',
     ];
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
 
     /**
      * Quan hệ với sản phẩm

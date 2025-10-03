@@ -22,6 +22,7 @@ class NguoidungResources extends JsonResource
             'sodienthoai' => $this->sodienthoai,
             'trangthai'   => $this->trangthai,
             'diachis'     => DiaChiNguoiDungResources::collection($this->whenLoaded('diachi')),
+
         ];
 
         // Nếu là admin, trả thêm thông tin quản trị
@@ -30,7 +31,6 @@ class NguoidungResources extends JsonResource
             $data['updated_at'] = $this->updated_at?->format('d-m-Y H:i:s');
             $data['deleted_at'] = $this->deleted_at?->format('d-m-Y H:i:s');
             $data['vaitro'] = $this->vaitro;
-            $data['phienDangNhaps'] = PhienDangNhapResource::collection($this->whenLoaded('phienDangNhap'));
         }
 
         return $data;

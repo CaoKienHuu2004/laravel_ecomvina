@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -12,6 +13,8 @@ class BientheSpSeeder extends Seeder
      */
     public function run(): void
     {
+
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
         DB::table('bienthe_sp')->insert([
             [
                 'id' => 1,
@@ -21,8 +24,8 @@ class BientheSpSeeder extends Seeder
                 'trangthai' => 'hoat_dong', // map từ 0 => hoat_dong
                 'uutien' => 1,
                 'id_sanpham' => 1,
-                'created_at' => now(),
-                'updated_at' => now(),
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'id' => 13,
@@ -32,8 +35,8 @@ class BientheSpSeeder extends Seeder
                 'trangthai' => 'hoat_dong',
                 'uutien' => 0,
                 'id_sanpham' => 6,
-                'created_at' => '2025-08-24 05:20:14',
-                'updated_at' => '2025-08-24 05:20:14',
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'id' => 14,
@@ -43,8 +46,8 @@ class BientheSpSeeder extends Seeder
                 'trangthai' => 'hoat_dong',
                 'uutien' => 0,
                 'id_sanpham' => 7,
-                'created_at' => '2025-08-24 05:30:45',
-                'updated_at' => '2025-08-24 05:30:45',
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
             [
                 'id' => 15,
@@ -54,8 +57,8 @@ class BientheSpSeeder extends Seeder
                 'trangthai' => 'hoat_dong',
                 'uutien' => 0,
                 'id_sanpham' => 8,
-                'created_at' => '2025-09-08 05:21:36',
-                'updated_at' => '2025-09-08 05:21:36',
+                'created_at' => $now,
+                'updated_at' => $now,
             ],
         ]);
     }

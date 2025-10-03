@@ -16,7 +16,6 @@ return new class extends Migration
         Schema::create('chuongtrinhsukien', function (Blueprint $table) {
             $table->id();
             $table->string('ten')->unique();
-            $table->string('slug')->unique()->nullable();
             $table->text('media')->nullable();
             $table->text('mota')->nullable();
             $table->dateTime('ngaybatdau');

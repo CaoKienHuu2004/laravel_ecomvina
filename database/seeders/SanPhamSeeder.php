@@ -10,7 +10,7 @@ class SanPhamSeeder extends Seeder
 {
     public function run(): void
     {
-        $now = Carbon::now();
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
 
         $data = [
             [

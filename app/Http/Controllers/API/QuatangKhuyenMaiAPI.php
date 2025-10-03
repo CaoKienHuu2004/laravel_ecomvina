@@ -14,23 +14,35 @@ class QuatangKhuyenMaiAPI extends BaseController
      */
     public function index(Request $request)
     {
-        $perPage = $request->get('per_page', 10);
+        $perPage     = $request->get('per_page', 10);
         $currentPage = $request->get('page', 1);
+        $q           = $request->get('q'); // từ khóa tìm kiếm
 
-        $items = QuatangKhuyenMai::with(['bienthe', 'thuonghieu'])
-                    ->latest('ngaybatdau')
-                    ->paginate($perPage, ['*'], 'page', $currentPage);
+        $query = QuatangKhuyenMai::with(['bienthe.sanpham', 'thuonghieu'])
+            ->latest('ngaybatdau')
+            ->when($q, function ($query) use ($q) {
+                $query->where(function ($sub) use ($q) {
+                    $sub->where('mota', 'like', "%$q%")
+                        ->orWhereHas('bienthe.sanpham', function ($b) use ($q) {
+                            $b->where('ten', 'like', "%$q%");
+                        })
+                        ->orWhereHas('thuonghieu', function ($t) use ($q) {
+                            $t->where('ten', 'like', "%$q%");
+                        });
+                });
+            });
 
-        // Kiểm tra nếu trang yêu cầu vượt quá tổng số trang
+        $items = $query->paginate($perPage, ['*'], 'page', $currentPage);
+
         if ($currentPage > $items->lastPage() && $currentPage > 1) {
             return $this->jsonResponse([
                 'status' => false,
                 'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $items->lastPage(),
                 'meta' => [
                     'current_page' => $currentPage,
-                    'last_page' => $items->lastPage(),
-                    'per_page' => $perPage,
-                    'total' => $items->total(),
+                    'last_page'    => $items->lastPage(),
+                    'per_page'     => $perPage,
+                    'total'        => $items->total(),
                 ]
             ], 404);
         }
@@ -47,6 +59,7 @@ class QuatangKhuyenMaiAPI extends BaseController
             ]
         ], Response::HTTP_OK);
     }
+
 
     /**
      * Xem chi tiết 1 quà tặng

@@ -15,10 +15,10 @@ return new class extends Migration
     {
         Schema::create('ma_giamgia', function (Blueprint $table) {
             $table->id();
-            $table->string('magiamgia')->nullable();
+            $table->string('magiamgia');
             $table->mediumText('mota')->nullable();
             $table->decimal('giatri', 15, 2);
-            $table->string('dieukien')->nullable();
+            $table->string('dieukien');
             $table->datetime('ngaybatdau');
             $table->datetime('ngayketthuc');
             $table->enum('trangthai', [

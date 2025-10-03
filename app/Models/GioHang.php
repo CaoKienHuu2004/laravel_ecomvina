@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use App\Http\Controllers\BientheController;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -14,10 +13,9 @@ class GioHang extends Model
     protected $table = 'gio_hang';
 
     protected $fillable = [
-        'soluong',
         'tongtien',
-        'id_bienthesp',
         'id_nguoidung',
+        'guest_id',
 
         'created_at',
         'updated_at',
@@ -30,15 +28,13 @@ class GioHang extends Model
     ];
 
 
-    // Quan hệ với người dùng
+    // 1 giỏ hàng thuộc về 1 người dùng
     public function nguoidung()
     {
-        return $this->belongsTo(Nguoidung::class, 'id_nguoidung');
+        return $this->belongsTo(NguoiDung::class, 'id_nguoidung');
     }
 
-    // Quan hệ với sản phẩm
-    public function bienthesp()
-    {
-        return $this->belongsTo(Bienthesp::class, 'id_bienthesp');
-    }
+
+    // chitiet bienTheSanPham sanpham
 }
+

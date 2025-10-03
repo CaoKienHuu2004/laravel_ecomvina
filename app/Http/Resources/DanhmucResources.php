@@ -15,6 +15,7 @@ class DanhmucResources extends JsonResource
         $data = [
             'id'    => $this->id,
             'ten'   => $this->ten,
+            'media'   => $this->media,
             'trangthai' => $this->trangthai,
             'sanphams'   => SanphamResources::collection($this->whenLoaded('sanphams')),
             'sanphams_count' => $this->when(isset($this->sanphams_count), $this->sanphams_count),

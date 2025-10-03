@@ -15,7 +15,6 @@ class ChuongTrinhSuKien extends Model
 
     protected $fillable = [
         'ten',
-        'slug',
         'media',
         'mota',
         'ngaybatdau',

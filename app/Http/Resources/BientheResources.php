@@ -18,6 +18,7 @@ class BientheResources extends JsonResource
         $data = [
         'id' => $this->id,
         'gia' => $this->gia,
+        'giagiam' => $this->giagiam,
         'soluong' => $this->soluong,
         'trangthai' => $this->trangthai,
         'uutien' => $this->uutien,

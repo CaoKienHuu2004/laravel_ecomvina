@@ -13,13 +13,10 @@ class GioHangResource extends JsonResource
         $isAdmin = auth()->check() && auth()->user()->role === 'admin';
         $data = [
             'id'           => $this->id,
-            'soluong'      => $this->soluong,
             'tongtien'     => $this->tongtien,
-            'id_sanpham'   => $this->id_sanpham,
-            'id_nguoidung' => $this->id_nguoidung,
             // Load quan hệ khi cần
-            'nguoidung'    => new NguoidungResources($this->whenLoaded('nguoidung')),
-            'bienthesp'      => new BientheResources($this->whenLoaded('bienthesp')),
+            'nguoidung' => new NguoiDungResources($this->whenLoaded('nguoidung')),
+            'chitiet'   => ChiTietGioHangResource::collection($this->whenLoaded('chitiet')),
         ];
         if ($isAdmin) {
             $data['created_at'] = $this->created_at?->format('d-m-Y H:i:s');

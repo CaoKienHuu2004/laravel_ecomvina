@@ -6,6 +6,7 @@ use App\Traits\ApiResponse;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
@@ -56,6 +57,13 @@ class Handler extends ExceptionHandler
 
             return response()->view('errors.404', [], 404);
         }
+        // ❌ Lỗi 403
+        if ($exception instanceof HttpException && $exception->getStatusCode() === 403) {
+        if ($request->expectsJson()) {
+            return $this->jsonResponse(['message' => 'Bạn không có quyền truy cập'], 403);
+        }
+        return response()->view('errors.403', [], 403);
+    }
 
         return parent::render($request, $exception);
     }

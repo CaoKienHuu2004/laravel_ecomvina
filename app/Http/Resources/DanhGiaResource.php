@@ -19,10 +19,11 @@ class DanhGiaResource extends JsonResource
             'ngaydang'  => $this->ngaydang?->format('d-m-Y H:i:s'),
             'trangthai' => $this->trangthai,
             // Chỉ admin mới thấy thông tin người dùng
-            'sanpham'   => new SanphamResources($this->whenLoaded('sanPham')),
+            'sanpham'   => new SanphamResources($this->whenLoaded('sanpham')),
+            'nguoidung' => new NguoidungResources($this->whenLoaded('nguoidung')),
         ];
         if ($isAdmin) {
-            $data['nguoidung'] = new NguoidungResources($this->whenLoaded('nguoiDung'));
+
             $data['created_at'] = $this->created_at?->format('d-m-Y H:i:s');
             $data['updated_at'] = $this->updated_at?->format('d-m-Y H:i:s');
             $data['deleted_at'] = $this->deleted_at?->format('d-m-Y H:i:s');

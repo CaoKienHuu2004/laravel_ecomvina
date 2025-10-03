@@ -14,7 +14,7 @@ class Danhmuc extends Model
     public $timestamps = true;
 
     // Chỉ cần cột cho phép mass assignment
-    protected $fillable = ['ten', 'trangthai',
+    protected $fillable = ['ten', 'trangthai','media',
         'created_at',
         'updated_at',
         'deleted_at'
@@ -55,5 +55,7 @@ class Danhmuc extends Model
     // public function sanPham()
     //     return $this->hasMany(Sanpham::class, 'danh_muc_id');
     // }
+
+    ///------------------- Quan Hệ thông qua các bảng trung gian -----------------///
 
 }

@@ -72,6 +72,18 @@ class AuthController extends BaseController
         $user = Nguoidung::where('email', $request->email)->first();
 
         // Nếu không tồn tại user hoặc password sai
+
+
+        //--------------------- nếu muốn dùng dạng session + cookie của Sanctum, mà bạn đang dùng Sanctum Personal Access Token (tức kiểu API token).
+        // $credentials = $request->only('email', 'password');
+        // if (Auth::attempt($credentials)) {
+        //     $request->session()->regenerate();
+        //     return response()->json(['message' => 'Đăng nhập thành công']);
+        // }
+        // return response()->json(['message' => 'Sai email hoặc mật khẩu'], 401);
+         //---------------------
+
+
         if (!$user || !Hash::check($request->password, $user->password)) {
             return $this->jsonResponse(['message' => 'Unauthorized'], 401);
         }
@@ -116,6 +128,17 @@ class AuthController extends BaseController
 
         return $this->jsonResponse([
             'message' => 'Bạn đã thoát ứng dụng và token đã xóa'
+        ]);
+    }
+
+    public function userInfo(Request $req)
+    {
+        $name = $req->user()->hoten;
+        return $this->jsonResponse([
+            'success' => true,
+
+            'message' => 'Thông tin Của '.$name.'🤩',
+            'user' => $req->user()
         ]);
     }
 

@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('danh_gia', function (Blueprint $table) {
             $table->id();
-            $table->float('diem');
+            $table->tinyInteger('diem');
             $table->mediumText('noidung')->nullable();
             $table->mediumText('media')->nullable()->comment('phần nội dung đa phương tiện đi kèm với đánh giá (ảnh/video).');
             $table->datetime('ngaydang');

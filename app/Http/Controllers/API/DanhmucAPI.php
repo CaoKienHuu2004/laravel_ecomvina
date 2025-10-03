@@ -15,38 +15,45 @@ class DanhmucAPI extends BaseController
      */
     public function index(Request $request)
     {
-        $perPage = $request->get('per_page', 10);
+        $perPage     = $request->get('per_page', 10);
         $currentPage = $request->get('page', 1);
+        $q           = $request->get('q'); // từ khóa tìm kiếm
 
         $query = Danhmuc::with(['sanphams'])
-            ->withCount('sanphams');
-
-        // Nếu không phải admin (hoặc chưa đăng nhập), loại bỏ soft deleted
-        if (!optional($request->user())->isAdmin()) {
-            $query->whereNull('deleted_at');
-        }
+            ->withCount('sanphams')
+            ->when(!optional($request->user())->isAdmin(), function ($query) {
+                $query->whereNull('deleted_at');
+            })
+            ->when($q, function ($query) use ($q) {
+                $query->where(function ($sub) use ($q) {
+                    $sub->where('ten', 'like', "%$q%")
+                        ->orWhere('trangthai', 'like', "%$q%")
+                        ->orWhereHas('sanphams', function ($sp) use ($q) {
+                            $sp->where('ten', 'like', "%$q%");
+                        });
+                });
+            });
 
         $items = $query->latest('updated_at')->paginate($perPage, ['*'], 'page', $currentPage);
 
-        // Kiểm tra nếu trang yêu cầu vượt quá tổng số trang
         if ($currentPage > $items->lastPage() && $currentPage > 1) {
             return $this->jsonResponse([
                 'status' => false,
                 'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $items->lastPage(),
                 'meta' => [
                     'current_page' => $currentPage,
-                    'last_page' => $items->lastPage(),
-                    'per_page' => $perPage,
-                    'total' => $items->total(),
+                    'last_page'    => $items->lastPage(),
+                    'per_page'     => $perPage,
+                    'total'        => $items->total(),
                 ]
             ], 404);
         }
 
         return $this->jsonResponse([
-            'status' => true,
+            'status'  => true,
             'message' => 'Danh sách danh mục',
-            'data' => DanhmucResources::collection($items),
-            'meta' => [
+            'data'    => DanhmucResources::collection($items),
+            'meta'    => [
                 'current_page' => $items->currentPage(),
                 'last_page'    => $items->lastPage(),
                 'per_page'     => $items->perPage(),
@@ -56,6 +63,7 @@ class DanhmucAPI extends BaseController
             ]
         ], Response::HTTP_OK);
     }
+
 
     /**
      * Tạo mới danh mục.

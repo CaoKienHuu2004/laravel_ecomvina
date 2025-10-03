@@ -1,6 +1,11 @@
 <?php
 
+use App\Http\Controllers\API\Frontend\GioHangFrontendAPI;
+use App\Http\Controllers\Me\ProfileController;
+use App\Http\Controllers\Web\GioHangWebApi;
 use Illuminate\Support\Facades\Route;
+use Symfony\Component\HttpKernel\Profiler\Profile;
+
 // use App\Http\Controllers\SanphamController;
 // use App\Http\Controllers\DanhmucController;
 // use App\Http\Controllers\ThuonghieuController;
@@ -18,28 +23,69 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+
+// Route::get('/dashboard', function () {
+//     return Inertia::render('Dashboard');
+// })->middleware(['auth', 'verified'])->name('dashboard');
+
+
+
 Route::get('/', function () {
+    // return Inertia::render('Welcome', [
+    //     'canLogin' => Route::has('login'),
+    //     'canRegister' => Route::has('register'),
+    //     'laravelVersion' => Application::VERSION,
+    //     'phpVersion' => PHP_VERSION,
+    // ]);
     return redirect('login');
 });
-// Route::get('/trang-chu', function () {
-//     return view('old-version/trangchu');
-// });
+Route::get('/home', function () {
+    return redirect('login');
+});
 
 Route::get('/test-guest', function () {
     return view('guest/test-guest');
 });
+//-------------------------------------------------- Guest User --------------------------------//
+// Nếu guest (chưa đăng nhập) → vẫn có giỏ hàng, nhưng dựa trên session_id (Laravel session) hoặc cookie.
+// Route::get('/giohang/guest', [GioHangFrontendAPI::class, 'guestCart']);
+Route::middleware(['auth'])->group(function () {
+    Route::get('/giohang', [GioHangWebApi::class, 'index']);
+    Route::post('/giohang', [GioHangWebApi::class, 'store']);
+    Route::put('/giohang/{id_bienthesp}', [GioHangWebApi::class, 'update']);
+    Route::delete('/giohang/{id_bienthesp}', [GioHangWebApi::class, 'destroy']);
+});
 
-////////jetstream sinh:begin
+
+//-------------------------------------------------- Guest User --------------------------------//
+
+//-------------------------------------------------- Admin --------------------------------//
+// Route::get('admin/category/trash', [CategoryController::class, 'trash'])->middleware('auth','role:admin');
+// Route::post('admin/category/delete', [CategoryController::class, 'delete'])->middleware('auth','role:admin');
+// Route::post('admin/category/restore', [CategoryController::class, 'restore'])->middleware('auth','role:admin');
+// Route::get('admin/category/trash', [CategoryController::class, 'trash']);
+// Route::middleware(['auth','role:admin'])->group(function () {
+//     Route::get('/admin', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+//     Route::resource('/admin/category', CategoryController::class)->names('category');
+//     Route::resource('/admin/user', UserController::class)->names('user');
+//     Route::post('/admin/category/destroy', [CategoryController::class, 'destroy']);
+// });
+
+//-------------------------------------------------- Admin --------------------------------//
+
+////////jetstream
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
+    'role:admin',
 ])->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
 });
-////////////////////// jetstream sinh:end
+////////////////////// jetstream
+
 
 // Route::prefix('san-pham')->group(function () {
 //     Route::get('/danh-sach', [SanphamController::class, 'index'])->name('danh-sach');

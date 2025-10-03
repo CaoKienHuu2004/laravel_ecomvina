@@ -14,22 +14,34 @@ class SukienKhuyenMaiAPI extends BaseController
      */
     public function index(Request $request)
     {
-        $perPage = $request->get('per_page', 10);
+        $perPage     = $request->get('per_page', 10);
         $currentPage = $request->get('page', 1);
+        $q           = $request->get('q'); // từ khóa tìm kiếm
 
-        $items = SukienKhuyenMai::with(['khuyenmai', 'sukien'])
-                    ->paginate($perPage, ['*'], 'page', $currentPage);
+        $query = SukienKhuyenMai::with(['khuyenmai', 'sukien'])
+            ->when($q, function ($query) use ($q) {
+                $query->where(function ($sub) use ($q) {
+                    $sub->orWhereHas('khuyenmai', function ($km) use ($q) {
+                        $km->where('ten', 'like', "%$q%");
+                    })
+                    ->orWhereHas('sukien', function ($sk) use ($q) {
+                        $sk->where('ten', 'like', "%$q%");
+                    });
+                });
+            })
+            ->latest(); // hoặc theo cột khác nếu cần
 
-        // Kiểm tra nếu trang yêu cầu vượt quá tổng số trang
+        $items = $query->paginate($perPage, ['*'], 'page', $currentPage);
+
         if ($currentPage > $items->lastPage() && $currentPage > 1) {
             return $this->jsonResponse([
                 'status' => false,
                 'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $items->lastPage(),
                 'meta' => [
                     'current_page' => $currentPage,
-                    'last_page' => $items->lastPage(),
-                    'per_page' => $perPage,
-                    'total' => $items->total(),
+                    'last_page'    => $items->lastPage(),
+                    'per_page'     => $perPage,
+                    'total'        => $items->total(),
                 ]
             ], 404);
         }
@@ -46,6 +58,7 @@ class SukienKhuyenMaiAPI extends BaseController
             ]
         ], Response::HTTP_OK);
     }
+
 
     /**
      * Xem chi tiết liên kết

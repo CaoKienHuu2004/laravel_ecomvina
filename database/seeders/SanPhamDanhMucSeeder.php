@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Arr;
@@ -10,24 +11,25 @@ class SanPhamDanhMucSeeder extends Seeder
 {
     public function run(): void
     {
-        // Lấy tất cả ID sản phẩm và danh mục
+        $now = Carbon::now('Asia/Ho_Chi_Minh');
         $sanPhamIds = DB::table('san_pham')->pluck('id')->toArray();
         $danhMucIds = DB::table('danh_muc')->pluck('id')->toArray();
 
         $data = [];
+        $pairs = [];
 
-        // Tạo 10 quan hệ ngẫu nhiên
-        for ($i = 0; $i < 10; $i++) {
+        while (count($data) < 10) {
             $sp = Arr::random($sanPhamIds);
             $dm = Arr::random($danhMucIds);
+            $pairKey = $sp . '-' . $dm;
 
-            // Kiểm tra để không duplicate
-            if (!in_array(['id_sanpham' => $sp, 'id_danhmuc' => $dm], $data)) {
+            if (!isset($pairs[$pairKey])) {
+                $pairs[$pairKey] = true;
                 $data[] = [
                     'id_sanpham' => $sp,
                     'id_danhmuc' => $dm,
-                    'created_at' => now(),
-                    'updated_at' => now(),
+                    'created_at' => $now,
+                    'updated_at' => $now,
                 ];
             }
         }

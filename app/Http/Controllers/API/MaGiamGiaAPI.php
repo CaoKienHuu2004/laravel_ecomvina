@@ -14,23 +14,30 @@ class MaGiamGiaAPI extends BaseController
      */
     public function index(Request $request)
     {
-        $perPage = $request->get('per_page', 10);
+        $perPage     = $request->get('per_page', 10);
         $currentPage = $request->get('page', 1);
+        $q           = $request->get('q'); // từ khóa tìm kiếm
 
-        $query = MaGiamGia::latest('updated_at');
+        $query = MaGiamGia::latest('updated_at')
+            ->when($q, function ($query) use ($q) {
+                $query->where(function ($sub) use ($q) {
+                    $sub->where('magiamgia', 'like', "%$q%")
+                        ->orWhere('mota', 'like', "%$q%")
+                        ->orWhere('trangthai', 'like', "%$q%");
+                });
+            });
 
         $items = $query->paginate($perPage, ['*'], 'page', $currentPage);
 
-        // Kiểm tra nếu trang yêu cầu vượt quá tổng số trang
         if ($currentPage > $items->lastPage() && $currentPage > 1) {
             return $this->jsonResponse([
                 'status' => false,
                 'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $items->lastPage(),
                 'meta' => [
                     'current_page' => $currentPage,
-                    'last_page' => $items->lastPage(),
-                    'per_page' => $perPage,
-                    'total' => $items->total(),
+                    'last_page'    => $items->lastPage(),
+                    'per_page'     => $perPage,
+                    'total'        => $items->total(),
                 ]
             ], 404);
         }

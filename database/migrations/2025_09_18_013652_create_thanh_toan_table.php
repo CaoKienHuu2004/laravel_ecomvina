@@ -18,8 +18,13 @@ return new class extends Migration
             $table->string('nganhang')->nullable();
             $table->decimal('gia', 15, 2);
             $table->mediumText('noidung')->nullable();
-            $table->string('magiaodich')->nullable();
+            $table->string('magiaodich')->unique()->nullable();
             $table->dateTime('ngaythanhtoan');
+            $table->enum('hinhthucthanhtoan',[
+                'dbt',  // Chuyển khoản ngân hàng trực tiếp, Direct Bank transfer
+                'cp',   // Kiểm tra thanh toán, Check payments
+                'cod',  // Thanh toán khi nhận hàng, Cash on delivery
+            ]);
             $table->enum('trangthai', [
                 'cho_xac_nhan',             // Thanh toán đã tạo nhưng chưa xác nhận
                 'dang_xu_ly',               // Giao dịch đang được xử lý
@@ -32,7 +37,7 @@ return new class extends Migration
             ])->default('cho_xac_nhan')->comment('Trạng thái thanh toán');
             // $table->int('trangthai');
 
-            $table->foreignId('id_donhang')->constrained('don_hang')->onDelete('cascade');
+            $table->foreignId('id_donhang')->constrained('don_hang')->onDelete('cascade')->unique();
             $table->timestamps();
             $table->softDeletes()->comment('Xóa mềm để lưu lịch sử giao dịch');
         });
