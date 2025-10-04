@@ -1,0 +1,46 @@
+# Laravel
+/vendor
+/node_modules
+
+# Environment files
+.env
+.env.*.backup
+
+# Storage & Cache
+/storage/*.key
+/storage/debugbar/*
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/logs/*
+
+# Bootstrap cache
+/bootstrap/cache/*.php
+
+# IDEs
+/.idea
+/.vscode
+*.sublime-workspace
+*.sublime-project
+
+# System files
+.DS_Store
+Thumbs.db
+
+# npm logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Laravel Mix / Vite
+/public/hot
+/public/mix-manifest.json
+/public/build
+/public/vendor
+
+# Optional: backup or generated files
+*.bak
+*.sql
+*.sqlite
+*.zip
+*.tar
