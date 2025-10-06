@@ -14,7 +14,6 @@
             </div>
         </div>
 
-        
         <div class="card">
             <div class="card-body">
                 <form class="row" action="{{ route('cap-nhat-thuong-hieu',$thuonghieu->id) }}" method="POST">

@@ -177,7 +177,7 @@
                   <a class="me-3" href="{{ route('chinh-sua-san-pham',$sp->id) }}">
                     <img src="{{asset('img/icons/edit.svg')}}" alt="img" />
                   </a>
-                
+
                   <a class="me-3" href="{{route('xoa-san-pham', $sp->id)}}" onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">
                     <img src="{{asset('img/icons/delete.svg')}}" alt="img" />
                   </a>

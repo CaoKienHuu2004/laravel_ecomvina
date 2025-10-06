@@ -4,29 +4,39 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Diachi extends Model
+class DiaChi extends Model
 {
-    use HasFactory;
-    protected $table = "diachi_nguoidung"; // Tên bảng trong database
+    use HasFactory,SoftDeletes;
+
+    protected $table = 'diachi_nguoidung';
+
     protected $fillable = [
-        'ten',  // Tên người nhận
-        'sodienthoai', // Số điện thoại người nhận
+        'ten',
+        'sodienthoai',
         'thanhpho',
         'xaphuong',
         'sonha',
         'diachi',
         'trangthai',
+        'id_nguoidung',
+
         'created_at',
         'updated_at',
-        'id_nguoidung',
+        'deleted_at'
+    ];
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
 
-    public function nguoidung()
+    /**
+     * Quan hệ với bảng NguoiDung
+     */
+    public function nguoiDung()
     {
-        return $this->belongsTo(Nguoidung::class,'id_nguoidung','id');
-    }
-    public function diachi(){
-
+        return $this->belongsTo(NguoiDung::class, 'id_nguoidung');
     }
 }

@@ -12,6 +12,15 @@ class Authenticate extends Middleware
      */
     protected function redirectTo(Request $request): ?string
     {
+        // Nếu là request API hoặc front-end muốn JSON
+        if ($request->expectsJson() || $request->is('api/*')) {
+            abort(401, 'Unauthorized'); // trả về JSON 401
+        }
+        // Nếu có UI web, bạn vẫn có thể redirect
+        // return route('login');
         return $request->expectsJson() ? null : route('login');
+
+
+
     }
 }

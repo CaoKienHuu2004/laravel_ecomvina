@@ -18,6 +18,8 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment
@@ -30,6 +32,8 @@ return [
     */
 
     'env' => env('APP_ENV', 'production'),
+
+    'api_key' => env('APP_API_KEY', null),
 
     /*
     |--------------------------------------------------------------------------
@@ -70,7 +74,8 @@ return [
     |
     */
 
-    'timezone' => 'Asia/Ho_Chi_Minh',
+    'timezone' => env('APP_TIMEZONE', 'UTC'),
+    // 'timezone' => 'Asia/Ho_Chi_Minh',
 
     /*
     |--------------------------------------------------------------------------
@@ -165,9 +170,11 @@ return [
          */
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
+        App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
+        App\Providers\FortifyServiceProvider::class,
+        App\Providers\JetstreamServiceProvider::class,
     ])->toArray(),
 
     /*

@@ -6,60 +6,53 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Donhang extends Model
+class DonHang extends Model
 {
     use HasFactory, SoftDeletes;
 
     protected $table = 'don_hang';
 
     protected $fillable = [
-        'ma_donhang', 'tongtien', 'tongsoluong', 'ghichu', 'trangthai', 'id_nguoidung', 'id_magiamgia'
+        'ma_donhang',
+        'tongtien',
+        'tongsoluong',
+        'ghichu',
+        'ngaytao',
+        'trangthai',
+        'id_nguoidung',
+        'id_magiamgia',
+
+        'created_at',
+        'updated_at',
+        'deleted_at'
     ];
 
-    protected $dates = ['deleted_at'];
+    protected $casts = [
+        'tongtien'  => 'decimal:2',
+        'ngaytao'   => 'datetime',
 
-    public $timestamps = true;
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'deleted_at' => 'datetime',
 
-    // Quan hệ tới chi tiết đơn hàng
-    public function chitiet()
+    ];
+
+    // Quan hệ với người dùng
+    public function nguoidung()
     {
-        return $this->hasMany(ChitietDonhang::class, 'id_donhang');
-    }
-
-    // Quan hệ tới khách hàng
-    public function khachhang()
-    {
+        // return $this->hasMany(DonHang::class, 'id_nguoidung');
         return $this->belongsTo(Nguoidung::class, 'id_nguoidung');
     }
 
-    // Tổng tiền đơn hàng
-    public function getTotalPrice()
+    // Quan hệ với mã giảm giá
+    public function magiamgia()
     {
-        return $this->chitiet->sum('tongtien');
+        return $this->belongsTo(MaGiamGia::class, 'id_magiamgia');
+        // return $this->hasMany(DonHang::class, 'id_magiamgia');
+
+    }
+    public function thanhtoan() {
+        return $this->hasOne(ThanhToan::class, 'id_donhang');
     }
 
-    // Tổng số lượng sản phẩm trong đơn
-    public function getTotalQuantity()
-    {
-        return $this->chitiet->sum('soluong');
-    }
-
-    // Trạng thái dạng chữ
-    public function getTrangthaiTextAttribute()
-    {
-        return match($this->trangthai) {
-            0 => 'Chờ thanh toán',
-            1 => 'Đang giao',
-            2 => 'Đã giao',
-            3 => 'Đã hủy',
-            default => 'Không xác định',
-        };
-    }
-    public function index()
-    {
-        $donhangs = DonHang::whereNull('deleted_at')->get();
-
-        return view('danh-sach-don-hang', compact('donhangs'));
-    }
 }
-

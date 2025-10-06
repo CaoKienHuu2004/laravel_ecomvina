@@ -13,5 +13,9 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         //
+        '/login',
+        '/register',
+        '/reset-password',
+        'api/*' // dung cho API token của santum
     ];
 }

@@ -135,25 +135,27 @@
                     <span class="status online"></span
                   ></span>
                   <div class="profilesets">
-                    <h6>Tây Ninh Quán</h6>
-                    <h5>Quản trị viên</h5>
+                    <h6>Ecomvina</h6>
+                    <h5>{{ auth()->user()->hoten }}</h5>
                   </div>
                 </div>
                 <hr class="m-0" />
-                <a class="dropdown-item" href="profile.html">
+                <a class="dropdown-item" href="{{ route('profile.show') }} ">
                   <i class="me-2" data-feather="user"></i> Hồ sơ</a
                 >
                 <a class="dropdown-item" href="generalsettings.html"
                   ><i class="me-2" data-feather="settings"></i>Cài đặt</a
                 >
                 <hr class="m-0" />
-                <a class="dropdown-item logout pb-0" href="signin.html"
-                  ><img
-                    src="{{asset('img/icons/log-out.svg')}}"
-                    class="me-2"
-                    alt="img"
-                  />Đăng xuất</a
-                >
+                <a class="dropdown-item logout pb-0" href="{{ route('logout') }}"
+                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <img src="{{ asset('img/icons/log-out.svg') }}" class="me-2" alt="img" />
+                    Đăng xuất
+                </a>
+
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                    @csrf
+                </form>
               </div>
             </div>
           </li>
@@ -168,9 +170,9 @@
             ><i class="fa fa-ellipsis-v"></i
           ></a>
           <div class="dropdown-menu dropdown-menu-right">
-            <a class="dropdown-item" href="profile.html">Hồ sơ</a>
+            <a class="dropdown-item" href="{{ route('profile.show') }}">Hồ sơ</a>
             <a class="dropdown-item" href="generalsettings.html">Cài đặt</a>
-            <a class="dropdown-item" href="signin.html">Đăng xuất</a>
+            <a class="dropdown-item" href="{{ route('logout') }}">Đăng xuất</a>
           </div>
         </div>
       </div>

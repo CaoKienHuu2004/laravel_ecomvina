@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Diachi;
 use App\Models\Nguoidung;
+use App\Models\ThongTinNguoiBanHang;
 use Illuminate\Http\Request;
 
 class CuaHangController extends Controller
@@ -19,6 +20,7 @@ class CuaHangController extends Controller
             ->get();
         // $danhsach = Nguoidung::with('diachi')->vaitro('assistant')->get();
         $diachi = Diachi::all();
+        $thongTinNguoiBan = ThongTinNguoiBanHang::all();
 
         return view("cuahang.index", compact("danhsach","diachi"));
     }
@@ -44,7 +46,17 @@ class CuaHangController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $cuaHang = ThongTinNguoiBanHang::with([
+            'nguoidung.diachi',
+            'thuongHieu.sanpham.bienThe',
+            'sanPhams.bienThe'
+        ])
+        ->whereHas('nguoidung', function ($query) {
+            $query->where('vaitro', 'assistant');
+        })
+        ->findOrFail($id);
+
+        return view("cuahang.show", compact("cuaHang"));
     }
 
     /**
