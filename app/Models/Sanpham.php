@@ -20,7 +20,8 @@ class SanPham extends Model
         'mediaurl',
         'trangthai',
         'luotxem',
-        'id_thuonghieu',
+
+        'id_cuahang',
 
         'created_at',
         'updated_at',
@@ -34,10 +35,14 @@ class SanPham extends Model
     ];
 
 
-    public function thuonghieu()
+    public function cuaHang()
     {
-        return $this->belongsTo(\App\Models\ThuongHieu::class, 'id_thuonghieu');
+        return $this->belongsTo(\App\Models\ThongTinNguoiBanHang::class, 'id_cuahang');
     }
+    // public function thuonghieu()
+    // {
+    //     return $this->belongsTo(\App\Models\ThuongHieu::class, 'id_thuonghieu');
+    // }
     public function bienThe()
     {
         return $this->hasMany(Bienthesp::class, 'id_sanpham');
@@ -77,6 +82,8 @@ class SanPham extends Model
             'id'                   // khóa chính ở BienThe
         );
     }
+
+
 
 
 }

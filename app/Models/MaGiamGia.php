@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class MaGiamGia extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected $table = 'ma_giamgia';
 
@@ -21,7 +21,7 @@ class MaGiamGia extends Model
         'ngayketthuc',
         'trangthai',
 
-        'created_at','updated_at','deleted_at'
+        'created_at','updated_at'
     ];
 
     protected $casts = [
@@ -31,8 +31,27 @@ class MaGiamGia extends Model
 
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
+
     ];
+
+    /**
+     * trong controller có thể check validate
+     * public function rules()
+      *  {
+      *      return [
+       *         'ngaybatdau' => 'required|date',
+      *          'ngayketthuc' => 'required|date|after_or_equal:ngaybatdau',
+      *      ];
+       * }
+     */
+    protected static function booted()
+    {
+        static::saving(function ($model) {
+            if ($model->ngayketthuc < $model->ngaybatdau) {
+                throw new \Exception('Ngày kết thúc không thể nhỏ hơn ngày bắt đầu.');
+            }
+        });
+    }
 
     // // Quan hệ với đơn hàng
     public function donHang()

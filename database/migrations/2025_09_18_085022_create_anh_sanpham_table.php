@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('anh_sanpham', function (Blueprint $table) {
             $table->id();
-            $table->text('media');
+            $table->text('media')->default('uploads/anh_sanpham/media/anh_sanpham.png');
             $table->enum('trangthai', ['hoat_dong', 'ngung_hoat_dong', 'bi_khoa', 'cho_duyet'])->default('hoat_dong');
             $table->foreignId('id_sanpham')->constrained('san_pham');
 

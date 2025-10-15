@@ -8,18 +8,19 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class GioHang extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $table = 'gio_hang';
 
     protected $fillable = [
+        'soluong',
         'tongtien',
+        'id_sanpham',
         'id_nguoidung',
-        'guest_id',
 
         'created_at',
         'updated_at',
-        'deleted_at'
+        'deleted_at',
     ];
     protected $casts = [
         'created_at' => 'datetime',
@@ -32,6 +33,10 @@ class GioHang extends Model
     public function nguoidung()
     {
         return $this->belongsTo(NguoiDung::class, 'id_nguoidung');
+    }
+    public function sanpham()
+    {
+        return $this->belongsTo(SanPham::class, 'id_sanpham');
     }
 
 

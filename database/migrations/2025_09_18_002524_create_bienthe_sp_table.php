@@ -18,7 +18,7 @@ return new class extends Migration
 
             $table->decimal('gia', 15, 2);
             $table->decimal('giagiam', 15, 2)->default(0);
-            $table->integer('soluong');
+            $table->integer('soluong')->default(1);
             $table->enum('trangthai', ['hoat_dong', 'ngung_hoat_dong', 'bi_khoa', 'cho_duyet'])->default('hoat_dong');
             $table->integer('uutien')->comment('Độ ưu tiên hiển thị của biến thể (số nhỏ hơn = ưu tiên cao hơn)');
 
@@ -26,7 +26,6 @@ return new class extends Migration
             $table->foreignId('id_tenloai')->constrained('loai_bienthe');
 
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

@@ -16,7 +16,8 @@ use Illuminate\Support\Str;
 use Laravel\Fortify\Actions\RedirectIfTwoFactorAuthenticatable;
 use Laravel\Fortify\Fortify;
 
-
+use Illuminate\Support\Facades\Auth;   // ✅ thêm dòng này
+use Laravel\Fortify\Contracts\LoginResponse; // ✅ thêm dòng này
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -50,6 +51,24 @@ class FortifyServiceProvider extends ServiceProvider
         //         return $user;
         //     }
         // });
+        $this->app->singleton(LoginResponse::class, function () {
+            return new class implements LoginResponse {
+                public function toResponse($request)
+                {
+                    $user = Auth::user();
+
+                    if ($user->vaitro === 'admin') {
+                        return redirect('/trang-chu');
+                    } elseif ($user->vaitro === 'assistant') {
+                        return redirect('/dashboard');
+                    } elseif ($user->vaitro === 'user') {
+                        return redirect('/test-guest');
+                    }
+                    return redirect('/'); // mặc định
+                }
+            };
+        });
+
 
         RateLimiter::for('login', function (Request $request) {
             $throttleKey = Str::transliterate(Str::lower($request->input(Fortify::username())).'|'.$request->ip());

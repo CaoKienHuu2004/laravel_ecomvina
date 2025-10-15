@@ -1,16 +1,10 @@
 <?php
-
-// database/migrations/xxxx_xx_xx_create_quatang_khuyenmai_table.php
-
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('quatang_khuyenmai', function (Blueprint $table) {
@@ -18,22 +12,35 @@ return new class extends Migration
 
             $table->integer('soluong');
             $table->text('mota')->nullable();
-            $table->dateTime('ngaybatdau');
-            $table->dateTime('ngayketthuc');
+            $table->dateTime('ngaybatdau')->useCurrent();;
+            $table->dateTime('ngayketthuc')->useCurrent();;
 
-            $table->decimal('min_donhang', 15, 2)->comment('giá trị đơn hàng tối thiểu');
+            $table->integer('soluongapdung')
+                ->comment('Số lượng áp dụng giảm giá, ví dụ: mua 2 giảm 50%, mua 2 tặng 1');
 
-            $table->foreignId('id_bienthe')->constrained('bienthe_sp');
-            $table->foreignId('id_thuonghieu')->constrained('thuong_hieu');
+            $table->enum('kieuapdung', ['giam_%', 'tang_1'])
+                ->comment('Kiểu áp dụng khuyến mãi: giảm theo %, hoặc tặng sản phẩm');
+
+            $table->foreignId('id_bienthe')
+                ->constrained('bienthe_sp')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
+
+            $table->foreignId('id_cuahang')
+                ->constrained('thongtin_nguoibanhang')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
+
+            $table->foreignId('id_chuongtrinhsukien')
+                ->constrained('chuongtrinhsukien')
+                ->cascadeOnUpdate()
+                ->cascadeOnDelete();
 
             $table->timestamps();
             $table->softDeletes();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('quatang_khuyenmai');

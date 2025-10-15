@@ -20,11 +20,15 @@ return new class extends Migration
             $table->mediumText('media')->nullable()->comment('phần nội dung đa phương tiện đi kèm với đánh giá (ảnh/video).');
             $table->datetime('ngaydang');
             $table->enum('trangthai', ['hoat_dong', 'ngung_hoat_dong', 'bi_khoa', 'cho_duyet'])->default('hoat_dong');
-            $table->foreignId('id_sanpham')->constrained('san_pham');
-            $table->foreignId('id_nguoidung')->constrained('nguoi_dung');
+            $table->foreignId('id_sanpham')
+                ->constrained('san_pham')
+                ->cascadeOnUpdate();
+
+            $table->foreignId('id_nguoidung')
+                ->constrained('nguoi_dung')
+                ->cascadeOnUpdate();
 
             $table->timestamps();
-            $table->softDeletes();
         });
     }
 

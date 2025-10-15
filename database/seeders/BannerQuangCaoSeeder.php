@@ -43,6 +43,24 @@ class BannerQuangCaoSeeder extends Seeder
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
+            [
+                'vitri' => 'main',
+                'hinhanh' => 'banner4.jpg',
+                'duongdan' => 'https://lazada.vn',
+                'tieude' => 'Khuyến mãi đặc biệt hôm nay',
+                'trangthai' => 'hoat_dong',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
+            [
+                'vitri' => 'popup',
+                'hinhanh' => 'banner5.jpg',
+                'duongdan' => 'https://tiktok.com',
+                'tieude' => 'Theo dõi chúng tôi trên TikTok',
+                'trangthai' => 'hoat_dong',
+                'created_at' => $now,
+                'updated_at' => $now,
+            ],
         ];
 
         DB::table('banner_quangcao')->insert($data);

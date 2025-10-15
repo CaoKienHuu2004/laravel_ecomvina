@@ -8,21 +8,19 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Bienthesp extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
     public $timestamps = true;
 
     protected $table = 'bienthe_sp';
     protected $fillable = [ 'gia','giagiam', 'soluong', 'trangthai', 'uutien', 'id_sanpham','id_tenloai',
         'created_at',
         'updated_at',
-        'deleted_at'
     ];
     protected $casts = [
         'gia'      => 'decimal:2',
         'giagiam'      => 'decimal:2',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
     ];
 
     public function loaibienthe()

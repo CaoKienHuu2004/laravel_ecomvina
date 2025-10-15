@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ChiTietDonHang extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected $table = 'chitiet_donhang';
 
@@ -21,16 +21,12 @@ class ChiTietDonHang extends Model
 
         'created_at',
         'updated_at',
-        'deleted_at'
     ];
 
     protected $casts = [
-        'gia'      => 'decimal:2',
-        'tongtien' => 'decimal:2',
 
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
     ];
 
     // Quan hệ với đơn hàng

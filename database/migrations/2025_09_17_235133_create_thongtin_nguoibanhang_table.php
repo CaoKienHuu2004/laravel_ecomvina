@@ -17,17 +17,17 @@ return new class extends Migration
             $table->foreignId('id_nguoidung')->constrained('nguoi_dung');
             $table->unique(['id_nguoidung']);
             $table->string('ten_cuahang', 255)->unique(); // VARCHAR(255)
-            $table->string('giaypheo_kinhdoanh', 255)->unique(); // VARCHAR(255)
+            $table->string('giayphep_kinhdoanh', 255)->unique(); // VARCHAR(255)
             $table->integer('theodoi')->default(0); // INT
             $table->integer('luotban')->default(0); // INT
-            $table->string('logo', 255)->nullable(); // VARCHAR(255)
-            $table->string('bianen', 255)->nullable(); // VARCHAR(255)
+            $table->string('logo', 255)->default("uploads/cuahang/logo/logo.png"); // VARCHAR(255)
+            $table->string('bianen', 255)->default("uploads/cuahang/bianen/bianen.png");; // VARCHAR(255)
              $table->text('mota')->nullable();
             $table->string('diachi', 255)->nullable(); // VARCHAR(255)
 
             $table->string('sodienthoai', 20)->unique()->nullable();
             $table->string('email', 255)->unique()->nullable();
-            $table->enum('trangthai', ['hoat_dong', 'ngung_hoa_dong'])->default('hoat_dong');
+            $table->enum('trangthai', ['hoat_dong', 'ngung_hoat_dong','bi_khoa', 'cho_duyet'])->default('cho_duyet');
             $table->timestamps();
             $table->softDeletes();
         });

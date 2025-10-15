@@ -17,14 +17,22 @@ return new class extends Migration
             $table->text('mota')->nullable();
             $table->string('xuatxu')->nullable();
             $table->string('sanxuat')->nullable();
-            $table->text('mediaurl')->nullable();
+            $table->text('mediaurl')->default('uploads/sanpham/mediaurl/sanpham.png');
             $table->enum('trangthai', ['hoat_dong', 'ngung_hoat_dong', 'bi_khoa', 'cho_duyet'])->default('hoat_dong');
-            $table->integer('luotxem');
+            $table->integer('luotxem')->default(0);
+
+            /**
+             * id_cuahang là khóa ngoại trỏ đến bảng thongtin_nguoibanhang.
+             * - Dùng nullable() vì có thể có sản phẩm chưa được gán cho cửa hàng nào.
+             * - Nếu bạn muốn sản phẩm luôn phải thuộc cửa hàng, bỏ nullable() đi.
+             * - cascadeOnDelete(): xóa cửa hàng sẽ tự động xóa sản phẩm thuộc cửa hàng đó.
+             */
+            $table->foreignId('id_cuahang')->nullable()
+                ->constrained('thongtin_nguoibanhang')
+                ->cascadeOnDelete();
 
             $table->timestamps();
             $table->softDeletes();
-
-            $table->foreignId('id_thuonghieu')->constrained('thuong_hieu');
         });
     }
 

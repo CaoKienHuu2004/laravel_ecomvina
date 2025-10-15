@@ -10,7 +10,7 @@ class ThanhToan extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'thanh_toan';
+    protected $table = 'lichsu_thanhtoan';
 
     protected $fillable = [
         'nganhang',
@@ -20,12 +20,12 @@ class ThanhToan extends Model
         'ngaythanhtoan',
         'trangthai',
         'id_donhang',
+        'id_phuongthuc_thanhtoan',
 
         'created_at','updated_at','deleted_at'
     ];
 
     protected $casts = [
-        'gia'           => 'decimal:2',
         'ngaythanhtoan' => 'datetime',
 
         'created_at' => 'datetime',
@@ -37,5 +37,9 @@ class ThanhToan extends Model
     public function donhang()
     {
         return $this->belongsTo(DonHang::class, 'id_donhang');
+    }
+    public function phuongthucthanhtoan()
+    {
+        return $this->belongsTo(PhuongThucThanhToan::class, 'id_phuongthuc_thanhtoan');
     }
 }

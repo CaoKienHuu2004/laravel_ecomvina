@@ -12,43 +12,33 @@ class DanhGiaSeeder extends Seeder
     {
         $now = Carbon::now('Asia/Ho_Chi_Minh');
 
-        $data = [
-            [
-                'diem' => 4,
-                'noidung' => 'Sản phẩm rất tốt, chất lượng đúng như mô tả. Giao hàng nhanh.',
-                'media' => 'https://example.com/reviews/review1.jpg',
-                'ngaydang' => $now->subDays(5),
-                'trangthai' => 'hoat_dong',
-                'id_sanpham' => 1,
-                'id_nguoidung' => 1,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
-            [
-                'diem' => 3,
-                'noidung' => 'Hàng ổn, nhưng đóng gói chưa kỹ. Cần cải thiện thêm.',
-                'media' => 'https://example.com/reviews/review2.jpg',
-                'ngaydang' => $now->subDays(2),
-                'trangthai' => 'hoat_dong',
-                'id_sanpham' => 2,
-                'id_nguoidung' => 2,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ],
+        // Lấy ID thật từ bảng
+        $userIds = DB::table('nguoi_dung')->where('vaitro', 'user')   // chỉ lấy role user
+                ->pluck('id')
+                ->toArray();
+        $productIds = DB::table('san_pham')->pluck('id')->toArray();
+
+        $noidungs = [
+            'Sản phẩm rất tốt, chất lượng đúng như mô tả. Giao hàng nhanh.',
+            'Hàng ổn, nhưng đóng gói chưa kỹ. Cần cải thiện thêm.',
+            'Đánh giá thử: chất lượng sản phẩm tốt, hài lòng.',
+            'Mình sẽ tiếp tục ủng hộ trong những lần sau.',
+            'Giá cả hợp lý, chất lượng tuyệt vời.',
+            'Sản phẩm giống hình, giao đúng hẹn.',
         ];
 
-        // Tạo thêm 18 đánh giá ngẫu nhiên
-        for ($i = 3; $i <= 20; $i++) {
+        $data = [];
+        for ($i = 1; $i <= 20; $i++) {
             $data[] = [
-                'diem' => rand(3, 5), // điểm 3 -> 5
-                'noidung' => "Đánh giá thử số $i: chất lượng sản phẩm tốt, hài lòng.",
-                'media' => "https://example.com/reviews/review$i.jpg",
-                'ngaydang' => $now->subDays(rand(1, 30)),
-                'trangthai' => 'hoat_dong',
-                'id_sanpham' => rand(1, 20), // chọn ngẫu nhiên trong 20 sản phẩm có trong SanPhamSeeder
-                'id_nguoidung' => rand(1, 70), // chọn ngẫu nhiên trong 70 người dùng có trong NguoiDungSeeder
-                'created_at' => $now,
-                'updated_at' => $now,
+                'id_nguoidung' => $userIds[array_rand($userIds)],
+                'id_sanpham'   => $productIds[array_rand($productIds)],
+                'diem'         => rand(3, 5),
+                'noidung'      => $noidungs[array_rand($noidungs)],
+                'media'        => "uploads/danhgia/media/danhgia".$i.".png",
+                'ngaydang'     => $now,
+                'trangthai'    => 'hoat_dong',
+                'created_at'   => $now,
+                'updated_at'   => $now,
             ];
         }
 

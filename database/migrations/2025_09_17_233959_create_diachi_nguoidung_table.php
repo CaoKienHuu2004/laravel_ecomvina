@@ -15,9 +15,6 @@ return new class extends Migration
             $table->id();
             $table->string('ten');
             $table->string('sodienthoai');
-            $table->text('thanhpho')->nullable();
-            $table->text('xaphuong')->nullable();
-            $table->text('sonha')->nullable();
             $table->mediumText('diachi')->nullable();
             $table->enum('trangthai', ['hoat_dong', 'ngung_hoat_dong', 'bi_khoa', 'cho_duyet'])->default('hoat_dong');
 

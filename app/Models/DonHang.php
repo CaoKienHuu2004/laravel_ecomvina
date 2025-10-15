@@ -21,6 +21,7 @@ class DonHang extends Model
         'trangthai',
         'id_nguoidung',
         'id_magiamgia',
+        'id_phuongthuc_thanhtoan',
 
         'created_at',
         'updated_at',
@@ -28,7 +29,6 @@ class DonHang extends Model
     ];
 
     protected $casts = [
-        'tongtien'  => 'decimal:2',
         'ngaytao'   => 'datetime',
 
         'created_at' => 'datetime',
@@ -52,7 +52,10 @@ class DonHang extends Model
 
     }
     public function thanhtoan() {
-        return $this->hasOne(ThanhToan::class, 'id_donhang');
+        return $this->hasMany(ThanhToan::class, 'id_donhang');
+    }
+    public function phuongthucthanhtoan() {
+        return $this->belongsTo(PhuongThucThanhToan::class, 'id_phuongthuc_thanhtoan');
     }
 
 }

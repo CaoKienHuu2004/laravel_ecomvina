@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('danh_muc', function (Blueprint $table) {
             $table->id();
             $table->string('ten')->unique();
-            $table->text('media')->default('default-danhmuc.png');
+            $table->text('media')->default('uploads/danhmuc/media/danhmuc.png');
             $table->enum('trangthai', ['hoat_dong', 'ngung_hoat_dong', 'bi_khoa', 'cho_duyet'])->default('hoat_dong');
 
             $table->timestamps();

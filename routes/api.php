@@ -147,14 +147,14 @@ Route::apiResource('danhgias', DanhGiaAPI::class)->only(['index','show']);
 // Route::put('/guest/giohang/{id_bienthesp}', [GuestCartAPI::class, 'update']);
 // Route::delete('/guest/giohang/{id_bienthesp}', [GuestCartAPI::class, 'destroy']);
 
-// Route::middleware(['auth:sanctum','web'])->group(function () {
+// Route::middleware(['auth:sanctum'])->group(function () {
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/me/giohang', [GioHangFrontendAPI::class, 'index']);
     Route::post('/me/giohang', [GioHangFrontendAPI::class, 'store']);
     Route::put('/me/giohang/{id_bienthesp}', [GioHangFrontendAPI::class, 'update']);
     Route::delete('/me/giohang/{id_bienthesp}', [GioHangFrontendAPI::class, 'destroy']);
 });
-// Route::middleware(['auth:sanctum','role:user,admin'])->group(function () {
+// Route::middleware(['auth:sanctum'])->group(function () {
 //     Route::get('/me/giohang', [GioHangAPI::class, 'index']);
 //     Route::get('/me/diachi', [DiaChiNguoiFrontendDungAPI::class, 'index']); // chưa
 //     Route::get('/me/thanhtoan', [ThanhToanFrontendAPI::class, 'index']); // chưa

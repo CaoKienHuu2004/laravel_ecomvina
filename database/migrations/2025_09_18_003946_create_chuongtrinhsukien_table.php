@@ -16,8 +16,8 @@ return new class extends Migration
         Schema::create('chuongtrinhsukien', function (Blueprint $table) {
             $table->id();
             $table->string('ten')->unique();
-            $table->text('media')->nullable();
-            $table->text('mota')->nullable();
+            $table->text('media')->default('uploads/chuongtrinhsukien/media/chuongtrinhsukien.png');
+            $table->text('mota')->default("<p class=\"text-success\">Sự kiện đặc biệt sắp diễn ra, hứa hẹn mang đến nhiều ưu đãi và trải nghiệm thú vị cho khách hàng. Hãy cùng chờ đón và tham gia ngay khi chương trình được mở!</p>");
             $table->dateTime('ngaybatdau');
             $table->dateTime('ngayketthuc');
             $table->enum('trangthai', ['hoat_dong', 'ngung_hoat_dong', 'bi_khoa', 'cho_duyet'])->default('hoat_dong');

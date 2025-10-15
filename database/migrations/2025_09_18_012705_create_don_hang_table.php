@@ -14,15 +14,15 @@ return new class extends Migration
         Schema::create('don_hang', function (Blueprint $table) {
             $table->id();
 
-            $table->string('ma_donhang')->nullable();
-
-            $table->decimal('tongtien', 15, 2);
+            $table->string('ma_donhang')->unique();
 
             $table->integer('tongsoluong');
 
             $table->mediumText('ghichu')->nullable();
 
-            $table->dateTime('ngaytao');
+            $table->decimal('tongtien', 15, 2);
+
+            $table->dateTime('ngaytao')->useCurrent();
 
             $table->enum('trangthai', [
                 'cho_xac_nhan',    // Khách vừa tạo đơn, chờ shop xác nhận
@@ -32,9 +32,9 @@ return new class extends Migration
                 'da_huy'           // Đơn đã bị hủy
             ])->default('cho_xac_nhan')->comment('Trạng thái đơn hàng');
 
-            $table->foreignId('id_nguoidung')->constrained('nguoi_dung');
-            $table->foreignId('id_magiamgia')->constrained('ma_giamgia');
-            $table->unique(['id_nguoidung', 'id_magiamgia']);
+            $table->foreignId('id_nguoidung')->constrained('nguoi_dung')->cascadeOnUpdate();
+            $table->foreignId('id_magiamgia')->nullable()->constrained('ma_giamgia')->cascadeOnUpdate(); // null vì ko ko có mã giảm giá cũng được
+            $table->foreignId('id_phuongthuc_thanhtoan')->constrained('phuongthuc_thanhtoan')->cascadeOnUpdate();
 
             $table->timestamps();
             $table->softDeletes();

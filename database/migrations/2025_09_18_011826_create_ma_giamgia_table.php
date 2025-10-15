@@ -15,10 +15,19 @@ return new class extends Migration
     {
         Schema::create('ma_giamgia', function (Blueprint $table) {
             $table->id();
-            $table->string('magiamgia');
+            $table->string('magiamgia')->unique();
             $table->mediumText('mota')->nullable();
             $table->decimal('giatri', 15, 2);
-            $table->string('dieukien');
+            // $table->string('dieukien');
+            $table->enum('dieukien', [
+                'tatca',
+                'donhang_toi_thieu_500k',
+                'sanpham_cu_the_ban_cham',
+                'khachhang_moi',
+                'khachhang_than_thiet',
+                'lan_dau_mua',
+                'the_loai_cu_the_ban_cham'
+            ])->default('tatca')->comment('Điều kiện áp dụng mã giảm giá');
             $table->datetime('ngaybatdau');
             $table->datetime('ngayketthuc');
             $table->enum('trangthai', [

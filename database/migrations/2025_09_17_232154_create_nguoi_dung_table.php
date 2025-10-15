@@ -19,15 +19,15 @@ return new class extends Migration
             // $table->string('name')->nullable(); // giữ name từ users
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->default('123456789');
 
             // Cột thêm từ bảng nguoi_dung
-            $table->string('avatar')->nullable();
+            $table->string('avatar')->default('uploads/nguoidung/avatar/nguoidung.png');
             $table->string('hoten')->nullable();
             $table->enum('gioitinh', ['nam', 'nữ'])->default('nam')->comment('Giới tính');
             $table->date('ngaysinh')->nullable();
             $table->string('sodienthoai', 15)->unique()->nullable();
-            $table->enum('vaitro',['user','admin','assistant','anonymous'])->default('user');
+            $table->enum('vaitro',['user','admin','seller'])->default('user');
             $table->enum('trangthai', ['hoat_dong', 'ngung_hoat_dong', 'bi_khoa', 'cho_duyet'])->default('hoat_dong');
 
             // Jetstream

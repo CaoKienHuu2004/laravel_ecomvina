@@ -13,13 +13,17 @@ class QuatangKhuyenMai extends Model
     protected $table = 'quatang_khuyenmai';
 
     protected $fillable = [
-        'soluong',
         'mota',
+        'soluong',
         'ngaybatdau',
         'ngayketthuc',
-        'min_donhang',
+
+        'soluongapdung',
+        'kieuapdung',
+
         'id_bienthe',
-        'id_thuonghieu',
+        'id_cuahang',
+        'id_chuongtrinhsukien',
 
         'created_at',
         'updated_at',
@@ -40,9 +44,33 @@ class QuatangKhuyenMai extends Model
         return $this->belongsTo(Bienthesp::class, 'id_bienthe');
     }
 
-    // Quan hệ với thương hiệu
-    public function thuonghieu()
+    // Quan hệ với chuongtrinhsukien
+    public function chuongtrinhsukien()
     {
-        return $this->belongsTo(Thuonghieu::class, 'id_thuonghieu');
+        return $this->belongsTo(ChuongTrinhSuKien::class, 'id_chuongtrinhsukien');
     }
+    // Quan hệ với chuongtrinhsukien
+    public function cuaHang()
+    {
+        return $this->belongsTo(ThongTinNguoiBanHang::class, 'id_cuahang');
+    }
+    /**
+     * trong controller có thể check
+     * public function rules()
+      *  {
+      *      return [
+       *         'ngaybatdau' => 'required|date',
+      *          'ngayketthuc' => 'required|date|after_or_equal:ngaybatdau',
+      *      ];
+       * }
+     */
+    protected static function booted()
+    {
+        static::saving(function ($model) {
+            if ($model->ngayketthuc < $model->ngaybatdau) {
+                throw new \Exception('Ngày kết thúc không thể nhỏ hơn ngày bắt đầu.');
+            }
+        });
+    }
+
 }

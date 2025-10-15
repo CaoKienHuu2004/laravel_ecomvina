@@ -13,18 +13,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('thanh_toan', function (Blueprint $table) {
+        Schema::create('lichsu_thanhtoan', function (Blueprint $table) {
             $table->id();
             $table->string('nganhang')->nullable();
             $table->decimal('gia', 15, 2);
             $table->mediumText('noidung')->nullable();
             $table->string('magiaodich')->unique()->nullable();
             $table->dateTime('ngaythanhtoan');
-            $table->enum('hinhthucthanhtoan',[
-                'dbt',  // Chuyển khoản ngân hàng trực tiếp, Direct Bank transfer
-                'cp',   // Kiểm tra thanh toán, Check payments
-                'cod',  // Thanh toán khi nhận hàng, Cash on delivery
-            ]);
+
             $table->enum('trangthai', [
                 'cho_xac_nhan',             // Thanh toán đã tạo nhưng chưa xác nhận
                 'dang_xu_ly',               // Giao dịch đang được xử lý
@@ -37,7 +33,8 @@ return new class extends Migration
             ])->default('cho_xac_nhan')->comment('Trạng thái thanh toán');
             // $table->int('trangthai');
 
-            $table->foreignId('id_donhang')->constrained('don_hang')->onDelete('cascade')->unique();
+            $table->foreignId('id_donhang')->constrained('don_hang')->onUpdate('cascade');
+            $table->foreignId('id_phuongthuc_thanhtoan')->constrained('phuongthuc_thanhtoan')->onUpdate('cascade');;
             $table->timestamps();
             $table->softDeletes()->comment('Xóa mềm để lưu lịch sử giao dịch');
         });
@@ -48,6 +45,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('thanh_toan');
+        Schema::dropIfExists('lichsu_thanhtoan');
     }
 };

@@ -27,7 +27,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             NguoiDungSeeder::class,
             DiaChiNguoiDungSeeder::class,
-            ThuongHieuSeeder::class,
+            ThongTinNguoiBanHangSeeder::class,
             DanhMucSeeder::class,
             LoaiBientheSeeder::class,
             SanPhamSeeder::class,
@@ -37,12 +37,19 @@ class DatabaseSeeder extends Seeder
             BientheSpSeeder::class,
             ChuongTrinhSuKienSeeder::class,
             QuatangKhuyenMaiSeeder::class,
-            SuKienKhuyenMaiSeeder::class,
+
             MaGiamGiaSeeder::class,
             DanhGiaSeeder::class,
-            ChiTietGioHangSeeder::class,
+            // ChiTietGioHangSeeder::class,
             TuKhoaSeeder::class,
             BannerQuangCaoSeeder::class,
+            YeuThichSeeder::class,
+            PhuongThucThanhToanSeeder::class,
+            DonHangSeeder::class,
+            ChitietDonhangSeeder::class,
+            ThanhToanSeeder::class,
+            ThongBaoSeeder::class,
+            BaiVietSeeder::class
             // ai training data
             // AITrainingData::class
         ]);

@@ -19,11 +19,10 @@ return new class extends Migration
             $table->integer('soluong');
             $table->decimal('tongtien', 15, 2);
 
-            $table->foreignId('id_donhang')->constrained('don_hang')->onDelete('cascade');
-            $table->foreignId('id_bienthe')->constrained('bienthe_sp')->onDelete('cascade');
+            $table->foreignId('id_donhang')->constrained('don_hang')->onUpdate('cascade');
+            $table->foreignId('id_bienthe')->constrained('bienthe_sp')->onUpdate('cascade');
             $table->unique(['id_donhang', 'id_bienthe']); // tránh trùng sản phẩm trong cùng chi tiết đơn hàng
             $table->timestamps();
-            $table->softDeletes();
             // Bạn muốn giữ lịch sử chi tiết đơn hàng, ngay cả khi đơn hàng bị xóa mềm hoặc hủy.
 
             // Phục vụ báo cáo, phân tích, audit: ví dụ biết khách đã mua gì, số lượng, giá tiền, dù đơn đã bị hủy.

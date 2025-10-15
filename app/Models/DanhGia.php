@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class DanhGia extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected $table = 'danh_gia';
 
@@ -23,7 +23,6 @@ class DanhGia extends Model
 
         'created_at',
         'updated_at',
-        'deleted_at'
     ];
 
     protected $casts = [
@@ -31,7 +30,6 @@ class DanhGia extends Model
 
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
     ];
 
     // Quan hệ với sản phẩm

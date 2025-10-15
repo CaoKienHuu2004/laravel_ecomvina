@@ -44,6 +44,14 @@ return [
             'throw' => false,
         ],
 
+        // nếu có nextjs project làm frontend, tại có fodel kẹp chung laravel_server đổi tên project_đúng là được
+        'nextjs_assets' => [
+            'driver' => 'local',
+            'root' => 'C:/xampp/htdocs/laravel_server/nextjs_ecomvina/public/assets',
+            'url' => env('NEXTJS_URL', 'http://localhost:3000') . '/assets',
+            'visibility' => 'public',
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),

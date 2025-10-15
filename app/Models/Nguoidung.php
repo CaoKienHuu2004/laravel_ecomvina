@@ -10,7 +10,7 @@ use Laravel\Sanctum\HasApiTokens; //Cho phép model tạo và quản lý API tok
 use Laravel\Fortify\TwoFactorAuthenticatable;
 
 use App\Notifications\ResetPasswordNotification;
-
+use Illuminate\Support\Facades\App;
 use Laravel\Jetstream\HasProfilePhoto; // của jetstream
 
 
@@ -85,6 +85,13 @@ class Nguoidung extends Authenticatable
     {
         return $this->hasMany(Diachi::class, 'id_nguoidung');
     }
+    /**
+     * Quan hệ: Người dùng có nhiều địa chỉ.
+     */
+    public function thongTinNguoiBanHang()
+    {
+        return $this->hasOne(ThongTinNguoiBanHang::class,'id_nguoidung','id');
+    }
 
     /**
      * Quan hệ: Người dùng có nhiều phiên đăng nhập.
@@ -107,17 +114,13 @@ class Nguoidung extends Authenticatable
         return $this->hasRole('admin');
     }
 
-    public function isAssistant(): bool
+    public function isSeller(): bool
     {
-        return $this->hasRole('assistant');
+        return $this->hasRole('seller');
     }
     public function isUser(): bool
     {
         return $this->hasRole('user');
-    }
-    public function isAnonymous(): bool
-    {
-        return $this->hasRole('anonymous');
     }
 
     /**
