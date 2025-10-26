@@ -68,6 +68,8 @@ class Kernel extends HttpKernel
 
         'apikey' => \App\Http\Middleware\ApiKeyMiddleware::class,
         'auth:sanctum' => \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+        'auth.api' => \App\Http\Middleware\ApiAuthMiddleware::class,
+        'vaitro' => \App\Http\Middleware\EnsureUserHasRole::class,
 
     ];
     protected $routeMiddleware = [

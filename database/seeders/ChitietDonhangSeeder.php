@@ -64,6 +64,6 @@ class ChitietDonhangSeeder extends Seeder
             }
         }
 
-        DB::table('chitiet_donhang')->insert($details);
+        DB::table('donhang_chitiet')->insert($details);
     }
 }

@@ -2,94 +2,133 @@
 
 namespace App\Http\Controllers\API\Frontend;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\GioHang;
-use App\Models\ChiTietGioHang;
-use App\Http\Resources\Frontend\GioHangResource;
-use App\Http\Resources\ChiTietGioHangResource;
-use Illuminate\Http\Response;
+use App\Models\GiohangModel;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Http\Response;
 
+/**
+ * @OA\Tag(
+ *     name="Giỏ hàng (tôi)",
+ *     description="Các API thao tác với giỏ hàng của người dùng frontend"
+ * )
+ */
 class GioHangFrontendAPI extends BaseFrontendController
 {
-
-    // public function __construct() // nếu muốn login mới xem được giỏ hàng
-    // {
-    //     $this->middleware('auth');
-    // }
     /**
-     * Xem toàn bộ giỏ hàng của user hiện tại
+     * @OA\Get(
+     *     path="/api/toi/giohangs",
+     *     tags={"Giỏ hàng (tôi)"},
+     *     summary="Lấy toàn bộ giỏ hàng của người dùng hiện tại",
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Danh sách sản phẩm trong giỏ hàng hoặc thông báo giỏ hàng trống"
+     *     ),
+     *     @OA\Response(response=401, description="Không có quyền truy cập hoặc thiếu token")
+     * )
      */
     public function index(Request $request)
     {
-        $userId = $request->user()->id;
+        $user = $request->get('auth_user');
+        $userId = $user->id;
 
-        $giohang = GioHang::where('id_nguoidung', $userId)
-            ->with('chitiet.bienTheSanPham.sanpham', 'nguoidung')
-            ->first();
-
-        if (!$giohang) {
-            return $this->jsonResponse([
-                'status'  => true,
-                'message' => 'Giỏ hàng trống',
-                'data'    => []
-            ], Response::HTTP_OK);
-        }
+        $giohang = GiohangModel::with(['bienthe.sanpham'])
+            ->where('id_nguoidung', $userId)
+            ->where('trangthai', 'Hiển thị')
+            ->get();
 
         return $this->jsonResponse([
-            'status'  => true,
-            'message' => 'Danh sách giỏ hàng',
-            'data'    => new GioHangResource($giohang)
+            'status' => true,
+            'message' => $giohang->isEmpty() ? 'Giỏ hàng trống' : 'Danh sách sản phẩm trong giỏ hàng',
+            'data' => $giohang,
         ], Response::HTTP_OK);
     }
 
     /**
-     * Thêm sản phẩm vào giỏ
+     * @OA\Post(
+     *     path="/api/toi/giohangs",
+     *     tags={"Giỏ hàng (tôi)"},
+     *     summary="Thêm sản phẩm vào giỏ hàng",
+     *     security={{"bearerAuth": {}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"id_bienthe","soluong"},
+     *             @OA\Property(property="id_bienthe", type="integer", example=5),
+     *             @OA\Property(property="soluong", type="integer", example=2)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Thêm sản phẩm vào giỏ hàng thành công"
+     *     ),
+     *     @OA\Response(response=400, description="Dữ liệu không hợp lệ hoặc thiếu")
+     * )
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'bienthe_sp_id' => 'required|exists:bienthe_sp,id',
-            'soluong'       => 'required|integer|min:1',
+            'id_bienthe' => 'required|exists:bienthe,id',
+            'soluong' => 'required|integer|min:1',
         ]);
 
-        $userId = $request->user()->id;
+        $user = $request->get('auth_user');
+        $userId = $user->id;
+        $gia = DB::table('bienthe')->where('id', $validated['id_bienthe'])->value('gia');
 
-        // Lấy hoặc tạo giỏ hàng cho user
-        $giohang = GioHang::firstOrCreate(
-            ['id_nguoidung' => $userId],
-            ['id_nguoidung' => $userId]
-        );
-
-        // Kiểm tra nếu sản phẩm đã có trong giỏ → update số lượng
-        $item = ChiTietGioHang::where('gio_hang_id', $giohang->id)
-            ->where('bienthe_sp_id', $validated['bienthe_sp_id'])
+        $item = GiohangModel::where('id_nguoidung', $userId)
+            ->where('id_bienthe', $validated['id_bienthe'])
             ->first();
-
-        $gia = DB::table('bienthe_sp')->where('id', $validated['bienthe_sp_id'])->value('gia');
 
         if ($item) {
             $item->soluong += $validated['soluong'];
-            $item->tongtien = $gia * $item->soluong;
+            $item->thanhtien = $gia * $item->soluong;
             $item->save();
         } else {
-            $item = ChiTietGioHang::create([
-                'gio_hang_id'   => $giohang->id,
-                'bienthe_sp_id' => $validated['bienthe_sp_id'],
-                'soluong'       => $validated['soluong'],
-                'tongtien'      => $gia * $validated['soluong'],
+            $item = GiohangModel::create([
+                'id_bienthe' => $validated['id_bienthe'],
+                'id_nguoidung'=> $userId,
+                'soluong' => $validated['soluong'],
+                'thanhtien' => $gia * $validated['soluong'],
+                'trangthai' => 'Hiển thị',
             ]);
         }
 
         return $this->jsonResponse([
-            'status'  => true,
-            'message' => 'Thêm sản phẩm vào giỏ thành công',
-            'data'    => new ChiTietGioHangResource($item->load('bienTheSanPham.sanpham'))
+            'status' => true,
+            'message' => 'Thêm sản phẩm vào giỏ hàng thành công',
+            'data' => $item->load('bienthe.sanpham'),
         ], Response::HTTP_CREATED);
     }
 
     /**
-     * Cập nhật số lượng sản phẩm trong giỏ
+     * @OA\Put(
+     *     path="/api/toi/giohangs/{id_bienthesp}",
+     *     tags={"Giỏ hàng (tôi)"},
+     *     summary="Cập nhật số lượng sản phẩm trong giỏ hàng",
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id_bienthesp",
+     *         in="path",
+     *         required=true,
+     *         description="ID của sản phẩm trong giỏ hàng",
+     *         @OA\Schema(type="integer", example=3)
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"soluong"},
+     *             @OA\Property(property="soluong", type="integer", example=5)
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Cập nhật số lượng thành công"
+     *     ),
+     *     @OA\Response(response=404, description="Không tìm thấy sản phẩm trong giỏ hàng")
+     * )
      */
     public function update(Request $request, $id)
     {
@@ -97,43 +136,60 @@ class GioHangFrontendAPI extends BaseFrontendController
             'soluong' => 'required|integer|min:1',
         ]);
 
-        $userId = $request->user()->id;
+        $user = $request->get('auth_user');
+        $userId = $user->id;
+        $item = GiohangModel::where('id_nguoidung', $userId)
+            ->where('id', $id)
+            ->firstOrFail();
 
-        $item = ChiTietGioHang::whereHas('gioHang', function ($q) use ($userId) {
-                $q->where('id_nguoidung', $userId);
-            })
-            ->findOrFail($id);
+        $gia = DB::table('bienthe')->where('id', $item->id_bienthe)->value('gia');
 
-        $gia = $item->bienTheSanPham->gia;
-        $item->soluong  = $validated['soluong'];
-        $item->tongtien = $gia * $validated['soluong'];
-        $item->save();
+        $item->update([
+            'soluong' => $validated['soluong'],
+            'thanhtien' => $gia * $validated['soluong'],
+        ]);
 
         return $this->jsonResponse([
-            'status'  => true,
-            'message' => 'Cập nhật giỏ hàng thành công',
-            'data'    => new ChiTietGioHangResource($item->load('bienTheSanPham.sanpham'))
+            'status' => true,
+            'message' => 'Cập nhật số lượng thành công',
+            'data' => $item->load('bienthe.sanpham'),
         ], Response::HTTP_OK);
     }
 
     /**
-     * Xóa sản phẩm khỏi giỏ
+     * @OA\Delete(
+     *     path="/api/toi/giohangs/{id_bienthesp}",
+     *     tags={"Giỏ hàng (tôi)"},
+     *     summary="Xóa sản phẩm khỏi giỏ hàng",
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id_bienthesp",
+     *         in="path",
+     *         required=true,
+     *         description="ID của sản phẩm cần xóa",
+     *         @OA\Schema(type="integer", example=3)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Xóa sản phẩm khỏi giỏ hàng thành công"
+     *     ),
+     *     @OA\Response(response=404, description="Không tìm thấy sản phẩm trong giỏ hàng")
+     * )
      */
     public function destroy(Request $request, $id)
     {
-        $userId = $request->user()->id;
-
-        $item = ChiTietGioHang::whereHas('gioHang', function ($q) use ($userId) {
-                $q->where('id_nguoidung', $userId);
-            })
-            ->findOrFail($id);
+        $user = $request->get('auth_user');
+        $userId = $user->id;
+        $item = GiohangModel::where('id_nguoidung', $userId)
+            ->where('id', $id)
+            ->firstOrFail();
 
         $item->delete();
 
         return $this->jsonResponse([
-            'status'  => true,
-            'message' => 'Xóa sản phẩm khỏi giỏ thành công',
-            'data'    => []
-        ], Response::HTTP_NO_CONTENT);
+            'status' => true,
+            'message' => 'Xóa sản phẩm khỏi giỏ hàng thành công',
+            'data' => [],
+        ], Response::HTTP_OK);
     }
 }

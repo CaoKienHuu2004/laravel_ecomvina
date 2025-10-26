@@ -16,12 +16,20 @@ class CategoriesHotResource extends JsonResource
      */
     public function toArray($request)
     {
-        return [
-            'id' => $this->id,
-            'ten' => $this->ten,
-            'slug' => Str::slug($this->ten),
-            'total_sold' => $this->total_sold,
-            'sanphams' => SanphamResources::collection($this->sanphams)->resolve(), // trả về mảng thuần
-        ];
+        // return [
+        //     'id' => $this->id,
+        //     'ten' => $this->ten,
+        //     'slug' => $this->slug,
+        //     'total_sold' => $this->total_sold,
+        //     'sanphams' => SanphamResources::collection($this->sanpham)->resolve(), // trả về mảng thuần
+        // ];
+
+            return   [
+                'id' => $this->id,
+                'ten' => $this->ten,
+                'slug' => $this->slug,
+                'total_sold' => $this->total_sold,
+                'sanpham' => HotSaleResource::collection($this->sanpham),
+            ];
     }
 }

@@ -10,4 +10,12 @@ use Illuminate\Http\JsonResponse;
 class BaseFrontendController extends Controller
 {
     use ApiResponse;
+
+    /**
+     * $user = $this->authUser($req); khi cần dùng
+     */
+    protected function authUser(Request $req)
+    {
+        return $req->get('auth_user');
+    }
 }

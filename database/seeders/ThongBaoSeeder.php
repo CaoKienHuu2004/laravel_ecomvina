@@ -35,6 +35,6 @@ class ThongBaoSeeder extends Seeder
             ];
         }
 
-        DB::table('thongbao')->insert($notifications);
+        DB::table('thong_bao')->insert($notifications);
     }
 }

@@ -2,64 +2,68 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\API\BaseController;
+use App\Models\DiachinguoidungModel;
 use Illuminate\Http\Request;
-use App\Models\DiaChi;
-use App\Http\Resources\DiaChiNguoiDungResources;
 use Illuminate\Http\Response;
 
 class DiaChiNguoiDungAPI extends BaseController
 {
     /**
-     * Danh sách địa chỉ người dùng (có phân trang)
+     * Lấy danh sách địa chỉ người dùng (có phân trang)
      */
     public function index(Request $request)
     {
-        $perPage     = $request->get('per_page', 10);
-        $currentPage = $request->get('page', 1);
-        $q           = $request->get('q'); // từ khóa tìm kiếm
+        $perPage = $request->get('per_page', 10);
+        $q       = $request->get('q'); // Từ khóa tìm kiếm
 
-        $query = DiaChi::with('nguoiDung')
+        $query = DiachinguoidungModel::with('nguoidung')
             ->latest('updated_at')
             ->when($q, function ($query) use ($q) {
                 $query->where(function ($sub) use ($q) {
-                    $sub->where('ten', 'like', "%$q%")
+                    $sub->where('hoten', 'like', "%$q%")
                         ->orWhere('sodienthoai', 'like', "%$q%")
                         ->orWhere('diachi', 'like', "%$q%")
-                        ->orWhere('thanhpho', 'like', "%$q%")
-                        ->orWhere('xaphuong', 'like', "%$q%")
-                        ->orWhere('sonha', 'like', "%$q%")
-                        ->orWhereHas('nguoiDung', function ($u) use ($q) {
+                        ->orWhereHas('nguoidung', function ($u) use ($q) {
                             $u->where('hoten', 'like', "%$q%");
                         });
                 });
             });
 
-        $diachis = $query->paginate($perPage, ['*'], 'page', $currentPage);
+        $items = $query->paginate($perPage);
 
-        if ($currentPage > $diachis->lastPage() && $currentPage > 1) {
+        return $this->jsonResponse([
+            'status'  => true,
+            'message' => 'Danh sách địa chỉ người dùng',
+            'data'    => $items->items(),
+            'meta'    => [
+                'current_page' => $items->currentPage(),
+                'last_page'    => $items->lastPage(),
+                'per_page'     => $items->perPage(),
+                'total'        => $items->total(),
+            ]
+        ], Response::HTTP_OK);
+    }
+
+    /**
+     * Xem chi tiết 1 địa chỉ người dùng
+     */
+    public function show($id)
+    {
+        $item = DiachinguoidungModel::with('nguoidung')->find($id);
+
+        if (!$item) {
             return $this->jsonResponse([
                 'status' => false,
-                'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $diachis->lastPage(),
-                'meta' => [
-                    'current_page' => $currentPage,
-                    'last_page'    => $diachis->lastPage(),
-                    'per_page'     => $perPage,
-                    'total'        => $diachis->total(),
-                ]
-            ], 404);
+                'message' => 'Không tìm thấy địa chỉ người dùng'
+            ], Response::HTTP_NOT_FOUND);
         }
 
         return $this->jsonResponse([
-            'status' => true,
-            'message' => 'Danh sách địa chỉ người dùng',
-            'data' => DiaChiNguoiDungResources::collection($diachis),
-            'meta' => [
-                'current_page' => $diachis->currentPage(),
-                'last_page'    => $diachis->lastPage(),
-                'per_page'     => $diachis->perPage(),
-                'total'        => $diachis->total(),
-            ]
-        ], 200);
+            'status'  => true,
+            'message' => 'Chi tiết địa chỉ người dùng',
+            'data'    => $item
+        ], Response::HTTP_OK);
     }
 
     /**
@@ -68,37 +72,20 @@ class DiaChiNguoiDungAPI extends BaseController
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'ten'         => 'required|string|max:255',
-            'sodienthoai' => 'required|string|max:20',
-            'thanhpho'    => 'nullable|string',
-            'xaphuong'    => 'nullable|string',
-            'sonha'       => 'nullable|string',
-            'diachi'      => 'nullable|string',
-            'trangthai'   => 'nullable|in:hoat_dong,ngung_hoat_dong,bi_khoa,cho_duyet',
-            'id_nguoidung'=> 'required|exists:nguoi_dung,id',
+            'id_nguoidung' => 'required|exists:nguoidung,id',
+            'hoten'        => 'required|string|max:255',
+            'sodienthoai'  => 'required|string|max:10',
+            'diachi'       => 'required|string',
+            'trangthai'    => 'required|in:Mặc định,Khác,Tạm ẩn',
         ]);
 
-        $diachi = DiaChi::create($validated);
+        $item = DiachinguoidungModel::create($validated);
 
         return $this->jsonResponse([
-            'status' => true,
+            'status'  => true,
             'message' => 'Tạo địa chỉ người dùng thành công',
-            'data' => new DiaChiNguoiDungResources($diachi)
+            'data'    => $item
         ], Response::HTTP_CREATED);
-    }
-
-    /**
-     * Chi tiết địa chỉ người dùng
-     */
-    public function show(Request $request, $id)
-    {
-        $diachi = DiaChi::findOrFail($id);
-
-        return $this->jsonResponse([
-            'status' => true,
-            'message' => 'Chi tiết địa chỉ người dùng',
-            'data' => new DiaChiNguoiDungResources($diachi)
-        ], Response::HTTP_OK);
     }
 
     /**
@@ -106,39 +93,96 @@ class DiaChiNguoiDungAPI extends BaseController
      */
     public function update(Request $request, $id)
     {
-        $diachi = DiaChi::findOrFail($id);
+        $item = DiachinguoidungModel::find($id);
+
+        if (!$item) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Không tìm thấy địa chỉ người dùng'
+            ], Response::HTTP_NOT_FOUND);
+        }
 
         $validated = $request->validate([
-            'ten'         => 'sometimes|string|max:255',
-            'sodienthoai' => 'sometimes|string|max:20',
-            'thanhpho'    => 'nullable|string',
-            'xaphuong'    => 'nullable|string',
-            'sonha'       => 'nullable|string',
-            'diachi'      => 'nullable|string',
-            'trangthai'   => 'nullable|in:hoat_dong,ngung_hoat_dong,bi_khoa,cho_duyet',
-            'id_nguoidung'=> 'sometimes|exists:nguoi_dung,id',
+            'hoten'        => 'sometimes|string|max:255',
+            'sodienthoai'  => 'sometimes|string|max:10',
+            'diachi'       => 'sometimes|string',
+            'trangthai'    => 'sometimes|in:Mặc định,Khác,Tạm ẩn',
+            'id_nguoidung' => 'sometimes|exists:nguoidung,id',
         ]);
 
-        $diachi->update($validated);
+        $item->update($validated);
 
         return $this->jsonResponse([
-            'status' => true,
+            'status'  => true,
             'message' => 'Cập nhật địa chỉ người dùng thành công',
-            'data' => new DiaChiNguoiDungResources($diachi)
+            'data'    => $item
         ], Response::HTTP_OK);
     }
 
     /**
-     * Xóa địa chỉ người dùng
+     * Xóa mềm địa chỉ người dùng
      */
     public function destroy($id)
     {
-        $diachi = DiaChi::findOrFail($id);
-        $diachi->delete();
+        $item = DiachinguoidungModel::find($id);
+
+        if (!$item) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Không tìm thấy địa chỉ người dùng'
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        $item->delete(); // Soft delete — cột deleted_at sẽ được gán giá trị
 
         return $this->jsonResponse([
-            'status' => true,
-            'message' => 'Xóa địa chỉ người dùng thành công'
-        ], Response::HTTP_NO_CONTENT);
+            'status'  => true,
+            'message' => 'Địa chỉ người dùng đã được xóa (soft delete)'
+        ], Response::HTTP_OK);
+    }
+
+    /**
+     * Khôi phục địa chỉ người dùng bị xóa mềm
+     */
+    public function restore($id)
+    {
+        $item = DiachinguoidungModel::withTrashed()->find($id);
+
+        if (!$item || !$item->trashed()) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Địa chỉ không tồn tại hoặc chưa bị xóa mềm'
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        $item->restore();
+
+        return $this->jsonResponse([
+            'status'  => true,
+            'message' => 'Khôi phục địa chỉ thành công',
+            'data'    => $item
+        ], Response::HTTP_OK);
+    }
+
+    /**
+     * Xóa vĩnh viễn (hard delete)
+     */
+    public function forceDelete($id)
+    {
+        $item = DiachinguoidungModel::withTrashed()->find($id);
+
+        if (!$item) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Không tìm thấy địa chỉ người dùng'
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        $item->forceDelete(); // Xóa thật khỏi DB
+
+        return $this->jsonResponse([
+            'status'  => true,
+            'message' => 'Địa chỉ người dùng đã bị xóa vĩnh viễn'
+        ], Response::HTTP_OK);
     }
 }

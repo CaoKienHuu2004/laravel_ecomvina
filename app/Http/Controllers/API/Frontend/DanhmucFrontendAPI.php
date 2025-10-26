@@ -6,6 +6,7 @@ use App\Http\Controllers\API\DanhmucAPI;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Frontend\DanhMuc\DanhmucSelectionHomeHomeResource;
 use App\Models\Danhmuc;
+use App\Models\DanhmucModel;
 use Illuminate\Http\Request;
 
 class DanhmucFrontendAPI extends DanhmucAPI
@@ -18,7 +19,7 @@ class DanhmucFrontendAPI extends DanhmucAPI
     {
         $perPage = $request->get('per_page', 10);
 
-        $query = Danhmuc::select(
+        $query = DanhmucModel::select(
                 'danh_muc.id',
                 'danh_muc.ten',
                 'danh_muc.media',

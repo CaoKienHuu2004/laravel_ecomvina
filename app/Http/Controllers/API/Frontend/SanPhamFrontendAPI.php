@@ -16,159 +16,311 @@ use Illuminate\Http\Response;
 use App\Http\Resources\Frontend\CategoriesHotResource;
 use App\Http\Resources\Frontend\HotSaleResource;
 use App\Http\Resources\Frontend\RecommentResource;
+use App\Models\DanhgiaModel;
+use App\Models\DanhmucModel;
+use App\Models\SanphamModel;
+use App\Models\ThuongHieuModel;
 use Illuminate\Support\Facades\DB;
 
+
+
+
+/**
+ * @OA\Tag(
+ *     name="Sản phẩm (trang-chu)",
+ *     description=" sản phẩm của trang chủ được lọc theo yêu cầu nghiệp vụ của từng selection, tên cũ sanphams-selection"
+ * )
+ */
 class SanPhamFrontendAPI extends SanphamAPI
 {
+    /**
+     * @OA\Get(
+     *     path="/api/sanphams-selection",
+     *     summary="Danh sách sản phẩm trang chủ",
+     *     description="Trả về tất cả nhóm sản phẩm bao gồm: hot_sales, top_categories, top_brands, best_products, recommend và default.",
+     *     tags={"Sản phẩm (trang-chu)"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Danh sách sản phẩm trang chủ",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Danh sách sản phẩm trang chủ"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="object",
+     *                 @OA\Property(
+     *                     property="hot_sales",
+     *                     type="array",
+     *                     @OA\Items(ref="#/components/schemas/SanphamItem")
+     *                 ),
+     *                 @OA\Property(
+     *                     property="top_categories",
+     *                     type="array",
+     *                     @OA\Items(ref="#/components/schemas/SanphamItem")
+     *                 ),
+     *                 @OA\Property(
+     *                     property="top_brands",
+     *                     type="array",
+     *                     @OA\Items(ref="#/components/schemas/SanphamItem")
+     *                 ),
+     *                 @OA\Property(
+     *                     property="best_products",
+     *                     type="array",
+     *                     @OA\Items(ref="#/components/schemas/SanphamItem")
+     *                 ),
+     *                 @OA\Property(
+     *                     property="recommend",
+     *                     type="array",
+     *                     @OA\Items(ref="#/components/schemas/SanphamItem")
+     *                 ),
+     *                 @OA\Property(
+     *                     property="default",
+     *                     type="array",
+     *                     @OA\Items(ref="#/components/schemas/SanphamItem")
+     *                 )
+     *             )
+     *         )
+     *     )
+     * )
+     *
+     * @OA\Schema(
+     *     schema="SanphamItem",
+     *     type="object",
+     *     title="Sản phẩm",
+     *     @OA\Property(property="id", type="integer", example=1),
+     *     @OA\Property(property="ten", type="string", example="Điện thoại iPhone 15 Pro Max"),
+     *     @OA\Property(property="slug", type="string", example="iphone-15-pro-max"),
+     *     @OA\Property(property="hinh_anh", type="string", nullable=true, example="https://example.com/images/iphone15.jpg"),
+     *     @OA\Property(
+     *         property="gia",
+     *         type="object",
+     *         @OA\Property(property="current", type="number", format="float", example=27990000),
+     *         @OA\Property(property="before_discount", type="number", format="float", example=30990000),
+     *         @OA\Property(property="discount_percent", type="integer", example=10)
+     *     ),
+     *     @OA\Property(
+     *         property="store",
+     *         type="object",
+     *         @OA\Property(property="name", type="string", example="Apple Store"),
+     *         @OA\Property(property="icon_url", type="string", nullable=true, example="https://example.com/store-logo.png")
+     *     ),
+     *     @OA\Property(
+     *         property="rating",
+     *         type="object",
+     *         @OA\Property(property="average", type="number", format="float", example=4.8),
+     *         @OA\Property(property="count", type="integer", example=128)
+     *     )
+     * )
+     */
     public function index(Request $request)
     {
-        $selection = $request->get('selection');
-
-        switch ($selection) {
-            case 'hot_sales':
-                $data = $this->getHotSales($request);
-                break;
-            case 'top_categories':
-                $data = $this->getTopCategories($request);
-                break;
-            case 'top_brands':
-                $data = $this->getTopBrands($request);
-                break;
-            case 'best_products':
-                $data = $this->getBestProducts($request);
-                break;
-            case 'recommend':
-                $data = $this->getRecommend($request, $request->get('danhmuc_id'));
-                break;
-            default:
-                $data = $this->getDefaultProducts($request);
-        }
+        $data = [
+            'hot_sales'      => $this->getHotSales($request),
+            'top_categories' => $this->getTopCategories($request),
+            'top_brands'     => $this->getTopBrands($request),
+            'best_products'  => $this->getBestProducts($request),
+            'recommend'      => $this->getRecommend($request, $request->get('danhmuc_id')),
+            'default'        => $this->getDefaultProducts($request),
+        ];
 
         return $this->jsonResponse([
             'status'  => true,
-            'message' => 'Danh sách sản phẩm',
-            'data'    => $data
+            'message' => 'Danh sách sản phẩm trang chủ',
+            'data'    => $data,
         ], Response::HTTP_OK);
     }
 
-    /** HOT SALES */
-    //----------------  limit 10 // nhiều đơn hàng của sản phẩm nhất
-    // protected function getHotSales(Request $request)
-    // {
-    //     $perPage = $request->get('per_page', 10); // team 10
-    //     // $currentPage = $request->get('page', 1);
-    //     $query = Sanpham::with(['anhSanPham', 'thuonghieu','danhgia','danhmuc','bienThe','loaibienthe'])
-    //         ->withSum('chiTietDonHang as total_sold', 'soluong')
-    //         ->orderByDesc('total_sold');
-    //     // $products = $query->paginate($perPage, ['*'], 'page', $currentPage);
-    //     $products = $query->paginate($perPage);
 
-    //     return SanphamResources::collection($products);
-    // }
 
-    //----------------  limit 10 //  giả cả rẻ + giảm giá + nhiều đơn hàng của sản phẩm nhất // thêm của mình bienThe.uutien chọn bienThe ưu tiên hiển thị sanPham
+
+    /**
+     * @OA\Get(
+     *     path="/api/sanphams-selection?selection=hot_sales",
+     *     tags={"Sản phẩm (trang-chu)"},
+     *     summary="Lấy danh sách sản phẩm Hot Sales",
+     *     description="Lấy danh sách sản phẩm bán chạy, ưu tiên hot sales",
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         required=false,
+     *         description="Số sản phẩm trên 1 trang",
+     *         @OA\Schema(type="integer", default=10)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Danh sách sản phẩm hot sales",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean"),
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer"),
+     *                     @OA\Property(property="ten", type="string"),
+     *                     @OA\Property(property="slug", type="string"),
+     *                     @OA\Property(property="hinh_anh", type="string", nullable=true),
+     *                     @OA\Property(
+     *                         property="gia",
+     *                         type="object",
+     *                         @OA\Property(property="current", type="number", format="float"),
+     *                         @OA\Property(property="before_discount", type="number", format="float"),
+     *                         @OA\Property(property="discount_percent", type="integer")
+     *                     ),
+     *                     @OA\Property(
+     *                         property="store",
+     *                         type="object",
+     *                         @OA\Property(property="name", type="string"),
+     *                         @OA\Property(property="icon_url", type="string", nullable=true)
+     *                     ),
+     *                     @OA\Property(
+     *                         property="rating",
+     *                         type="object",
+     *                         @OA\Property(property="average", type="number", format="float"),
+     *                         @OA\Property(property="count", type="integer")
+     *                     )
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Yêu cầu không hợp lệ"
+     *     )
+     * )
+     */
     protected function getHotSales(Request $request)
     {
+        /** HOT SALES */
+        //@OA\Items(ref="#/components/schemas/HotSaleResource")
+        //----------------  limit 10 //  giả cả rẻ + giảm giá + nhiều đơn hàng của sản phẩm nhất //
+        // chitietdonhang , hinhanhsanpham , thuonghieu , bienthe , danhmuc mới
+        // chiTietDonHang , anhSanPham , thuonghieu , bienThe , danhmuc, danhgia, loaibienthe củ (loaibienthe, danhgia)
         $perPage = $request->get('per_page', 10);
 
-        // Lấy sản phẩm với quan hệ
-        $query = Sanpham::with(['anhSanPham', 'thuonghieu', 'danhgia', 'danhmuc', 'bienThe', 'loaibienthe'])
-            ->withSum('chiTietDonHang as total_sold', 'soluong')
-            ->with(['bienThe' => function ($q) {
-                $q->orderBy('uutien', 'asc');
-            }])
-            ->orderByRaw('COALESCE((SELECT gia - giagiam FROM bienthe_sp WHERE id_sanpham = san_pham.id ORDER BY uutien ASC LIMIT 1), 0) ASC')
-            ->orderByRaw('COALESCE((SELECT giagiam FROM bienthe_sp WHERE id_sanpham = san_pham.id ORDER BY uutien ASC LIMIT 1), 0) DESC')
-            ->orderByDesc('total_sold');
+        // Lấy sản phẩm với quan hệ mới
+        $query = SanphamModel::with([
+                'hinhanhsanpham',   // hình ảnh sản phẩm
+                'thuonghieu',       // thương hiệu
+                'danhgia',          // đánh giá
+                'danhmuc',          // danh mục
+                'bienthe',          // biến thể
+                'loaibienthe',      // loại biến thể (tabs SEO)
+            ])
+
+            ->withSum('chitietdonhang as total_sold', 'soluong') // tổng số lượng đã bán
+            ->withAvg('danhgia as avg_rating', 'diem')      // Thêm avg_rating
+            ->withCount('danhgia as review_count')         // Thêm review_count
+            ->orderByRaw('COALESCE((SELECT giagoc
+                        FROM bienthe
+                        WHERE id_sanpham = sanpham.id
+                        ORDER BY giagoc DESC LIMIT 1), 0) DESC')
+            ->orderByDesc('total_sold'); // ưu tiên hot sales
+
         $products = $query->paginate($perPage);
-
-        // return SanphamResources::collection($products);
+        //     dd($query);
+        // exit();
+        // Trả về resource cho frontend //
         return HotSaleResource::collection($products);
-
     }
 
-    /** DANH MỤC HÀNG ĐẦU */
-    //--------------------------------  + theo số lượng sản phẩm nhiều nhất , UI chỉ có 6 limmit danh mục con, All là 4 limmit
-    // protected function getTopCategories(Request $request)
-    // {
 
-    //     // -------------------------------- UI chỉ có 6 limmit danh mục con, All là 4 limmit
-    //     // -Danh mục 1: Điện thoại di động (tổng lượt bán: 200)
-    //     // ---Sản phẩm1: Iphone17 (lượt bán: 100)
-    //     // ---Sản phẩm 2:Samsung (lượt bán: 100)
-
-    //     // -Danh mục 2: Laptop (tổng lượt bán: 15)
-    //     // --- Sản phẩm 1: Asus Desk (lượt bán:10)
-    //     // --- Sản phẩm 2: LENOVO (lượt bán: 5)
-
-    //     // $categories = Danhmuc::with(['sanpham' => function ($q) {
-    //     // $q->withSum('chiTietDonHang as total_sold', 'soluong')
-    //     //   ->orderByDesc('total_sold'); // sắp xếp sản phẩm trong danh mục theo số lượng bán
-    //     //     }])
-    //     //     ->withSum('sanpham.chiTietDonHang as category_total_sold', 'soluong') // tổng lượt bán của cả danh mục
-    //     //     ->orderByDesc('category_total_sold') // sắp xếp danh mục theo tổng lượt bán
-    //     //     ->get();
-    //     // --------------------------------
-    //     $perPage = $request->get('per_page', 8);
-
-    //     // Lấy danh mục theo số lượng sản phẩm nhiều nhất
-    //     $topCategories = Danhmuc::withCount('sanphams')
-    //         ->orderByDesc('sanphams_count')
-    //         ->take($perPage)
-    //         ->get();
-
-    //     // Lấy toàn bộ sản phẩm thuộc các danh mục này
-    //     $sanphams = Sanpham::with(['anhSanPham', 'thuonghieu','danhgia','danhmuc','bienThe','loaibienthe'])
-    //         ->whereHas('danhmuc', function ($query) use ($topCategories) {
-    //             $query->whereIn('id_danhmuc', $topCategories->pluck('id'));
-    //         })
-    //         ->paginate($perPage);
-
-    //     return SanphamResources::collection($sanphams);
-    // }
-    //--------------------------------  + nhiều đơn hàng của sản phẩm nhất , UI chỉ có 6 limmit danh mục con, All là 4 limmit
-    // protected function getTopCategories(Request $request)
-    // {
-    //     $perPage = $request->get('per_page', 6);
-
-    //     // Lấy top danh mục theo tổng lượt mua
-    //     $topCategories = Danhmuc::with(['sanphams'])
-    //         ->get()
-    //         ->sortByDesc(function ($category) {
-    //             // Tổng lượt mua của tất cả sản phẩm trong danh mục
-    //             return $category->sanphams->sum('luot_mua');
-    //         })
-    //         ->take($perPage);
-
-    //     $sanphams = Sanpham::with(['anhSanPham', 'thuonghieu','danhgia','danhmuc','bienThe','loaibienthe'])
-    //         ->whereIn('id_danhmuc', $topCategories->pluck('id'))
-    //         ->paginate($perPage);
-
-    //     return SanphamResources::collection($sanphams);
-    // }
-
-    //--------------------------------  + nhiều đơn hàng của sản phẩm nhất , UI chỉ có 6 limmit danh mục con, All là 4 limmit
+    /**
+     * @OA\Get(
+     *     path="/api/sanphams-selection?selection=top_categories",
+     *     tags={"Sản phẩm (trang-chu)"},
+     *     summary="Lấy danh sách danh mục hàng đầu",
+     *     description="Danh sách các danh mục có nhiều sản phẩm bán chạy nhất. Limit mặc định 6.",
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Số danh mục trả về",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=6)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Danh sách danh mục hot",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean"),
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer"),
+     *                     @OA\Property(property="ten_danhmuc", type="string"),
+     *                     @OA\Property(property="total_sold", type="integer"),
+     *                     @OA\Property(
+     *                         property="sanpham",
+     *                         type="array",
+     *                         @OA\Items(
+     *                             type="object",
+     *                             @OA\Property(property="id", type="integer"),
+     *                             @OA\Property(property="ten", type="string"),
+     *                             @OA\Property(property="slug", type="string"),
+     *                             @OA\Property(property="hinh_anh", type="string", nullable=true),
+     *                             @OA\Property(
+     *                                 property="gia",
+     *                                 type="object",
+     *                                 @OA\Property(property="current", type="number", format="float"),
+     *                                 @OA\Property(property="before_discount", type="number", format="float"),
+     *                                 @OA\Property(property="discount_percent", type="integer")
+     *                             ),
+     *                             @OA\Property(
+     *                                 property="store",
+     *                                 type="object",
+     *                                 @OA\Property(property="name", type="string"),
+     *                                 @OA\Property(property="icon_url", type="string", nullable=true)
+     *                             ),
+     *                             @OA\Property(
+     *                                 property="rating",
+     *                                 type="object",
+     *                                 @OA\Property(property="average", type="number", format="float"),
+     *                                 @OA\Property(property="count", type="integer")
+     *                             )
+     *                         )
+     *                     )
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Yêu cầu không hợp lệ"
+     *     )
+     * )
+     */
     protected function getTopCategories(Request $request)
     {
-        $categoryLimit = $request->get('per_page', 6); // UI chỉ hiển thị 6 danh mục
-        $productLimit = 6; // Số sản phẩm tối đa mỗi danh mục
+        /** DANH MỤC HÀNG ĐẦU */
+        //--------------------------------  + nhiều đơn hàng của sản phẩm nhất , UI chỉ có 6 limmit danh mục con, All là 4 limmit
+        // @OA\Items(ref="#/components/schemas/CategoriesHotResource")
+        $categoryLimit = $request->get('per_page', 6);
+        $productLimit = 6;
 
-        // Lấy tất cả danh mục kèm sản phẩm, tính tổng lượt bán
-        $categories = Danhmuc::with(['sanphams' => function ($q) use ($productLimit) {
-                $q->withSum('chiTietDonHang as total_sold', 'soluong')
-                ->orderByDesc('total_sold') // sản phẩm bán nhiều trước
-                ->limit($productLimit);
-            }])
-            ->get()
-            ->map(function ($danhmuc) {
-                // Tính tổng lượt bán của danh mục
-                $danhmuc->setAttribute('total_sold', $danhmuc->sanphams->sum('total_sold'));
-                return $danhmuc;
-            })
-            ->sortByDesc('total_sold') // danh mục bán nhiều trước
-            ->take($categoryLimit);
+        $categories = DanhmucModel::with(['sanpham' => function($q) use ($productLimit) {
+            $q->withSum('chitietdonhang as total_sold', 'soluong')
+            ->withAvg('danhgia as avg_rating', 'diem')      // Thêm avg_rating
+            ->withCount('danhgia as review_count')         // Thêm review_count
+            ->with(['hinhanhsanpham', 'thuonghieu', 'bienthe', 'loaibienthe'])
+            ->orderByRaw('COALESCE((SELECT giagoc FROM bienthe WHERE id_sanpham = sanpham.id ORDER BY giagoc DESC LIMIT 1), 0) DESC')
+            ->orderByDesc('total_sold')
+            ->limit($productLimit);
+        }])
+        ->get()
+        ->map(function ($danhmuc) {
+            $danhmuc->setAttribute('total_sold', $danhmuc->sanpham->sum('total_sold'));
+            return $danhmuc;
+        })
+        ->sortByDesc('total_sold')
+        ->take($categoryLimit);
 
-        // Trả về resource
         return CategoriesHotResource::collection($categories);
     }
 
@@ -176,340 +328,395 @@ class SanPhamFrontendAPI extends SanphamAPI
 
 
 
-    /** THƯƠNG HIỆU HÀNG ĐẦU */
-    //--------------------------- limit 10 thương hiệu có nhiều sản phẩm nhất
-    //    protected function getTopBrands(Request $request)
-    //     {
-    //         $perPage = $request->get('per_page', 10);
-
-    //         // Lấy ra danh sách sản phẩm theo thương hiệu, sắp xếp theo số lượng sản phẩm trong thương hiệu
-    //         $sanphams = Sanpham::with(['anhSanPham', 'thuonghieu','danhgia','danhmuc','bienThe','loaibienthe'])
-    //             ->withCount('thuonghieu as sanpham_count') // đếm số sp theo brand
-    //             ->orderByDesc('sanpham_count')
-    //             ->paginate($perPage);
-
-    //         return SanphamResources::collection($sanphams);
-    //     }
-
-    //--------------------------- limit 10 // nhiều đơn hàng của sản phẩm nhất // list danh sách thuong hieu ko phải sản phẩm
+    /**
+     * @OA\Get(
+     *     path="/api/sanphams-selection?selection=top_brands",
+     *     summary="Lấy top thương hiệu có sản phẩm bán chạy",
+     *     description="Trả về danh sách thương hiệu top bán chạy, limit 10",
+     *     tags={"Sản phẩm (trang-chu)"},
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Số thương hiệu trả về",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=10)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Danh sách thương hiệu hot",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean"),
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer"),
+     *                     @OA\Property(property="name", type="string"),
+     *                     @OA\Property(property="slug", type="string"),
+     *                     @OA\Property(property="logo", type="string", nullable=true),
+     *                     @OA\Property(property="total_sold", type="integer")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Yêu cầu không hợp lệ"
+     *     )
+     * )
+     */
     protected function getTopBrands(Request $request)
     {
+        /** THƯƠNG HIỆU HÀNG ĐẦU */
+
+        //--------------------------- limit 10 // nhiều đơn hàng của sản phẩm nhất // list danh sách thuong hieu ko phải sản phẩm
         $perPage = $request->get('per_page', 10);
 
-        $brands = DB::table('thuong_hieu as th')
-            ->select(
-                'th.id',
-                'th.ten',
-                'th.mota',
-                // 'th.namthanhlap',
-                'th.media',
-                DB::raw('COALESCE(SUM(ct.soluong), 0) as total_sold')
-            )
-            ->leftJoin('san_pham as sp', 'sp.id_thuonghieu', '=', 'th.id')
-            ->leftJoin('bienthe_sp as bt', 'bt.id_sanpham', '=', 'sp.id')
-            ->leftJoin('chitiet_donhang as ct', 'ct.id_bienthe', '=', 'bt.id')
-            ->groupBy('th.id', 'th.ten', 'th.mota')
-            ->orderByDesc('total_sold')
-            ->paginate($perPage);
+        // Lấy thương hiệu với tổng sản phẩm bán được
+        $brands = ThuongHieuModel::with(['sanpham' => function($q) {
+            $q->withSum('chitietdonhang as total_sold', 'soluong')
+            ->with(['bienthe']); // load biến thể nếu cần
+        }])
+        ->get()
+        ->map(function ($brand) {
+            // Tính tổng số lượng bán của thương hiệu từ tất cả sản phẩm
+            $brand->total_sold = $brand->sanpham->sum('total_sold');
+            return $brand;
+        })
+        ->sortByDesc('total_sold') // sắp xếp theo tổng bán
+        ->take($perPage); // giới hạn số lượng
 
+        // Trả về resource
         return BrandsHotResource::collection($brands);
     }
-    //-- lấy hêt
-    // protected function getTopBrands(Request $request)
-    // {
-    //     $perPage = $request->get('per_page'); // có thể null
 
-    //     $query = DB::table('thuong_hieu as th')
-    //         ->select(
-    //             'th.id',
-    //             'th.ten',
-    //             'th.mota',
-    //             'th.namthanhlap',
-    //             'th.media',
-    //             DB::raw('COALESCE(SUM(ct.soluong), 0) as total_sold')
-    //         )
-    //         ->leftJoin('san_pham as sp', 'sp.id_thuonghieu', '=', 'th.id')
-    //         ->leftJoin('bienthe_sp as bt', 'bt.id_sanpham', '=', 'sp.id')
-    //         ->leftJoin('chitiet_donhang as ct', 'ct.id_bienthe', '=', 'bt.id')
-    //         ->groupBy('th.id', 'th.ten', 'th.mota', 'th.namthanhlap', 'th.media')
-    //         ->orderByDesc('total_sold');
 
-    //     // Nếu có per_page thì phân trang, ngược lại lấy hết
-    //     if ($perPage) {
-    //         $brands = $query->paginate($perPage);
-    //     } else {
-    //         $brands = $query->get();
-    //     }
-
-    //     return BrandsHotResource::collection($brands);
-    // }
-
-    /** SẢN PHẨM HÀNG ĐẦU */
-    // protected function getBestProducts(Request $request)
-    // {
-    //     $perPage = $request->get('per_page', 8);
-
-    //     $query = Sanpham::with(['anhSanPham', 'thuonghieu','danhgia','danhmuc','bienThe','loaibienthe'])
-    //         ->withAvg('danhgia as avg_rating', 'diem')
-    //         ->orderByDesc('avg_rating');
-
-    //     $products = $query->paginate($perPage);
-
-    //     return SanphamResources::collection($products);
-    // }
-    // GET /api/sanphams-selection?selection=best_products // limit 8 // nhiều đơn hàng của sản phẩm nhất và đánh giá
+    /**
+     * @OA\Get(
+     *     path="/api/sanphams-selection?selection=best_products",
+     *     summary="Lấy sản phẩm tốt nhất (Best Products)",
+     *     description="Trả về sản phẩm bán chạy + đánh giá cao, limit 8",
+     *     tags={"Sản phẩm (trang-chu)"},
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Số sản phẩm trả về",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=8)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Danh sách sản phẩm best products",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean"),
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer"),
+     *                     @OA\Property(property="ten", type="string"),
+     *                     @OA\Property(property="slug", type="string"),
+     *                     @OA\Property(property="hinh_anh", type="string", nullable=true),
+     *                     @OA\Property(
+     *                         property="gia",
+     *                         type="object",
+     *                         @OA\Property(property="current", type="number", format="float"),
+     *                         @OA\Property(property="before_discount", type="number", format="float"),
+     *                         @OA\Property(property="discount_percent", type="integer")
+     *                     ),
+     *                     @OA\Property(
+     *                         property="store",
+     *                         type="object",
+     *                         @OA\Property(property="name", type="string"),
+     *                         @OA\Property(property="icon_url", type="string", nullable=true)
+     *                     ),
+     *                     @OA\Property(
+     *                         property="rating",
+     *                         type="object",
+     *                         @OA\Property(property="average", type="number", format="float"),
+     *                         @OA\Property(property="count", type="integer")
+     *                     )
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Yêu cầu không hợp lệ"
+     *     )
+     * )
+     */
     protected function getBestProducts(Request $request)
     {
+        // @OA\Items(ref="#/components/schemas/HotSaleResource")
+        // GET /api/sanphams-selection?selection=best_products // limit 8 // nhiều đơn hàng của sản phẩm nhất và đánh giá
         $perPage = $request->get('per_page', 8);
 
-        $query = SanPham::with(['anhSanPham', 'thuonghieu', 'danhgia', 'danhmuc', 'bienThe', 'loaibienthe'])
-            ->withAvg('danhgia as avg_rating', 'diem')
-            ->withSum('chiTietDonHang as total_sold', 'soluong')
+        $query = SanphamModel::with([
+                'hinhanhsanpham',   // hình ảnh sản phẩm
+                'thuonghieu',       // thương hiệu
+                'danhgia',          // đánh giá
+                'danhmuc',          // danh mục
+                'bienthe',          // biến thể
+                'loaibienthe',      // loại biến thể (tabs SEO)
+            ])
+
+            ->withSum('chitietdonhang as total_sold', 'soluong') // tổng số lượng đã bán
+            ->withAvg('danhgia as avg_rating', 'diem')      // Thêm avg_rating
+            ->withCount('danhgia as review_count')         // Thêm review_count
+            ->orderByRaw('COALESCE((SELECT giagoc
+                        FROM bienthe
+                        WHERE id_sanpham = sanpham.id
+                        ORDER BY giagoc DESC LIMIT 1), 0) DESC')
+            ->orderByDesc('total_sold')
+            ->orderByDesc('avg_rating');
+
+        $products = $query->paginate($perPage);
+        //     dd($query);
+        // exit();
+        // Trả về resource cho frontend //
+        return HotSaleResource::collection($products);
+    }
+
+
+    /**
+     * @OA\Get(
+     *     path="/api/sanphams-selection?selection=recommend",
+     *     summary="Sản phẩm gợi ý",
+     *     description="Trả về sản phẩm gợi ý theo lượt xem cao + giá rẻ + giảm giá, limit 8",
+     *     tags={"Sản phẩm (trang-chu)"},
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Số sản phẩm trên mỗi trang",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=8)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Danh sách sản phẩm gợi ý",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean"),
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer"),
+     *                     @OA\Property(property="ten", type="string"),
+     *                     @OA\Property(property="slug", type="string"),
+     *                     @OA\Property(property="hinh_anh", type="string", nullable=true),
+     *                     @OA\Property(
+     *                         property="gia",
+     *                         type="object",
+     *                         @OA\Property(property="current", type="number", format="float"),
+     *                         @OA\Property(property="before_discount", type="number", format="float"),
+     *                         @OA\Property(property="discount_percent", type="integer")
+     *                     ),
+     *                     @OA\Property(
+     *                         property="store",
+     *                         type="object",
+     *                         @OA\Property(property="name", type="string"),
+     *                         @OA\Property(property="icon_url", type="string", nullable=true)
+     *                     ),
+     *                     @OA\Property(
+     *                         property="rating",
+     *                         type="object",
+     *                         @OA\Property(property="average", type="number", format="float"),
+     *                         @OA\Property(property="count", type="integer")
+     *                     )
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Yêu cầu không hợp lệ"
+     *     )
+     * )
+     */
+    protected function getRecommend(Request $request)
+    {
+        /** GỢI Ý */
+        ////@OA\Items(ref="#/components/schemas/HotSaleResource")
+        // tùy theo lược xem + giả cả rẻ + giảm giá
+        $perPage = $request->get('per_page', 8);
+
+        $query = SanphamModel::with([
+            'hinhanhsanpham',
+            'thuonghieu',
+            'danhgia',
+            'danhmuc',
+            'bienthe',
+            'loaibienthe',
+        ])
+        ->withSum('chitietdonhang as total_sold', 'soluong')
+        ->withAvg('danhgia as avg_rating', 'diem')
+        ->withCount('danhgia as review_count');
+
+        // Sắp xếp theo 3 tiêu chí cùng lúc
+        $query->orderByDesc('luotxem') // lượt xem cao hơn
+            ->orderByRaw('COALESCE((SELECT MIN(giagoc) FROM bienthe WHERE id_sanpham = sanpham.id), 0) ASC') // giá rẻ trước
+            ->orderByDesc('giamgia')
             ->orderByDesc('total_sold')
             ->orderByDesc('avg_rating');
 
         $products = $query->paginate($perPage);
 
-        return BestProductResource::collection($products);
-    }
-
-
-    /** GỢI Ý */
-    // protected function getRecommend(Request $request, $danhmucId = null)
-    // {
-    //     $perPage = $request->get('per_page', 8);
-
-    //     $query = Sanpham::with(['anhSanPham', 'thuonghieu','danhgia','danhmuc','bienThe','loaibienthe']);
-
-    //     if ($danhmucId) {
-    //         $query->whereHas('danhmuc', fn($q) => $q->where('id_danhmuc', $danhmucId));
-    //     }
-
-    //     $products = $query->inRandomOrder()->paginate($perPage);
-
-    //     return SanphamResources::collection($products);
-    // }
-
-    /** GỢI Ý */
-    // tùy theo lược xem + giả cả rẻ + giảm giá
-    protected function getRecommend(Request $request, $danhmucId = null)
-    {
-        $perPage = $request->get('per_page', 8);
-
-        $query = SanPham::query()
-            ->select('san_pham.*')
-            ->leftJoin('bienthe_sp', 'san_pham.id', '=', 'bienthe_sp.id_sanpham')
-            ->withAvg('danhgia as avg_rating', 'diem')
-            ->withSum('chiTietDonHang as total_sold', 'soluong')
-            ->orderByRaw('((bienthe_sp.gia - bienthe_sp.giagiam) / bienthe_sp.gia) DESC')
-            ->orderByDesc('avg_rating')
-            ->orderByDesc('total_sold');
-
-        $products = $query->paginate($perPage);
-
-        return RecommentResource::collection($products);
+        return HotSaleResource::collection($products);
     }
 
 
 
 
-    /** Default: phân trang + filter */
+    /**
+     * @OA\Get(
+     *     path="/api/sanphams-selection?selection=default",
+     *     summary="Danh sách sản phẩm mặc định",
+     *     description="Phân trang + filter theo thương hiệu, danh mục, giá min/max, sắp xếp lượt xem + giá rẻ + giảm giá + tổng bán + đánh giá",
+     *     tags={"Sản phẩm (trang-chu)"},
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         description="Số sản phẩm trên mỗi trang",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=20)
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         description="Trang hiện tại",
+     *         required=false,
+     *         @OA\Schema(type="integer", default=1)
+     *     ),
+     *     @OA\Parameter(
+     *         name="thuonghieu",
+     *         in="query",
+     *         description="Lọc theo id thương hiệu",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="danhmuc",
+     *         in="query",
+     *         description="Lọc theo id danh mục",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="gia_min",
+     *         in="query",
+     *         description="Lọc theo giá tối thiểu",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Parameter(
+     *         name="gia_max",
+     *         in="query",
+     *         description="Lọc theo giá tối đa",
+     *         required=false,
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Danh sách sản phẩm mặc định",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean"),
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer"),
+     *                     @OA\Property(property="ten", type="string"),
+     *                     @OA\Property(property="slug", type="string"),
+     *                     @OA\Property(property="hinh_anh", type="string", nullable=true),
+     *                     @OA\Property(
+     *                         property="gia",
+     *                         type="object",
+     *                         @OA\Property(property="current", type="number", format="float"),
+     *                         @OA\Property(property="before_discount", type="number", format="float"),
+     *                         @OA\Property(property="discount_percent", type="integer")
+     *                     ),
+     *                     @OA\Property(
+     *                         property="store",
+     *                         type="object",
+     *                         @OA\Property(property="name", type="string"),
+     *                         @OA\Property(property="icon_url", type="string", nullable=true)
+     *                     ),
+     *                     @OA\Property(
+     *                         property="rating",
+     *                         type="object",
+     *                         @OA\Property(property="average", type="number", format="float"),
+     *                         @OA\Property(property="count", type="integer")
+     *                     )
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Yêu cầu không hợp lệ"
+     *     )
+     * )
+     */
     protected function getDefaultProducts(Request $request)
     {
+        /** Default: phân trang + filter */
         $perPage = $request->get('per_page', 20);
         $currentPage = $request->get('page', 1);
 
-        $query = Sanpham::query()->with([
-            'bienThe.loaiBienThe',
-            'anhSanPham',
-            'danhmuc',
+        $query = SanphamModel::with([
+            'hinhanhsanpham',
             'thuonghieu',
-        ]);
+            'danhgia',
+            'danhmuc',
+            'bienthe',
+            'loaibienthe',
+        ])
+        ->withSum('chitietdonhang as total_sold', 'soluong')
+        ->withAvg('danhgia as avg_rating', 'diem')
+        ->withCount('danhgia as review_count');
 
+        // Filter theo thương hiệu
         if ($request->filled('thuonghieu')) {
             $query->where('id_thuonghieu', (int) $request->thuonghieu);
         }
 
+        // Filter theo danh mục
         if ($request->filled('danhmuc')) {
-            $query->whereHas('danhmuc', fn($q) => $q->where('id_danhmuc', (int) $request->danhmuc));
+            $query->whereHas('danhmuc', fn($q) => $q->where('danhmuc.id', (int) $request->danhmuc));
         }
 
+        // Filter theo khoảng giá (dựa trên giá thấp nhất của biến thể)
         if ($request->filled('gia_min')) {
-            $query->whereHas('bienThe', fn($q) => $q->where('gia', '>=', (int) $request->gia_min));
+            $query->whereHas('bienthe', fn($q) => $q->where('giagoc', '>=', (int) $request->gia_min));
         }
 
         if ($request->filled('gia_max')) {
-            $query->whereHas('bienThe', fn($q) => $q->where('gia', '<=', (int) $request->gia_max));
+            $query->whereHas('bienthe', fn($q) => $q->where('giagoc', '<=', (int) $request->gia_max));
         }
 
-        $sanphams = $query->latest('updated_at')->paginate($perPage, ['*'], 'page', $currentPage);
+        // Sắp xếp ưu tiên theo: lượt xem + giá rẻ + % giảm + tổng bán + đánh giá
+        $query->orderByDesc('luotxem')
+            ->orderByRaw('COALESCE((SELECT MIN(giagoc) FROM bienthe WHERE id_sanpham = sanpham.id), 0) ASC')
+            ->orderByDesc('giamgia')
+            ->orderByDesc('total_sold')
+            ->orderByDesc('avg_rating');
 
-        return SanphamResources::collection($sanphams);
+        // Paginate
+        $sanphams = $query->paginate($perPage, ['*'], 'page', $currentPage);
+
+        return HotSaleResource::collection($sanphams);
     }
 }
-
-
-// namespace App\Http\Controllers\API\Frontend;
-
-// use App\Http\Controllers\API\SanphamAPI;
-// use Illuminate\Http\Request;
-// use App\Http\Resources\SanphamResources;
-// use App\Models\Sanpham;
-// use App\Models\Danhmuc;
-// use App\Models\Thuonghieu;
-// use Illuminate\Http\Response;
-
-// class SanPhamFrontendAPI extends SanphamAPI
-// {
-//     public function index(Request $request)
-//     {
-//         $selection = $request->get('selection');
-
-//         switch ($selection) {
-//             case 'hot_sales':
-//                 $result = $this->getHotSales($request);
-//                 break;
-//             case 'top_categories':
-//                 $result = $this->getTopCategories($request);
-//                 break;
-//             case 'top_brands':
-//                 $result = $this->getTopBrands($request);
-//                 break;
-//             case 'best_products':
-//                 $result = $this->getBestProducts($request);
-//                 break;
-//             case 'recommend':
-//                 $result = $this->getRecommend($request, $request->get('danhmuc_id'));
-//                 break;
-//             default:
-//                 $result = $this->getDefaultProducts($request);
-//         }
-
-//         return $this->jsonResponse([
-//             'status'  => true,
-//             'message' => 'Danh sách sản phẩm',
-//             'data'    => $result
-//         ], Response::HTTP_OK);
-//     }
-
-//     /** HOT SALES */
-//     protected function getHotSales(Request $request)
-//     {
-//         $perPage = $request->get('per_page', 10);
-//         $currentPage = $request->get('page', 1);
-
-//         $query = Sanpham::with(['anhSanPham', 'thuonghieu'])
-//             ->withSum('chiTietDonHang as total_sold', 'soluong')
-//             ->orderByDesc('total_sold');
-
-//         $products = $query->paginate($perPage, ['*'], 'page', $currentPage);
-
-//         return $this->formatResponse($products);
-//     }
-
-//     /** DANH MỤC HÀNG ĐẦU */
-//     protected function getTopCategories(Request $request)
-//     {
-//         $perPage = $request->get('per_page', 5);
-//         $categories = Danhmuc::withCount('sanpham')
-//             ->orderByDesc('sanpham_count')
-//             ->paginate($perPage);
-
-//         return $this->formatResponse($categories, false);
-//     }
-
-//     /** THƯƠNG HIỆU HÀNG ĐẦU */
-//     protected function getTopBrands(Request $request)
-//     {
-//         $perPage = $request->get('per_page', 5);
-//         $brands = Thuonghieu::withCount('sanpham')
-//             ->orderByDesc('sanpham_count')
-//             ->paginate($perPage);
-
-//         return $this->formatResponse($brands, false);
-//     }
-
-//     /** SẢN PHẨM HÀNG ĐẦU */
-//     protected function getBestProducts(Request $request)
-//     {
-//         $perPage = $request->get('per_page', 10);
-//         $currentPage = $request->get('page', 1);
-
-//         $query = Sanpham::with(['anhSanPham', 'thuonghieu'])
-//             ->withAvg('danhgia as avg_rating', 'sao')
-//             ->orderByDesc('avg_rating');
-
-//         $products = $query->paginate($perPage, ['*'], 'page', $currentPage);
-
-//         return $this->formatResponse($products);
-//     }
-
-//     /** GỢI Ý */
-//     protected function getRecommend(Request $request, $danhmucId = null)
-//     {
-//         $perPage = $request->get('per_page', 8);
-//         $currentPage = $request->get('page', 1);
-
-//         $query = Sanpham::with(['anhSanPham', 'thuonghieu']);
-
-//         if ($danhmucId) {
-//             $query->whereHas('danhmuc', fn($q) => $q->where('id_danhmuc', $danhmucId));
-//         }
-
-//         $products = $query->inRandomOrder()
-//             ->paginate($perPage, ['*'], 'page', $currentPage);
-
-//         return $this->formatResponse($products);
-//     }
-
-//     /** Default: phân trang + filter */
-//     protected function getDefaultProducts(Request $request)
-//     {
-//         $perPage = $request->get('per_page', 20);
-//         $currentPage = $request->get('page', 1);
-
-//         $query = Sanpham::query()->with([
-//             'bienThe.loaiBienThe',
-//             'anhSanPham',
-//             'danhmuc',
-//             'thuonghieu',
-//         ]);
-
-//         if ($request->filled('thuonghieu')) {
-//             $query->where('id_thuonghieu', (int) $request->thuonghieu);
-//         }
-
-//         if ($request->filled('danhmuc')) {
-//             $query->whereHas('danhmuc', fn($q) => $q->where('id_danhmuc', (int) $request->danhmuc));
-//         }
-
-//         if ($request->filled('gia_min')) {
-//             $query->whereHas('bienThe', fn($q) => $q->where('gia', '>=', (int) $request->gia_min));
-//         }
-
-//         if ($request->filled('gia_max')) {
-//             $query->whereHas('bienThe', fn($q) => $q->where('gia', '<=', (int) $request->gia_max));
-//         }
-
-//         $products = $query->latest('updated_at')
-//             ->paginate($perPage, ['*'], 'page', $currentPage);
-
-//         return $this->formatResponse($products);
-//     }
-
-//     /** Hàm dùng chung để format data + meta */
-//     protected function formatResponse($paginator, $useResource = true)
-//     {
-//         $data = $useResource ? SanphamResources::collection($paginator) : $paginator->items();
-
-//         return [
-//             'data' => $data,
-//             'meta' => [
-//                 'current_page' => $paginator->currentPage(),
-//                 'last_page'    => $paginator->lastPage(),
-//                 'per_page'     => $paginator->perPage(),
-//                 'total'        => $paginator->total(),
-//             ]
-//         ];
-//     }
-// }

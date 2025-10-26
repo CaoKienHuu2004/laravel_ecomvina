@@ -10,7 +10,7 @@ class ChiTietDonHang extends Model
 {
     use HasFactory;
 
-    protected $table = 'chitiet_donhang';
+    protected $table = 'donhang_chitiet';
 
     protected $fillable = [
         'gia',

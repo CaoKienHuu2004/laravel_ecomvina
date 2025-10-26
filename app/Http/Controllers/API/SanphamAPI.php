@@ -2,177 +2,195 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\Controller;
+use App\Models\SanphamModel;
 use Illuminate\Http\Request;
-use App\Http\Resources\SanphamResources;
-use App\Models\Sanpham;
 use Illuminate\Http\Response;
 
+/**
+ * @OA\Tag(
+ *     name="Sản phẩm",
+ *     description="Quản lý sản phẩm trong hệ thống"
+ * )
+ */
 class SanphamAPI extends BaseController
 {
     /**
-     * Display a listing of the resource with filters + pagination.
+     * @OA\Get(
+     *     path="/api/sanphams",
+     *     tags={"Sản phẩm"},
+     *     summary="Lấy danh sách sản phẩm (có lọc + phân trang)",
+     *     @OA\Parameter(name="page", in="query", @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="per_page", in="query", @OA\Schema(type="integer")),
+     *     @OA\Parameter(name="thuonghieu", in="query", @OA\Schema(type="string")),
+     *     @OA\Parameter(name="trangthai", in="query", @OA\Schema(type="string")),
+     *     @OA\Parameter(name="q", in="query", description="Từ khóa tìm kiếm", @OA\Schema(type="string")),
+     *     @OA\Response(response=200, description="Danh sách sản phẩm")
+     * )
      */
     public function index(Request $request)
     {
         $perPage     = $request->get('per_page', 20);
         $currentPage = $request->get('page', 1);
-        $thuonghieu  = $request->get('thuonghieu', null);
-        $danhmuc     = $request->get('danhmuc', null);
-        $giaMin      = $request->get('gia_min', null);
-        $giaMax      = $request->get('gia_max', null);
-        $q           = $request->get('q', null); // search query
+        $thuonghieu  = $request->get('thuonghieu');
+        $trangthai   = $request->get('trangthai');
+        $q           = $request->get('q');
 
-        $query = Sanpham::with([
-            'bienThe.loaiBienThe',
-            'anhSanPham',
-            'danhmuc',
-            'thuonghieu',
-        ]);
+        $query = SanphamModel::with(['thuonghieu', 'danhmuc', 'hinhanhsanpham', 'bienthe','loaibienthe','danhgia','chitietdonhang','danhgia.nguoidung'])
+        // $query = SanphamModel::with(['yeuthich','thuonghieu', 'danhmuc', 'hinhanhsanpham', 'bienthe','loaibienthe','danhgia','chitietdonhang','danhgia.nguoidung'])
+            ->latest('updated_at');
 
-        // Search theo tên hoặc mô tả
         if ($q) {
-            $query->where(fn($sub) =>
-                $sub->where('ten', 'like', "%{$q}%")
-                    ->orWhere('mota', 'like', "%{$q}%")
-            );
+            $query->where(function ($sub) use ($q) {
+                $sub->where('ten', 'like', "%$q%")
+                    ->orWhere('slug', 'like', "%$q%")
+                    ->orWhere('mota', 'like', "%$q%");
+            });
         }
 
-        // Lọc thương hiệu
         if ($thuonghieu) {
-            $query->where('id_thuonghieu', (int) $thuonghieu);
+            $query->whereHas('thuonghieu', function ($sub) use ($thuonghieu) {
+                $sub->where('ten', 'like', "%$thuonghieu%");
+            });
         }
 
-        // Lọc danh mục
-        if ($danhmuc) {
-            $query->whereHas('danhmuc', fn($q) => $q->where('id_danhmuc', (int) $danhmuc));
+        if ($trangthai) {
+            $query->where('trangthai', $trangthai);
         }
 
-        // Lọc giá min
-        if ($giaMin) {
-            $query->whereHas('bienThe', fn($q) => $q->where('gia', '>=', (int) $giaMin));
-        }
+        $items = $query->paginate($perPage, ['*'], 'page', $currentPage);
 
-        // Lọc giá max
-        if ($giaMax) {
-            $query->whereHas('bienThe', fn($q) => $q->where('gia', '<=', (int) $giaMax));
-        }
-
-        $sanphams = $query->latest('updated_at')->paginate($perPage, ['*'], 'page', $currentPage);
-
-        // Kiểm tra nếu page vượt quá tổng số trang
-        if ($currentPage > $sanphams->lastPage() && $currentPage > 1) {
-            return $this->jsonResponse([
-                'status' => false,
-                'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $sanphams->lastPage(),
-                'data' => SanphamResources::collection($sanphams),
-                'meta' => [
-                    'current_page' => $currentPage,
-                    'last_page'    => $sanphams->lastPage(),
-                    'per_page'     => $perPage,
-                    'total'        => $sanphams->total(),
-                ]
+        if ($currentPage > $items->lastPage() && $currentPage > 1) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $items->lastPage(),
             ], 404);
         }
 
-        return $this->jsonResponse([
+        return response()->json([
             'status'  => true,
             'message' => 'Danh sách sản phẩm',
-            'data'    => SanphamResources::collection($sanphams),
+            'data'    => $items->items(),
             'meta'    => [
-                'current_page' => $sanphams->currentPage(),
-                'last_page'    => $sanphams->lastPage(),
-                'per_page'     => $sanphams->perPage(),
-                'total'        => $sanphams->total(),
-                'next_page_url'=> $sanphams->nextPageUrl(),
-                'prev_page_url'=> $sanphams->previousPageUrl(),
+                'current_page' => $items->currentPage(),
+                'last_page'    => $items->lastPage(),
+                'per_page'     => $items->perPage(),
+                'total'        => $items->total(),
             ]
         ], Response::HTTP_OK);
     }
 
-
-    /**
-     * Store a newly created resource (admin only)
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'ten'          => 'required|string|max:255',
-            'id_thuonghieu'=> 'required|integer|exists:thuong_hieu,id',
-            'xuatxu'       => 'required|string|max:255',
-            'sanxuat'      => 'nullable|string|max:255',
-            'mota'         => 'nullable|string',
+            'ten'           => 'required|string|max:255',
+            'slug'          => 'required|string|max:255|unique:sanpham,slug',
+            'mota'          => 'nullable|string',
+            'xuatxu'        => 'nullable|string|max:255',
+            'sanxuat'       => 'nullable|string|max:255',
+            'trangthai'     => 'required|in:Công khai,Chờ duyệt,Tạm ẩn,Tạm khóa',
+            'giamgia'       => 'nullable|integer|min:0',
+            'luotxem'       => 'nullable|integer|min:0',
+            'luotban'       => 'nullable|integer|min:0',
+            'id_thuonghieu' => 'nullable|integer|exists:thuonghieu,id',
+            'id_danhmuc'    => 'nullable|array',
+            'id_danhmuc.*'  => 'integer|exists:danhmuc,id',
         ]);
 
-        $product = Sanpham::create($validated);
+        $product = SanphamModel::create($validated);
 
         if ($request->has('id_danhmuc')) {
             $product->danhmuc()->sync($request->id_danhmuc);
         }
 
-        return $this->jsonResponse([
-            'status' => true,
-            'message' => 'Tạo sản phẩm thành công',
-            'data' => new SanphamResources($product->load(['thuonghieu', 'danhmuc']))
+        return response()->json([
+            'status'  => true,
+            'message' => 'Thêm sản phẩm thành công',
+            'data'    => $product->load(['thuonghieu', 'danhmuc']),
         ], Response::HTTP_CREATED);
     }
 
     /**
-     * Display the specified resource.
+     * @OA\Get(
+     *     path="/api/sanphams/{id}",
+     *     tags={"Sản phẩm"},
+     *     summary="Xem chi tiết sản phẩm",
+     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
+     *     @OA\Response(response=200, description="Chi tiết sản phẩm")
+     * )
      */
     public function show(string $id)
     {
-        $product = Sanpham::with([
-            'bienThe.loaiBienThe',
-            'anhSanPham',
-            'danhmuc',
-            'thuonghieu',
-        ])->findOrFail($id);
+        $product = SanphamModel::with(['thuonghieu', 'danhmuc', 'hinhanhsanpham', 'bienthe','loaibienthe','danhgia','chitietdonhang','danhgia.nguoidung',])
+        // $product = SanphamModel::with(['yeuthich','thuonghieu', 'danhmuc', 'hinhanhsanpham', 'bienthe','loaibienthe','danhgia','chitietdonhang','danhgia.nguoidung'])
+            ->findOrFail($id);
 
-        return $this->jsonResponse([
-            'status' => true,
+        return response()->json([
+            'status'  => true,
             'message' => 'Chi tiết sản phẩm',
-            'data' => new SanphamResources($product)
+            'data'    => $product,
         ], Response::HTTP_OK);
     }
 
-    /**
-     * Update the specified resource (admin only)
-     */
     public function update(Request $request, string $id)
     {
+        $product = SanphamModel::findOrFail($id);
+
         $validated = $request->validate([
-            'ten'          => 'sometimes|required|string|max:255',
-            'id_thuonghieu'=> 'sometimes|required|integer|exists:thuong_hieu,id',
-            'xuatxu'       => 'sometimes|required|string|max:255',
-            'sanxuat'      => 'nullable|string|max:255',
-            'mota'         => 'nullable|string',
+            'ten'           => 'sometimes|string|max:255',
+            'slug'          => 'sometimes|string|max:255|unique:sanpham,slug,' . $product->id,
+            'mota'          => 'nullable|string',
+            'xuatxu'        => 'nullable|string|max:255',
+            'sanxuat'       => 'nullable|string|max:255',
+            'trangthai'     => 'nullable|in:Công khai,Chờ duyệt,Tạm ẩn,Tạm khóa',
+            'giamgia'       => 'nullable|integer|min:0',
+            'id_thuonghieu' => 'nullable|integer|exists:thuonghieu,id',
         ]);
 
-        $product = Sanpham::findOrFail($id);
         $product->update($validated);
 
         if ($request->has('id_danhmuc')) {
             $product->danhmuc()->sync($request->id_danhmuc);
         }
 
-        return $this->jsonResponse([
-            'status' => true,
+        return response()->json([
+            'status'  => true,
             'message' => 'Cập nhật sản phẩm thành công',
-            'data' => new SanphamResources($product->refresh()->load(['thuonghieu', 'danhmuc']))
+            'data'    => $product->refresh()->load(['thuonghieu', 'danhmuc']),
         ], Response::HTTP_OK);
     }
 
-    /**
-     * Remove the specified resource (admin only)
-     */
-    public function destroy(Request $request, string $id)
+    public function destroy(string $id)
     {
-        $product = Sanpham::findOrFail($id);
+        $product = SanphamModel::findOrFail($id);
         $product->delete();
 
-        return $this->jsonResponse([
-            'status' => true,
-            'message' => 'Xóa sản phẩm thành công'
-        ], Response::HTTP_NO_CONTENT);
+        return response()->json([
+            'status'  => true,
+            'message' => 'Đã xóa sản phẩm (xóa mềm)',
+        ], Response::HTTP_OK);
+    }
+
+    public function restore(string $id)
+    {
+        $product = SanphamModel::onlyTrashed()->findOrFail($id);
+        $product->restore();
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Khôi phục sản phẩm thành công',
+            'data'    => $product,
+        ], Response::HTTP_OK);
+    }
+
+    public function forceDestroy(string $id)
+    {
+        $product = SanphamModel::onlyTrashed()->findOrFail($id);
+        $product->forceDelete();
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Đã xóa vĩnh viễn sản phẩm',
+        ], Response::HTTP_OK);
     }
 }

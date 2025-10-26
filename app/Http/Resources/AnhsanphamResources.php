@@ -17,7 +17,7 @@ class AnhsanphamResources extends JsonResource
         $isAdmin = $request->user()?->isAdmin() ?? false;
         $data = [
             'id' => $this->id,
-            'media' => $this->media,
+            'hinhanh' => $this->hinhanh,
             'trangthai' => $this->trangthai,
             // Tải có điều kiện các mối quan hệ
             // Sử dụng whenLoaded để tránh lỗi N+1 query

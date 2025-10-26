@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Nguoidung;
-use App\Http\Resources\NguoidungResources;
+use App\Models\NguoidungModel;
 use Illuminate\Http\Response;
 
 class NguoidungAPI extends BaseController
 {
     /**
-     * Lấy danh sách người dùng (có phân trang).
+     * Lấy danh sách người dùng có phân trang + tìm kiếm
      */
     public function index(Request $request)
     {
@@ -18,104 +18,107 @@ class NguoidungAPI extends BaseController
         $currentPage = $request->get('page', 1);
         $q           = $request->query('q');
 
-        // Khởi tạo query
-        // $query = Nguoidung::with(['diachi', 'session']);
-        $query = Nguoidung::with(['diachi' => function ($q) {
-            $q->whereNull('deleted_at'); // lọc những địa chỉ chưa bị xóa
-        }, 'session']);
+        $query = NguoidungModel::with(['diachi', 'cuahang', 'baiviet'])
+            ->whereNull('deleted_at');
 
-        // Nếu có từ khóa tìm kiếm
         if ($q) {
-            $query->where(function ($qBuilder) use ($q) {
-                $qBuilder->where('hoten', 'like', '%' . $q . '%')
-                        ->orWhere('email', 'like', '%' . $q . '%');
+            $query->where(function ($sub) use ($q) {
+                $sub->where('hoten', 'like', "%{$q}%")
+                    ->orWhere('username', 'like', "%{$q}%")
+                    ->orWhere('sodienthoai', 'like', "%{$q}%");
             });
         }
 
-        // Thực hiện phân trang
-        $items = $query->orderBy('id', 'asc')
-                    ->paginate($perPage, ['*'], 'page', $currentPage);
+        $users = $query->orderBy('id', 'desc')
+            ->paginate($perPage, ['*'], 'page', $currentPage);
 
-        // Kiểm tra nếu trang yêu cầu vượt quá tổng số trang
-        if ($currentPage > $items->lastPage() && $currentPage > 1) {
+        // Nếu người dùng yêu cầu trang vượt quá tổng số trang
+        if ($currentPage > $users->lastPage() && $currentPage > 1) {
             return $this->jsonResponse([
-                'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $items->lastPage(),
+                'status' => false,
+                'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $users->lastPage(),
                 'meta' => [
                     'current_page' => $currentPage,
-                    'last_page'    => $items->lastPage(),
+                    'last_page'    => $users->lastPage(),
                     'per_page'     => $perPage,
-                    'total'        => $items->total(),
+                    'total'        => $users->total(),
                 ]
             ], 404);
         }
 
-        return $this->jsonResponse([
-            'data' => NguoidungResources::collection($items),
+        return response()->json([
+            'status' => true,
+            'message' => 'Danh sách người dùng',
+            'data' => $users->items(),
             'meta' => [
-                'current_page' => $items->currentPage(),
-                'last_page'    => $items->lastPage(),
-                'per_page'     => $items->perPage(),
-                'total'        => $items->total(),
+                'current_page' => $users->currentPage(),
+                'last_page'    => $users->lastPage(),
+                'per_page'     => $users->perPage(),
+                'total'        => $users->total(),
             ]
         ], 200);
     }
 
     /**
-     * Tạo mới người dùng.
+     * Tạo mới người dùng
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'usename'   => 'required|string|max:255|unique:nguoi_dung,usename',
-            'email'     => 'required|email|unique:nguoi_dung,email',
-            'password'  => 'required|string|min:6',
-            'avatar'    => 'nullable|string',
-            'hoten'     => 'required|string|max:255',
-            'giotinh'   => 'nullable|in:nam,nữ',
-            'ngaysinh'  => 'nullable|date',
-            'sodienthoai' => 'nullable|string|max:15|unique:nguoi_dung,sodienthoai',
-            'vaitro'    => 'nullable|in:user,admin,assistant,anonymous',
-            'trangthai' => 'nullable|in:hoat_dong,ngung_hoat_dong,bi_khoa,cho_duyet',
+            'username'     => 'required|string|max:255|unique:nguoidung,username',
+            'password'     => 'required|string|min:6',
+            'sodienthoai'  => 'required|string|max:10|unique:nguoidung,sodienthoai',
+            'hoten'        => 'required|string|max:255',
+            'gioitinh'     => 'required|in:Nam,Nữ',
+            'ngaysinh'     => 'required|date',
+            'avatar'       => 'nullable|string|max:255',
+            'vaitro'       => 'required|in:admin,seller,client',
+            'trangthai'    => 'required|in:Hoạt động,Tạm khóa,Dừng hoạt động',
         ]);
 
         $validated['password'] = bcrypt($validated['password']);
 
-        $user = Nguoidung::create($validated);
+        $user = NguoidungModel::create($validated);
 
-        // Load quan hệ nếu cần
-        $user->load(['diachi', 'session']);
-
-        return $this->jsonResponse(new NguoidungResources($user), Response::HTTP_CREATED);
+        return response()->json([
+            'status' => true,
+            'message' => 'Tạo người dùng thành công',
+            'data' => $user,
+        ], Response::HTTP_CREATED);
     }
 
     /**
-     * Xem chi tiết 1 người dùng.
+     * Hiển thị chi tiết người dùng
      */
     public function show(string $id)
     {
-        $user = Nguoidung::with(['diachi', 'phiendangnhap'])->findOrFail($id);
+        $user = NguoidungModel::with(['diachi', 'cuahang', 'baiviet'])
+            ->findOrFail($id);
 
-        return $this->jsonResponse(new NguoidungResources($user), Response::HTTP_OK);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Thông tin chi tiết người dùng',
+            'data' => $user,
+        ], Response::HTTP_OK);
     }
 
     /**
-     * Cập nhật thông tin người dùng.
+     * Cập nhật người dùng
      */
     public function update(Request $request, string $id)
     {
-        $user = Nguoidung::findOrFail($id);
+        $user = NguoidungModel::findOrFail($id);
 
         $validated = $request->validate([
-            'usename'   => 'sometimes|required|string|max:255|unique:nguoi_dung,usename,' . $user->id,
-            'email'     => 'sometimes|required|email|unique:nguoi_dung,email,' . $user->id,
-            'password'  => 'nullable|string|min:6',
-            'avatar'    => 'nullable|string',
-            'hoten'     => 'sometimes|required|string|max:255',
-            'giotinh'   => 'nullable|in:nam,nữ',
-            'ngaysinh'  => 'nullable|date',
-            'sodienthoai' => 'nullable|string|max:15|unique:nguoi_dung,sodienthoai,' . $user->id,
-            'vaitro'    => 'nullable|in:user,admin,assistant,anonymous',
-            'trangthai' => 'nullable|in:hoat_dong,ngung_hoat_dong,bi_khoa,cho_duyet',
+            'username'     => 'sometimes|required|string|max:255|unique:nguoidung,username,' . $user->id,
+            'password'     => 'nullable|string|min:6',
+            'sodienthoai'  => 'sometimes|required|string|max:10|unique:nguoidung,sodienthoai,' . $user->id,
+            'hoten'        => 'sometimes|required|string|max:255',
+            'gioitinh'     => 'nullable|in:Nam,Nữ',
+            'ngaysinh'     => 'nullable|date',
+            'avatar'       => 'nullable|string|max:255',
+            'vaitro'       => 'nullable|in:admin,seller,client',
+            'trangthai'    => 'nullable|in:Hoạt động,Tạm khóa,Dừng hoạt động',
         ]);
 
         if (!empty($validated['password'])) {
@@ -126,26 +129,62 @@ class NguoidungAPI extends BaseController
 
         $user->update($validated);
 
-        $user->load(['diachi', 'session']);
-
-        return $this->jsonResponse(new NguoidungResources($user), Response::HTTP_OK);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Cập nhật người dùng thành công',
+            'data' => $user->fresh(['diachi', 'cuahang', 'baiviet']),
+        ], Response::HTTP_OK);
     }
 
     /**
-     * Xóa người dùng.
+     * Xóa mềm người dùng
      */
     public function destroy(string $id)
     {
-        $user = Nguoidung::findOrFail($id);
+        $user = NguoidungModel::findOrFail($id);
 
-        if ($user->diachi()->count() > 0) {
-            return $this->jsonResponse([
-                'message' => 'Không thể xóa! Người dùng này vẫn còn địa chỉ.'
+        // Kiểm tra nếu người dùng có cửa hàng hoặc bài viết
+        if ($user->cuahang || $user->baiviet()->count() > 0) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Không thể xóa người dùng vì vẫn còn dữ liệu liên quan (cửa hàng hoặc bài viết).',
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $user->delete();
+        $user->delete(); // Xóa mềm (vì dùng SoftDeletes)
 
-        return $this->jsonResponse(null, Response::HTTP_NO_CONTENT);
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Xóa người dùng thành công (đã chuyển vào thùng rác)',
+        ], Response::HTTP_OK);
+    }
+
+    /**
+     * Khôi phục người dùng đã xóa mềm
+     */
+    public function restore(string $id)
+    {
+        $user = NguoidungModel::onlyTrashed()->findOrFail($id);
+        $user->restore();
+
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Khôi phục người dùng thành công',
+            'data' => $user,
+        ], Response::HTTP_OK);
+    }
+
+    /**
+     * Xóa vĩnh viễn (force delete)
+     */
+    public function forceDelete(string $id)
+    {
+        $user = NguoidungModel::onlyTrashed()->findOrFail($id);
+        $user->forceDelete();
+
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Đã xóa vĩnh viễn người dùng',
+        ], Response::HTTP_OK);
     }
 }

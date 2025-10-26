@@ -43,9 +43,9 @@
             <div class="form-group">
               <select class="select" name="trangthai">
                 <option value="">--Trạng thái--</option>
-                @foreach([0=>'Chờ thanh toán',1=>'Đang giao',2=>'Đã giao',3=>'Đã hủy'] as $k=>$v)
-                  <option value="{{ $k }}" {{ request('trangthai') == (string)$k ? 'selected' : '' }}>{{ $v }}</option>
-                @endforeach
+                @foreach(['cho_xac_nhan'=>'Chờ xác nhận','da_giao'=>'Đã giao','da_huy'=>'Đã hủy'] as $k=>$v)
+                  <option value="{{ $k }}" {{ request('trangthai') == $k ? 'selected' : '' }}>{{ $v }}</option>
+              @endforeach
               </select>
             </div>
           </div>
@@ -84,7 +84,9 @@
             </td>
             <td>{{ $dh->tongtien }} đ</td>
             <td>{{ $dh->trangthai_text }}</td>
-            <td>{{ optional($dh->created_at)->format('H:i - d/m/Y') }}</td>
+            <td>
+              {{ \Carbon\Carbon::parse($dh->ngaytao)->format('H:i - d/m/Y') }}
+            </td>
             <td>
               <a class="me-3" href="{{ route('chi-tiet-don-hang', $dh->id) }}" title="Xem chi tiết">
                 <img src="{{ asset('img/icons/eye.svg') }}" alt="img">

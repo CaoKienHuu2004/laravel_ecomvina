@@ -7,12 +7,60 @@ use App\Http\Controllers\API\SanphamAPI;
 use App\Http\Resources\Frontend\SanPhamAllDetailResources;
 use App\Http\Resources\Frontend\SanPhamAllResources;
 use App\Models\SanPham;
+use App\Models\SanphamModel;
 use Illuminate\Http\Request;
 
+
+/**
+ * @OA\Tag(
+ *     name="Trang Tất Cả Sản phẩm (khi click vào nút xem tất cả)",
+ *     description="Các API hiển thị danh sách và chi tiết sản phẩm cho Trang tất cả sản phẩm"
+ * )
+ */
 class SanPhamAllFrontendAPI extends SanphamAPI
 {
     /**
-     * Display a listing of the resource.
+     * @OA\Get(
+     *     path="/api/sanphams-all",
+     *     tags={"Tất Cả Sản phẩm (Trang Tất Cả Sản Phẩm)"},
+     *     summary="Lấy danh sách sản phẩm",
+     *     description="Hiển thị danh sách sản phẩm theo nhiều tiêu chí như phổ biến, mới nhất, xu hướng,...",
+     *     @OA\Parameter(
+     *         name="filter",
+     *         in="query",
+     *         required=false,
+     *         description="Bộ lọc sản phẩm (popular, latest, trending, matches, default)",
+     *         @OA\Schema(type="string", example="popular")
+     *     ),
+     *     @OA\Parameter(
+     *         name="q",
+     *         in="query",
+     *         required=false,
+     *         description="Từ khóa tìm kiếm",
+     *         @OA\Schema(type="string", example="bánh")
+     *     ),
+     *     @OA\Parameter(
+     *         name="per_page",
+     *         in="query",
+     *         required=false,
+     *         description="Số lượng sản phẩm trên mỗi trang (mặc định 20)",
+     *         @OA\Schema(type="integer", example=20)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Danh sách sản phẩm",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Danh sách sản phẩm"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/SanPhamAllResources")
+     *             )
+     *         )
+     *     )
+     * )
      */
     public function index(Request $request)
     {
@@ -47,16 +95,19 @@ class SanPhamAllFrontendAPI extends SanphamAPI
         //     'data'    => $data
         // ], Response::HTTP_OK);
     }
-    //----------------  limit 20 //Dựa trên sự tương tác/lượt xem cao nhất trong một khoảng thời gian nhất định.
+
+
+
     protected function getPopular(Request $request)
     {
+        //----------------  limit 20 //Dựa trên sự tương tác/lượt xem cao nhất trong một khoảng thời gian nhất định.
         $perPage     = $request->get('per_page', 20);
         $currentPage = $request->get('page', 1);
         $q           = $request->get('q'); // từ khóa tìm kiếm
 
-        $query = SanPham::with(['anhSanPham', 'thuonghieu', 'danhgia', 'danhmuc', 'bienThe', 'loaibienthe'])
-            ->withSum('chiTietDonHang as total_sold', 'soluong') // tổng số lượng bán
-            ->withSum('bienThe as total_quantity', 'soluong') // tổng số biến thể (tồn kho)
+        $query = SanphamModel::with(['hinhanhsanpham', 'thuonghieu', 'danhgia', 'danhmuc', 'bienthe', 'loaibienthe'])
+            ->withSum('chitietdonhang as total_sold', 'soluong') // tổng số lượng bán
+            ->withSum('bienthe as total_quantity', 'soluong') // tổng số biến thể (tồn kho)
             ->withAvg('danhgia as avg_rating', 'diem') // điểm
             ->withCount('danhgia as review_count') // số lượng đánh giá
             ->when($q, function ($query) use ($q) {
@@ -65,16 +116,17 @@ class SanPhamAllFrontendAPI extends SanphamAPI
                         ->orWhere('mota', 'like', "%$q%");
                 });
             })
-            ->with(['bienThe' => function ($q) {
-                $q->orderBy('uutien', 'asc');
+            ->with(['bienthe' => function ($q) {
+                $q->orderByDesc('giagoc')->limit(1);
             }]);
-        // Sắp xếp: giá ưu tiên thấp nhất, rồi giagiam, rồi số lượng bán, rồi lượt xem
-        $query->orderByRaw('COALESCE((SELECT gia - giagiam FROM bienthe_sp
-                                    WHERE id_sanpham = san_pham.id
-                                    ORDER BY uutien ASC LIMIT 1), 0) ASC')
-            ->orderByRaw('COALESCE((SELECT giagiam FROM bienthe_sp
-                                    WHERE id_sanpham = san_pham.id
-                                    ORDER BY uutien ASC LIMIT 1), 0) DESC')
+        // Sắp xếp:  rồi giagiam, rồi số lượng bán, rồi lượt xem
+        // $query->orderByRaw('COALESCE((SELECT gia - giagiam FROM bienthe
+        //                             WHERE id_sanpham = san_pham.id
+        //                             ORDER BY uutien ASC LIMIT 1), 0) ASC')
+            // $query->orderByRaw('COALESCE((SELECT giamgia FROM sanpham
+            //                         WHERE id_sanpham = sanpham.id
+            //                         ORDER BY uutien ASC LIMIT 1), 0) DESC')
+            $query->orderByDesc('giamgia')
             ->orderByDesc('total_sold')
             ->orderByDesc('luotxem'); // thêm lượt xem để tính "phổ biến"
 
@@ -90,9 +142,9 @@ class SanPhamAllFrontendAPI extends SanphamAPI
         $currentPage = $request->get('page', 1);
         $q           = $request->get('q'); // từ khóa tìm kiếm
 
-        $query = SanPham::with(['anhSanPham', 'thuonghieu', 'danhgia', 'danhmuc', 'bienThe', 'loaibienthe'])
-            ->withSum('chiTietDonHang as total_sold', 'soluong')   // tổng số lượng bán
-            ->withSum('bienThe as total_quantity', 'soluong')      // tổng số biến thể (tồn kho)
+        $query = SanphamModel::with(['hinhanhsanpham', 'thuonghieu', 'danhgia', 'danhmuc', 'bienthe', 'loaibienthe'])
+            ->withSum('chitietdonhang as total_sold', 'soluong')   // tổng số lượng bán
+            ->withSum('bienthe as total_quantity', 'soluong')      // tổng số biến thể (tồn kho)
             ->withAvg('danhgia as avg_rating', 'diem')             // điểm trung bình đánh giá
             ->withCount('danhgia as review_count')                 // số lượng đánh giá
             ->when($q, function ($query) use ($q) {
@@ -101,8 +153,8 @@ class SanPhamAllFrontendAPI extends SanphamAPI
                         ->orWhere('mota', 'like', "%$q%");
                 });
             })
-            ->with(['bienThe' => function ($q) {
-                $q->orderBy('uutien', 'asc');
+            ->with(['bienthe' => function ($q) {
+                $q->orderByDesc('giagoc')->limit(1);
             }]);
 
         // 🔥 Sắp xếp theo thời gian mới nhất (updated_at trước, rồi created_at)
@@ -126,9 +178,9 @@ class SanPhamAllFrontendAPI extends SanphamAPI
         $days = $request->get('days', 7);
         $fromDate = now()->subDays($days);
 
-        $query = SanPham::with(['anhSanPham', 'thuonghieu', 'danhgia', 'danhmuc', 'bienThe', 'loaibienthe'])
-            ->withSum('chiTietDonHang as total_sold', 'soluong')   // tổng số lượng bán
-            ->withSum('bienThe as total_quantity', 'soluong')      // tổng tồn kho
+        $query = SanphamModel::with(['hinhanhsanpham', 'thuonghieu', 'danhgia', 'danhmuc', 'bienthe', 'loaibienthe'])
+            ->withSum('chitietdonhang as total_sold', 'soluong')   // tổng số lượng bán
+            ->withSum('bienthe as total_quantity', 'soluong')      // tổng tồn kho
             ->withAvg('danhgia as avg_rating', 'diem')             // điểm trung bình
             ->withCount('danhgia as review_count')                 // số lượng đánh giá
             ->when($q, function ($query) use ($q) {
@@ -137,8 +189,8 @@ class SanPhamAllFrontendAPI extends SanphamAPI
                         ->orWhere('mota', 'like', "%$q%");
                 });
             })
-            ->with(['bienThe' => function ($q) {
-                $q->orderBy('uutien', 'asc');
+            ->with(['bienthe' => function ($q) {
+                $q->orderByDesc('giagoc')->limit(1);
             }])
             // chỉ lấy sản phẩm được cập nhật gần đây
             ->where('updated_at', '>=', $fromDate)
@@ -158,13 +210,13 @@ class SanPhamAllFrontendAPI extends SanphamAPI
         $q           = $request->get('q'); // từ khóa tìm kiếm
         $userId      = $request->get('user_id'); // giả sử có user_id để gợi ý theo sở thích
 
-        $query = SanPham::with(['anhSanPham', 'thuonghieu', 'danhgia', 'danhmuc', 'bienThe', 'loaibienthe'])
-            ->withSum('chiTietDonHang as total_sold', 'soluong')   // tổng số lượng bán
-            ->withSum('bienThe as total_quantity', 'soluong')      // tổng tồn kho
+        $query = SanphamModel::with(['hinhanhsanpham', 'thuonghieu', 'danhgia', 'danhmuc', 'bienthe', 'loaibienthe'])
+            ->withSum('chitietdonhang as total_sold', 'soluong')   // tổng số lượng bán
+            ->withSum('bienthe as total_quantity', 'soluong')      // tổng tồn kho
             ->withAvg('danhgia as avg_rating', 'diem')             // điểm trung bình
             ->withCount('danhgia as review_count')                 // số lượng đánh giá
-            ->with(['bienThe' => function ($q) {
-                $q->orderBy('uutien', 'asc');
+            ->with(['bienthe' => function ($q) {
+                $q->orderByDesc('giagoc')->limit(1);
             }]);
 
         // 🔎 Nếu có từ khóa tìm kiếm
@@ -175,7 +227,7 @@ class SanPhamAllFrontendAPI extends SanphamAPI
             })
             // Thêm điểm relevance để ưu tiên tên hơn mô tả
             ->selectRaw("
-                san_pham.*,
+                sanpham.*,
                 (CASE
                     WHEN ten LIKE ? THEN 3
                     WHEN mota LIKE ? THEN 1
@@ -189,7 +241,7 @@ class SanPhamAllFrontendAPI extends SanphamAPI
         elseif ($userId) {
             $query->whereIn('id', function($sub) use ($userId) {
                 $sub->select('id_sanpham')
-                    ->from('yeu_thich')
+                    ->from('yeuthich')
                     ->where('id_nguoidung', $userId);
             })
             ->orderByDesc('updated_at');
@@ -211,9 +263,9 @@ class SanPhamAllFrontendAPI extends SanphamAPI
         $currentPage = $request->get('page', 1);
         $q           = $request->get('q'); // từ khóa tìm kiếm
 
-        $query = SanPham::with(['anhSanPham', 'thuonghieu', 'danhgia', 'danhmuc', 'bienThe', 'loaibienthe'])
-            ->withSum('chiTietDonHang as total_sold', 'soluong') // tổng số lượng bán
-            ->withSum('bienThe as total_quantity', 'soluong') // tổng số biến thể (tồn kho)
+        $query = SanphamModel::with(['hinhanhsanpham', 'thuonghieu', 'danhgia', 'danhmuc', 'bienthe', 'loaibienthe'])
+            ->withSum('chitietdonhang as total_sold', 'soluong') // tổng số lượng bán
+            ->withSum('bienthe as total_quantity', 'soluong') // tổng số biến thể (tồn kho)
             ->withAvg('danhgia as avg_rating', 'diem') // điểm
             ->withCount('danhgia as review_count') // số lượng đánh giá
             ->when($q, function ($query) use ($q) {
@@ -222,8 +274,8 @@ class SanPhamAllFrontendAPI extends SanphamAPI
                         ->orWhere('mota', 'like', "%$q%");
                 });
             })
-            ->with(['bienThe' => function ($q) {
-                $q->orderBy('uutien', 'asc');
+            ->with(['bienthe' => function ($q) {
+                $q->orderByDesc('giagoc')->limit(1);
             }]);
 
         $products = $query->latest('updated_at')->paginate($perPage, ['*'], 'page', $currentPage);
@@ -232,7 +284,28 @@ class SanPhamAllFrontendAPI extends SanphamAPI
     }
 
     /**
-     * Display the specified resource.
+     * @OA\Get(
+    *     path="/api/sanphams-all/{id}",
+     *     tags={"Tất Cả Sản phẩm (Trang Tất Cả Sản Phẩm)"},
+     *     summary="Lấy chi tiết sản phẩm , và tự động lượt xem lên 1",
+     *     description="Hiển thị chi tiết sản phẩm bao gồm hình ảnh, thương hiệu, danh mục, đánh giá và biến thể có giá cao nhất.",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID sản phẩm cần xem chi tiết",
+     *         @OA\Schema(type="integer", example=5)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Chi tiết sản phẩm",
+     *         @OA\JsonContent(ref="#/components/schemas/SanPhamAllDetailResources")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Không tìm thấy sản phẩm"
+     *     )
+     * )
      */
     public function show(string $id)
     {
@@ -243,16 +316,19 @@ class SanPhamAllFrontendAPI extends SanphamAPI
         //     'thuonghieu',
         // ])->findOrFail($id);
 
-        $query = SanPham::with(['anhSanPham', 'thuonghieu', 'danhgia', 'danhmuc',
-         'bienThe', 'loaibienthe','danhgia.nguoidung'])
-            ->withSum('chiTietDonHang as total_sold', 'soluong') // tổng số lượng bán
-            ->withSum('bienThe as total_quantity', 'soluong') // tổng số biến thể (tồn kho)
+        $query = SanphamModel::with(['hinhanhsanpham', 'thuonghieu', 'danhgia', 'danhmuc',
+         'bienthe', 'loaibienthe','danhgia.nguoidung'])
+            ->withSum('chitietdonhang as total_sold', 'soluong') // tổng số lượng bán
+            ->withSum('bienthe as total_quantity', 'soluong') // tổng số biến thể (tồn kho)
             ->withAvg('danhgia as avg_rating', 'diem') // điểm
             ->withCount('danhgia as review_count') // số lượng đánh giá
-            ->with(['bienThe' => function ($q) {
-                $q->orderBy('uutien', 'asc');
+            ->with(['bienthe' => function ($q) {
+                $q->orderByDesc('giagoc')->limit(1);
             }])->findOrFail($id);
+        $query->increment('luotxem');
 
+        // dd($query);
+        // exit;
         return (new SanPhamAllDetailResources($query));
     }
 
