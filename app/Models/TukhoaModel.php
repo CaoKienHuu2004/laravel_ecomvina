@@ -12,7 +12,6 @@ class TukhoaModel extends Model
 
     // Tên bảng trong cơ sở dữ liệu (đã được định nghĩa trong migration)
     protected $table = 'tukhoa';
-    public $timestamps = false;
 
     // Xác định các cột có thể được gán giá trị hàng loạt (Mass Assignment)
     protected $fillable = [

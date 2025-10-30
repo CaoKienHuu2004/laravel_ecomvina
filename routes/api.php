@@ -153,25 +153,24 @@ use App\Http\Controllers\API\QuatangKhuyenMaiAPI;
 use App\Http\Controllers\API\SukienKhuyenMaiAPI;
 use App\Http\Controllers\API\ThanhToanAPI;
 use App\Http\Controllers\API\YeuThichAPI;
-use App\Http\Controllers\API\ChuongTrinhSuKienAPI;
 
-use App\Http\Controllers\API\AuthController;
-use App\Http\Controllers\API\ChatController;
-use App\Http\Controllers\API\ChiTietDonHangAPI;
-use App\Http\Controllers\Api\ChiTietGioHangController;
 
 use App\Http\Controllers\API\Frontend\AuthFrontendController;
 use App\Http\Controllers\API\Frontend\BannerQuangCaoFrontendAPI;
+use App\Http\Controllers\API\Frontend\DanhGiaFrontendAPI;
 use App\Http\Controllers\API\Frontend\DanhmucAllFrontendAPI;
 use App\Http\Controllers\API\Frontend\DanhmucFrontendAPI;
+use App\Http\Controllers\API\Frontend\DiaChiFrontendAPI;
+use App\Http\Controllers\API\Frontend\DonHangFrontendAPI;
 use App\Http\Controllers\API\Frontend\GioHangFrontendAPI;
 use App\Http\Controllers\API\Frontend\SanPhamAllFrontendAPI;
 use App\Http\Controllers\API\Frontend\SanPhamFrontendAPI;
+use App\Http\Controllers\API\Frontend\ThongBaoFrontendAPI;
 use App\Http\Controllers\API\Frontend\TukhoaFrontendAPI;
+use App\Http\Controllers\API\Frontend\YeuThichFrontendAPI;
 use App\Http\Controllers\API\LoaiBienTheAPI;
 use App\Http\Controllers\API\QuaTangSuKienAPI;
 use App\Http\Controllers\API\SuKienAPI;
-use App\Http\Controllers\API\ThuongHieuAPI;
 
 //------------------------
 // Route::middleware(['cors'])->group(function () {
@@ -235,13 +234,37 @@ use App\Http\Controllers\API\ThuongHieuAPI;
         Route::put('/toi/giohang/{id_bienthesp}', [GioHangFrontendAPI::class, 'update']);
         Route::delete('/toi/giohang/{id_bienthesp}', [GioHangFrontendAPI::class, 'destroy']);
     });
-    // Route::middleware(['auth:sanctum'])->group(function () {
-    //     Route::get('/me/giohang', [GioHangAPI::class, 'index']);
-    //     Route::get('/me/diachi', [DiaChiNguoiFrontendDungAPI::class, 'index']); // chưa
-    //     Route::get('/me/thanhtoan', [ThanhToanFrontendAPI::class, 'index']); // chưa
-    //     Route::get('/me/yeuthich', [YeuThichFrontendAPI::class, 'index']); // chưa
-    //     Route::get('/me/donhang', [DonHangFrontendAPI::class, 'index']); // chưa
-    // });
+    Route::middleware(['auth.api'])->group(function () {
+        Route::get('/toi/donhangs', [DonHangFrontendAPI::class, 'index']);
+        Route::post('/toi/donhangs', [DonHangFrontendAPI::class, 'store']);
+        Route::put('/toi/donhangs/{id}', [DonHangFrontendAPI::class, 'update']);
+        Route::patch('/toi/donhangs/{id}/huy', [DonHangFrontendAPI::class, 'cancel']);
+    });
+    Route::middleware(['auth.api'])->group(function () {
+        Route::get('/toi/danhgias', [DanhGiaFrontendAPI::class, 'index']);
+        Route::post('/toi/danhgias', [DanhGiaFrontendAPI::class, 'store']);
+        Route::put('/toi/danhgias/{id}', [DanhGiaFrontendAPI::class, 'update']);
+        Route::delete('/toi/danhgias/{id}', [DanhGiaFrontendAPI::class, 'destroy']);
+    });
+    Route::middleware(['auth.api'])->prefix('toi')->group(function () {
+        Route::get('/yeuthichs', [YeuThichFrontendAPI::class, 'index']); // Xem danh sách yêu thích
+        Route::post('/yeuthichs', [YeuThichFrontendAPI::class, 'store']); // Thêm sản phẩm vào yêu thích
+        Route::put('/yeuthichs/{id_sanpham}', [YeuThichFrontendAPI::class, 'update']); // Bỏ yêu thích (chuyển trạng thái)
+    });
+    Route::middleware(['auth.api'])->prefix('toi')->group(function () {
+        Route::get('/diachis', [DiaChiFrontendAPI::class, 'index']);
+        Route::post('/diachis', [DiaChiFrontendAPI::class, 'store']);
+        Route::put('/diachis/{id}', [DiaChiFrontendAPI::class, 'update']);
+        Route::delete('/diachis/{id}', [DiaChiFrontendAPI::class, 'destroy']);
+        Route::patch('/diachis/{id}/macdinh', [DiaChiFrontendAPI::class, 'setDefault']);
+        Route::patch('/diachis/{id}/trangthai', [DiaChiFrontendAPI::class, 'toggleStatus']);
+    });
+    Route::middleware(['auth.api'])->prefix('toi')->group(function () {
+        Route::get('/thongbaos', [ThongBaoFrontendAPI::class, 'index']);       // Lấy danh sách
+        Route::delete('/thongbaos/{id}', [ThongBaoFrontendAPI::class, 'destroy']); // Xóa soft
+        Route::patch('/thongbaos/{id}/daxem', [ThongBaoFrontendAPI::class, 'markAsRead']); // Optional
+        Route::patch('/thongbaos/{id}/tam-an', [ThongBaoFrontendAPI::class, 'toggleStatus']); // Optional
+    });
     //end:Api frontend
 
 

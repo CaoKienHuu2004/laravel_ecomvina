@@ -1,10 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
-
 use Illuminate\Http\Request;
-use App\Models\Nguoidung;
-use App\Models\Diachi;
+
+use App\Models\DiaChiGiaoHangModel;
+use App\Models\NguoidungModel;
 
 class NguoidungController extends Controller
 {
@@ -13,9 +13,9 @@ class NguoidungController extends Controller
      */
     public function index(Request $request)
     {
-        $danhsach = Nguoidung::with('diachi')->where('vaitro', 'user')
+        $danhsach = NguoidungModel::with('diachi')->where('vaitro', 'client')
             ->get();
-        $diachi = Diachi::all();
+        $diachi = DiaChiGiaoHangModel::all();
 
         return view("khachhang.index", compact("danhsach","diachi"));
     }

@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use Carbon\Carbon;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -14,25 +12,25 @@ class TuKhoaSeeder extends Seeder
      */
     public function run(): void
     {
-        //
-        $now = Carbon::now('Asia/Ho_Chi_Minh');
-        $data = [
-            ['dulieu' => 'Chăm sóc cá nhân', 'soluot' => 150
-            , 'created_at' => $now, 'updated_at' => $now],
-            ['dulieu' => 'Làm đẹp', 'soluot' => 200
-            , 'created_at' => $now, 'updated_at' => $now],
-
-            ['dulieu' => 'Tìm kiếm sản phẩm', 'soluot' => 80
-            , 'created_at' => $now, 'updated_at' => $now],
-            ['dulieu' => 'Thực phâm thức năng', 'soluot' => 120
-            , 'created_at' => $now, 'updated_at' => $now],
-            ['dulieu' => 'Điện máy', 'soluot' => 90
-            , 'created_at' => $now, 'updated_at' => $now],
-            ['dulieu' => 'Thời trang', 'soluot' => 70
-            , 'created_at' => $now, 'updated_at' => $now],
-            ['dulieu' => 'Bách hóa', 'soluot' => 70
-            , 'created_at' => $now, 'updated_at' => $now],
-        ];
-        DB::table('tu_khoa')->insert($data);
+        DB::table('tukhoa')->insert([
+            ['id' => 1,  'tukhoa' => 'Máy massage',          'luottruycap' => 5],
+            ['id' => 2,  'tukhoa' => 'Điện gia dụng',        'luottruycap' => 1],
+            ['id' => 3,  'tukhoa' => 'Đồ chơi minecraft',    'luottruycap' => 153],
+            ['id' => 4,  'tukhoa' => 'Sách hán ngữ 3',       'luottruycap' => 597],
+            ['id' => 5,  'tukhoa' => 'Huyndai decor',        'luottruycap' => 62],
+            ['id' => 6,  'tukhoa' => 'Điện nội thất',        'luottruycap' => 125],
+            ['id' => 7,  'tukhoa' => 'Móc khóa genshin',     'luottruycap' => 246],
+            ['id' => 8,  'tukhoa' => 'Phiền Muộn Của Afratu','luottruycap' => 13],
+            ['id' => 9,  'tukhoa' => 'Kẹo',                  'luottruycap' => 50],
+            ['id' => 10, 'tukhoa' => 'Sâm Ngọc Linh',        'luottruycap' => 626],
+            ['id' => 11, 'tukhoa' => 'Thầy Hộ',              'luottruycap' => 1],
+            ['id' => 12, 'tukhoa' => 'y tế',                 'luottruycap' => 1],
+            ['id' => 13, 'tukhoa' => 'abena',                'luottruycap' => 77],
+            ['id' => 14, 'tukhoa' => 'a',                    'luottruycap' => 39],
+            ['id' => 15, 'tukhoa' => 'abena pad',            'luottruycap' => 6],
+            ['id' => 16, 'tukhoa' => 'thiết bị y tế',        'luottruycap' => 3],
+            ['id' => 17, 'tukhoa' => 'cchoi',                'luottruycap' => 1],
+            ['id' => 18, 'tukhoa' => "c'choi",               'luottruycap' => 2],
+        ]);
     }
 }

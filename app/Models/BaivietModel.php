@@ -49,4 +49,27 @@ class BaivietModel extends Model
     {
         return $this->belongsTo(NguoidungModel::class, 'id_nguoidung', 'id');
     }
+    /**
+     * Scope lọc bài viết đã xuất bản
+     */
+    public function scopeDaXuatBan($query)
+    {
+        return $query->where('trangthai', 'đã xuất bản');
+    }
+
+    /**
+     * Tăng lượt xem cho bài viết
+     */
+    public function tangLuotXem()
+    {
+        $this->increment('luotxem');
+    }
+
+    /**
+     * Kiểm tra bài viết có được xuất bản hay chưa
+     */
+    public function daXuatBan()
+    {
+        return $this->trangthai === 'đã xuất bản';
+    }
 }

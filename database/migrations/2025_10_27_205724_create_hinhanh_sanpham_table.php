@@ -17,7 +17,7 @@ class CreateHinhanhSanphamTable extends Migration
             $table->increments('id');
 
             // Cột 2: id_sanpham (FK) - int(11) - Không NULL
-            $table->unsignedBigInteger('id_sanpham');
+            $table->integer('id_sanpham');
 
             // Cột 3: hinhanh - varchar(255) - Không NULL
             // Lưu đường dẫn file hình ảnh

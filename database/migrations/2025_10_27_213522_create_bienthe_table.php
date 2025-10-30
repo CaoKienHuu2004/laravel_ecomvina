@@ -17,8 +17,8 @@ class CreateBientheTable extends Migration
             $table->increments('id');
 
             // Cột 2 & 3: Khóa ngoại (FK1 & FK2) - int(11) - Không NULL
-            $table->unsignedInteger('id_sanpham');
-            $table->unsignedInteger('id_loaibienthe');
+            $table->integer('id_sanpham');
+            $table->integer('id_loaibienthe');
 
             // Cột 4: giagoc - int(11) - Không NULL
             // Nên dùng decimal cho giá tiền để đảm bảo tính chính xác

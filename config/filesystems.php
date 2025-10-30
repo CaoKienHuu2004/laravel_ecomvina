@@ -43,6 +43,13 @@ return [
             'visibility' => 'public',
             'throw' => false,
         ],
+        'uploads' => [
+            'driver' => 'local',
+            'root' => storage_path('app/public/uploads'),
+            'url' => env('APP_URL').'/storage/uploads',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
 
         // nếu có nextjs project làm frontend, tại có fodel kẹp chung laravel_server đổi tên project_đúng là được
         'nextjs_assets' => [

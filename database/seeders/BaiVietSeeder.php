@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Carbon\Carbon;
 
-class BaivietSeeder extends Seeder
+class BaiVietSeeder extends Seeder
 {
     public function run(): void
     {

@@ -1303,13 +1303,54 @@
                     "Giỏ hàng (tôi)"
                 ],
                 "summary": "Lấy toàn bộ giỏ hàng của người dùng hiện tại",
+                "description": "Trả về danh sách sản phẩm trong giỏ hàng của người dùng đang đăng nhập. Nếu giỏ hàng trống sẽ trả về thông báo.",
                 "operationId": "c0443d870a785307266ca2d0b8e26253",
                 "responses": {
                     "200": {
-                        "description": "Danh sách sản phẩm trong giỏ hàng hoặc thông báo giỏ hàng trống"
+                        "description": "Danh sách sản phẩm trong giỏ hàng hoặc thông báo giỏ hàng trống",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Danh sách sản phẩm trong giỏ hàng"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/GioHangResource"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
-                        "description": "Không có quyền truy cập hoặc thiếu token"
+                        "description": "Không có quyền truy cập hoặc thiếu token",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthorized"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -2445,323 +2486,6 @@
                         "bearerAuth": []
                     }
                 ]
-            }
-        },
-        "/api/trang-shop": {
-            "get": {
-                "tags": [
-                    "Trang Shop"
-                ],
-                "summary": "Lấy toàn bộ dữ liệu cho trang shop (sản phẩm, danh mục, thương hiệu, màu sắc, bộ lọc...)",
-                "description": "API này trả về toàn bộ dữ liệu cần thiết để hiển thị trang shop, bao gồm danh sách sản phẩm, danh mục cha, thương hiệu, màu sắc và các bộ lọc giá.",
-                "operationId": "2da5b58125d8250ed40297df814c8f98",
-                "parameters": [
-                    {
-                        "name": "page",
-                        "in": "query",
-                        "description": "Trang hiện tại (dùng cho phân trang sản phẩm)",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    },
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "description": "Số lượng sản phẩm mỗi trang (mặc định 20)",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "example": 20
-                        }
-                    },
-                    {
-                        "name": "q",
-                        "in": "query",
-                        "description": "Từ khóa tìm kiếm sản phẩm",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "example": "iphone"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Lấy dữ liệu thành công",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "data": {
-                                            "properties": {
-                                                "products": {
-                                                    "description": "Danh sách sản phẩm hiển thị",
-                                                    "type": "array",
-                                                    "items": {
-                                                        "properties": {
-                                                            "id": {
-                                                                "type": "integer",
-                                                                "example": 1
-                                                            },
-                                                            "ten": {
-                                                                "type": "string",
-                                                                "example": "iPhone 15 Pro Max"
-                                                            },
-                                                            "slug": {
-                                                                "type": "string",
-                                                                "example": "iphone-15-pro-max"
-                                                            },
-                                                            "giagoc": {
-                                                                "type": "number",
-                                                                "example": 32990000
-                                                            },
-                                                            "giaban": {
-                                                                "type": "number",
-                                                                "example": 29990000
-                                                            },
-                                                            "avg_rating": {
-                                                                "type": "number",
-                                                                "example": 4.8
-                                                            },
-                                                            "review_count": {
-                                                                "type": "integer",
-                                                                "example": 150
-                                                            },
-                                                            "luotxem": {
-                                                                "description": "vì detail có tự động +1 khi gọi tới show nên thêm vào",
-                                                                "type": "integer",
-                                                                "example": 1
-                                                            },
-                                                            "total_sold": {
-                                                                "type": "integer",
-                                                                "example": 350
-                                                            },
-                                                            "total_quantity": {
-                                                                "type": "integer",
-                                                                "example": 50
-                                                            },
-                                                            "thuonghieu": {
-                                                                "properties": {
-                                                                    "id": {
-                                                                        "type": "integer",
-                                                                        "example": 1
-                                                                    },
-                                                                    "ten": {
-                                                                        "type": "string",
-                                                                        "example": "Apple"
-                                                                    }
-                                                                },
-                                                                "type": "object"
-                                                            },
-                                                            "hinhanhsanpham": {
-                                                                "type": "array",
-                                                                "items": {
-                                                                    "properties": {
-                                                                        "url": {
-                                                                            "type": "string",
-                                                                            "example": "iphone15.jpg"
-                                                                        }
-                                                                    },
-                                                                    "type": "object"
-                                                                }
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    }
-                                                },
-                                                "categories": {
-                                                    "description": "Danh mục cấp cha",
-                                                    "type": "array",
-                                                    "items": {
-                                                        "properties": {
-                                                            "id": {
-                                                                "type": "integer",
-                                                                "example": 1
-                                                            },
-                                                            "ten": {
-                                                                "type": "string",
-                                                                "example": "Điện thoại"
-                                                            },
-                                                            "sanpham_count": {
-                                                                "type": "integer",
-                                                                "example": 12
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    }
-                                                },
-                                                "brands": {
-                                                    "description": "Danh sách thương hiệu",
-                                                    "type": "array",
-                                                    "items": {
-                                                        "properties": {
-                                                            "id": {
-                                                                "type": "integer",
-                                                                "example": 1
-                                                            },
-                                                            "ten": {
-                                                                "type": "string",
-                                                                "example": "Samsung"
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    }
-                                                },
-                                                "colors": {
-                                                    "description": "Danh sách màu sắc (hoặc loại biến thể)",
-                                                    "type": "array",
-                                                    "items": {
-                                                        "properties": {
-                                                            "id": {
-                                                                "type": "integer",
-                                                                "example": 1
-                                                            },
-                                                            "ten": {
-                                                                "type": "string",
-                                                                "example": "Màu đen"
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    }
-                                                },
-                                                "filters": {
-                                                    "properties": {
-                                                        "price": {
-                                                            "description": "Các mức giá lọc sản phẩm",
-                                                            "type": "array",
-                                                            "items": {
-                                                                "properties": {
-                                                                    "label": {
-                                                                        "type": "string",
-                                                                        "example": "0 vnđ - 625.000 vnđ"
-                                                                    },
-                                                                    "min": {
-                                                                        "type": "number",
-                                                                        "example": 0
-                                                                    },
-                                                                    "max": {
-                                                                        "type": "number",
-                                                                        "example": 625000
-                                                                    }
-                                                                },
-                                                                "type": "object"
-                                                            }
-                                                        }
-                                                    },
-                                                    "type": "object"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request - Lỗi truy vấn hoặc tham số không hợp lệ",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": false
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Bad Request: Lỗi không xác định"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/trang-shop/{id}": {
-            "get": {
-                "tags": [
-                    "Trang Shop"
-                ],
-                "summary": "Xem chi tiết một sản phẩm theo ID, và tự động lượt xem lên 1",
-                "operationId": "a87cb4d986c56b8109de2e00234ec00d",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID của sản phẩm cần xem chi tiết",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Lấy dữ liệu sản phẩm chi tiết thành công",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean"
-                                        },
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request - Lỗi truy vấn hoặc ID không hợp lệ",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean"
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Không tìm thấy sản phẩm",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean"
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
             }
         },
         "/api/tukhoas": {
@@ -4562,6 +4286,98 @@
                     }
                 },
                 "type": "object"
+            },
+            "GioHangResource": {
+                "title": "GioHangResource",
+                "description": "Resource giỏ hàng của người dùng",
+                "properties": {
+                    "id_giohang": {
+                        "description": "ID giỏ hàng",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "id_nguoidung": {
+                        "description": "ID người dùng",
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "trangthai": {
+                        "description": "Trạng thái giỏ hàng",
+                        "type": "string",
+                        "example": "Hiển thị"
+                    },
+                    "bienthe": {
+                        "properties": {
+                            "soluong": {
+                                "description": "Số lượng",
+                                "type": "integer",
+                                "example": 3
+                            },
+                            "giagoc": {
+                                "description": "Giá gốc biến thể",
+                                "type": "number",
+                                "format": "float",
+                                "example": 100000
+                            },
+                            "thanhtien": {
+                                "description": "Thành tiền",
+                                "type": "number",
+                                "format": "float",
+                                "example": 300000
+                            },
+                            "tamtinh": {
+                                "description": "Tạm tính (soluong * giagoc)",
+                                "type": "number",
+                                "format": "float",
+                                "example": 300000
+                            },
+                            "detail": {
+                                "properties": {
+                                    "thuonghieu": {
+                                        "description": "Tên thương hiệu",
+                                        "type": "string",
+                                        "example": "Nike"
+                                    },
+                                    "tensanpham": {
+                                        "description": "Tên sản phẩm",
+                                        "type": "string",
+                                        "example": "Giày Thể Thao"
+                                    },
+                                    "loaisanpham": {
+                                        "description": "Loại biến thể",
+                                        "type": "string",
+                                        "example": "Size 42"
+                                    },
+                                    "giamgia": {
+                                        "description": "Giảm giá",
+                                        "type": "string",
+                                        "example": "10%"
+                                    },
+                                    "giagoc": {
+                                        "description": "Giá gốc biến thể",
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 100000
+                                    },
+                                    "giaban": {
+                                        "description": "Giá bán sau giảm",
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 90000
+                                    },
+                                    "hinhanh": {
+                                        "description": "Hình ảnh sản phẩm",
+                                        "type": "string",
+                                        "example": "abc123.jpg"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
             }
         }
     },
@@ -4633,10 +4449,6 @@
         {
             "name": "Thông báo (tôi)",
             "description": "Thông báo (tôi)"
-        },
-        {
-            "name": "Trang Shop",
-            "description": "Trang Shop"
         },
         {
             "name": "Từ khóa",

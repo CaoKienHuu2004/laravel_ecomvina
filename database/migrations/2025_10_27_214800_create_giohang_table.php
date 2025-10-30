@@ -17,8 +17,8 @@ class CreateGiohangTable extends Migration
             $table->increments('id');
 
             // Cột 2 & 3: Khóa ngoại (FK1 & FK2) - int(11) - Không NULL
-            $table->unsignedInteger('id_bienthe');
-            $table->unsignedInteger('id_nguoidung');
+            $table->integer('id_bienthe');
+            $table->integer('id_nguoidung');
 
             // Cột 4: soluong - int(11) - Không NULL
             $table->integer('soluong');

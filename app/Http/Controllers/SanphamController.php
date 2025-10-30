@@ -9,6 +9,7 @@ use App\Models\Thuonghieu;
 use App\Models\Danhmuc;
 use App\Models\Bienthesp;
 use App\Models\Loaibienthe;
+use App\Models\SanphamModel;
 use App\Models\ThongTinNguoiBanHang;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,7 +23,7 @@ class SanphamController extends Controller
      */
     public function index(Request $request)
     {
-        $query = SanPham::with('bienThe', 'danhmuc','anhSanPham','cuaHang','bienThe.chiTietDonHang');
+        $query = SanphamModel::with('bienthe', 'danhmuc','anhsanpham','thuonghieu','bienthe.chitietdonhang');
 
         // Filter theo thương hiệu
         if ($request->filled('cuahang')) {

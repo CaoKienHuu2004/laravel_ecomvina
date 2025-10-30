@@ -38,7 +38,7 @@ class SanphamAPI extends BaseController
 
         $query = SanphamModel::with(['thuonghieu', 'danhmuc', 'hinhanhsanpham', 'bienthe','loaibienthe','danhgia','chitietdonhang','danhgia.nguoidung'])
         // $query = SanphamModel::with(['yeuthich','thuonghieu', 'danhmuc', 'hinhanhsanpham', 'bienthe','loaibienthe','danhgia','chitietdonhang','danhgia.nguoidung'])
-            ->latest('updated_at');
+            ->orderBy('id', 'desc');
 
         if ($q) {
             $query->where(function ($sub) use ($q) {

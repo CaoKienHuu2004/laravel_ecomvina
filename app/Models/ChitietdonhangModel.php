@@ -4,16 +4,20 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ChitietdonhangModel extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
-    // Tên bảng trong database
+    // Tên bảng
     protected $table = 'chitiet_donhang';
 
     // Khóa chính
     protected $primaryKey = 'id';
+
+    // Không dùng timestamps (vì migration không có created_at, updated_at)
+    public $timestamps = false;
 
     // Các cột được phép gán hàng loạt
     protected $fillable = [
@@ -21,55 +25,30 @@ class ChitietdonhangModel extends Model
         'id_donhang',
         'soluong',
         'dongia',
+        'trangthai',
     ];
 
-    // Laravel tự xử lý created_at và updated_at
-    public $timestamps = true;
-
-    // Ép kiểu dữ liệu
-    protected $casts = [
-        'id_bienthe' => 'integer',
-        'id_donhang' => 'integer',
-        'soluong' => 'integer',
-        'dongia' => 'integer',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-    ];
-
-    // Quan hệ: Chi tiết đơn hàng thuộc về 1 đơn hàng
-    public function donhang()
-    {
-        return $this->belongsTo(DonhangModel::class, 'id_donhang', 'id');
-    }
-
-    // Quan hệ: Chi tiết đơn hàng thuộc về 1 biến thể sản phẩm
+    /**
+     * Quan hệ với model BienThe (1 biến thể có thể thuộc nhiều chi tiết đơn hàng)
+     */
     public function bienthe()
     {
-        return $this->belongsTo(BientheModel::class, 'id_bienthe', 'id');
+        return $this->belongsTo(BientheModel::class, 'id_bienthe');
     }
-    public function danhgia()
+
+    /**
+     * Quan hệ với model DonHang (1 đơn hàng có thể có nhiều chi tiết)
+     */
+    public function donhang()
     {
-        return $this->hasMany(DanhgiaModel::class, 'id_chitietdonhang', 'id');
+        return $this->belongsTo(DonhangModel::class, 'id_donhang');
     }
 
-    // public function sanpham()
-    // {
-    //     // Nếu Chitietdonhang có khóa id_bienthe trỏ tới BientheModel
-    //     // Và BientheModel trỏ tới SanphamModel
-    //     return $this->belongsTo(BientheModel::class, 'id_bienthe')
-    //                 ->with('sanpham'); // hoặc dùng belongsToThrough nếu có package
-    // }
-
-    public function sanpham()
+    /**
+     * Tính tổng tiền cho một dòng chi tiết
+     */
+    public function getTongTienAttribute()
     {
-        return $this->hasOneThrough(
-            SanphamModel::class,  // model đích
-            BientheModel::class,  // model trung gian
-            'id',                 // khóa chính ở bảng bienthe
-            'id',                 // khóa chính ở bảng sanpham
-            'id_bienthe',         // khóa ngoại ở bảng chitiet_donhang
-            'id_sanpham'          // khóa ngoại ở bảng bienthe
-        );
+        return $this->soluong * $this->dongia;
     }
-
 }

@@ -18,7 +18,7 @@ return new class extends Migration
 
             // Cột 2: id_nguoidung (FK) - int(11) - Không NULL
             // Giả định nó tham chiếu đến bảng 'nguoidung'
-            $table->unsignedInteger('id_nguoidung');
+            $table->integer('id_nguoidung');
 
             // Cột 3: tieude - text - Không NULL
             $table->text('tieude');

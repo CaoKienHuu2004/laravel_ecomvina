@@ -8,62 +8,71 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class QuatangsukienModel extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory, SoftDeletes;
 
-    // Tên bảng trong cơ sở dữ liệu
+    // Tên bảng
     protected $table = 'quatang_sukien';
 
     // Khóa chính
     protected $primaryKey = 'id';
 
-    // Tự động quản lý created_at, updated_at
-    public $timestamps = true;
+    public $timestamps = false;
 
-    // Các cột có thể gán hàng loạt
+    // Các cột được phép gán hàng loạt
     protected $fillable = [
         'id_bienthe',
-        'id_thuonghieu',
-        'id_sukien',
-        'soluongapdung',
+        'id_chuongtrinh',
+        'dieukien',
         'tieude',
         'thongtin',
+        'hinhanh',
+        'luotxem',
+        'ngaybatdau',
+        'ngayketthuc',
         'trangthai',
+        'deleted_at'
     ];
-
-    // Ép kiểu dữ liệu
     protected $casts = [
-        'id_bienthe' => 'integer',
-        'id_cuahang' => 'integer',
-        'id_sukien' => 'integer',
-        'soluongapdung' => 'integer',
-        'tieude' => 'string',
-        'thongtin' => 'string',
+        'deleted_at' => 'datetime',
     ];
 
-    // Giá trị mặc định
-    protected $attributes = [
-        'trangthai' => 'Hiển thị',
-    ];
+    /**
+     * 🔗 Quan hệ N-1 với bảng chuongtrinh
+     * Mỗi quatang_sukien thuộc về 1 chương trình.
+     */
+    public function chuongtrinh()
+    {
+        return $this->belongsTo(ChuongTrinhModel::class, 'id_chuongtrinh');
+    }
 
-    // Quan hệ: Quà tặng thuộc về Biến thể
+    /**
+     * 🔗 Quan hệ N-1 với bảng bienthe
+     * Mỗi quatang_sukien áp dụng cho 1 biến thể sản phẩm cụ thể.
+     */
     public function bienthe()
     {
         return $this->belongsTo(BientheModel::class, 'id_bienthe');
     }
 
-    // Quan hệ: Quà tặng thuộc về Cửa hàng
-    public function thuonghieu()
+    /**
+     * 🧠 Hàm tiện ích: Lấy danh sách quà tặng đang hoạt động
+     */
+    public static function hoatDong()
     {
-        return $this->belongsTo(ThuongHieuModel::class, 'id_cuahang','id');
+        return self::where('trangthai', 'Hoạt động')
+            ->whereDate('ngaybatdau', '<=', now())
+            ->whereDate('ngayketthuc', '>=', now())
+            ->get();
     }
 
-    // Quan hệ: Quà tặng thuộc về Sự kiện
-    public function sukien()
+    /**
+     * 🧠 Hàm tiện ích: Kiểm tra xem chương trình có đang trong thời gian hiệu lực không
+     */
+    public function dangHieuLuc()
     {
-        return $this->belongsTo(SukienModel::class, 'id_sukien');
+        return $this->trangthai === 'Hoạt động'
+            && now()->between($this->ngaybatdau, $this->ngayketthuc);
     }
-
-    // Scope: chỉ lấy quà tặng đang hiển thị
     public function scopeHienThi($query)
     {
         return $query->where('trangthai', 'Hiển thị');

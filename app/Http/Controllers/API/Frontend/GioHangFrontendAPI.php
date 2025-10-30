@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\TOI\GioHangResource;
 use Illuminate\Http\Request;
 use App\Models\GiohangModel;
 use Illuminate\Support\Facades\DB;
@@ -21,12 +22,31 @@ class GioHangFrontendAPI extends BaseFrontendController
      *     path="/api/toi/giohangs",
      *     tags={"Giỏ hàng (tôi)"},
      *     summary="Lấy toàn bộ giỏ hàng của người dùng hiện tại",
+     *     description="Trả về danh sách sản phẩm trong giỏ hàng của người dùng đang đăng nhập. Nếu giỏ hàng trống sẽ trả về thông báo.",
      *     security={{"bearerAuth": {}}},
      *     @OA\Response(
      *         response=200,
-     *         description="Danh sách sản phẩm trong giỏ hàng hoặc thông báo giỏ hàng trống"
+     *         description="Danh sách sản phẩm trong giỏ hàng hoặc thông báo giỏ hàng trống",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Danh sách sản phẩm trong giỏ hàng"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/GioHangResource")
+     *             )
+     *         )
      *     ),
-     *     @OA\Response(response=401, description="Không có quyền truy cập hoặc thiếu token")
+     *     @OA\Response(
+     *         response=401,
+     *         description="Không có quyền truy cập hoặc thiếu token",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Unauthorized")
+     *         )
+     *     )
      * )
      */
     public function index(Request $request)
@@ -34,7 +54,7 @@ class GioHangFrontendAPI extends BaseFrontendController
         $user = $request->get('auth_user');
         $userId = $user->id;
 
-        $giohang = GiohangModel::with(['bienthe.sanpham'])
+        $giohang = GiohangModel::with(['bienthe.sanpham', 'bienthe','bienthe.sanpham.hinhanhsanpham','bienthe.loaibienthe'])
             ->where('id_nguoidung', $userId)
             ->where('trangthai', 'Hiển thị')
             ->get();
@@ -42,7 +62,8 @@ class GioHangFrontendAPI extends BaseFrontendController
         return $this->jsonResponse([
             'status' => true,
             'message' => $giohang->isEmpty() ? 'Giỏ hàng trống' : 'Danh sách sản phẩm trong giỏ hàng',
-            'data' => $giohang,
+            // 'data' => $giohang,
+            'data' => GioHangResource::collection($giohang),
         ], Response::HTTP_OK);
     }
 

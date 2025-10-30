@@ -6,11 +6,9 @@
     "license": "MIT",
     "require": {
         "php": "^8.1",
-        "darkaonline/l5-swagger": "^8.6",
+        "darkaonline/l5-swagger": "*",
         "guzzlehttp/guzzle": "^7.2",
-        "laravel/fortify": "^1.30",
         "laravel/framework": "^10.10",
-        "laravel/jetstream": "^4.3",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
         "livewire/livewire": "^3.0",

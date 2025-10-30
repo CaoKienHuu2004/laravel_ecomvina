@@ -141,20 +141,20 @@
                   </div>
                 </div>
                 <hr class="m-0" />
-                <a class="dropdown-item" href="{{ route('profile.show') }} ">
+                <a class="dropdown-item" href="{{ route('thong-tin-tai-khoan') }} ">
                   <i class="me-2" data-feather="user"></i> Hồ sơ</a
                 >
                 <a class="dropdown-item" href="generalsettings.html"
                   ><i class="me-2" data-feather="settings"></i>Cài đặt</a
                 >
                 <hr class="m-0" />
-                <a class="dropdown-item logout pb-0" href="{{ route('logout') }}"
+                <a class="dropdown-item logout pb-0" href="{{ route('dang-xuat') }}"
                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                     <img src="{{ asset('img/icons/log-out.svg') }}" class="me-2" alt="img" />
                     Đăng xuất
                 </a>
 
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                <form id="logout-form" action="{{ route('dang-xuat') }}" method="POST" class="d-none">
                     @csrf
                 </form>
               </div>
@@ -171,9 +171,9 @@
             ><i class="fa fa-ellipsis-v"></i
           ></a>
           <div class="dropdown-menu dropdown-menu-right">
-            <a class="dropdown-item" href="{{ route('profile.show') }}">Hồ sơ</a>
+            <a class="dropdown-item" href="{{ route('thong-tin-tai-khoan') }}">Hồ sơ</a>
             <a class="dropdown-item" href="generalsettings.html">Cài đặt</a>
-            <a class="dropdown-item" href="{{ route('logout') }}">Đăng xuất</a>
+            <a class="dropdown-item" href="{{ route('dang-xuat') }}">Đăng xuất</a>
           </div>
         </div>
       </div>
@@ -200,10 +200,7 @@
                     <ul>
                         {{-- /* ===================== KHÁCH HÀNG ===================== */ --}}
                     <li><a class="{{ request()->routeIs('danh-sach-khach-hang') || request()->routeIs('chinh-sua-khach-hang') || request()->routeIs('tao-khach-hang') || request()->routeIs('chi-tiet-khach-hang') ? 'active' : '' }}" href="{{ route('danh-sach-khach-hang') }}">Danh sách khách hàng</a></li>
-                    {{-- /* ===================== CỬA HÀNG ===================== */ --}}
-                    <li><a class="{{ request()->routeIs('danh-sach-cua-hang') || request()->routeIs('chinh-sua-cua-hang') || request()->routeIs('tao-cua-hang') || request()->routeIs('chi-tiet-cua-hang') ? 'active' : '' }}" href="{{ route('danh-sach-cua-hang') }}">Danh sách cửa hàng</a></li>
-                    {{-- /* ===================== ĐỘI NGŨ QUẢN TRỊ ===================== */ --}}
-                    <li><a class="{{ request()->routeIs('danh-sach-doi-ngu-quan-tri') || request()->routeIs('chinh-sua-doi-ngu-quan-tri')  || request()->routeIs('chi-tiet-doi-ngu-quan-tri') ? 'active' : '' }}" href="{{ route('danh-sach-doi-ngu-quan-tri') }}">Đội ngũ quản trị</a></li>
+                    {{--  --}}
                     </ul>
                 </li>
                 {{-- // -- phuong thuc thanh toan --// --}}

@@ -10,70 +10,106 @@ class DonhangModel extends Model
 {
     use HasFactory, SoftDeletes;
 
-    // Tên bảng trong database
+
     protected $table = 'donhang';
 
-    // Khóa chính
+
     protected $primaryKey = 'id';
 
-    // Các trường được phép gán hàng loạt
+
+    public $timestamps = true;
+
+
     protected $fillable = [
-        'id_nguoidung',
         'id_phuongthuc',
         'id_magiamgia',
+        'id_nguoidung',
+        'id_phivanchuyen',
+        'id_diachigiaohang',
         'madon',
         'tongsoluong',
+        'tamtinh',
         'thanhtien',
+        'trangthaithanhtoan',
         'trangthai',
     ];
 
-    // Laravel tự xử lý created_at, updated_at, deleted_at
-    public $timestamps = true;
-
-    // Ép kiểu dữ liệu cho các cột
+    // Ép kiểu dữ liệu
     protected $casts = [
-        'id_nguoidung' => 'integer',
-        'id_phuongthuc' => 'integer',
-        'id_magiamgia' => 'integer',
         'tongsoluong' => 'integer',
+        'tamtinh' => 'integer',
         'thanhtien' => 'integer',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
     ];
 
-    // Giá trị mặc định
-    protected $attributes = [
-        'trangthai' => 'Chờ xử lý',
-    ];
-
-    // ==============================
-    // QUAN HỆ GIỮA CÁC BẢNG
-    // ==============================
-
-    // Mỗi đơn hàng thuộc về 1 người dùng
+    /**
+     * 🔗 Quan hệ: Một đơn hàng thuộc về một người dùng
+     */
     public function nguoidung()
     {
-        return $this->belongsTo(NguoidungModel::class, 'id_nguoidung', 'id');
+        return $this->belongsTo(NguoidungModel::class, 'id_nguoidung');
     }
 
-    // Mỗi đơn hàng thuộc về 1 phương thức thanh toán
-    public function phuongthuc()
-    {
-        return $this->belongsTo(PhuongthucModel::class, 'id_phuongthuc', 'id');
-    }
-
-    // Mỗi đơn hàng có thể có hoặc không có mã giảm giá
+    /**
+     * 🔗 Quan hệ: Một đơn hàng có thể có một mã giảm giá
+     */
     public function magiamgia()
     {
-        return $this->belongsTo(MagiamgiaModel::class, 'id_magiamgia', 'id');
+        return $this->belongsTo(MagiamgiaModel::class, 'id_magiamgia');
     }
 
-    // Một đơn hàng có nhiều chi tiết đơn hàng
+    /**
+     * 🔗 Quan hệ: Một đơn hàng có một phương thức thanh toán/vận chuyển
+     */
+    public function phuongthuc()
+    {
+        return $this->belongsTo(PhuongthucModel::class, 'id_phuongthuc');
+    }
+
+    /**
+     * 🔗 Quan hệ: Một đơn hàng có một phí vận chuyển
+     */
+    public function phivanchuyen()
+    {
+        return $this->belongsTo(PhiVanChuyenModel::class, 'id_phivanchuyen');
+    }
+
+    /**
+     * 🔗 Quan hệ: Một đơn hàng có một địa chỉ giao hàng
+     */
+    public function diachigiaohang()
+    {
+        return $this->belongsTo(DiaChiGiaoHang::class, 'id_diachigiaohang');
+    }
+
+    /**
+     * 🔗 Quan hệ: Một đơn hàng có nhiều chi tiết đơn hàng
+     */
     public function chitietdonhang()
     {
-        return $this->hasMany(ChitietdonhangModel::class, 'id_donhang', 'id');
+        return $this->hasMany(ChitietdonhangModel::class, 'id_donhang');
     }
 
+    /**
+     * 🧭 Scope lọc theo trạng thái xử lý
+     */
+    public function scopeTrangThai($query, $status)
+    {
+        return $query->where('trangthai', $status);
+    }
 
+    /**
+     * 🧭 Scope lọc theo trạng thái thanh toán
+     */
+    public function scopeThanhToan($query, $status)
+    {
+        return $query->where('trangthaithanhtoan', $status);
+    }
+
+    /**
+     * 🧮 Hàm tính tổng tiền đã thanh toán (có thể dùng khi thống kê)
+     */
+    public static function tongTienDaThanhToan()
+    {
+        return self::where('trangthaithanhtoan', 'Đã thanh toán')->sum('thanhtien');
+    }
 }

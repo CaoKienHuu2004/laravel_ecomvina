@@ -382,8 +382,7 @@ class SanPhamFrontendAPI extends SanphamAPI
         }])
         ->get()
         ->map(function ($brand) {
-            // Tính tổng số lượng bán của thương hiệu từ tất cả sản phẩm
-            $brand->total_sold = $brand->sanpham->sum('total_sold');
+            $brand->total_sold = $brand->sanpham->sum('total_sold') ?? 0;
             return $brand;
         })
         ->sortByDesc('total_sold') // sắp xếp theo tổng bán

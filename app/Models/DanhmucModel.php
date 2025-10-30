@@ -24,17 +24,7 @@ class DanhmucModel extends Model
         return $this->belongsToMany(SanphamModel::class,'danhmuc_sanpham', 'id_danhmuc', 'id_sanpham');
     }
 
-    // Danh mục cha
-    public function danhmucha()
-    {
-        return $this->belongsTo(DanhmucModel::class, 'parent');
-    }
 
-    // Danh mục con
-    public function danhmuccon()
-    {
-        return $this->hasMany(DanhmucModel::class, 'parent');
-    }
 
 
 

@@ -21,7 +21,7 @@ class CreateThuonghieuTable extends Migration
 
             // Cột 3: slug - text - Không NULL
             // Nên dùng string và unique cho slug để đảm bảo URL duy nhất
-            $table->string('slug')->unique();
+            $table->string('slug');
 
             // Cột 4: logo - varchar(255) - Không NULL - Mặc định 'logo_shop.jpg'
             $table->string('logo', 255)->default('logo_shop.jpg');

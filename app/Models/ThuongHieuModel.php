@@ -2,46 +2,44 @@
 
 namespace App\Models;
 
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ThuongHieuModel extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
-    // Nếu tên bảng không phải là "thuong_hieus" (mặc định Laravel sẽ tự thêm 's')
+    // Tên bảng trong CSDL
     protected $table = 'thuonghieu';
 
     // Khóa chính
     protected $primaryKey = 'id';
 
-    // Cho phép gán dữ liệu hàng loạt
+    // Các cột cho phép gán hàng loạt
     protected $fillable = [
         'ten',
         'slug',
+        'logo',
         'mota',
         'trangthai',
     ];
 
-    // Dạng ENUM — có thể thêm helper
-    const TRANGTHAI_HIENTHI = 'Hiển thị';
-    const TRANGTHAI_TAMAN = 'Tạm ẩn';
-
-    // Tự động cast kiểu dữ liệu (nếu cần)
-    protected $casts = [
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
+    // Giá trị mặc định
+    protected $attributes = [
+        'logo' => 'logo_shop.jpg',
+        'trangthai' => 'Hoạt động',
     ];
-    public function sanpham(): HasMany
+
+
+
+    // Không có timestamps (vì migration không có created_at / updated_at)
+    public $timestamps = false;
+
+    /**
+     * Quan hệ: Một thương hiệu có nhiều sản phẩm
+     */
+    public function sanpham()
     {
         return $this->hasMany(SanphamModel::class, 'id_thuonghieu', 'id');
-    }
-    public function quatangsukien(): HasMany
-    {
-        return $this->hasMany(QuatangsukienModel::class, 'id_thuonghieu', 'id');
     }
 }

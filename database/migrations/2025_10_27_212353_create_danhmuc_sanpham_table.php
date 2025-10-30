@@ -17,10 +17,10 @@ class CreateDanhmucSanphamTable extends Migration
             $table->increments('id');
 
             // Cột 2: id_danhmuc (FK1) - int(11) - Không NULL
-            $table->unsignedBigInteger('id_danhmuc');
+            $table->integer('id_danhmuc');
 
             // Cột 3: id_sanpham (FK2) - int(11) - Không NULL
-            $table->unsignedBigInteger('id_sanpham');
+            $table->integer('id_sanpham');
 
             // FK1: Liên kết với bảng 'danhmuc'
             $table->foreign('id_danhmuc')

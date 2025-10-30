@@ -19,7 +19,7 @@ class CreateBaivietTable extends Migration
             // DB::statement('ALTER TABLE baiviet MODIFY id INT(11) UNSIGNED AUTO_INCREMENT');
 
             // Cột 2: id_nguoidung (FK) - int(11) - Không NULL
-            $table->unsignedBigInteger('id_nguoidung');
+            $table->integer('id_nguoidung');
 
             // Cột 3: tieude - text - Không NULL
             $table->text('tieude');

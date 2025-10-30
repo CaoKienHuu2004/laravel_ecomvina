@@ -4,13 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class DanhgiaModel extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
-    // Tên bảng trong database
+    // Tên bảng trong cơ sở dữ liệu
     protected $table = 'danhgia';
 
     // Khóa chính
@@ -18,46 +17,38 @@ class DanhgiaModel extends Model
 
     // Các cột được phép gán hàng loạt
     protected $fillable = [
-        'id_sanpham',
         'id_nguoidung',
+        'id_sanpham',
         'id_chitietdonhang',
         'diem',
         'noidung',
         'trangthai',
     ];
 
-    // Laravel sẽ tự động quản lý created_at, updated_at, deleted_at
-    public $timestamps = true;
+    // Không có timestamps vì migration không tạo created_at / updated_at
+    public $timestamps = false;
 
-    // Ép kiểu dữ liệu
-    protected $casts = [
-        'id_sanpham' => 'integer',
-        'id_nguoidung' => 'integer',
-        'id_chitietdonhang' => 'integer',
-        'diem' => 'integer',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
-    ];
-
-    // Giá trị mặc định cho các cột
-    protected $attributes = [
-        'trangthai' => 'Hiển thị',
-    ];
-
-    // Quan hệ: Một đánh giá thuộc về một sản phẩm
-    public function sanpham()
-    {
-        return $this->belongsTo(SanphamModel::class, 'id_sanpham');
-    }
-
-    // Quan hệ: Một đánh giá thuộc về một người dùng
+    /**
+     * Quan hệ: Một đánh giá thuộc về một người dùng
+     */
     public function nguoidung()
     {
-        return $this->belongsTo(NguoidungModel::class, 'id_nguoidung');
+        return $this->belongsTo(NguoidungModel::class, 'id_nguoidung', 'id');
     }
-    public function chitietdonhang()
+
+    /**
+     * Quan hệ: Một đánh giá thuộc về một sản phẩm
+     */
+    public function sanpham()
     {
-        return $this->belongsTo(ChitietdonhangModel::class, 'id_chitietdonhang');
+        return $this->belongsTo(SanphamModel::class, 'id_sanpham', 'id');
+    }
+
+    /**
+     * Quan hệ: Một đánh giá thuộc về một chi tiết đơn hàng
+     */
+    public function chitietDonHang()
+    {
+        return $this->belongsTo(ChitietdonhangModel::class, 'id_chitietdonhang', 'id');
     }
 }

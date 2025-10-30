@@ -2,19 +2,24 @@
 
 namespace App\Models;
 
-use App\Http\Controllers\API\DanhGiaAPI;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class SanphamModel extends Model
 {
     use HasFactory, SoftDeletes;
 
+    // Tên bảng
     protected $table = 'sanpham';
+
+    // Khóa chính
+    protected $primaryKey = 'id';
+
+    // Không có timestamps (vì migration không có created_at, updated_at)
+    public $timestamps = false;
+
+    // Các cột cho phép gán hàng loạt
     protected $fillable = [
         'id_thuonghieu',
         'ten',
@@ -25,30 +30,38 @@ class SanphamModel extends Model
         'trangthai',
         'giamgia',
         'luotxem',
-        'luotban',
+        'deleted_at'
     ];
-
     protected $casts = [
-        'created_at' => 'datetime:Y-m-d H:i:s',
-        'updated_at' => 'datetime:Y-m-d H:i:s',
+        'deleted_at' => 'datetime',
     ];
 
-    public function danhmuc(): BelongsToMany
+    /**
+     * Quan hệ: Sản phẩm thuộc về một thương hiệu
+     */
+    public function thuonghieu()
     {
-        return $this->belongsToMany(DanhmucModel::class, 'danhmuc_sanpham', 'id_sanpham', 'id_danhmuc');
+        return $this->belongsTo(ThuongHieuModel::class, 'id_thuonghieu');
     }
 
-    public function bienthe(): HasMany
+    /**
+     * Quan hệ: Sản phẩm có nhiều biến thể (bienthe)
+     */
+    public function bienthe()
     {
         return $this->hasMany(BientheModel::class, 'id_sanpham');
     }
 
-    public function thuonghieu(): BelongsTo
+    /**
+     * Quan hệ: Sản phẩm có thể thuộc nhiều danh mục (nếu có bảng trung gian)
+     * (Tùy bạn có bảng `sanpham_danhmuc` hay không)
+     */
+    public function danhmuc()
     {
-        return $this->belongsTo(ThuongHieuModel::class, 'id_thuonghieu', 'id');
+        return $this->belongsToMany(DanhmucModel::class, 'danhmuc_sanpham', 'id_sanpham', 'id_danhmuc');
     }
 
-    public function hinhanhsanpham(): HasMany
+    public function hinhanhsanpham()
     {
         return $this->hasMany(HinhanhsanphamModel::class, 'id_sanpham');
     }
@@ -77,5 +90,27 @@ class SanphamModel extends Model
         return $this->hasMany(YeuthichModel::class, 'id_sanpham', 'id');
     }
 
+    /**
+     * Tăng lượt xem sản phẩm
+     */
+    public function tangLuotXem()
+    {
+        $this->increment('luotxem');
+    }
 
+    /**
+     * Kiểm tra sản phẩm có đang hoạt động không
+     */
+    public function getDangHoatDongAttribute()
+    {
+        return $this->trangthai === 'Công khai';
+    }
+
+    /**
+     * Lấy mô tả ngắn (rút gọn nội dung)
+     */
+    public function getMoTaNganAttribute()
+    {
+        return substr(strip_tags($this->mota), 0, 100) . '...';
+    }
 }

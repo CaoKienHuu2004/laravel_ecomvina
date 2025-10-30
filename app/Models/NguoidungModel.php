@@ -19,6 +19,8 @@ class NguoidungModel extends Authenticatable
 
     protected $table = 'nguoidung';
 
+    public $timestamps = false;
+
     protected $fillable = [
         'username',
         'password',
@@ -38,10 +40,7 @@ class NguoidungModel extends Authenticatable
 
     protected $casts = [
         'ngaysinh'   => 'date:Y-m-d',
-        'trangthai'  => 'boolean',
         'password'   => 'hashed',
-        'created_at' => 'datetime:Y-m-d H:i:s',
-        'updated_at' => 'datetime:Y-m-d H:i:s',
     ];
 
     //============================================================
@@ -49,7 +48,7 @@ class NguoidungModel extends Authenticatable
     //===========================================================
     public function diachi(): HasMany
     {
-        return $this->hasMany(DiachinguoidungModel::class, 'id_nguoidung');
+        return $this->hasMany(DiaChiGiaoHangModel::class, 'id_nguoidung');
     }
 
 
@@ -60,5 +59,17 @@ class NguoidungModel extends Authenticatable
     public function yeuthich()
     {
         return $this->hasMany(YeuthichModel::class, 'id_nguoidung', 'id');
+    }
+    public function giohang(): HasMany
+    {
+        return $this->hasMany(GiohangModel::class, 'id_nguoidung');
+    }
+    public function thongbao(): HasMany
+    {
+        return $this->hasMany(ThongbaoModel::class, 'id_nguoidung');
+    }
+    public function danhgia(): HasMany
+    {
+        return $this->hasMany(DanhgiaModel::class, 'id_nguoidung');
     }
 }

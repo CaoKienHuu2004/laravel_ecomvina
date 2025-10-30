@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class YeuthichModel extends Model
 {
@@ -16,40 +15,31 @@ class YeuthichModel extends Model
     // Khóa chính
     protected $primaryKey = 'id';
 
-    // Laravel sẽ tự động quản lý created_at và updated_at
-    public $timestamps = true;
-
-    // Các cột cho phép gán hàng loạt
+    // Các cột được phép gán hàng loạt
     protected $fillable = [
         'id_nguoidung',
         'id_sanpham',
         'trangthai',
     ];
 
-    // Giá trị mặc định
-    protected $attributes = [
-        'trangthai' => 'Hiển thị',
-    ];
+    // Không có timestamps vì migration không tạo created_at / updated_at
+    public $timestamps = false;
 
-    // Ép kiểu dữ liệu
-    protected $casts = [
-        'id_nguoidung' => 'integer',
-        'id_sanpham' => 'integer',
-        'trangthai' => 'string',
-    ];
-
-    // Quan hệ: Một yêu thích thuộc về một người dùng
+    /**
+     * Quan hệ: Một mục yêu thích thuộc về một người dùng
+     */
     public function nguoidung()
     {
-        return $this->belongsTo(NguoidungModel::class, 'id_nguoidung');
+        return $this->belongsTo(NguoidungModel::class, 'id_nguoidung', 'id');
     }
 
-    // Quan hệ: Một yêu thích thuộc về một sản phẩm
+    /**
+     * Quan hệ: Một mục yêu thích thuộc về một sản phẩm
+     */
     public function sanpham()
     {
-        return $this->belongsTo(SanphamModel::class, 'id_sanpham');
+        return $this->belongsTo(SanphamModel::class, 'id_sanpham', 'id');
     }
-
     // Scope: chỉ lấy sản phẩm yêu thích đang hiển thị
     public function scopeHienThi($query)
     {
@@ -61,6 +51,4 @@ class YeuthichModel extends Model
     {
         return $query->where('trangthai', 'Tạm ẩn');
     }
-
-
 }

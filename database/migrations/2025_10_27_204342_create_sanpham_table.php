@@ -17,14 +17,14 @@ class CreateSanphamTable extends Migration
             $table->increments('id');
 
             // Cột 2: id_thuonghieu (FK) - int(11) - Không NULL
-            $table->unsignedBigInteger('id_thuonghieu');
+            $table->integer('id_thuonghieu');
 
             // Cột 3: ten - text - Không NULL
             $table->text('ten');
 
             // Cột 4: slug - text - Không NULL
             // Nên dùng string và unique cho slug để tối ưu hóa
-            $table->string('slug')->unique();
+            $table->string('slug');
 
             // Cột 5: mota - longtext - Không NULL
             $table->longText('mota');

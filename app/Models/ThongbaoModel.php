@@ -4,22 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ThongbaoModel extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory;
 
-    // Tên bảng
+    // Tên bảng trong cơ sở dữ liệu
     protected $table = 'thongbao';
 
     // Khóa chính
     protected $primaryKey = 'id';
 
-    // Tự động quản lý created_at và updated_at
-    public $timestamps = true;
+    // Bỏ timestamps vì migration không có created_at và updated_at
+    public $timestamps = false;
 
-    // Các cột cho phép gán hàng loạt
+    // Các cột được phép gán giá trị hàng loạt
     protected $fillable = [
         'id_nguoidung',
         'tieude',
@@ -28,46 +27,35 @@ class ThongbaoModel extends Model
         'trangthai',
     ];
 
-    // Giá trị mặc định
-    protected $attributes = [
-        'trangthai' => 'Chưa đọc',
-    ];
-
-    // Ép kiểu dữ liệu
-    protected $casts = [
-        'id_nguoidung' => 'integer',
-        'tieude' => 'string',
-        'noidung' => 'string',
-        'lienket' => 'string',
-    ];
-
-    // Quan hệ: Một thông báo thuộc về một người dùng
+    /**
+     * Quan hệ: Thông báo thuộc về 1 người dùng
+     */
     public function nguoidung()
     {
-        return $this->belongsTo(NguoidungModel::class, 'id_nguoidung');
+        return $this->belongsTo(NguoidungModel::class, 'id_nguoidung', 'id');
     }
 
-    // Scope: lấy thông báo chưa đọc
-    public function scopeChuaDoc($query)
+    /**
+     * Hàm tiện ích: đánh dấu đã đọc
+     */
+    public function danhDauDaDoc()
     {
-        return $query->where('trangthai', 'Chưa đọc');
+        $this->trangthai = 'Đã đọc';
+        $this->save();
     }
 
-    // Scope: lấy thông báo đã đọc
-    public function scopeDaDoc($query)
+    /**
+     * Hàm tiện ích: lấy tất cả thông báo chưa đọc của 1 người dùng
+     */
+    public static function chuaDocTheoNguoiDung($idNguoiDung)
     {
-        return $query->where('trangthai', 'Đã đọc');
+        return self::where('id_nguoidung', $idNguoiDung)
+            ->where('trangthai', 'Chưa đọc')
+            ->get();
     }
-
     // Scope: lấy thông báo bị tạm ẩn
     public function scopeTamAn($query)
     {
         return $query->where('trangthai', 'Tạm ẩn');
-    }
-
-    // Đánh dấu thông báo là đã đọc
-    public function danhDauDaDoc()
-    {
-        $this->update(['trangthai' => 'Đã đọc']);
     }
 }

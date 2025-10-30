@@ -4,23 +4,21 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class MagiamgiaModel extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory, SoftDeletes;
 
-    // Tên bảng trong database
     protected $table = 'magiamgia';
 
-    // Khóa chính
+    // Khóa chính của bảng
     protected $primaryKey = 'id';
 
-    // Cho phép Laravel tự động quản lý created_at và updated_at
-    public $timestamps = true;
+    // // Cho phép Laravel tự động quản lý timestamps (created_at, updated_at)
+    // public $timestamps = true;
 
-    // Các cột có thể gán giá trị hàng loạt (mass assignment)
+    // Các cột được phép gán hàng loạt
     protected $fillable = [
         'magiamgia',
         'dieukien',
@@ -31,33 +29,42 @@ class MagiamgiaModel extends Model
         'trangthai',
     ];
 
-    // Kiểu dữ liệu cho từng cột
+    // Ép kiểu dữ liệu cho các trường
     protected $casts = [
-        'magiamgia' => 'integer',
-        'giatri' => 'integer',
-        'ngaybatdau' => 'date',
+        'magiamgia'   => 'integer',
+        'giatri'      => 'integer',
+        'ngaybatdau'  => 'date',
         'ngayketthuc' => 'date',
     ];
 
-    // Giá trị mặc định
-    protected $attributes = [
-        'trangthai' => 'Hoạt động',
+    // Ghi chú trạng thái (nếu cần hiển thị tiếng Việt dễ đọc)
+    public static $trangthaiLabels = [
+        'Hoạt động'       => 'Đang hoạt động',
+        'Tạm khóa'        => 'Tạm thời bị khóa',
+        'Dừng hoạt động'  => 'Ngừng sử dụng',
     ];
 
-    public function donhang() : HasMany
+    /**
+     * Kiểm tra mã giảm giá còn hiệu lực hay không.
+     */
+    public function isValid(): bool
+    {
+        $today = now('Asia/Ho_Chi_Minh')->toDateString();
+
+        return $this->trangthai === 'Hoạt động'
+            && $today >= $this->ngaybatdau->toDateString()
+            && $today <= $this->ngayketthuc->toDateString();
+    }
+
+    /**
+     * Lấy mô tả trạng thái đầy đủ (vd: "Đang hoạt động").
+     */
+    public function getTrangThaiLabelAttribute(): string
+    {
+        return self::$trangthaiLabels[$this->trangthai] ?? $this->trangthai;
+    }
+    public function donhang()
     {
         return $this->hasMany(DonhangModel::class, 'id_magiamgia');
-    }
-
-
-    // Thêm các scope hoặc hàm tiện ích
-    public function scopeHoatDong($query)
-    {
-        return $query->where('trangthai', 'Hoạt động');
-    }
-
-    public function scopeHetHan($query)
-    {
-        return $query->whereDate('ngayketthuc', '<', now());
     }
 }

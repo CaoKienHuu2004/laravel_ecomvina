@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\API\Frontend;
 
+use App\Http\Resources\Toi\ThongTinNguoiDungResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -165,7 +166,7 @@ class AuthFrontendController extends BaseFrontendController
 
         return $this->jsonResponse([
             'success' => true,
-            'user' => $user,
+            'user' => new ThongTinNguoiDungResource($user),
         ]);
     }
 
