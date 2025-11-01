@@ -54,15 +54,30 @@ class GioHangFrontendAPI extends BaseFrontendController
         $user = $request->get('auth_user');
         $userId = $user->id;
 
-        $giohang = GiohangModel::with(['bienthe.sanpham', 'bienthe','bienthe.sanpham.hinhanhsanpham','bienthe.loaibienthe'])
+        $giohang = GiohangModel::with([
+                'bienthe.sanpham',
+                'bienthe',
+                'bienthe.sanpham.hinhanhsanpham',
+                'bienthe.loaibienthe'
+            ])
             ->where('id_nguoidung', $userId)
             ->where('trangthai', 'Hiển thị')
             ->get();
 
+        // Lọc bỏ các biến thể có soluong = 0
+        $giohang = $giohang->filter(fn($item) => $item->soluong > 0)->values();
+
+        if ($giohang->isEmpty()) {
+            return $this->jsonResponse([
+                'status' => true,
+                'message' => 'Giỏ hàng trống',
+                'data' => [],
+            ], Response::HTTP_OK);
+        }
+
         return $this->jsonResponse([
             'status' => true,
-            'message' => $giohang->isEmpty() ? 'Giỏ hàng trống' : 'Danh sách sản phẩm trong giỏ hàng',
-            // 'data' => $giohang,
+            'message' => 'Danh sách sản phẩm trong giỏ hàng',
             'data' => GioHangResource::collection($giohang),
         ], Response::HTTP_OK);
     }
@@ -97,31 +112,41 @@ class GioHangFrontendAPI extends BaseFrontendController
 
         $user = $request->get('auth_user');
         $userId = $user->id;
-        $gia = DB::table('bienthe')->where('id', $validated['id_bienthe'])->value('gia');
 
-        $item = GiohangModel::where('id_nguoidung', $userId)
-            ->where('id_bienthe', $validated['id_bienthe'])
-            ->first();
+        DB::beginTransaction();
+        try {
+            $item = GiohangModel::where('id_nguoidung', $userId)
+                ->where('id_bienthe', $validated['id_bienthe'])
+                ->lockForUpdate()
+                ->first();
 
-        if ($item) {
-            $item->soluong += $validated['soluong'];
-            $item->thanhtien = $gia * $item->soluong;
-            $item->save();
-        } else {
-            $item = GiohangModel::create([
-                'id_bienthe' => $validated['id_bienthe'],
-                'id_nguoidung'=> $userId,
-                'soluong' => $validated['soluong'],
-                'thanhtien' => $gia * $validated['soluong'],
-                'trangthai' => 'Hiển thị',
-            ]);
+            if ($item) {
+                $item->soluong += $validated['soluong'];
+                $item->save();
+            } else {
+                $item = GiohangModel::create([
+                    'id_nguoidung' => $userId,
+                    'id_bienthe' => $validated['id_bienthe'],
+                    'soluong' => $validated['soluong'],
+                    'trangthai' => 'Hiển thị',
+                ]);
+            }
+
+            DB::commit();
+
+            return $this->jsonResponse([
+                'status' => true,
+                'message' => 'Thêm sản phẩm vào giỏ hàng thành công',
+                'data' => $item->load('bienthe.sanpham'),
+            ], Response::HTTP_CREATED);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Lỗi khi thêm sản phẩm vào giỏ hàng',
+                'error' => $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
-
-        return $this->jsonResponse([
-            'status' => true,
-            'message' => 'Thêm sản phẩm vào giỏ hàng thành công',
-            'data' => $item->load('bienthe.sanpham'),
-        ], Response::HTTP_CREATED);
     }
 
     /**
@@ -154,16 +179,35 @@ class GioHangFrontendAPI extends BaseFrontendController
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'soluong' => 'required|integer|min:1',
+            'soluong' => 'required|integer|min:0',
         ]);
 
         $user = $request->get('auth_user');
         $userId = $user->id;
+
         $item = GiohangModel::where('id_nguoidung', $userId)
             ->where('id', $id)
             ->firstOrFail();
 
-        $gia = DB::table('bienthe')->where('id', $item->id_bienthe)->value('gia');
+        if ($validated['soluong'] == 0) {
+            $item->delete();
+
+            $remaining = GiohangModel::where('id_nguoidung', $userId)->count();
+            if ($remaining === 0) {
+                return $this->jsonResponse([
+                    'status' => true,
+                    'message' => 'Giỏ hàng hiện đang trống',
+                    'data' => [],
+                ], Response::HTTP_OK);
+            }
+
+            return $this->jsonResponse([
+                'status' => true,
+                'message' => 'Đã xóa sản phẩm khỏi giỏ hàng',
+            ], Response::HTTP_OK);
+        }
+
+        $gia = DB::table('bienthe')->where('id', $item->id_bienthe)->value('giagoc');
 
         $item->update([
             'soluong' => $validated['soluong'],
@@ -176,6 +220,7 @@ class GioHangFrontendAPI extends BaseFrontendController
             'data' => $item->load('bienthe.sanpham'),
         ], Response::HTTP_OK);
     }
+
 
     /**
      * @OA\Delete(
@@ -201,6 +246,7 @@ class GioHangFrontendAPI extends BaseFrontendController
     {
         $user = $request->get('auth_user');
         $userId = $user->id;
+
         $item = GiohangModel::where('id_nguoidung', $userId)
             ->where('id', $id)
             ->firstOrFail();

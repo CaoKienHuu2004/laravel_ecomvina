@@ -106,10 +106,15 @@ class SanPhamAllDetailResources extends JsonResource
             'id' => $this->id,
             'ten' => $this->ten,
             'slug'          => $this->slug,
-
-
-            // 'mediaurl' => $this->mediaurl, // Ảnh đại diện chính
-            // . Đánh giá (Rating - dựa trên 'danhgia' và withAvg)
+            'danhmuc' => $this->danhmuc
+            ? $this->danhmuc->map(function ($item) {
+                return [
+                    'id_danhmuc' => $item->id,
+                    'ten' => $item->ten ?? null,
+                    'slug' => $item->slug ?? null,
+                ];
+            })
+            : [],
             'rating' => [
                 'average' => $averageRating, // 4.8
                 'count' => $reviewCount,     // (17k) -> Cần format số lớn ở frontend
@@ -121,23 +126,38 @@ class SanPhamAllDetailResources extends JsonResource
                 // 'formatted_count' => $this->formatReviewCount($reviewCount), // Có thể format ở đây hoặc frontend
             ],
 
+            // phiên bản tính theo chititetdonhang (dạng chuẩn xư h` học vậy mà ^^)
+            // 'sold' => [
+            //     'total_sold' => $this->total_sold ?? 0, // Tổng số lượng đã bán
+            //     'total_quantity' => $this->total_quantity ?? 0, // Tổng số lượng
+            // ],
             'sold' => [
-                'total_sold' => $this->total_sold ?? 0, // Tổng số lượng đã bán
-                'total_quantity' => $this->total_quantity ?? 0, // Tổng số lượng
-                ],
+                'total_sold' => $this->bienthe ? $this->bienthe->sum('luotban') : 0, // tổng luotban của các biến thể
+                'total_quantity' => $this->bienthe ? $this->bienthe->sum('soluong') : 0, // nếu có cột 'soluong' thì tổng luôn
+            ],
+             // 'luotban' => $this->biethe->fisrt()->luotban, // này là cố định rồi phải lấy theo khi click LoạiBienThể
+            'luotxem' => $this->luotxem,
+            'xuatxu' => $this->xuatxu,
+            'sanxuat' => $this->sanxuat,
+
+
+            // tại trong table Nguyên xử lý được rồi mới bỏ còn chưa thì dùng cái này
+
+
+
 
             // . Giá (Price)
-            'gia' => [
-                'current' => $currentPrice,
-                'before_discount' => $priceBeforeDiscount,
-                // Có thể tính % giảm giá nếu cần
-                // 'discount_percent' => ($priceBeforeDiscount > $currentPrice && $priceBeforeDiscount > 0)
-                //                       ? round((($priceBeforeDiscount - $currentPrice) / $priceBeforeDiscount) * 100)
-                //                       : 0,
-                'discount_percent' => ($priceBeforeDiscount > $currentPrice && $priceBeforeDiscount > 0)
-                      ? round((($priceBeforeDiscount - $currentPrice) / $priceBeforeDiscount) * 100)
-                      : 0,
-            ],
+            // 'gia' => [
+            //     'current' => $currentPrice,
+            //     'before_discount' => $priceBeforeDiscount,
+            //     // Có thể tính % giảm giá nếu cần
+            //     // 'discount_percent' => ($priceBeforeDiscount > $currentPrice && $priceBeforeDiscount > 0)
+            //     //                       ? round((($priceBeforeDiscount - $currentPrice) / $priceBeforeDiscount) * 100)
+            //     //                       : 0,
+            //     'discount_percent' => ($priceBeforeDiscount > $currentPrice && $priceBeforeDiscount > 0)
+            //           ? round((($priceBeforeDiscount - $currentPrice) / $priceBeforeDiscount) * 100)
+            //           : 0,
+            // ],
             'trangthai' =>[
                 'active' => $this->trangthai,
                 'in_stock' => $this->total_quantity > 0,
@@ -147,9 +167,61 @@ class SanPhamAllDetailResources extends JsonResource
             'loai_bien_the' => $this->loaibienthe
             ? $this->loaibienthe->map(function ($item) {
                 return [
-                    'id' => $item->id,
+                    'id_loaibienthe' => $item->id,
                     'ten' => $item->ten ?? null,
                     'trangthai' => $item->trangthai ?? null,
+
+                ];
+            })
+            : [],
+            //  'loaibienthe_sanpham' => $this->whenLoaded('loaibienthe', function () {
+            //     return $this->loaibienthe->map(function ($item) {
+            //         return [
+            //             'id_loaibienthe' => $item->id,
+            //             'ten_loaibienthe' => $item->ten,
+            //             'sanpham' => $item->relationLoaded('sanpham')
+            //                 ? $item->sanpham->map(function ($sp) {
+            //                     if($sp->id === $this->id) {
+            //                         return [
+            //                             'id_sanpham' => $sp->id,
+            //                             'ten' => $sp->ten,
+            //                             'luotxem' => $sp->luotxem,
+            //                         ];
+            //                     }
+            //                     // if(!$sp->dang_hoat_dong) {
+            //                     //     return null; // Bỏ qua sản phẩm không hoạt động
+            //                     // }
+            //                     // if(!$sp->bienthe || $sp->bienthe->isEmpty()) {
+            //                     //     return null; // Bỏ qua sản phẩm không có biến thể
+            //                     // }
+            //                     // if($sp->bienthe->sum('soluong') <= 0) {
+            //                     //     return null; // Bỏ qua sản phẩm hết hàng
+            //                     // }
+            //                     // if(!$sp->trangthai) {
+            //                     //     return null; // Bỏ qua sản phẩm không hiển thị
+            //                     // }
+            //                     // if($sp->deleted_at) {
+            //                     //     return null; // Bỏ qua sản phẩm đã xóa mềm
+            //                     // }
+            //                     // if($sp->giamgia >= 100) {
+            //                     //     return null; // Bỏ qua sản phẩm có giảm giá 100% trở lên
+            //                     // }
+
+            //                 })
+            //                 : [],
+            //         ];
+            //     });
+            // }), //sida rồi
+            'bienthe_khichon_loaibienthe_themvaogio' => $this->bienthe
+            ? $this->bienthe->map(function ($item) {
+                return [
+                    'id_bienthe' => $item->id,
+                    'loai_bien_the' => $item->loaibienthe->id,
+                    'giagoc' => $item->giagoc,
+                    'giamgia' => $item->sanpham->giamgia,
+                    'giahientai' => $item->giagoc * (1 - (($item->sanpham->giamgia ?? 0) / 100)),
+                    'luotban' => $item->luotban,
+
                 ];
             })
             : [],

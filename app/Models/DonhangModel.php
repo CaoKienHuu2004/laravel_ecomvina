@@ -32,6 +32,9 @@ class DonhangModel extends Model
         'thanhtien',
         'trangthaithanhtoan',
         'trangthai',
+        'created_at',
+        'updated_at',
+        'deleted_at'
     ];
 
     // Ép kiểu dữ liệu
@@ -39,7 +42,20 @@ class DonhangModel extends Model
         'tongsoluong' => 'integer',
         'tamtinh' => 'integer',
         'thanhtien' => 'integer',
+        'created_at' => 'datetime:Y-m-d H:i:s',
+        'updated_at' => 'datetime:Y-m-d H:i:s',
+        'deleted_at' => 'datetime:Y-m-d H:i:s',
     ];
+
+    protected $hidden = [
+        'created_at',
+        'updated_at',
+        'deleted_at',
+    ];
+    // Cách lấy dữ liệu bao gồm cả bản ghi đã xóa mềm chỉ riêng admin mới dùng để xem
+    // $donhang = DonhangModel::withTrashed()->find($id);
+    // $donhang->makeVisible(['created_at', 'updated_at', 'deleted_at']);
+    // return response()->json($donhang);
 
     /**
      * 🔗 Quan hệ: Một đơn hàng thuộc về một người dùng
@@ -78,7 +94,7 @@ class DonhangModel extends Model
      */
     public function diachigiaohang()
     {
-        return $this->belongsTo(DiaChiGiaoHang::class, 'id_diachigiaohang');
+        return $this->belongsTo(DiaChiGiaoHangModel::class, 'id_diachigiaohang');
     }
 
     /**

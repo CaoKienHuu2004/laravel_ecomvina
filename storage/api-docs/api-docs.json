@@ -730,140 +730,14 @@
         "/api/danhmucs-all": {
             "get": {
                 "tags": [
-                    "Tất Cả Danh mục theo cây đa cấp (nằm ở trang contact ...)"
+                    "Danh mục"
                 ],
-                "summary": "Lấy danh sách danh mục đa cấp có đếm số lượng con",
-                "description": "API này trả về danh sách tất cả danh mục theo cấu trúc đa cấp (cha - con - cháu...) kèm theo số lượng danh mục con trực tiếp của mỗi danh mục.",
+                "summary": "Lấy danh sách danh mục cha và con (2 cấp, không có parent_id, FK tới chính nó)",
+                "description": "Trả về danh sách danh mục có parent='Cha' và các danh mục con (parent='Con') tương ứng theo nhóm tên hoặc slug.",
                 "operationId": "bf9e4cdf7facfa9d0edde8514a97fe85",
                 "responses": {
                     "200": {
-                        "description": "Lấy danh mục thành công",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Lấy danh mục thành công"
-                                        },
-                                        "data": {
-                                            "description": "Danh sách danh mục cha và các danh mục con",
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "id": {
-                                                        "type": "integer",
-                                                        "example": 1
-                                                    },
-                                                    "ten_danhmuc": {
-                                                        "type": "string",
-                                                        "example": "Điện thoại"
-                                                    },
-                                                    "slug": {
-                                                        "type": "string",
-                                                        "example": "dien-thoai"
-                                                    },
-                                                    "parent": {
-                                                        "type": "integer",
-                                                        "example": null,
-                                                        "nullable": true
-                                                    },
-                                                    "so_luong_con": {
-                                                        "description": "Số lượng danh mục con trực tiếp",
-                                                        "type": "integer",
-                                                        "example": 3
-                                                    },
-                                                    "danhmuccon": {
-                                                        "description": "Danh mục con của danh mục hiện tại",
-                                                        "type": "array",
-                                                        "items": {
-                                                            "properties": {
-                                                                "id": {
-                                                                    "type": "integer",
-                                                                    "example": 2
-                                                                },
-                                                                "ten_danhmuc": {
-                                                                    "type": "string",
-                                                                    "example": "Điện thoại Samsung"
-                                                                },
-                                                                "slug": {
-                                                                    "type": "string",
-                                                                    "example": "dien-thoai-samsung"
-                                                                },
-                                                                "parent": {
-                                                                    "type": "integer",
-                                                                    "example": 1
-                                                                },
-                                                                "so_luong_con": {
-                                                                    "type": "integer",
-                                                                    "example": 2
-                                                                },
-                                                                "danhmuccon": {
-                                                                    "description": "Danh mục cháu (cấp con của cấp con)",
-                                                                    "type": "array",
-                                                                    "items": {
-                                                                        "properties": {
-                                                                            "id": {
-                                                                                "type": "integer",
-                                                                                "example": 3
-                                                                            },
-                                                                            "ten_danhmuc": {
-                                                                                "type": "string",
-                                                                                "example": "Samsung Galaxy A"
-                                                                            },
-                                                                            "slug": {
-                                                                                "type": "string",
-                                                                                "example": "samsung-galaxy-a"
-                                                                            },
-                                                                            "parent": {
-                                                                                "type": "integer",
-                                                                                "example": 2
-                                                                            },
-                                                                            "so_luong_con": {
-                                                                                "type": "integer",
-                                                                                "example": 0
-                                                                            }
-                                                                        },
-                                                                        "type": "object"
-                                                                    }
-                                                                }
-                                                            },
-                                                            "type": "object"
-                                                        }
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Lỗi server hoặc không lấy được dữ liệu",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": false
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Lỗi hệ thống"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
+                        "description": "Lấy danh mục thành công"
                     }
                 }
             }
@@ -1142,8 +1016,8 @@
                 "tags": [
                     "Đơn hàng (tôi)"
                 ],
-                "summary": "Tạo đơn hàng mới",
-                "description": "Người dùng tạo đơn hàng mới từ giỏ hàng của họ.",
+                "summary": "Tạo đơn hàng mới (tự động xử lý kho và lượt mua qua Observer)",
+                "description": "API cho phép người dùng tạo đơn hàng mới từ giỏ hàng của họ.\n     *     Khi đơn hàng được cập nhật sang trạng thái **'Thành công'**, hệ thống sẽ tự động:\n     *     - Giảm số lượng tồn kho (`bienthe.soluong`)\n     *     - Tăng số lượt mua (`bienthe.luotmua`)\n     *     - Giảm số lượt tặng (`bienthe.luottang`)\n     *     Cơ chế này được thực hiện **tự động qua Laravel Observer**, không cần gọi thêm API phụ.\n     *  *     🧩 Quy trình xử lý khi tạo đơn hàng mới:\n    *     - Bước 1: Kiểm tra và xác thực dữ liệu đầu vào.\n    *     - Bước 2: Tạo bản ghi đơn hàng (bảng `donhang`).\n    *     - Bước 3: Lấy danh sách sản phẩm trong giỏ hàng (`giohang`) của người dùng.\n    *     - Bước 4: Tự động tạo chi tiết đơn hàng (`chitietdonhang`) cho từng sản phẩm:\n    *         + Liên kết `id_donhang` và `id_bienthe`.\n    *         + Lưu số lượng, đơn giá, và trạng thái ban đầu là `Đã đặt`.\n    *     - Bước 5: Khi trạng thái đơn hàng chuyển sang **thành công**, hệ thống sẽ:\n    *         + Giảm tồn kho (`bienthe.soluong -= 1`).\n    *         + Tăng lượt mua (`bienthe.luotban += 1`).\n    *         + (Tùy chọn) Đồng bộ sang bảng `chitiethoadon`.\n    *     ",
                 "operationId": "e126c6326573fc567815a7b139587eeb",
                 "requestBody": {
                     "required": true,
@@ -1151,7 +1025,12 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "id_phuongthuc"
+                                    "id_phuongthuc",
+                                    "id_phivanchuyen",
+                                    "id_diachigiaohang",
+                                    "tongsoluong",
+                                    "tamtinh",
+                                    "thanhtien"
                                 ],
                                 "properties": {
                                     "id_phuongthuc": {
@@ -1159,11 +1038,36 @@
                                         "type": "integer",
                                         "example": 1
                                     },
+                                    "id_phivanchuyen": {
+                                        "description": "ID phí vận chuyển",
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "id_diachigiaohang": {
+                                        "description": "ID địa chỉ giao hàng",
+                                        "type": "integer",
+                                        "example": 3
+                                    },
                                     "id_magiamgia": {
                                         "description": "ID mã giảm giá (nếu có)",
                                         "type": "integer",
                                         "example": null,
                                         "nullable": true
+                                    },
+                                    "tongsoluong": {
+                                        "description": "Tổng số lượng sản phẩm trong đơn",
+                                        "type": "integer",
+                                        "example": 3
+                                    },
+                                    "tamtinh": {
+                                        "description": "Tổng tạm tính của đơn hàng (chưa trừ mã giảm giá)",
+                                        "type": "integer",
+                                        "example": 250000
+                                    },
+                                    "thanhtien": {
+                                        "description": "Tổng tiền sau khi áp dụng giảm giá và phí vận chuyển",
+                                        "type": "integer",
+                                        "example": 230000
                                     }
                                 },
                                 "type": "object"
@@ -1173,7 +1077,28 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Tạo đơn hàng thành công"
+                        "description": "Tạo đơn hàng thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Tạo đơn hàng thành công!"
+                                        },
+                                        "data": {
+                                            "description": "Thông tin đơn hàng và chi tiết đơn hàng đi kèm",
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "400": {
                         "description": "Giỏ hàng trống hoặc dữ liệu không hợp lệ"
@@ -1194,8 +1119,8 @@
                 "tags": [
                     "Đơn hàng (tôi)"
                 ],
-                "summary": "Cập nhật thông tin đơn hàng",
-                "description": "Cho phép người dùng cập nhật phương thức thanh toán hoặc mã giảm giá, chỉ khi đơn hàng ở trạng thái 'Chờ xử lý'.",
+                "summary": "Cập nhật thông tin và trạng thái đơn hàng (đồng bộ chi tiết)",
+                "description": "\n     *     ✅ Cho phép người dùng:\n     *     - Cập nhật `id_phuongthuc`, `id_magiamgia` khi đơn còn ở trạng thái **'Chờ xử lý'**.\n     *     - Cập nhật `trangthai` (Đã chấp nhận, Đang giao hàng, Đã giao hàng, Đã hủy đơn).\n     *\n     *     🔁 Khi thay đổi `trangthai`:\n     *     - Hệ thống tự **đồng bộ tất cả chi tiết đơn hàng** (`chitiet_donhang.trangthai` = trạng thái mới).\n     *     - Nếu trạng thái là **'Đã giao hàng'** → `DonhangObserver` sẽ tự động trừ kho (`bienthe.soluong -= chitietdonhang.soluong`) và tăng `luotmua`.\n     *     - Nếu trạng thái là **'Đã hủy đơn'** → `DonhangObserver` sẽ tự động hoàn lại tồn kho (`bienthe.soluong += chitietdonhang.soluong`).\n     *     ",
                 "operationId": "85f7161fcfd6e50cf9003afeb13aa3e1",
                 "parameters": [
                     {
@@ -1233,7 +1158,7 @@
                                             "Đã giao hàng",
                                             "Đã hủy đơn"
                                         ],
-                                        "example": "Chờ xử lý"
+                                        "example": "Đã giao hàng"
                                     }
                                 },
                                 "type": "object"
@@ -1243,13 +1168,16 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Cập nhật đơn hàng thành công"
+                        "description": "Cập nhật đơn hàng và chi tiết thành công"
                     },
-                    "403": {
-                        "description": "Không thể cập nhật đơn hàng đã được xử lý"
+                    "400": {
+                        "description": "Trạng thái không hợp lệ hoặc không thể cập nhật"
                     },
                     "404": {
                         "description": "Không tìm thấy đơn hàng hoặc không có quyền"
+                    },
+                    "500": {
+                        "description": "Lỗi hệ thống khi xử lý đơn hàng"
                     }
                 },
                 "security": [
@@ -1264,8 +1192,8 @@
                 "tags": [
                     "Đơn hàng (tôi)"
                 ],
-                "summary": "Hủy đơn hàng của người dùng",
-                "description": "Hủy đơn hàng khi đơn vẫn còn trong trạng thái 'Chờ xử lý'.",
+                "summary": "Hủy đơn hàng của người dùng (đồng bộ kho tự động)",
+                "description": "\n     *     ❌ Hủy đơn hàng khi đơn vẫn còn trong trạng thái 'Chờ xử lý'.\n     *     🔁 Khi đơn bị hủy, **Observer DonhangObserver** sẽ tự hoàn lại số lượng sản phẩm trong kho (`bienthe.soluong += chitietdonhang.soluong`).\n     *     ",
                 "operationId": "4ea580bea74d4bfa87f50419268fd5a4",
                 "parameters": [
                     {
@@ -4309,7 +4237,7 @@
                     "bienthe": {
                         "properties": {
                             "soluong": {
-                                "description": "Số lượng",
+                                "description": "Số lượng sản phẩm",
                                 "type": "integer",
                                 "example": 3
                             },
@@ -4320,13 +4248,13 @@
                                 "example": 100000
                             },
                             "thanhtien": {
-                                "description": "Thành tiền",
+                                "description": "Thành tiền đã lưu trong giỏ hàng",
                                 "type": "number",
                                 "format": "float",
                                 "example": 300000
                             },
                             "tamtinh": {
-                                "description": "Tạm tính (soluong * giagoc)",
+                                "description": "Tính tạm thời = soluong * giagoc",
                                 "type": "number",
                                 "format": "float",
                                 "example": 300000
@@ -4344,17 +4272,17 @@
                                         "example": "Giày Thể Thao"
                                     },
                                     "loaisanpham": {
-                                        "description": "Loại biến thể",
+                                        "description": "Tên loại biến thể",
                                         "type": "string",
                                         "example": "Size 42"
                                     },
                                     "giamgia": {
-                                        "description": "Giảm giá",
+                                        "description": "Giảm giá của sản phẩm",
                                         "type": "string",
                                         "example": "10%"
                                     },
                                     "giagoc": {
-                                        "description": "Giá gốc biến thể",
+                                        "description": "Giá gốc sản phẩm",
                                         "type": "number",
                                         "format": "float",
                                         "example": 100000
@@ -4366,7 +4294,7 @@
                                         "example": 90000
                                     },
                                     "hinhanh": {
-                                        "description": "Hình ảnh sản phẩm",
+                                        "description": "Hình ảnh đại diện sản phẩm",
                                         "type": "string",
                                         "example": "abc123.jpg"
                                     }
@@ -4429,10 +4357,6 @@
         {
             "name": "Đánh giá (tôi)",
             "description": "Đánh giá (tôi)"
-        },
-        {
-            "name": "Tất Cả Danh mục theo cây đa cấp (nằm ở trang contact ...)",
-            "description": "Tất Cả Danh mục theo cây đa cấp (nằm ở trang contact ...)"
         },
         {
             "name": "Địa chỉ (tôi)",

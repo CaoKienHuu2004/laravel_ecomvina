@@ -91,9 +91,9 @@ class SanPhamAllResources extends JsonResource
             'luotxem' => $this->luotxem,
 
             'sold' => [
-                'total_sold' => $this->total_sold ?? 0, // Tổng số lượng đã bán
-                'total_quantity' => $this->total_quantity ?? 0, // Tổng số lượng
-                ],
+                'total_sold' => $this->bienthe ? $this->bienthe->sum('luotban') : 0, // tổng luotban của các biến thể
+                'total_quantity' => $this->bienthe ? $this->bienthe->sum('soluong') : 0, // nếu có cột 'soluong' thì tổng luôn
+            ],
 
             // . Giá (Price)
             'gia' => [

@@ -12,12 +12,7 @@ class DanhmucModel extends Model
     use HasFactory; // thiếu xóa mềm rồi
     protected $table = 'danhmuc';
     protected $primaryKey = 'id';
-    protected $fillable = ['ten', 'slug','logo','parent','created_at','updated_at'];
-
-    protected $casts = [
-        'created_at' => 'datetime:Y-m-d H:i:s',
-        'updated_at' => 'datetime:Y-m-d H:i:s',
-    ];
+    protected $fillable = ['ten', 'slug','logo','parent'];
 
     public function sanpham(): BelongsToMany
     {

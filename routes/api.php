@@ -209,8 +209,8 @@ use App\Http\Controllers\API\SuKienAPI;
 
     Route::apiResource('loaibienthes', LoaiBienTheAPI::class)->only(['index','show']); // làm menu khi hover list products da cấp
     Route::apiResource('danhmucs', DanhmucAPI::class)->only(['index','show']);
-        Route::apiResource('danhmucs-selection', DanhmucFrontendAPI::class)->only(['index','show']); // selection: ở home // limit 10 // orderby theo danh mục có tổng lượt xem và có lượt mua nhiều nhất
-        Route::apiResource('danhmucs-all', DanhmucAllFrontendAPI::class)->only(['index','show']); // thanh menu aside lọc sản phẩm
+        // Route::apiResource('danhmucs-selection', DanhmucFrontendAPI::class)->only(['index','show']); // tổng hợp vào sanpham-seletion rồi nên nó thành dữ
+        Route::apiResource('danhmucs-all', DanhmucAllFrontendAPI::class)->only(['index']); // thanh menu aside lọc sản phẩm củ, UI mới thì ko chưa biết chưa có cứ làm tạm vậy
 
     Route::apiResource('chuongtrinhsukiens', SuKienAPI::class)->only(['index','show']);
     Route::apiResource('quatangkhuyenmais', QuaTangSuKienAPI::class)->only(['index','show']);

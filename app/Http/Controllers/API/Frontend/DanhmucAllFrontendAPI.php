@@ -12,89 +12,59 @@ class DanhmucAllFrontendAPI extends Controller
     /**
      * @OA\Get(
      *     path="/api/danhmucs-all",
-     *     tags={"Tất Cả Danh mục theo cây đa cấp (nằm ở trang contact ...)"},
-     *     summary="Lấy danh sách danh mục đa cấp có đếm số lượng con",
-     *     description="API này trả về danh sách tất cả danh mục theo cấu trúc đa cấp (cha - con - cháu...) kèm theo số lượng danh mục con trực tiếp của mỗi danh mục.",
-     *
+     *     tags={"Danh mục"},
+     *     summary="Lấy danh sách danh mục cha và con (2 cấp, không có parent_id, FK tới chính nó)",
+     *     description="Trả về danh sách danh mục có parent='Cha' và các danh mục con (parent='Con') tương ứng theo nhóm tên hoặc slug.",
      *     @OA\Response(
      *         response=200,
-     *         description="Lấy danh mục thành công",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Lấy danh mục thành công"),
-     *             @OA\Property(
-     *                 property="data",
-     *                 type="array",
-     *                 description="Danh sách danh mục cha và các danh mục con",
-     *                 @OA\Items(
-     *                     @OA\Property(property="id", type="integer", example=1),
-     *                     @OA\Property(property="ten_danhmuc", type="string", example="Điện thoại"),
-     *                     @OA\Property(property="slug", type="string", example="dien-thoai"),
-     *                     @OA\Property(property="parent", type="integer", nullable=true, example=null),
-     *                     @OA\Property(property="so_luong_con", type="integer", example=3, description="Số lượng danh mục con trực tiếp"),
-     *                     @OA\Property(
-     *                         property="danhmuccon",
-     *                         type="array",
-     *                         description="Danh mục con của danh mục hiện tại",
-     *                         @OA\Items(
-     *                             @OA\Property(property="id", type="integer", example=2),
-     *                             @OA\Property(property="ten_danhmuc", type="string", example="Điện thoại Samsung"),
-     *                             @OA\Property(property="slug", type="string", example="dien-thoai-samsung"),
-     *                             @OA\Property(property="parent", type="integer", example=1),
-     *                             @OA\Property(property="so_luong_con", type="integer", example=2),
-     *                             @OA\Property(
-     *                                 property="danhmuccon",
-     *                                 type="array",
-     *                                 description="Danh mục cháu (cấp con của cấp con)",
-     *                                 @OA\Items(
-     *                                     @OA\Property(property="id", type="integer", example=3),
-     *                                     @OA\Property(property="ten_danhmuc", type="string", example="Samsung Galaxy A"),
-     *                                     @OA\Property(property="slug", type="string", example="samsung-galaxy-a"),
-     *                                     @OA\Property(property="parent", type="integer", example=2),
-     *                                     @OA\Property(property="so_luong_con", type="integer", example=0)
-     *                                 )
-     *                             )
-     *                         )
-     *                     )
-     *                 )
-     *             )
-     *         )
-     *     ),
-     *
-     *     @OA\Response(
-     *         response=500,
-     *         description="Lỗi server hoặc không lấy được dữ liệu",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Lỗi hệ thống")
-     *         )
+     *         description="Lấy danh mục thành công"
      *     )
      * )
      */
     public function index(Request $request)
     {
-        // Lấy danh mục cha và con cấp 3
-        $danhmucs = DanhmucModel::whereNull('parent')
-            ->with('danhmuccon.danhmuccon.danhmuccon')
-            ->get();
+        try {
+            // Lấy danh mục cha và con đang "Hiển thị"
+            $cha = DanhmucModel::where('parent', 'Cha')
+                ->where('trangthai', 'Hiển thị')
+                ->get();
 
-        // Đệ quy để thêm số lượng con
-        $addCountRecursive = function ($categories) use (&$addCountRecursive) {
-            return $categories->map(function ($item) use ($addCountRecursive) {
-                $item->so_luong_con = $item->danhmuccon ? $item->danhmuccon->count() : 0;
-                if ($item->danhmuccon && $item->danhmuccon->isNotEmpty()) {
-                    $item->danhmuccon = $addCountRecursive($item->danhmuccon);
-                }
-                return $item;
+            $con = DanhmucModel::where('parent', 'Con')
+                ->where('trangthai', 'Hiển thị')
+                ->get();
+
+            // Tạo cấu trúc cây đơn giản (cha - con)
+            $result = $cha->map(function ($dmCha) use ($con) {
+                // Gắn con theo cách "tên cha xuất hiện trong tên con"
+                $danhmucCon = $con->filter(function ($dmCon) use ($dmCha) {
+                    return str_contains(
+                        strtolower($dmCon->ten),
+                        strtolower($dmCha->ten)
+                    );
+                })->values();
+
+                return [
+                    'id' => $dmCha->id,
+                    'ten' => $dmCha->ten,
+                    'slug' => $dmCha->slug,
+                    'logo' => $dmCha->logo,
+                    'parent' => $dmCha->parent,
+                    'trangthai' => $dmCha->trangthai,
+                    'so_luong_con' => $danhmucCon->count(),
+                    'danhmuccon' => $danhmucCon,
+                ];
             });
-        };
 
-        $danhmucs = $addCountRecursive($danhmucs);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Lấy danh mục thành công',
-            'data' => $danhmucs
-        ], Response::HTTP_OK);
+            return response()->json([
+                'success' => true,
+                'message' => 'Lấy danh mục thành công',
+                'data' => $result
+            ], Response::HTTP_OK);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lỗi hệ thống: ' . $th->getMessage()
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }

@@ -26,8 +26,14 @@ class ChitietdonhangModel extends Model
         'soluong',
         'dongia',
         'trangthai',
+        'deleted_at'
     ];
-
+    protected $casts = [
+        'deleted_at' => 'datetime:Y-m-d H:i:s',
+    ];
+    protected $hidden = [
+        'deleted_at',
+    ];
     /**
      * Quan hệ với model BienThe (1 biến thể có thể thuộc nhiều chi tiết đơn hàng)
      */
