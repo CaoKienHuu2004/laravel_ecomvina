@@ -84,7 +84,7 @@ class DanhmucAPI extends BaseController
         }
 
         // Laravel tự động lấy ?page= từ query string
-        $items = $query->latest('updated_at')->paginate($perPage);
+        $items = $query->latest('id')->paginate($perPage);
 
         return $this->jsonResponse([
             'status' => true,

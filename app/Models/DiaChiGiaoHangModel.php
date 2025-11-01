@@ -32,6 +32,9 @@ class DiaChiGiaoHangModel extends Model
         'id_nguoidung' => 'integer',
         'deleted_at'   => 'datetime',
     ];
+    protected $hidden = [
+        'deleted_at',
+    ];
 
     /**
      * Quan hệ với bảng NguoiDung (1 người dùng có nhiều địa chỉ giao hàng)

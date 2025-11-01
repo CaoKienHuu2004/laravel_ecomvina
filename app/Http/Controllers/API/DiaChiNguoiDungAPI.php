@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\API\BaseController;
-use App\Models\DiachinguoidungModel;
+use App\Models\DiaChiGiaoHangModel;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -17,7 +17,7 @@ class DiaChiNguoiDungAPI extends BaseController
         $perPage = $request->get('per_page', 10);
         $q       = $request->get('q'); // Từ khóa tìm kiếm
 
-        $query = DiachinguoidungModel::with('nguoidung')
+        $query = DiaChiGiaoHangModel::with('nguoidung')
             ->latest('updated_at')
             ->when($q, function ($query) use ($q) {
                 $query->where(function ($sub) use ($q) {
@@ -50,7 +50,7 @@ class DiaChiNguoiDungAPI extends BaseController
      */
     public function show($id)
     {
-        $item = DiachinguoidungModel::with('nguoidung')->find($id);
+        $item = DiaChiGiaoHangModel::with('nguoidung')->find($id);
 
         if (!$item) {
             return $this->jsonResponse([
@@ -79,7 +79,7 @@ class DiaChiNguoiDungAPI extends BaseController
             'trangthai'    => 'required|in:Mặc định,Khác,Tạm ẩn',
         ]);
 
-        $item = DiachinguoidungModel::create($validated);
+        $item = DiaChiGiaoHangModel::create($validated);
 
         return $this->jsonResponse([
             'status'  => true,
@@ -93,7 +93,7 @@ class DiaChiNguoiDungAPI extends BaseController
      */
     public function update(Request $request, $id)
     {
-        $item = DiachinguoidungModel::find($id);
+        $item = DiaChiGiaoHangModel::find($id);
 
         if (!$item) {
             return $this->jsonResponse([
@@ -124,7 +124,7 @@ class DiaChiNguoiDungAPI extends BaseController
      */
     public function destroy($id)
     {
-        $item = DiachinguoidungModel::find($id);
+        $item = DiaChiGiaoHangModel::find($id);
 
         if (!$item) {
             return $this->jsonResponse([
@@ -146,7 +146,7 @@ class DiaChiNguoiDungAPI extends BaseController
      */
     public function restore($id)
     {
-        $item = DiachinguoidungModel::withTrashed()->find($id);
+        $item = DiaChiGiaoHangModel::withTrashed()->find($id);
 
         if (!$item || !$item->trashed()) {
             return $this->jsonResponse([
@@ -169,7 +169,7 @@ class DiaChiNguoiDungAPI extends BaseController
      */
     public function forceDelete($id)
     {
-        $item = DiachinguoidungModel::withTrashed()->find($id);
+        $item = DiaChiGiaoHangModel::withTrashed()->find($id);
 
         if (!$item) {
             return $this->jsonResponse([

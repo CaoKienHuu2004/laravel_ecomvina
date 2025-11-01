@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\API\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Models\DiaChiGiaoHangModel;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use App\Models\DiachinguoidungModel;
+
 use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\DB;
 use OpenApi\Annotations as OA;
@@ -58,7 +59,7 @@ class DiaChiFrontendAPI extends BaseFrontendController
     {
         $user = $request->get('auth_user');
 
-        $diachis = DiachinguoidungModel::where('id_nguoidung', $user->id)
+        $diachis = DiaChiGiaoHangModel::where('id_nguoidung', $user->id)
             ->orderByRaw("FIELD(trangthai, 'Mặc định', 'Khác', 'Tạm ẩn')")
             ->get();
 
@@ -111,11 +112,11 @@ class DiaChiFrontendAPI extends BaseFrontendController
         try {
             // Nếu thêm địa chỉ mặc định, các địa chỉ khác sẽ thành "Khác"
             if (($validated['trangthai'] ?? null) === 'Mặc định') {
-                DiachinguoidungModel::where('id_nguoidung', $user->id)
+                DiaChiGiaoHangModel::where('id_nguoidung', $user->id)
                     ->update(['trangthai' => 'Khác']);
             }
 
-            $diachi = DiachinguoidungModel::create(array_merge($validated, [
+            $diachi = DiaChiGiaoHangModel::create(array_merge($validated, [
                 'id_nguoidung' => $user->id,
                 'trangthai' => $validated['trangthai'] ?? 'Khác',
             ]));
@@ -174,7 +175,7 @@ class DiaChiFrontendAPI extends BaseFrontendController
     {
         $user = $request->get('auth_user');
 
-        $diachi = DiachinguoidungModel::where('id', $id)
+        $diachi = DiaChiGiaoHangModel::where('id', $id)
             ->where('id_nguoidung', $user->id)
             ->first();
 
@@ -196,7 +197,7 @@ class DiaChiFrontendAPI extends BaseFrontendController
         try {
             // Nếu cập nhật thành mặc định
             if (($validated['trangthai'] ?? null) === 'Mặc định') {
-                DiachinguoidungModel::where('id_nguoidung', $user->id)
+                DiaChiGiaoHangModel::where('id_nguoidung', $user->id)
                     ->update(['trangthai' => 'Khác']);
             }
 
@@ -247,7 +248,7 @@ class DiaChiFrontendAPI extends BaseFrontendController
     {
         $user = $request->get('auth_user');
 
-        $diachi = DiachinguoidungModel::where('id', $id)
+        $diachi = DiaChiGiaoHangModel::where('id', $id)
             ->where('id_nguoidung', $user->id)
             ->first();
 
@@ -294,7 +295,7 @@ class DiaChiFrontendAPI extends BaseFrontendController
     {
         $user = $request->get('auth_user');
 
-        $diachi = DiachinguoidungModel::where('id', $id)
+        $diachi = DiaChiGiaoHangModel::where('id', $id)
             ->where('id_nguoidung', $user->id)
             ->first();
 
@@ -308,7 +309,7 @@ class DiaChiFrontendAPI extends BaseFrontendController
         DB::beginTransaction();
         try {
             // Các địa chỉ khác thành "Khác"
-            DiachinguoidungModel::where('id_nguoidung', $user->id)
+            DiaChiGiaoHangModel::where('id_nguoidung', $user->id)
                 ->update(['trangthai' => 'Khác']);
 
             $diachi->update(['trangthai' => 'Mặc định']);
@@ -362,7 +363,7 @@ class DiaChiFrontendAPI extends BaseFrontendController
     {
         $user = $request->get('auth_user');
 
-        $diachi = DiachinguoidungModel::where('id', $id)
+        $diachi = DiaChiGiaoHangModel::where('id', $id)
             ->where('id_nguoidung', $user->id)
             ->first();
 
