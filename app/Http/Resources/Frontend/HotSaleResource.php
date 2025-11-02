@@ -31,7 +31,9 @@ class HotSaleResource extends JsonResource
         $averageRating = round($this->avg_rating ?? 0, 1);
         $reviewCount = $this->review_count; // Tổng số lượng đánh giá
 
-        $hinhanhsanpham = $this->hinhanhsanpham->sortByDesc('updated_at')->first()->hinhanh;
+        $hinhanhsanpham = optional(
+            $this->hinhanhsanpham->sortByDesc('id')->first()
+        )->hinhanh;
 
         return [
             // 1. Dữ liệu cơ bản
@@ -42,6 +44,7 @@ class HotSaleResource extends JsonResource
             // 2. Hình ảnh (Image)
 
             'hinh_anh' =>  $hinhanhsanpham,
+            'thuonghieu' => $storeName,
 
             // 3. Giá (Price)
             'gia' => [
@@ -57,10 +60,10 @@ class HotSaleResource extends JsonResource
             ],
 
             // 4. Thông tin Cửa hàng/Thương hiệu (Store/Brand)
-            'store' => [
-                'name' => $storeName, // Siêu thị Vina
-                'icon_url' => null, // Thêm đường dẫn icon nếu có (Ví dụ: )
-            ],
+            // 'store' => [
+            //     'name' => $storeName, // Siêu thị Vina
+            //     'icon_url' => null, // Thêm đường dẫn icon nếu có (Ví dụ: )
+            // ],
 
             // 5. Đánh giá (Rating - dựa trên 'danhgia' và withAvg)
             'rating' => [
@@ -68,6 +71,7 @@ class HotSaleResource extends JsonResource
                 'count' => $reviewCount,     // (17k) -> Cần format số lớn ở frontend
                 // 'formatted_count' => $this->formatReviewCount($reviewCount), // Có thể format ở đây hoặc frontend
             ],
+            'sold_count' => $this->total_sold ?? 0, // Thêm trường tổng số đã bán nếu cần
         ];
     }
 }

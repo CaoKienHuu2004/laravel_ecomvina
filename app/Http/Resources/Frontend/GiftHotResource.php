@@ -1,0 +1,38 @@
+<?php
+
+namespace App\Http\Resources\Frontend;
+
+use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\JsonResource;
+use Carbon\Carbon;
+
+class GiftHotResource extends JsonResource
+{
+    public function toArray($request)
+    {
+        // Tính thời gian còn lại
+        $remainingDays = null;
+        if ($this->ngayketthuc) {
+            $diff = Carbon::parse($this->ngayketthuc)->diff(Carbon::now());
+            $remainingDays = "Còn lại {$diff->days} ngày {$diff->h} giờ";
+        }
+        return [
+            'id' => $this->id,
+            'tieude' => $this->tieude,
+            'dieukien' => $this->dieukien,
+            'thongtin' => $this->thongtin,
+            'hinhanh' => $this->hinhanh,
+            'luotxem' => $this->luotxem,
+            'ngaybatdau' => $this->ngaybatdau,
+            'ngayketthuc' => $this->ngayketthuc,
+            'thoigian_conlai' => $remainingDays,
+            'chuongtrinh' => $this->whenLoaded('chuongtrinh', function () {
+                return [
+                    'id' => $this->chuongtrinh->id,
+                    'tieude' => $this->chuongtrinh->tieude,
+                    'hinhanh' => $this->chuongtrinh->hinhanh,
+                ];
+            }),
+        ];
+    }
+}

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\ChuongTrinhModel;
 use App\Models\SukienModel;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -70,7 +71,7 @@ class SuKienAPI extends BaseController
         $perPage = $request->get('per_page', 10);
         $q = $request->get('q'); // từ khóa tìm kiếm
 
-        $query = SukienModel::query();
+        $query = ChuongTrinhModel::query();
 
         if ($q) {
             $query->where(function ($sub) use ($q) {
@@ -127,7 +128,7 @@ class SuKienAPI extends BaseController
      */
     public function show($id)
     {
-        $item = SukienModel::findOrFail($id);
+        $item = ChuongTrinhModel::findOrFail($id);
 
         return $this->jsonResponse([
             'status' => true,
@@ -151,7 +152,7 @@ class SuKienAPI extends BaseController
             'trangthai'   => 'nullable|in:Hiển thị,Tạm ẩn',
         ]);
 
-        $item = SukienModel::create($validated);
+        $item = ChuongTrinhModel::create($validated);
 
         return $this->jsonResponse([
             'status' => true,
@@ -165,7 +166,7 @@ class SuKienAPI extends BaseController
      */
     public function update(Request $request, $id)
     {
-        $item = SukienModel::findOrFail($id);
+        $item = ChuongTrinhModel::findOrFail($id);
 
         $validated = $request->validate([
             'tieude'      => 'sometimes|required|string|max:255',
@@ -191,7 +192,7 @@ class SuKienAPI extends BaseController
      */
     public function destroy($id)
     {
-        $item = SukienModel::findOrFail($id);
+        $item = ChuongTrinhModel::findOrFail($id);
         $item->delete(); // nhờ SoftDeletes => chỉ cập nhật deleted_at
 
         return $this->jsonResponse([
@@ -205,7 +206,7 @@ class SuKienAPI extends BaseController
      */
     public function restore($id)
     {
-        $item = SukienModel::onlyTrashed()->findOrFail($id);
+        $item = ChuongTrinhModel::onlyTrashed()->findOrFail($id);
         $item->restore();
 
         return $this->jsonResponse([
@@ -220,7 +221,7 @@ class SuKienAPI extends BaseController
      */
     public function forceDelete($id)
     {
-        $item = SukienModel::onlyTrashed()->findOrFail($id);
+        $item = ChuongTrinhModel::onlyTrashed()->findOrFail($id);
         $item->forceDelete();
 
         return $this->jsonResponse([

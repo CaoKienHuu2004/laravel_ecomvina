@@ -92,6 +92,7 @@ class SanPhamAllResources extends JsonResource
 
             'sold' => [
                 'total_sold' => $this->bienthe ? $this->bienthe->sum('luotban') : 0, // tổng luotban của các biến thể
+                // bình thường trong query controller củng đã có trường total_sold rồi mà chỉ có cái default là có à, nên làm như trên
                 'total_quantity' => $this->bienthe ? $this->bienthe->sum('soluong') : 0, // nếu có cột 'soluong' thì tổng luôn
             ],
 
@@ -110,7 +111,7 @@ class SanPhamAllResources extends JsonResource
             'trangthai' =>[
                 'active' => $this->trangthai,
                 'in_stock' => $this->total_quantity > 0,
-                ]
+            ],
         ];
     }
 }

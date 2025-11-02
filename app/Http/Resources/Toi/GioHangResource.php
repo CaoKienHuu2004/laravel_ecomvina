@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Resources\TOI;
+namespace App\Http\Resources\Toi;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -58,6 +58,19 @@ class GioHangResource extends JsonResource
                     'hinhanh' => optional($this->bienthe->sanpham->hinhanhsanpham->first())->hinhanh,
                 ],
             ],
+            'bienthe_quatang' => $this->thanhtien == 0 ? [
+                'soluong' => $this->soluong,
+                'giagoc' => $this->bienthe->giagoc,
+                'thanhtien' => $this->thanhtien,
+                'tamtinh' => 0,
+                'detail' => [
+                    'thuonghieu' => optional($this->bienthe->sanpham->thuonghieu)->ten,
+                    'tensanpham' => optional($this->bienthe->sanpham)->ten,
+                    'loaisanpham' => optional($this->bienthe->loaibienthe)->ten,
+                    'giagoc' => $this->bienthe->giagoc,
+                    'hinhanh' => optional($this->bienthe->sanpham->hinhanhsanpham->first())->hinhanh,
+                ],
+            ] : null,
         ];
     }
 }

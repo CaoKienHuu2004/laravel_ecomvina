@@ -27,7 +27,7 @@ class BientheController extends Controller
         $cuaHang = ThongTinNguoiBanHang::all();
         $danhmucs = DanhMuc::all();
 
-        return view('khohang', compact('sanphams', 'bienthe', 'cuaHang', 'danhmucs'));
+        return view('khohang.khohang', compact('sanphams', 'bienthe', 'cuaHang', 'danhmucs'));
     }
 
     public function edit(Request $request, $id)
@@ -36,7 +36,7 @@ class BientheController extends Controller
         $bienthe = Bienthesp::with(['loaiBienThe', 'sanpham'])->findOrFail($id);
         $loaibienthes = LoaiBienThe::all();
 
-        return view('suahangtonkho', compact('bienthe',  'loaibienthes'));
+        return view('khohang.suahangtonkho', compact('bienthe',  'loaibienthes'));
     }
 
     public function update(Request $request, $id)

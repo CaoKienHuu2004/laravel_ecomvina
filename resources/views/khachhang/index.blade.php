@@ -38,7 +38,8 @@
                   <thead>
                     <tr>
                       <th>Tên khách hàng</th>
-                      <th>Email</th>
+                      <th>Username</th>
+                      {{-- <th>Email</th> --}}
                       <th>Số điện thoại</th>
                       <th>Địa chỉ (thành phố)</th>
                       <th>Trạng thái</th>
@@ -51,20 +52,27 @@
                         <td class="productimgname">
                           <a href="javascript:void(0);" class="product-img">
                             <img
-                              src="{{ asset('storage/' . ($ds->avatar ?? 'uploads/nguoidung/avatar/avatar.png'))}}"
+                              src="{{ asset('storage/'.'uploads/nguoidung/avatar/' . ($ds->avatar ?? 'uploads/nguoidung/avatar/avatar.png'))}}"
                               alt="product"
                             />
                           </a>
                           <a href="javascript:void(0);">{{ $ds->hoten }}</a>
                         </td>
                         <td>
-                          <a href="mailto:{{$ds->email}}" class="__cf_email__" data-cfemail="1165797e7c7062517469707c617d743f727e7c">
-                              {{$ds->email}}
+                          <a href="mailto:{{$ds->username}}" class="__cf_email__" data-cfemail="1165797e7c7062517469707c617d743f727e7c">
+                              {{$ds->username}}
                           </a>
+                          {{-- <a href="mailto:{{$ds->email}}" class="__cf_email__" data-cfemail="1165797e7c7062517469707c617d743f727e7c">
+                              {{$ds->email}}
+                          </a> --}}
                         </td>
                         <td>{{$ds->sodienthoai}}</td>
                         <td>
-                          Đài Trung
+                            @if($ds->diachi->isNotEmpty())
+                                {{ $ds->diachi->first()->diachi }} ({{ $ds->diachi->first()->thanhpho }})
+                            @else
+                                Chưa có địa chỉ
+                            @endif
                         </td>
                         <td>
                           <span class="badges bg-lightyellow">Tạm khóa</span>

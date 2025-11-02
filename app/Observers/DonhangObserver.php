@@ -49,7 +49,7 @@ class DonhangObserver
                 if ($trangThaiMoi === 'Đã Giao Hàng') {
                     $bienthe->decrement('soluong', $ct->soluong);
                     $bienthe->increment('luotmua', $ct->soluong);
-                    $bienthe->decrement('luottang', $ct->soluong);
+                    // $bienthe->decrement('luottang', $ct->soluong);
                 }
 
                 // 🔴 Nếu đơn hàng bị hủy → hoàn lại kho, giảm lượt mua (nếu đã từng giao)

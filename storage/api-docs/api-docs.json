@@ -1422,44 +1422,98 @@
                 "tags": [
                     "Tất Cả Sản phẩm (Trang Tất Cả Sản Phẩm)"
                 ],
-                "summary": "Lấy danh sách sản phẩm",
-                "description": "Hiển thị danh sách sản phẩm theo nhiều tiêu chí như phổ biến, mới nhất, xu hướng,...",
-                "operationId": "779af28c25e1a7c83d9c6eea63ab4b19",
+                "summary": "Danh sách sản phẩm (phân trang + tìm kiếm + bộ lọc + lọc giá + thương hiệu + danh mục)",
+                "description": "\n     *     ✅ Lấy danh sách sản phẩm kèm phân trang, có thể lọc theo:\n     *     - Từ khóa tìm kiếm (`q`)\n     *     - Thương hiệu (`thuonghieu` - slug)\n     *     - Danh mục (`danhmuc` - slug)\n     *     - Khoảng giá (`locgia` - mã khoảng giá)\n     *     - Bộ lọc nhanh (`filter`): popular, latest, trending, matches\n     *\n     *     Mã khoảng giá (locgia):\n     *     - `to100` → Dưới 100.000đ\n     *     - `to200` → 100.000đ - 200.000đ\n     *     - `to300` → 200.000đ - 300.000đ\n     *     - `to500` → 300.000đ - 500.000đ\n     *     - `to700` → 500.000đ - 700.000đ\n     *     - `to1000` → 700.000đ - 1.000.000đ\n     *     - `high1000` → Trên 1.000.000đ\n     *     ",
+                "operationId": "1b4b608a84988a829bc862c8ad0eca31",
                 "parameters": [
                     {
                         "name": "filter",
                         "in": "query",
-                        "description": "Bộ lọc sản phẩm (popular, latest, trending, matches, default)",
+                        "description": "Bộ lọc nhanh:\n     *         - popular: sản phẩm được xem nhiều nhất\n     *         - latest: sản phẩm mới nhất\n     *         - trending: sản phẩm đang hot\n     *         - matches: sản phẩm gợi ý phù hợp",
                         "required": false,
                         "schema": {
                             "type": "string",
-                            "example": "popular"
-                        }
-                    },
-                    {
-                        "name": "q",
-                        "in": "query",
-                        "description": "Từ khóa tìm kiếm",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "example": "bánh"
+                            "enum": [
+                                "popular",
+                                "latest",
+                                "trending",
+                                "matches"
+                            ]
                         }
                     },
                     {
                         "name": "per_page",
                         "in": "query",
-                        "description": "Số lượng sản phẩm trên mỗi trang (mặc định 20)",
+                        "description": "Số lượng sản phẩm mỗi trang (mặc định 20)",
                         "required": false,
                         "schema": {
                             "type": "integer",
                             "example": 20
                         }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Số trang hiện tại (mặc định 1)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Từ khóa tìm kiếm theo tên hoặc mô tả sản phẩm",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "bánh quy"
+                        }
+                    },
+                    {
+                        "name": "thuonghieu",
+                        "in": "query",
+                        "description": "Slug thương hiệu cần lọc",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "oreo"
+                        }
+                    },
+                    {
+                        "name": "danhmuc",
+                        "in": "query",
+                        "description": "Slug danh mục cần lọc",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "banh-keo"
+                        }
+                    },
+                    {
+                        "name": "locgia",
+                        "in": "query",
+                        "description": "Lọc theo khoảng giá (xem bảng mã ở trên)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "to100",
+                                "to200",
+                                "to300",
+                                "to500",
+                                "to700",
+                                "to1000",
+                                "high1000"
+                            ],
+                            "example": "to500"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Danh sách sản phẩm",
+                        "description": "Danh sách sản phẩm trả về thành công",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1472,7 +1526,85 @@
                                             "type": "string",
                                             "example": "Danh sách sản phẩm"
                                         },
+                                        "filters": {
+                                            "description": "Bộ lọc hiển thị bên phải giao diện (menu aside)",
+                                            "properties": {
+                                                "danhmucs": {
+                                                    "description": "Danh sách danh mục có số lượng sản phẩm tương ứng",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "ten": {
+                                                                "type": "string",
+                                                                "example": "Bánh kẹo"
+                                                            },
+                                                            "slug": {
+                                                                "type": "string",
+                                                                "example": "banh-keo"
+                                                            },
+                                                            "tong_sanpham": {
+                                                                "type": "integer",
+                                                                "example": 25
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "thuonghieus": {
+                                                    "description": "Danh sách thương hiệu có sản phẩm",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "ten": {
+                                                                "type": "string",
+                                                                "example": "Oreo"
+                                                            },
+                                                            "slug": {
+                                                                "type": "string",
+                                                                "example": "oreo"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "price_ranges": {
+                                                    "description": "Các khoảng giá khả dụng cho bộ lọc",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "label": {
+                                                                "type": "string",
+                                                                "example": "300.000đ - 500.000đ"
+                                                            },
+                                                            "min": {
+                                                                "type": "integer",
+                                                                "example": 300000
+                                                            },
+                                                            "max": {
+                                                                "type": "integer",
+                                                                "example": 500000
+                                                            },
+                                                            "value": {
+                                                                "type": "integer",
+                                                                "example": "to500"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
                                         "data": {
+                                            "description": "Danh sách sản phẩm",
                                             "type": "array",
                                             "items": {
                                                 "$ref": "#/components/schemas/SanPhamAllResources"
@@ -1483,6 +1615,9 @@
                                 }
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Tham số không hợp lệ hoặc lỗi khi truy vấn"
                     }
                 }
             }
@@ -1492,8 +1627,8 @@
                 "tags": [
                     "Tất Cả Sản phẩm (Trang Tất Cả Sản Phẩm)"
                 ],
-                "summary": "Lấy chi tiết sản phẩm , và tự động lượt xem lên 1",
-                "description": "Hiển thị chi tiết sản phẩm bao gồm hình ảnh, thương hiệu, danh mục, đánh giá và biến thể có giá cao nhất.",
+                "summary": "Lấy chi tiết sản phẩm, tự động tăng lượt xem lên 1",
+                "description": "Hiển thị chi tiết sản phẩm bao gồm hình ảnh, thương hiệu, danh mục, đánh giá và biến thể có giá cao nhất. Kèm danh sách sản phẩm tương tự.",
                 "operationId": "b38d357af371cfe4cae8c46d44734503",
                 "parameters": [
                     {
@@ -1509,752 +1644,29 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Chi tiết sản phẩm",
+                        "description": "Chi tiết sản phẩm và sản phẩm tương tự",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/SanPhamAllDetailResources"
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/SanPhamAllDetailResources"
+                                        },
+                                        "sanpham_tuongtu": {
+                                            "description": "Danh sách sản phẩm tương tự",
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/SanPhamAllResources"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
                     },
                     "404": {
                         "description": "Không tìm thấy sản phẩm"
-                    }
-                }
-            }
-        },
-        "/api/sanphams-selection": {
-            "get": {
-                "tags": [
-                    "Sản phẩm (trang-chu)"
-                ],
-                "summary": "Danh sách sản phẩm trang chủ",
-                "description": "Trả về tất cả nhóm sản phẩm bao gồm: hot_sales, top_categories, top_brands, best_products, recommend và default.",
-                "operationId": "cac206f8ec931a9421b1222f57fe7848",
-                "responses": {
-                    "200": {
-                        "description": "Danh sách sản phẩm trang chủ",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Danh sách sản phẩm trang chủ"
-                                        },
-                                        "data": {
-                                            "properties": {
-                                                "hot_sales": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/SanphamItem"
-                                                    }
-                                                },
-                                                "top_categories": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/SanphamItem"
-                                                    }
-                                                },
-                                                "top_brands": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/SanphamItem"
-                                                    }
-                                                },
-                                                "best_products": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/SanphamItem"
-                                                    }
-                                                },
-                                                "recommend": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/SanphamItem"
-                                                    }
-                                                },
-                                                "default": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/SanphamItem"
-                                                    }
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/sanphams-selection?selection=hot_sales": {
-            "get": {
-                "tags": [
-                    "Sản phẩm (trang-chu)"
-                ],
-                "summary": "Lấy danh sách sản phẩm Hot Sales",
-                "description": "Lấy danh sách sản phẩm bán chạy, ưu tiên hot sales",
-                "operationId": "133ef3cad248a5e99d31e6b78ed4381a",
-                "parameters": [
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "description": "Số sản phẩm trên 1 trang",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "default": 10
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Danh sách sản phẩm hot sales",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean"
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        },
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "id": {
-                                                        "type": "integer"
-                                                    },
-                                                    "ten": {
-                                                        "type": "string"
-                                                    },
-                                                    "slug": {
-                                                        "type": "string"
-                                                    },
-                                                    "hinh_anh": {
-                                                        "type": "string",
-                                                        "nullable": true
-                                                    },
-                                                    "gia": {
-                                                        "properties": {
-                                                            "current": {
-                                                                "type": "number",
-                                                                "format": "float"
-                                                            },
-                                                            "before_discount": {
-                                                                "type": "number",
-                                                                "format": "float"
-                                                            },
-                                                            "discount_percent": {
-                                                                "type": "integer"
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    },
-                                                    "store": {
-                                                        "properties": {
-                                                            "name": {
-                                                                "type": "string"
-                                                            },
-                                                            "icon_url": {
-                                                                "type": "string",
-                                                                "nullable": true
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    },
-                                                    "rating": {
-                                                        "properties": {
-                                                            "average": {
-                                                                "type": "number",
-                                                                "format": "float"
-                                                            },
-                                                            "count": {
-                                                                "type": "integer"
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Yêu cầu không hợp lệ"
-                    }
-                }
-            }
-        },
-        "/api/sanphams-selection?selection=top_categories": {
-            "get": {
-                "tags": [
-                    "Sản phẩm (trang-chu)"
-                ],
-                "summary": "Lấy danh sách danh mục hàng đầu",
-                "description": "Danh sách các danh mục có nhiều sản phẩm bán chạy nhất. Limit mặc định 6.",
-                "operationId": "60bcba518ae371d310e591448c93b69f",
-                "parameters": [
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "description": "Số danh mục trả về",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "default": 6
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Danh sách danh mục hot",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean"
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        },
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "id": {
-                                                        "type": "integer"
-                                                    },
-                                                    "ten_danhmuc": {
-                                                        "type": "string"
-                                                    },
-                                                    "total_sold": {
-                                                        "type": "integer"
-                                                    },
-                                                    "sanpham": {
-                                                        "type": "array",
-                                                        "items": {
-                                                            "properties": {
-                                                                "id": {
-                                                                    "type": "integer"
-                                                                },
-                                                                "ten": {
-                                                                    "type": "string"
-                                                                },
-                                                                "slug": {
-                                                                    "type": "string"
-                                                                },
-                                                                "hinh_anh": {
-                                                                    "type": "string",
-                                                                    "nullable": true
-                                                                },
-                                                                "gia": {
-                                                                    "properties": {
-                                                                        "current": {
-                                                                            "type": "number",
-                                                                            "format": "float"
-                                                                        },
-                                                                        "before_discount": {
-                                                                            "type": "number",
-                                                                            "format": "float"
-                                                                        },
-                                                                        "discount_percent": {
-                                                                            "type": "integer"
-                                                                        }
-                                                                    },
-                                                                    "type": "object"
-                                                                },
-                                                                "store": {
-                                                                    "properties": {
-                                                                        "name": {
-                                                                            "type": "string"
-                                                                        },
-                                                                        "icon_url": {
-                                                                            "type": "string",
-                                                                            "nullable": true
-                                                                        }
-                                                                    },
-                                                                    "type": "object"
-                                                                },
-                                                                "rating": {
-                                                                    "properties": {
-                                                                        "average": {
-                                                                            "type": "number",
-                                                                            "format": "float"
-                                                                        },
-                                                                        "count": {
-                                                                            "type": "integer"
-                                                                        }
-                                                                    },
-                                                                    "type": "object"
-                                                                }
-                                                            },
-                                                            "type": "object"
-                                                        }
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Yêu cầu không hợp lệ"
-                    }
-                }
-            }
-        },
-        "/api/sanphams-selection?selection=top_brands": {
-            "get": {
-                "tags": [
-                    "Sản phẩm (trang-chu)"
-                ],
-                "summary": "Lấy top thương hiệu có sản phẩm bán chạy",
-                "description": "Trả về danh sách thương hiệu top bán chạy, limit 10",
-                "operationId": "6bba6439835220db1cdbb7ea1738e9ec",
-                "parameters": [
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "description": "Số thương hiệu trả về",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "default": 10
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Danh sách thương hiệu hot",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean"
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        },
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "id": {
-                                                        "type": "integer"
-                                                    },
-                                                    "name": {
-                                                        "type": "string"
-                                                    },
-                                                    "slug": {
-                                                        "type": "string"
-                                                    },
-                                                    "logo": {
-                                                        "type": "string",
-                                                        "nullable": true
-                                                    },
-                                                    "total_sold": {
-                                                        "type": "integer"
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Yêu cầu không hợp lệ"
-                    }
-                }
-            }
-        },
-        "/api/sanphams-selection?selection=best_products": {
-            "get": {
-                "tags": [
-                    "Sản phẩm (trang-chu)"
-                ],
-                "summary": "Lấy sản phẩm tốt nhất (Best Products)",
-                "description": "Trả về sản phẩm bán chạy + đánh giá cao, limit 8",
-                "operationId": "f1c9b071623bc3e22f82073379c9862b",
-                "parameters": [
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "description": "Số sản phẩm trả về",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "default": 8
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Danh sách sản phẩm best products",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean"
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        },
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "id": {
-                                                        "type": "integer"
-                                                    },
-                                                    "ten": {
-                                                        "type": "string"
-                                                    },
-                                                    "slug": {
-                                                        "type": "string"
-                                                    },
-                                                    "hinh_anh": {
-                                                        "type": "string",
-                                                        "nullable": true
-                                                    },
-                                                    "gia": {
-                                                        "properties": {
-                                                            "current": {
-                                                                "type": "number",
-                                                                "format": "float"
-                                                            },
-                                                            "before_discount": {
-                                                                "type": "number",
-                                                                "format": "float"
-                                                            },
-                                                            "discount_percent": {
-                                                                "type": "integer"
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    },
-                                                    "store": {
-                                                        "properties": {
-                                                            "name": {
-                                                                "type": "string"
-                                                            },
-                                                            "icon_url": {
-                                                                "type": "string",
-                                                                "nullable": true
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    },
-                                                    "rating": {
-                                                        "properties": {
-                                                            "average": {
-                                                                "type": "number",
-                                                                "format": "float"
-                                                            },
-                                                            "count": {
-                                                                "type": "integer"
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Yêu cầu không hợp lệ"
-                    }
-                }
-            }
-        },
-        "/api/sanphams-selection?selection=recommend": {
-            "get": {
-                "tags": [
-                    "Sản phẩm (trang-chu)"
-                ],
-                "summary": "Sản phẩm gợi ý",
-                "description": "Trả về sản phẩm gợi ý theo lượt xem cao + giá rẻ + giảm giá, limit 8",
-                "operationId": "3305fb645923f72e408337026b72f2b9",
-                "parameters": [
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "description": "Số sản phẩm trên mỗi trang",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "default": 8
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Danh sách sản phẩm gợi ý",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean"
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        },
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "id": {
-                                                        "type": "integer"
-                                                    },
-                                                    "ten": {
-                                                        "type": "string"
-                                                    },
-                                                    "slug": {
-                                                        "type": "string"
-                                                    },
-                                                    "hinh_anh": {
-                                                        "type": "string",
-                                                        "nullable": true
-                                                    },
-                                                    "gia": {
-                                                        "properties": {
-                                                            "current": {
-                                                                "type": "number",
-                                                                "format": "float"
-                                                            },
-                                                            "before_discount": {
-                                                                "type": "number",
-                                                                "format": "float"
-                                                            },
-                                                            "discount_percent": {
-                                                                "type": "integer"
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    },
-                                                    "store": {
-                                                        "properties": {
-                                                            "name": {
-                                                                "type": "string"
-                                                            },
-                                                            "icon_url": {
-                                                                "type": "string",
-                                                                "nullable": true
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    },
-                                                    "rating": {
-                                                        "properties": {
-                                                            "average": {
-                                                                "type": "number",
-                                                                "format": "float"
-                                                            },
-                                                            "count": {
-                                                                "type": "integer"
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Yêu cầu không hợp lệ"
-                    }
-                }
-            }
-        },
-        "/api/sanphams-selection?selection=default": {
-            "get": {
-                "tags": [
-                    "Sản phẩm (trang-chu)"
-                ],
-                "summary": "Danh sách sản phẩm mặc định",
-                "description": "Phân trang + filter theo thương hiệu, danh mục, giá min/max, sắp xếp lượt xem + giá rẻ + giảm giá + tổng bán + đánh giá",
-                "operationId": "67f4f8eb1a39b9c351ebbb11187f4ae4",
-                "parameters": [
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "description": "Số sản phẩm trên mỗi trang",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "default": 20
-                        }
-                    },
-                    {
-                        "name": "page",
-                        "in": "query",
-                        "description": "Trang hiện tại",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "default": 1
-                        }
-                    },
-                    {
-                        "name": "thuonghieu",
-                        "in": "query",
-                        "description": "Lọc theo id thương hiệu",
-                        "required": false,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "name": "danhmuc",
-                        "in": "query",
-                        "description": "Lọc theo id danh mục",
-                        "required": false,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "name": "gia_min",
-                        "in": "query",
-                        "description": "Lọc theo giá tối thiểu",
-                        "required": false,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "name": "gia_max",
-                        "in": "query",
-                        "description": "Lọc theo giá tối đa",
-                        "required": false,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Danh sách sản phẩm mặc định",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean"
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        },
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "id": {
-                                                        "type": "integer"
-                                                    },
-                                                    "ten": {
-                                                        "type": "string"
-                                                    },
-                                                    "slug": {
-                                                        "type": "string"
-                                                    },
-                                                    "hinh_anh": {
-                                                        "type": "string",
-                                                        "nullable": true
-                                                    },
-                                                    "gia": {
-                                                        "properties": {
-                                                            "current": {
-                                                                "type": "number",
-                                                                "format": "float"
-                                                            },
-                                                            "before_discount": {
-                                                                "type": "number",
-                                                                "format": "float"
-                                                            },
-                                                            "discount_percent": {
-                                                                "type": "integer"
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    },
-                                                    "store": {
-                                                        "properties": {
-                                                            "name": {
-                                                                "type": "string"
-                                                            },
-                                                            "icon_url": {
-                                                                "type": "string",
-                                                                "nullable": true
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    },
-                                                    "rating": {
-                                                        "properties": {
-                                                            "average": {
-                                                                "type": "number",
-                                                                "format": "float"
-                                                            },
-                                                            "count": {
-                                                                "type": "integer"
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Yêu cầu không hợp lệ"
                     }
                 }
             }
@@ -2414,6 +1826,339 @@
                         "bearerAuth": []
                     }
                 ]
+            }
+        },
+        "/api/tim-kiem": {
+            "get": {
+                "tags": [
+                    "Tìm kiếm sản phẩm"
+                ],
+                "summary": "Tìm kiếm sản phẩm theo tên hoặc danh mục",
+                "description": "\n     *     ✅ API tìm kiếm sản phẩm cho trang Tìm Kiếm.\n     *     - Hỗ trợ tìm theo **tên sản phẩm** hoặc **tên danh mục**.\n     *     - Kết quả bao gồm: hình ảnh, thương hiệu, danh mục, đánh giá, biến thể và tổng lượt bán.\n     *     - Có phân trang và thông tin tổng số sản phẩm.\n     *     ",
+                "operationId": "487490844bc39476bd90ea07524312bc",
+                "parameters": [
+                    {
+                        "name": "query",
+                        "in": "query",
+                        "description": "Từ khóa cần tìm kiếm (theo tên sản phẩm hoặc danh mục)",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "Laptop Dell"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Số sản phẩm trên mỗi trang (mặc định 10)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Danh sách sản phẩm tìm thấy",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Kết quả tìm kiếm thành công"
+                                        },
+                                        "filters": {
+                                            "description": "Các bộ lọc bên trái (danh mục, thương hiệu, khoảng giá)",
+                                            "properties": {
+                                                "danhmucs": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "ten": {
+                                                                "type": "string",
+                                                                "example": "Bánh kẹo"
+                                                            },
+                                                            "slug": {
+                                                                "type": "string",
+                                                                "example": "banh-keo"
+                                                            },
+                                                            "tong_sanpham": {
+                                                                "type": "integer",
+                                                                "example": 50
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "thuonghieus": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "ten": {
+                                                                "type": "string",
+                                                                "example": "Oreo"
+                                                            },
+                                                            "slug": {
+                                                                "type": "string",
+                                                                "example": "oreo"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "price_ranges": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "label": {
+                                                                "type": "string",
+                                                                "example": "100.000đ - 200.000đ"
+                                                            },
+                                                            "min": {
+                                                                "type": "integer",
+                                                                "example": 100000
+                                                            },
+                                                            "max": {
+                                                                "type": "integer",
+                                                                "example": 200000
+                                                            },
+                                                            "value": {
+                                                                "type": "string",
+                                                                "example": "to200"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/HotSaleResource"
+                                            }
+                                        },
+                                        "meta": {
+                                            "description": "Thông tin phân trang",
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "per_page": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 25
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Thiếu tham số query",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Tham số query không được để trống"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Không tìm thấy sản phẩm nào phù hợp",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Không có sản phẩm nào khớp với từ khóa 'Điện thoại'"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/trang-chu": {
+            "get": {
+                "tags": [
+                    "Trang Chủ"
+                ],
+                "summary": "Danh Sách Các Selection Trang Chủ",
+                "description": "Trả về các nhóm dữ liệu cho trang chủ bao gồm: hot_sales, hot_gift, top_categories, top_brands, best_products, recommend.",
+                "operationId": "0192f5f2a39607e94925f4bec1e82a2e",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Số lượng phần tử mỗi trang (mặc định: 4 cho hot_gift, 20 cho hot_sales, v.v.)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 4
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Danh sách dữ liệu trang chủ",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Danh sách các selection của trang chủ"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "hot_keywords": {
+                                                    "description": "🔥 Danh sách từ khóa hot với trường lienket tạo link tìm kiếm",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/HotKeywordItem"
+                                                    }
+                                                },
+                                                "new_banners": {
+                                                    "description": "🔥 Danh sách banner quảng cáo mới nhất (bảng quangcao)",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/NewBannerItem"
+                                                    }
+                                                },
+                                                "hot_categories": {
+                                                    "description": "🔥 Danh sách danh mục nổi bật được sắp xếp theo tổng số sản phẩm bán chạy nhất (total_luotban)",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 3
+                                                            },
+                                                            "ten": {
+                                                                "type": "string",
+                                                                "example": "Điện thoại"
+                                                            },
+                                                            "slug": {
+                                                                "type": "string",
+                                                                "example": "dien-thoai"
+                                                            },
+                                                            "logo": {
+                                                                "type": "string",
+                                                                "example": "danhmuc.jpg"
+                                                            },
+                                                            "total_luotban": {
+                                                                "description": "Tổng số lượt bán của tất cả sản phẩm trong danh mục",
+                                                                "type": "integer",
+                                                                "example": 1243
+                                                            },
+                                                            "lienket": {
+                                                                "description": "Link tìm kiếm sản phẩm theo danh mục",
+                                                                "type": "string",
+                                                                "example": "https://localhost:8000/api/sanphams-all?danhmuc=noi-that-trang-tri"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "hot_sales": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/SanphamItem"
+                                                    }
+                                                },
+                                                "hot_gift": {
+                                                    "description": "🎁 Danh sách quà tặng sự kiện hot (nhiều lượt xem, sắp hết hạn)",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/HotGiftItem"
+                                                    }
+                                                },
+                                                "top_categories": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/CategoryHotItem"
+                                                    }
+                                                },
+                                                "top_brands": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/BrandHotItem"
+                                                    }
+                                                },
+                                                "best_products": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/SanphamItem"
+                                                    }
+                                                },
+                                                "new_launch": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/SanphamItem"
+                                                    }
+                                                },
+                                                "most_watched": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/SanphamItem"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/api/tukhoas": {
@@ -3760,76 +3505,6 @@
                 },
                 "type": "object"
             },
-            "SanphamItem": {
-                "title": "Sản phẩm",
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "ten": {
-                        "type": "string",
-                        "example": "Điện thoại iPhone 15 Pro Max"
-                    },
-                    "slug": {
-                        "type": "string",
-                        "example": "iphone-15-pro-max"
-                    },
-                    "hinh_anh": {
-                        "type": "string",
-                        "example": "https://example.com/images/iphone15.jpg",
-                        "nullable": true
-                    },
-                    "gia": {
-                        "properties": {
-                            "current": {
-                                "type": "number",
-                                "format": "float",
-                                "example": 27990000
-                            },
-                            "before_discount": {
-                                "type": "number",
-                                "format": "float",
-                                "example": 30990000
-                            },
-                            "discount_percent": {
-                                "type": "integer",
-                                "example": 10
-                            }
-                        },
-                        "type": "object"
-                    },
-                    "store": {
-                        "properties": {
-                            "name": {
-                                "type": "string",
-                                "example": "Apple Store"
-                            },
-                            "icon_url": {
-                                "type": "string",
-                                "example": "https://example.com/store-logo.png",
-                                "nullable": true
-                            }
-                        },
-                        "type": "object"
-                    },
-                    "rating": {
-                        "properties": {
-                            "average": {
-                                "type": "number",
-                                "format": "float",
-                                "example": 4.8
-                            },
-                            "count": {
-                                "type": "integer",
-                                "example": 128
-                            }
-                        },
-                        "type": "object"
-                    }
-                },
-                "type": "object"
-            },
             "Thongbao": {
                 "title": "Thông báo",
                 "description": "Thông tin chi tiết một thông báo của người dùng",
@@ -3888,6 +3563,302 @@
                         "format": "date-time",
                         "example": null,
                         "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "HotSaleResource": {
+                "title": "Hot Sale Sản phẩm",
+                "description": "Thông tin chi tiết của một sản phẩm trong danh sách tìm kiếm hoặc hot sale",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 15
+                    },
+                    "ten": {
+                        "type": "string",
+                        "example": "Laptop Dell Inspiron 15"
+                    },
+                    "avg_rating": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 4.5
+                    },
+                    "review_count": {
+                        "type": "integer",
+                        "example": 128
+                    },
+                    "total_sold": {
+                        "type": "integer",
+                        "example": 560
+                    },
+                    "hinhanhsanpham": {
+                        "type": "array",
+                        "items": {
+                            "properties": {
+                                "id": {
+                                    "type": "integer",
+                                    "example": 3
+                                },
+                                "url": {
+                                    "type": "string",
+                                    "example": "https://example.com/images/sp15-1.jpg"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    },
+                    "thuonghieu": {
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 2
+                            },
+                            "ten": {
+                                "type": "string",
+                                "example": "Dell"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "danhmuc": {
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 4
+                            },
+                            "ten": {
+                                "type": "string",
+                                "example": "Laptop Văn Phòng"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "SanphamItem": {
+                "title": "Sản phẩm",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "ten": {
+                        "type": "string",
+                        "example": "Điện thoại iPhone 15 Pro Max"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "iphone-15-pro-max"
+                    },
+                    "hinh_anh": {
+                        "type": "string",
+                        "example": "iphone15.jpg",
+                        "nullable": true
+                    },
+                    "gia": {
+                        "properties": {
+                            "current": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 27990000
+                            },
+                            "before_discount": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 30990000
+                            },
+                            "discount_percent": {
+                                "type": "integer",
+                                "example": 10
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "rating": {
+                        "properties": {
+                            "average": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 4.8
+                            },
+                            "count": {
+                                "type": "integer",
+                                "example": 128
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "sold_count": {
+                        "type": "integer",
+                        "example": 532
+                    }
+                },
+                "type": "object"
+            },
+            "CategoryHotItem": {
+                "title": "Danh mục nổi bật",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "ten": {
+                        "type": "string",
+                        "example": "Điện thoại"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "dien-thoai"
+                    },
+                    "total_sold": {
+                        "type": "integer",
+                        "example": 1243
+                    },
+                    "sanpham": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/SanphamItem"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "BrandHotItem": {
+                "title": "Thương hiệu nổi bật",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 7
+                    },
+                    "ten": {
+                        "type": "string",
+                        "example": "Apple"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "apple"
+                    },
+                    "logo": {
+                        "type": "string",
+                        "example": "apple.png"
+                    },
+                    "mota": {
+                        "type": "string",
+                        "example": "Thương hiệu công nghệ hàng đầu thế giới."
+                    },
+                    "total_sold": {
+                        "type": "integer",
+                        "example": 3219
+                    }
+                },
+                "type": "object"
+            },
+            "HotGiftItem": {
+                "title": "Quà tặng hot",
+                "description": "Thông tin quà tặng sự kiện nổi bật",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "ten": {
+                        "type": "string",
+                        "example": "Tặng Tai Nghe Bluetooth khi mua iPhone 15"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "tang-tai-nghe-iphone-15"
+                    },
+                    "hinh_anh": {
+                        "type": "string",
+                        "example": "gift_iphone15.png"
+                    },
+                    "mota": {
+                        "type": "string",
+                        "example": "Áp dụng cho đơn hàng trên 20 triệu, đến hết ngày 30/11/2025."
+                    },
+                    "ngaybatdau": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2025-11-01"
+                    },
+                    "ngayketthuc": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2025-11-30"
+                    },
+                    "luotxem": {
+                        "type": "integer",
+                        "example": 1450
+                    },
+                    "chuongtrinh": {
+                        "properties": {
+                            "tenchuongtrinh": {
+                                "type": "string",
+                                "example": "Tháng tri ân khách hàng"
+                            },
+                            "slug": {
+                                "type": "string",
+                                "example": "tri-an-khach-hang"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "NewBannerItem": {
+                "title": "Banner quảng cáo mới nhất",
+                "description": "Thông tin banner quảng cáo hiển thị trên trang chủ (bảng quangcao)",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 12
+                    },
+                    "vitri": {
+                        "type": "string",
+                        "example": "home_banner_slider"
+                    },
+                    "hinhanh": {
+                        "type": "string",
+                        "example": "banner_khuyenmai_12.jpg"
+                    },
+                    "lienket": {
+                        "type": "string",
+                        "example": "https://nextjsproject/khuyen-mai"
+                    },
+                    "mota": {
+                        "type": "string",
+                        "example": "Giảm giá 50% cho đơn hàng đầu tiên trong tháng 11."
+                    },
+                    "trangthai": {
+                        "type": "string",
+                        "example": "Hiển thị"
+                    }
+                },
+                "type": "object"
+            },
+            "HotKeywordItem": {
+                "title": "Từ khóa hot",
+                "description": "Thông tin từ khóa hot cùng link tìm kiếm (lienket)",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "tukhoa": {
+                        "type": "string",
+                        "example": "iphone"
+                    },
+                    "luottruycap": {
+                        "type": "integer",
+                        "example": 1520
+                    },
+                    "lienket": {
+                        "type": "string",
+                        "example": "https://localhost:8000/api/tim-kiem/?query=iphone"
                     }
                 },
                 "type": "object"
@@ -4319,7 +4290,7 @@
             "description": "Các API thao tác với giỏ hàng của người dùng frontend"
         },
         {
-            "name": "Sản phẩm (trang-chu)",
+            "name": "Trang Chủ",
             "description": " sản phẩm của trang chủ được lọc theo yêu cầu nghiệp vụ của từng selection, tên cũ sanphams-selection"
         },
         {
@@ -4373,6 +4344,10 @@
         {
             "name": "Thông báo (tôi)",
             "description": "Thông báo (tôi)"
+        },
+        {
+            "name": "Tìm kiếm sản phẩm",
+            "description": "Tìm kiếm sản phẩm"
         },
         {
             "name": "Từ khóa",

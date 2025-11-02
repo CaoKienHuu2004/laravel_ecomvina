@@ -35,6 +35,13 @@ class QuatangsukienModel extends Model
     protected $casts = [
         'deleted_at' => 'datetime',
     ];
+    protected $dates = [
+        'ngaybatdau',
+        'ngayketthuc',
+    ];
+    protected $hidden = [
+        'deleted_at',
+    ];
 
     /**
      * 🔗 Quan hệ N-1 với bảng chuongtrinh

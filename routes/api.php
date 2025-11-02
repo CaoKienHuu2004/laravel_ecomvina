@@ -166,11 +166,14 @@ use App\Http\Controllers\API\Frontend\GioHangFrontendAPI;
 use App\Http\Controllers\API\Frontend\SanPhamAllFrontendAPI;
 use App\Http\Controllers\API\Frontend\SanPhamFrontendAPI;
 use App\Http\Controllers\API\Frontend\ThongBaoFrontendAPI;
+use App\Http\Controllers\API\Frontend\TimKiemAPI;
+use App\Http\Controllers\API\Frontend\TrangChuAPI;
 use App\Http\Controllers\API\Frontend\TukhoaFrontendAPI;
 use App\Http\Controllers\API\Frontend\YeuThichFrontendAPI;
 use App\Http\Controllers\API\LoaiBienTheAPI;
 use App\Http\Controllers\API\QuaTangSuKienAPI;
 use App\Http\Controllers\API\SuKienAPI;
+use App\Http\Controllers\API\ThongBaoAPI;
 
 //------------------------
 // Route::middleware(['cors'])->group(function () {
@@ -186,7 +189,8 @@ use App\Http\Controllers\API\SuKienAPI;
 
     // guest
 
-
+    Route::apiResource('trang-chu', TrangChuAPI::class)->only(['index']);
+        Route::apiResource('tim-kiem', TimKiemAPI::class)->only(['index']);
     // table tu_khoa srearch từ khóa nhiều nhất cho placehoder
     // limit 5 Lấy danh sách tất cả từ khóa (sắp xếp theo số lượt giảm dần)
     Route::apiResource('tukhoas', TukhoaFrontendAPI::class)->only(['index','store','update']);
@@ -198,7 +202,7 @@ use App\Http\Controllers\API\SuKienAPI;
 
     // có slug: sanpham, danhmuc,
     Route::apiResource('sanphams', SanphamAPI::class)->only(['index','show']);
-        Route::apiResource('sanphams-selection', SanPhamFrontendAPI::class)->only(['index','show']);
+
         Route::apiResource('sanphams-all', SanPhamAllFrontendAPI::class)->only(['index','show']);
         // GET /api/sanphams-selection?selection=hot_sales // limit 10 //  giả cả rẻ + giảm giá + nhiều đơn hàng của sản phẩm nhất
         // GET /api/sanphams-selection?selection=top_categories // limit 4:danhmuc limit 8:sanpham // tồng bộ danh mục luôn + querry có lượt mua nhiều nhất
@@ -287,6 +291,9 @@ use App\Http\Controllers\API\SuKienAPI;
 
         Route::apiResource('yeuthichs', YeuThichAPI::class)->only(['index','show','store','update','destroy']);
         Route::apiResource('nguoidungs', NguoidungAPI::class)->only(['index','show','store','update','destroy']);
+
+
+        Route::apiResource('thongbaos', ThongBaoAPI::class)->only(['index','show','store','update','destroy']);
 
     });
 

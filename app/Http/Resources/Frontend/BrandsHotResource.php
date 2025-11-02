@@ -20,6 +20,7 @@ class BrandsHotResource extends JsonResource
             'id'         => $this->id,
             'ten'        => $this->ten,
             'slug'          => $this->slug,
+            'logo'          => $this->logo,
             'mota'       => $this->mota,
             'total_sold' => $this->total_sold,
         ];

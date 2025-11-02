@@ -11,12 +11,12 @@ class ThuonghieuController extends Controller
     public function index()
     {
         $thuonghieu = ThuongHieuModel::withCount('sanpham')->get();
-        return view('thuonghieu', compact('thuonghieu'));
+        return view('thuonghieu.thuonghieu', compact('thuonghieu'));
     }
 
     public function create()
     {
-        return view('taothuonghieu');
+        return view('thuonghieu.taothuonghieu');
     }
 
     public function store(Request $request)
@@ -28,7 +28,7 @@ class ThuonghieuController extends Controller
     public function edit($id)
     {
         $thuonghieu = ThuongHieuModel::findOrFail($id);
-        return view('suathuonghieu', compact('thuonghieu'));
+        return view('thuonghieu.suathuonghieu', compact('thuonghieu'));
     }
 
     public function update(Request $request, $id)

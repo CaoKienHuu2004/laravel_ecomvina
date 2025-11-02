@@ -8,9 +8,11 @@ use App\Models\Sanpham;
 use App\Models\Thuonghieu;
 use App\Models\Danhmuc;
 use App\Models\Bienthesp;
+use App\Models\DanhmucModel;
 use App\Models\Loaibienthe;
 use App\Models\SanphamModel;
 use App\Models\ThongTinNguoiBanHang;
+use App\Models\ThuongHieuModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -26,8 +28,8 @@ class SanphamController extends Controller
         $query = SanphamModel::with('bienthe', 'danhmuc','anhsanpham','thuonghieu','bienthe.chitietdonhang');
 
         // Filter theo thương hiệu
-        if ($request->filled('cuahang')) {
-            $query->where('id_cuahang', $request->thuonghieu);
+        if ($request->filled('thuonghieu')) {
+            $query->where('id_thuonghieu', $request->thuonghieu);
         }
 
         // Filter theo danh mục (many-to-many)
@@ -58,10 +60,10 @@ class SanphamController extends Controller
                       ->get();
 
         // Lấy thêm list danh mục & thương hiệu để render filter
-        $cuaHang = ThongTinNguoiBanHang::all();
-        $danhmucs = DanhMuc::all();
+        $thuonghieus = ThuongHieuModel::all();
+        $danhmucs = DanhmucModel::all();
 
-        return view('sanpham/sanpham', compact('sanphams', 'cuaHang', 'danhmucs'));
+        return view('sanpham/sanpham', compact('sanphams', 'thuonghieus', 'danhmucs'));
 
         // // Lấy toàn bộ sản phẩm kèm quan hệ
         // $sanpham = Sanpham::with(['bienThe.loaiBienThe', 'anhSanPham', 'danhmuc', 'thuonghieu'])->get();
