@@ -28,6 +28,12 @@ use Illuminate\Support\Facades\DB;
  *         example=10
  *     ),
  *     @OA\Property(
+ *         property="id_chitietdonhang",
+ *         type="integer",
+ *         description="ID chi tiết đơn hàng liên quan đến đánh giá",
+ *         example=5
+ *     ),
+ *     @OA\Property(
  *         property="id_nguoidung",
  *         type="integer",
  *         description="ID người dùng đã tạo đánh giá",
@@ -52,28 +58,6 @@ use Illuminate\Support\Facades\DB;
  *         enum={"Hiển thị", "Tạm ẩn"},
  *         description="Trạng thái hiển thị của đánh giá",
  *         example="Hiển thị"
- *     ),
- *     @OA\Property(
- *         property="created_at",
- *         type="string",
- *         format="date-time",
- *         description="Thời điểm tạo đánh giá",
- *         example="2025-10-15T10:30:00Z"
- *     ),
- *     @OA\Property(
- *         property="updated_at",
- *         type="string",
- *         format="date-time",
- *         description="Thời điểm cập nhật đánh giá",
- *         example="2025-10-15T11:00:00Z"
- *     ),
- *     @OA\Property(
- *         property="deleted_at",
- *         type="string",
- *         format="date-time",
- *         nullable=true,
- *         description="Thời điểm xóa mềm đánh giá (nếu có)",
- *         example=null
  *     )
  * )
  */
@@ -86,12 +70,11 @@ class DanhGiaFrontendAPI extends Controller
      *     title="Đánh giá sản phẩm",
      *     @OA\Property(property="id", type="integer", example=1),
      *     @OA\Property(property="id_nguoidung", type="integer", example=5),
+     *     @OA\Property(property="id_chitietdonhang ", type="integer", example=5),
      *     @OA\Property(property="id_sanpham", type="integer", example=10),
      *     @OA\Property(property="diem", type="integer", example=5),
      *     @OA\Property(property="noidung", type="string", example="Sản phẩm rất tốt!"),
      *     @OA\Property(property="trangthai", type="string", example="Hiển thị"),
-     *     @OA\Property(property="created_at", type="string", format="date-time"),
-     *     @OA\Property(property="updated_at", type="string", format="date-time")
      * )
      */
 

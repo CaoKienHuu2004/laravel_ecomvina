@@ -275,13 +275,50 @@ class SanphamAllWebAPI extends BaseFrontendController
                 }
             });
         }
+        if ($request->filled('sortby')) {
+            switch ($request->sortby) {
+                case 'topdeals':
+                    // Sản phẩm có giảm giá cao nhất → giamgia giảm dần
+                    $query->orderByDesc('giamgia')
+                        ->orderByDesc('total_sold')
+                        ->orderByDesc('avg_rating');
+                    break;
 
-        // --- Ưu tiên sắp xếp ---
-        $query->orderByDesc('luotxem')
-            ->orderByRaw('COALESCE((SELECT MIN(giagoc) FROM bienthe WHERE id_sanpham = sanpham.id), 0) ASC')
-            ->orderByDesc('giamgia')
-            ->orderByDesc('total_sold')
-            ->orderByDesc('avg_rating');
+                case 'top-bach-hoa':
+                    // Giả sử đây là danh mục đặc biệt (bạn có thể thay slug cụ thể)
+                    $query->whereHas('danhmuc', fn($q) => $q->where('slug', 'bach-hoa'))
+                        ->orderByDesc('total_sold')
+                        ->orderByDesc('avg_rating');
+                    break;
+
+                case 'latest':
+                    // Sản phẩm mới nhất → sắp xếp theo ngày tạo giảm dần
+                    $query->orderByDesc('id');
+                    break;
+
+                case 'quantamnhieunhat':
+                    // Sản phẩm được xem nhiều nhất → luotxem giảm dần
+                    $query->orderByDesc('luotxem')
+                        ->orderByDesc('avg_rating');
+                    break;
+
+                default:
+                    // Nếu sortby không hợp lệ thì dùng thứ tự mặc định
+                    $query->orderByDesc('luotxem')
+                        ->orderByRaw('COALESCE((SELECT MIN(giagoc) FROM bienthe WHERE id_sanpham = sanpham.id), 0) ASC')
+                        ->orderByDesc('giamgia')
+                        ->orderByDesc('total_sold')
+                        ->orderByDesc('avg_rating');
+                    break;
+            }
+        } else {
+            // --- Sắp xếp mặc định ---
+            $query->orderByDesc('luotxem')
+                ->orderByRaw('COALESCE((SELECT MIN(giagoc) FROM bienthe WHERE id_sanpham = sanpham.id), 0) ASC')
+                ->orderByDesc('giamgia')
+                ->orderByDesc('total_sold')
+                ->orderByDesc('avg_rating');
+        }
 
         // --- Phân trang ---
         $sanphams = $query->paginate($perPage, ['*'], 'page', $currentPage);
@@ -326,7 +363,13 @@ class SanphamAllWebAPI extends BaseFrontendController
             ->with(['bienthe' => function ($q) {
                 $q->orderByDesc('giagoc');
                 // $q->orderByDesc('giagoc')->limit(1);
-            }])->findOrFail($id);
+            }]);
+            if (is_numeric($id)) {
+                $query = $query->where('id', $id)->firstOrFail();
+            } else {
+                $query = $query->where('slug', $id)->firstOrFail();
+            }
+            // }])->findOrFail($id);
         $query->increment('luotxem');
 
         // dd($query);

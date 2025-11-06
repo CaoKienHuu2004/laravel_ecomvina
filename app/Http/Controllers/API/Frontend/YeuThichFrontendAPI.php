@@ -17,8 +17,6 @@ use Illuminate\Http\Response;
  *     @OA\Property(property="id_nguoidung", type="integer", example=5),
  *     @OA\Property(property="id_sanpham", type="integer", example=12),
  *     @OA\Property(property="trangthai", type="string", example="Hiển thị"),
- *     @OA\Property(property="created_at", type="string", format="date-time", example="2025-10-15T10:00:00Z"),
- *     @OA\Property(property="updated_at", type="string", format="date-time", example="2025-10-15T10:30:00Z")
  * )
  */
 class YeuThichFrontendAPI extends Controller

@@ -1289,7 +1289,7 @@
             },
             "post": {
                 "tags": [
-                    "Giỏ hàng (Tôi)"
+                    "Giỏ hàng (tôi)"
                 ],
                 "summary": "Thêm sản phẩm vào giỏ hàng (có xử lý ưu đãi và quà tặng)",
                 "description": "\n     *      - API này dùng để thêm sản phẩm vào giỏ hàng của người dùng hiện tại.\n     *      - Hệ thống sẽ tự động kiểm tra xem sản phẩm có nằm trong chương trình quà tặng (`quatang_sukien`) hay không.\n     *      - Nếu số lượng mua thỏa mãn điều kiện `dieukien` của sự kiện và nằm trong thời gian hợp lệ (`ngaybatdau` - `ngayketthuc`),\n     *        hệ thống sẽ cộng thêm số lượng quà tặng miễn phí (với `thanhtien = 0`).\n     *      - Trường `luottang` trong bảng `bienthe` sẽ được cập nhật giảm tương ứng với số lượng quà đã tặng.\n     *     ",
@@ -1449,7 +1449,7 @@
         "/api/toi/giohang/{id}": {
             "put": {
                 "tags": [
-                    "Giỏ hàng (Tôi)"
+                    "Giỏ hàng (tôi)"
                 ],
                 "summary": "Cập nhật số lượng sản phẩm trong giỏ hàng (tự động áp dụng khuyến mãi/quà tặng nếu có)",
                 "description": "\n     *     - Cập nhật số lượng của sản phẩm trong giỏ hàng hiện tại.\n     *     - Nếu số lượng mới bằng **0** → sản phẩm sẽ bị xóa khỏi giỏ hàng.\n     *     - Nếu tồn tại chương trình **quà tặng/sự kiện** thỏa điều kiện (`dieukien <= soluong` và trong thời gian hiệu lực):\n     *         - Tự động tính toán số lượng sản phẩm được tặng miễn phí.\n     *         - Tự động trừ lượt tặng (`luottang`) trong bảng `bienthe`.\n     *         - Cập nhật hoặc thêm dòng sản phẩm quà tặng (`thanhtien = 0`) vào giỏ hàng.\n     *     - Nếu không còn ưu đãi → tính tiền bình thường và xóa hàng quà tặng (nếu có).\n     *     ",
@@ -1708,6 +1708,22 @@
                                 "high1000"
                             ],
                             "example": "to500"
+                        }
+                    },
+                    {
+                        "name": "sortby",
+                        "in": "query",
+                        "description": "Tham số sắp xếp sản phẩm theo các tiêu chí đặc biệt:\n        *             - `topdeals`: sản phẩm có giảm giá cao nhất\n        *             - `top-bach-hoa`: sản phẩm thuộc danh mục 'bách hoá'\n        *             - `latest`: sản phẩm mới nhất\n        *             - `quantamnhieunhat`: sản phẩm được quan tâm (xem) nhiều nhất\n        *         ",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "topdeals",
+                                "top-bach-hoa",
+                                "latest",
+                                "quantamnhieunhat"
+                            ],
+                            "example": "latest"
                         }
                     }
                 ],
@@ -3535,6 +3551,11 @@
                         "type": "integer",
                         "example": 10
                     },
+                    "id_chitietdonhang": {
+                        "description": "ID chi tiết đơn hàng liên quan đến đánh giá",
+                        "type": "integer",
+                        "example": 5
+                    },
                     "id_nguoidung": {
                         "description": "ID người dùng đã tạo đánh giá",
                         "type": "integer",
@@ -3559,25 +3580,6 @@
                             "Tạm ẩn"
                         ],
                         "example": "Hiển thị"
-                    },
-                    "created_at": {
-                        "description": "Thời điểm tạo đánh giá",
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2025-10-15T10:30:00Z"
-                    },
-                    "updated_at": {
-                        "description": "Thời điểm cập nhật đánh giá",
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2025-10-15T11:00:00Z"
-                    },
-                    "deleted_at": {
-                        "description": "Thời điểm xóa mềm đánh giá (nếu có)",
-                        "type": "string",
-                        "format": "date-time",
-                        "example": null,
-                        "nullable": true
                     }
                 },
                 "type": "object"
@@ -4104,16 +4106,6 @@
                     "trangthai": {
                         "type": "string",
                         "example": "Hiển thị"
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2025-10-15T10:00:00Z"
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2025-10-15T10:30:00Z"
                     }
                 },
                 "type": "object"
@@ -4536,10 +4528,6 @@
         {
             "name": "Đơn hàng (tôi)",
             "description": "Đơn hàng (tôi)"
-        },
-        {
-            "name": "Giỏ hàng (Tôi)",
-            "description": "Giỏ hàng (Tôi)"
         },
         {
             "name": "Tất Cả Sản phẩm (Trang Tất Cả Sản Phẩm)",

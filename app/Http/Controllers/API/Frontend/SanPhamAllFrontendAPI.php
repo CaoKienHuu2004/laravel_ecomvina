@@ -310,6 +310,22 @@ class SanPhamAllFrontendAPI extends BaseFrontendController
      *         required=false,
      *         @OA\Schema(type="string", enum={"to100","to200","to300","to500","to700","to1000","high1000"}, example="to500")
      *     ),
+        *     @OA\Parameter(
+        *         name="sortby",
+        *         in="query",
+        *         description="Tham số sắp xếp sản phẩm theo các tiêu chí đặc biệt:
+        *             - `topdeals`: sản phẩm có giảm giá cao nhất
+        *             - `top-bach-hoa`: sản phẩm thuộc danh mục 'bách hoá'
+        *             - `latest`: sản phẩm mới nhất
+        *             - `quantamnhieunhat`: sản phẩm được quan tâm (xem) nhiều nhất
+        *         ",
+        *         required=false,
+        *         @OA\Schema(
+        *             type="string",
+        *             enum={"topdeals", "top-bach-hoa", "latest", "quantamnhieunhat"},
+        *             example="latest"
+        *         )
+        *     ),
      *
      *     @OA\Response(
      *         response=200,
@@ -438,12 +454,50 @@ class SanPhamAllFrontendAPI extends BaseFrontendController
             });
         }
 
-        // --- Ưu tiên sắp xếp ---
-        $query->orderByDesc('luotxem')
-            ->orderByRaw('COALESCE((SELECT MIN(giagoc) FROM bienthe WHERE id_sanpham = sanpham.id), 0) ASC')
-            ->orderByDesc('giamgia')
-            ->orderByDesc('total_sold')
-            ->orderByDesc('avg_rating');
+        if ($request->filled('sortby')) {
+            switch ($request->sortby) {
+                case 'topdeals':
+                    // Sản phẩm có giảm giá cao nhất → giamgia giảm dần
+                    $query->orderByDesc('giamgia')
+                        ->orderByDesc('total_sold')
+                        ->orderByDesc('avg_rating');
+                    break;
+
+                case 'top-bach-hoa':
+                    // Giả sử đây là danh mục đặc biệt (bạn có thể thay slug cụ thể)
+                    $query->whereHas('danhmuc', fn($q) => $q->where('slug', 'bach-hoa'))
+                        ->orderByDesc('total_sold')
+                        ->orderByDesc('avg_rating');
+                    break;
+
+                case 'latest':
+                    // Sản phẩm mới nhất → sắp xếp theo ngày tạo giảm dần
+                    $query->orderByDesc('id');
+                    break;
+
+                case 'quantamnhieunhat':
+                    // Sản phẩm được xem nhiều nhất → luotxem giảm dần
+                    $query->orderByDesc('luotxem')
+                        ->orderByDesc('avg_rating');
+                    break;
+
+                default:
+                    // Nếu sortby không hợp lệ thì dùng thứ tự mặc định
+                    $query->orderByDesc('luotxem')
+                        ->orderByRaw('COALESCE((SELECT MIN(giagoc) FROM bienthe WHERE id_sanpham = sanpham.id), 0) ASC')
+                        ->orderByDesc('giamgia')
+                        ->orderByDesc('total_sold')
+                        ->orderByDesc('avg_rating');
+                    break;
+            }
+        } else {
+            // --- Sắp xếp mặc định ---
+            $query->orderByDesc('luotxem')
+                ->orderByRaw('COALESCE((SELECT MIN(giagoc) FROM bienthe WHERE id_sanpham = sanpham.id), 0) ASC')
+                ->orderByDesc('giamgia')
+                ->orderByDesc('total_sold')
+                ->orderByDesc('avg_rating');
+        }
 
         // --- Phân trang ---
         $sanphams = $query->paginate($perPage, ['*'], 'page', $currentPage);
@@ -508,7 +562,13 @@ class SanPhamAllFrontendAPI extends BaseFrontendController
             ->with(['bienthe' => function ($q) {
                 $q->orderByDesc('giagoc');
                 // $q->orderByDesc('giagoc')->limit(1);
-            }])->findOrFail($id);
+            }]);
+            // }])->findOrFail($id);
+        if (is_numeric($id)) {
+            $query = $query->where('id', $id)->firstOrFail();
+        } else {
+            $query = $query->where('slug', $id)->firstOrFail();
+        }
         $query->increment('luotxem');
 
         // dd($query);
