@@ -235,8 +235,8 @@ use App\Http\Controllers\API\ThongBaoAPI;
     Route::middleware(['auth.api'])->group(function () {
         Route::get('/toi/giohang', [GioHangFrontendAPI::class, 'index']);
         Route::post('/toi/giohang', [GioHangFrontendAPI::class, 'store']);
-        Route::put('/toi/giohang/{id_bienthesp}', [GioHangFrontendAPI::class, 'update']);
-        Route::delete('/toi/giohang/{id_bienthesp}', [GioHangFrontendAPI::class, 'destroy']);
+        Route::put('/toi/giohang/{id}', [GioHangFrontendAPI::class, 'update']);
+        Route::delete('/toi/giohang/{id}', [GioHangFrontendAPI::class, 'destroy']);
     });
     Route::middleware(['auth.api'])->group(function () {
         Route::get('/toi/donhangs', [DonHangFrontendAPI::class, 'index']);

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SanphamController;
 use App\Http\Controllers\DanhmucController;
@@ -8,6 +9,9 @@ use App\Http\Controllers\ThuonghieuController;
 use App\Http\Controllers\BientheController;
 use App\Http\Controllers\DonhangController;
 use App\Http\Controllers\NguoidungController;
+use App\Http\Controllers\Web\GioHangWebApi;
+use App\Http\Controllers\Web\SanphamAllWebAPI;
+use App\Http\Controllers\Web\TrangChuWebAPI;
 
 // use App\Http\Controllers\SanphamController;
 // use App\Http\Controllers\DanhmucController;
@@ -182,12 +186,15 @@ Route::middleware(['auth', 'admin'])->group(function () {
 // //-------------------------------------------------- Guest User --------------------------------//
 // // Nếu guest (chưa đăng nhập) → vẫn có giỏ hàng, nhưng dựa trên session_id (Laravel session) hoặc cookie.
 // // Route::get('/giohang/guest', [GioHangFrontendAPI::class, 'guestCart']);
-// Route::middleware(['auth'])->group(function () {
-//     Route::get('/giohang', [GioHangWebApi::class, 'index']);
-//     Route::post('/giohang', [GioHangWebApi::class, 'store']);
-//     Route::put('/giohang/{id_bienthesp}', [GioHangWebApi::class, 'update']);
-//     Route::delete('/giohang/{id_bienthesp}', [GioHangWebApi::class, 'destroy']);
-// });
+Route::get('/toi/giohang', [GioHangWebApi::class, 'index']);
+Route::post('/toi/giohang', [GioHangWebApi::class, 'store']);
+Route::put('/toi/giohang/{id}', [GioHangWebApi::class, 'update']);
+Route::delete('/toi/giohang/{id}', [GioHangWebApi::class, 'destroy']);
+
+Route::get('/san-pham', [SanphamAllWebAPI::class, 'index']);
+Route::get('/san-pham/{id}', [SanphamAllWebAPI::class, 'show']);
+
+Route::get('/trang-chu', [TrangChuWebAPI::class, 'index']);
 
 
 //-------------------------------------------------- Guest User --------------------------------//

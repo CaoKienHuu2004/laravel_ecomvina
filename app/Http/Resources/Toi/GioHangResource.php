@@ -39,29 +39,34 @@ class GioHangResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
+        $isGift = $this->thanhtien == 0;
         return [
-            'id_giohang' => $this->id,
-            'id_nguoidung' => $this->id_nguoidung,
-            'trangthai' => $this->trangthai,
-            'bienthe' => [
-                'soluong' => $this->soluong,
+        'id_giohang' => $this->id,
+        'id_nguoidung' => $this->id_nguoidung,
+        'trangthai' => $this->trangthai,
+
+        // Nếu là quà tặng thì không hiển thị ở "bienthe" nữa
+        'bienthe' => $isGift ? null : [
+            'soluong' => $this->soluong,
+            'giagoc' => $this->bienthe->giagoc,
+            'thanhtien' => $this->thanhtien,
+            'tamtinh' => $this->soluong * $this->bienthe->giagoc,
+            'detail' => [
+                'thuonghieu' => optional($this->bienthe->sanpham->thuonghieu)->ten,
+                'tensanpham' => optional($this->bienthe->sanpham)->ten,
+                'loaisanpham' => optional($this->bienthe->loaibienthe)->ten,
+                'giamgia' => $this->bienthe->sanpham->giamgia ? $this->bienthe->sanpham->giamgia . '%' : '0%',
                 'giagoc' => $this->bienthe->giagoc,
-                'thanhtien' => $this->thanhtien,
-                'tamtinh' => $this->soluong * $this->bienthe->giagoc,
-                'detail' => [
-                    'thuonghieu' => optional($this->bienthe->sanpham->thuonghieu)->ten,
-                    'tensanpham' => optional($this->bienthe->sanpham)->ten,
-                    'loaisanpham' => optional($this->bienthe->loaibienthe)->ten,
-                    'giamgia' => $this->bienthe->sanpham->giamgia ? $this->bienthe->sanpham->giamgia.'%' : '0%',
-                    'giagoc' => $this->bienthe->giagoc,
-                    'giaban' => $this->bienthe->giagoc * (1 - ($this->bienthe->sanpham->giamgia ?? 0) / 100),
-                    'hinhanh' => optional($this->bienthe->sanpham->hinhanhsanpham->first())->hinhanh,
-                ],
+                'giaban' => $this->bienthe->giagoc * (1 - ($this->bienthe->sanpham->giamgia ?? 0) / 100),
+                'hinhanh' => optional($this->bienthe->sanpham->hinhanhsanpham->first())->hinhanh,
             ],
-            'bienthe_quatang' => $this->thanhtien == 0 ? [
+        ],
+
+        // Nếu là quà tặng thì hiển thị ở "bienthe_quatang"
+        'bienthe_quatang' => $isGift ? [
                 'soluong' => $this->soluong,
                 'giagoc' => $this->bienthe->giagoc,
-                'thanhtien' => $this->thanhtien,
+                'thanhtien' => 0,
                 'tamtinh' => 0,
                 'detail' => [
                     'thuonghieu' => optional($this->bienthe->sanpham->thuonghieu)->ten,

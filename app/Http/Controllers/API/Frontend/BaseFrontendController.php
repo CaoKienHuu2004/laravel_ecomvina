@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\API\Frontend;
 
 use App\Http\Controllers\Controller;
-use App\Models\DanhgiaModel;
+
+use App\Models\DanhmucModel;
 use App\Models\ThuongHieuModel;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
@@ -23,7 +24,7 @@ class BaseFrontendController extends Controller
 
     protected function getMenuFilterAside()
     {
-        $danhmucs = DanhgiaModel::withCount('sanpham as tong_sanpham')->get(['id', 'ten','slug']);
+        $danhmucs = DanhmucModel::withCount('sanpham as tong_sanpham')->get(['id', 'ten','slug']);
         $thuonghieus = ThuongHieuModel::has('sanpham')->get(['id', 'ten','slug']);
         $priceRanges = [
             ['label' => 'Dưới 100.000đ', 'min' => 0, 'max' => 100000,'value' => 'low100'],
