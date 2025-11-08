@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Toi\GioHangResource;
+use App\Models\BientheModel;
 use Illuminate\Http\Request;
 use App\Models\GiohangModel;
 use Illuminate\Support\Facades\DB;
@@ -88,11 +89,11 @@ class GioHangFrontendAPI extends BaseFrontendController
      *     tags={"Giỏ hàng (tôi)"},
      *     summary="Thêm sản phẩm vào giỏ hàng (có xử lý ưu đãi và quà tặng)",
      *     description="
-     *      - API này dùng để thêm sản phẩm vào giỏ hàng của người dùng hiện tại.
-     *      - Hệ thống sẽ tự động kiểm tra xem sản phẩm có nằm trong chương trình quà tặng (`quatang_sukien`) hay không.
-     *      - Nếu số lượng mua thỏa mãn điều kiện `dieukien` của sự kiện và nằm trong thời gian hợp lệ (`ngaybatdau` - `ngayketthuc`),
-     *        hệ thống sẽ cộng thêm số lượng quà tặng miễn phí (với `thanhtien = 0`).
-     *      - Trường `luottang` trong bảng `bienthe` sẽ được cập nhật giảm tương ứng với số lượng quà đã tặng.
+     *      - API dùng để thêm sản phẩm vào giỏ hàng của người dùng hiện tại.
+     *      - Tự động kiểm tra chương trình quà tặng (`quatang_sukien`) nếu có.
+     *      - Nếu số lượng mua thỏa điều kiện `dieukien` và trong thời gian hiệu lực (`ngaybatdau` - `ngayketthuc`),
+     *        sẽ cộng thêm số lượng quà tặng miễn phí (với `thanhtien = 0`).
+     *      - Trường `luottang` trong bảng `bienthe` sẽ được cập nhật giảm tương ứng số lượng quà tặng.
      *     ",
      *     security={{"bearerAuth": {}}},
      *     @OA\RequestBody(
@@ -101,38 +102,21 @@ class GioHangFrontendAPI extends BaseFrontendController
      *         @OA\JsonContent(
      *             required={"id_bienthe","soluong"},
      *             @OA\Property(property="id_bienthe", type="integer", example=21, description="ID biến thể sản phẩm"),
-     *             @OA\Property(property="soluong", type="integer", example=2, description="Số lượng sản phẩm muốn thêm vào giỏ")
+     *             @OA\Property(property="soluong", type="integer", example=2, description="Số lượng sản phẩm muốn thêm")
      *         )
      *     ),
      *     @OA\Response(
      *         response=201,
      *         description="Thêm sản phẩm vào giỏ hàng thành công",
      *         @OA\JsonContent(
+     *             type="object",
      *             @OA\Property(property="status", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Thêm sản phẩm vào giỏ hàng thành công"),
      *             @OA\Property(
      *                 property="data",
-     *                 type="object",
-     *                 description="Dữ liệu sản phẩm trong giỏ hàng sau khi thêm",
-     *                 @OA\Property(property="id", type="integer", example=5),
-     *                 @OA\Property(property="id_nguoidung", type="integer", example=2),
-     *                 @OA\Property(property="id_bienthe", type="integer", example=21),
-     *                 @OA\Property(property="soluong", type="integer", example=2),
-     *                 @OA\Property(property="thanhtien", type="number", example=138000),
-     *                 @OA\Property(property="trangthai", type="string", example="Hiển thị"),
-     *                 @OA\Property(
-     *                     property="bienthe",
-     *                     type="object",
-     *                     description="Thông tin biến thể sản phẩm",
-     *                     @OA\Property(property="id", type="integer", example=21),
-     *                     @OA\Property(property="giagoc", type="number", example=69000),
-     *                     @OA\Property(property="luottang", type="integer", example=1),
-     *                     @OA\Property(
-     *                         property="sanpham",
-     *                         type="object",
-     *                         description="Thông tin sản phẩm gốc của biến thể"
-     *                     )
-     *                 )
+     *                 type="array",
+     *                 description="Danh sách sản phẩm trong giỏ hàng sau khi thêm",
+     *                 @OA\Items(ref="#/components/schemas/GioHangResource")
      *             )
      *         )
      *     ),
@@ -164,92 +148,100 @@ class GioHangFrontendAPI extends BaseFrontendController
 
         $user = $request->get('auth_user');
         $userId = $user->id;
+        $id_bienthe = $validated['id_bienthe'];
+        $soluongNew = $validated['soluong'];
 
         DB::beginTransaction();
         try {
-            // 🔹 Lấy biến thể sản phẩm
-            $bienthe = DB::table('bienthe')
-                ->where('id', $validated['id_bienthe'])
-                ->lockForUpdate()
-                ->first();
+            // Khóa biến thể để tránh race condition
+            $variant = BientheModel::lockForUpdate()->findOrFail($id_bienthe);
+            $priceUnit = $variant->giagoc;
 
-            if (!$bienthe) {
-                throw new \Exception('Biến thể không tồn tại');
-            }
-
-            $price_unit = $bienthe->giagoc;
-            $soluong = $validated['soluong'];
-            $id_bienthe = $validated['id_bienthe'];
-
-            // 🔹 Tìm ưu đãi áp dụng (nếu có)
-            $promotion = DB::table('quatang_sukien as qs')
-                ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
-                ->where('qs.id_bienthe', $id_bienthe)
-                ->where('bt.luottang', '>', 0)
-                ->where('qs.dieukien', '<=', $soluong)
-                ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
-                ->select('qs.dieukien as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
-                ->first();
-
-            $thanhtien = 0;
-
-            // 🔹 Nếu có ưu đãi
-            if ($promotion) {
-                $promotion_count = floor($soluong / $promotion->discount_multiplier);
-                $num_free = min($promotion_count, $promotion->current_luottang);
-                $num_to_pay = $soluong - $num_free;
-
-                $thanhtien = $num_to_pay * $promotion->giagoc;
-
-                // 🔹 Cập nhật lại lượt tặng
-                DB::table('bienthe')
-                    ->where('id', $id_bienthe)
-                    ->update([
-                        'luottang' => DB::raw("GREATEST(luottang - {$num_free}, 0)")
-                    ]);
-
-                // 🔹 Nếu có sản phẩm tặng, thêm trực tiếp vào giỏ hàng (thanhtien = 0)
-                if ($num_free > 0) {
-                    $giftItem = GiohangModel::where('id_nguoidung', $userId)
-                        ->where('id_bienthe', $id_bienthe)
-                        ->where('thanhtien', 0)
-                        ->lockForUpdate()
-                        ->first();
-
-                    if ($giftItem) {
-                        $giftItem->soluong += $num_free;
-                        $giftItem->save();
-                    } else {
-                        GiohangModel::create([
-                            'id_nguoidung' => $userId,
-                            'id_bienthe' => $id_bienthe,
-                            'soluong' => $num_free,
-                            'thanhtien' => 0,
-                            'trangthai' => 'Hiển thị',
-                        ]);
-                    }
-                }
-            } else {
-                // 🔹 Không có ưu đãi
-                $thanhtien = $soluong * $price_unit;
-            }
-
-            // 🔹 Thêm hoặc cập nhật sản phẩm chính trong giỏ hàng
-            $item = GiohangModel::where('id_nguoidung', $userId)
+            // Lấy sản phẩm chính hiện tại trong giỏ (nếu có)
+            $existingItem = GiohangModel::where('id_nguoidung', $userId)
                 ->where('id_bienthe', $id_bienthe)
                 ->where('thanhtien', '>', 0)
                 ->lockForUpdate()
                 ->first();
 
-            if ($item) {
-                $item->soluong += $soluong;
-                $item->thanhtien += $thanhtien;
-                $item->save();
+            $totalQuantity = $soluongNew + ($existingItem ? $existingItem->soluong : 0);
+
+            // Kiểm tra khuyến mãi
+            $promotion = DB::table('quatang_sukien as qs')
+                ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
+                ->where('qs.id_bienthe', $id_bienthe)
+                ->where('bt.luottang', '>', 0)
+                ->where('qs.dieukien', '<=', $totalQuantity)
+                ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
+                ->select('qs.dieukien as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
+                ->first();
+
+            $numFree = 0;
+            $thanhtien = $totalQuantity * $priceUnit;
+
+            if ($promotion) {
+                $promotionCount = floor($totalQuantity / $promotion->discount_multiplier);
+                $numFree = min($promotionCount, $promotion->current_luottang);
+                $numToPay = $totalQuantity - $numFree;
+                $thanhtien = $numToPay * $promotion->giagoc;
+
+                // Lấy quà tặng hiện có (nếu có)
+                $existingFreeItem = GiohangModel::where('id_nguoidung', $userId)
+                    ->where('id_bienthe', $id_bienthe)
+                    ->where('thanhtien', 0)
+                    ->lockForUpdate()
+                    ->first();
+
+                $currentFreeQty = $existingFreeItem ? $existingFreeItem->soluong : 0;
+                $deltaFree = $numFree - $currentFreeQty;
+
+                // Chỉ trừ hoặc cộng lại phần chênh lệch quà tặng
+                if ($deltaFree > 0) {
+                    DB::table('bienthe')
+                        ->where('id', $id_bienthe)
+                        ->update(['luottang' => DB::raw("GREATEST(luottang - {$deltaFree}, 0)")]);
+                } elseif ($deltaFree < 0) {
+                    $restore = abs($deltaFree);
+                    DB::table('bienthe')
+                        ->where('id', $id_bienthe)
+                        ->update(['luottang' => DB::raw("luottang + {$restore}")]);
+                }
+
+                // Cập nhật hoặc tạo dòng quà tặng
+                if ($numFree > 0) {
+                    if ($existingFreeItem) {
+                        $existingFreeItem->update(['soluong' => $numFree, 'trangthai' => 'Hiển thị']);
+                    } else {
+                        GiohangModel::create([
+                            'id_nguoidung' => $userId,
+                            'id_bienthe' => $id_bienthe,
+                            'soluong' => $numFree,
+                            'thanhtien' => 0,
+                            'trangthai' => 'Hiển thị',
+                        ]);
+                    }
+                } else {
+                    // Nếu không còn quà tặng thì xóa dòng quà
+                    GiohangModel::where('id_nguoidung', $userId)
+                        ->where('id_bienthe', $id_bienthe)
+                        ->where('thanhtien', 0)
+                        ->delete();
+                }
+            }
+
+            // Cập nhật hoặc thêm sản phẩm chính
+            if ($existingItem) {
+                $existingItem->update([
+                    'soluong' => $totalQuantity,
+                    'thanhtien' => $thanhtien,
+                    'trangthai' => 'Hiển thị',
+                ]);
+                $item = $existingItem;
             } else {
                 $item = GiohangModel::create([
                     'id_nguoidung' => $userId,
                     'id_bienthe' => $id_bienthe,
-                    'soluong' => $soluong,
+                    'soluong' => $totalQuantity,
                     'thanhtien' => $thanhtien,
                     'trangthai' => 'Hiển thị',
                 ]);
@@ -257,11 +249,12 @@ class GioHangFrontendAPI extends BaseFrontendController
 
             DB::commit();
 
-            return $this->jsonResponse([
-                'status' => true,
-                'message' => 'Thêm sản phẩm vào giỏ hàng thành công',
-                'data' => $item->load('bienthe.sanpham'),
-            ], Response::HTTP_CREATED);
+            GioHangResource::withoutWrapping();
+            $cartItems = GiohangModel::with(['bienthe.sanpham.thuonghieu', 'bienthe.loaibienthe', 'bienthe.sanpham.hinhanhsanpham'])
+                ->where('id_nguoidung', $userId)
+                ->where('trangthai', 'Hiển thị')
+                ->get();
+            return response()->json(GioHangResource::collection($cartItems), Response::HTTP_CREATED);
 
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -279,13 +272,10 @@ class GioHangFrontendAPI extends BaseFrontendController
      *     tags={"Giỏ hàng (tôi)"},
      *     summary="Cập nhật số lượng sản phẩm trong giỏ hàng (tự động áp dụng khuyến mãi/quà tặng nếu có)",
      *     description="
-     *     - Cập nhật số lượng của sản phẩm trong giỏ hàng hiện tại.
-     *     - Nếu số lượng mới bằng **0** → sản phẩm sẽ bị xóa khỏi giỏ hàng.
-     *     - Nếu tồn tại chương trình **quà tặng/sự kiện** thỏa điều kiện (`dieukien <= soluong` và trong thời gian hiệu lực):
-     *         - Tự động tính toán số lượng sản phẩm được tặng miễn phí.
-     *         - Tự động trừ lượt tặng (`luottang`) trong bảng `bienthe`.
-     *         - Cập nhật hoặc thêm dòng sản phẩm quà tặng (`thanhtien = 0`) vào giỏ hàng.
-     *     - Nếu không còn ưu đãi → tính tiền bình thường và xóa hàng quà tặng (nếu có).
+     *     - Cập nhật số lượng sản phẩm trong giỏ hàng.
+     *     - Nếu số lượng mới bằng 0, sản phẩm sẽ bị xóa khỏi giỏ hàng.
+     *     - Áp dụng tự động chương trình quà tặng/sự kiện nếu thỏa điều kiện (`dieukien <= soluong` và trong thời gian hiệu lực).
+     *     - Cập nhật số lượng quà tặng miễn phí và lượt tặng (`luottang`) tương ứng.
      *     ",
      *     security={{"bearerAuth": {}}},
      *     @OA\Parameter(
@@ -311,17 +301,14 @@ class GioHangFrontendAPI extends BaseFrontendController
      *         response=200,
      *         description="Cập nhật số lượng thành công",
      *         @OA\JsonContent(
+     *             type="object",
      *             @OA\Property(property="status", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Cập nhật số lượng thành công"),
      *             @OA\Property(
      *                 property="data",
-     *                 type="object",
-     *                 description="Chi tiết sản phẩm sau khi cập nhật",
-     *                 @OA\Property(property="id", type="integer", example=12),
-     *                 @OA\Property(property="id_nguoidung", type="integer", example=2),
-     *                 @OA\Property(property="id_bienthe", type="integer", example=21),
-     *                 @OA\Property(property="soluong", type="integer", example=5),
-     *                 @OA\Property(property="thanhtien", type="integer", example=400000)
+     *                 type="array",
+     *                 description="Danh sách sản phẩm trong giỏ hàng sau khi cập nhật",
+     *                 @OA\Items(ref="#/components/schemas/GioHangResource")
      *             )
      *         )
      *     ),
@@ -339,7 +326,7 @@ class GioHangFrontendAPI extends BaseFrontendController
      *         @OA\JsonContent(
      *             @OA\Property(property="status", type="boolean", example=false),
      *             @OA\Property(property="message", type="string", example="Lỗi khi cập nhật giỏ hàng"),
-     *             @OA\Property(property="error", type="string", example="Biến thể không tồn tại")
+     *             @OA\Property(property="error", type="string", example="Chi tiết lỗi từ server")
      *         )
      *     )
      * )
@@ -347,7 +334,7 @@ class GioHangFrontendAPI extends BaseFrontendController
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'soluong' => 'required|integer|min:0',
+            'soluong' => 'required|integer|min:0'
         ]);
 
         $user = $request->get('auth_user');
@@ -355,112 +342,131 @@ class GioHangFrontendAPI extends BaseFrontendController
 
         DB::beginTransaction();
         try {
+            // ✅ Khóa dòng giỏ hàng cần cập nhật để tránh xung đột
             $item = GiohangModel::where('id_nguoidung', $userId)
                 ->where('id', $id)
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            // Nếu số lượng mới = 0 => xóa luôn
-            if ($validated['soluong'] == 0) {
-                $item->delete();
+            $id_bienthe = $item->id_bienthe;
+            $soluongNew = $validated['soluong'];
 
-                // Nếu giỏ hàng trống hoàn toàn
-                $remaining = GiohangModel::where('id_nguoidung', $userId)->count();
+            // ✅ Nếu giảm về 0 → xóa sản phẩm và quà tặng liên quan
+            if ($soluongNew == 0) {
+                // Lấy quà tặng hiện tại để hoàn lại luottang nếu có
+                $freeItem = GiohangModel::where('id_nguoidung', $userId)
+                    ->where('id_bienthe', $id_bienthe)
+                    ->where('thanhtien', 0)
+                    ->first();
+
+                if ($freeItem) {
+                    $restoreQty = $freeItem->soluong;
+                    DB::table('bienthe')->where('id', $id_bienthe)
+                        ->update(['luottang' => DB::raw("luottang + {$restoreQty}")]);
+                }
+
+                GiohangModel::where('id_nguoidung', $userId)
+                    ->where('id_bienthe', $id_bienthe)
+                    ->delete();
+
                 DB::commit();
-
                 return $this->jsonResponse([
                     'status' => true,
-                    'message' => $remaining === 0
-                        ? 'Giỏ hàng hiện đang trống'
-                        : 'Đã xóa sản phẩm khỏi giỏ hàng',
-                ], Response::HTTP_OK);
+                    'message' => 'Đã xóa sản phẩm và quà tặng khỏi giỏ hàng',
+                ]);
             }
 
-            $id_bienthe = $item->id_bienthe;
-            $soluong = $validated['soluong'];
+            // ✅ Lấy biến thể sản phẩm và khóa để cập nhật an toàn
+            $variant = BientheModel::lockForUpdate()->findOrFail($id_bienthe);
+            $priceUnit = $variant->giagoc;
 
-            // 🔹 Lấy giá gốc sản phẩm
-            $bienthe = DB::table('bienthe')->where('id', $id_bienthe)->lockForUpdate()->first();
-            if (!$bienthe) {
-                throw new \Exception('Biến thể không tồn tại');
-            }
-
-            $price_unit = $bienthe->giagoc;
-
-            // 🔹 Tìm ưu đãi còn hiệu lực
+            // ✅ Kiểm tra khuyến mãi/quà tặng áp dụng
             $promotion = DB::table('quatang_sukien as qs')
                 ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
                 ->where('qs.id_bienthe', $id_bienthe)
                 ->where('bt.luottang', '>', 0)
-                ->where('qs.dieukien', '<=', $soluong)
+                ->where('qs.dieukien', '<=', $soluongNew)
                 ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
-                ->select('qs.dieukien as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
+                ->select(
+                    'qs.id',
+                    'qs.dieukien as discount_multiplier',
+                    'bt.luottang as current_luottang',
+                    'bt.giagoc'
+                )
                 ->first();
 
-            $thanhtien = 0;
+            // ✅ Tính toán số lượng & thành tiền
+            $numFreeNew = 0;
+            $thanhtien = $soluongNew * $priceUnit;
 
-            // 🔹 Nếu có ưu đãi
             if ($promotion) {
-                $promotion_count = floor($soluong / $promotion->discount_multiplier);
-                $num_free = min($promotion_count, $promotion->current_luottang);
-                $num_to_pay = $soluong - $num_free;
-
-                $thanhtien = $num_to_pay * $promotion->giagoc;
-
-                // 🔹 Cập nhật lượt tặng còn lại
-                DB::table('bienthe')
-                    ->where('id', $id_bienthe)
-                    ->update([
-                        'luottang' => DB::raw("GREATEST(luottang - {$num_free}, 0)")
-                    ]);
-
-                // 🔹 Cập nhật hoặc thêm sản phẩm tặng (thanhtien = 0)
-                $giftItem = GiohangModel::where('id_nguoidung', $userId)
-                    ->where('id_bienthe', $id_bienthe)
-                    ->where('thanhtien', 0)
-                    ->lockForUpdate()
-                    ->first();
-
-                if ($num_free > 0) {
-                    if ($giftItem) {
-                        $giftItem->update(['soluong' => $num_free]);
-                    } else {
-                        GiohangModel::create([
-                            'id_nguoidung' => $userId,
-                            'id_bienthe' => $id_bienthe,
-                            'soluong' => $num_free,
-                            'thanhtien' => 0,
-                            'trangthai' => 'Hiển thị',
-                        ]);
-                    }
-                } elseif ($giftItem) {
-                    // Nếu không còn ưu đãi => xóa hàng quà tặng cũ
-                    $giftItem->delete();
-                }
-            } else {
-                // 🔹 Không có ưu đãi
-                $thanhtien = $soluong * $price_unit;
-
-                // Nếu trước đó có hàng tặng, xóa luôn
-                GiohangModel::where('id_nguoidung', $userId)
-                    ->where('id_bienthe', $id_bienthe)
-                    ->where('thanhtien', 0)
-                    ->delete();
+                $promotionCount = floor($soluongNew / $promotion->discount_multiplier);
+                $numFreeNew = min($promotionCount, $promotion->current_luottang);
+                $numToPay = $soluongNew - $numFreeNew;
+                $thanhtien = $numToPay * $promotion->giagoc;
             }
 
-            // 🔹 Cập nhật sản phẩm chính
+            // ✅ Lấy số quà tặng cũ (nếu có)
+            $freeItem = GiohangModel::where('id_nguoidung', $userId)
+                ->where('id_bienthe', $id_bienthe)
+                ->where('thanhtien', 0)
+                ->lockForUpdate()
+                ->first();
+
+            $numFreeOld = $freeItem ? $freeItem->soluong : 0;
+            $delta = $numFreeNew - $numFreeOld;
+
+            // ✅ Cập nhật lại luottang theo chênh lệch
+            if ($delta > 0) {
+                // Giảm thêm
+                DB::table('bienthe')
+                    ->where('id', $id_bienthe)
+                    ->update(['luottang' => DB::raw("GREATEST(luottang - {$delta}, 0)")]);
+            } elseif ($delta < 0) {
+                // Hoàn lại phần giảm
+                $restore = abs($delta);
+                DB::table('bienthe')
+                    ->where('id', $id_bienthe)
+                    ->update(['luottang' => DB::raw("luottang + {$restore}")]);
+            }
+
+            // ✅ Cập nhật sản phẩm chính
             $item->update([
-                'soluong' => $soluong,
+                'soluong' => $soluongNew,
                 'thanhtien' => $thanhtien,
+                'trangthai' => 'Hiển thị',
             ]);
+
+            // ✅ Cập nhật hoặc xóa/tạo quà tặng
+            if ($numFreeNew > 0) {
+                if ($freeItem) {
+                    $freeItem->update([
+                        'soluong' => $numFreeNew,
+                        'trangthai' => 'Hiển thị'
+                    ]);
+                } else {
+                    GiohangModel::create([
+                        'id_nguoidung' => $userId,
+                        'id_bienthe' => $id_bienthe,
+                        'soluong' => $numFreeNew,
+                        'thanhtien' => 0,
+                        'trangthai' => 'Hiển thị',
+                    ]);
+                }
+            } else {
+                if ($freeItem) {
+                    $freeItem->delete();
+                }
+            }
 
             DB::commit();
 
-            return $this->jsonResponse([
-                'status' => true,
-                'message' => 'Cập nhật số lượng thành công',
-                'data' => $item->load('bienthe.sanpham'),
-            ], Response::HTTP_OK);
+            GioHangResource::withoutWrapping(); // Bỏ "data" bọc ngoài
+            $cartItems = GiohangModel::with(['bienthe.sanpham.thuonghieu', 'bienthe.loaibienthe', 'bienthe.sanpham.hinhanhsanpham'])
+                ->where('id_nguoidung', $userId)
+                ->where('trangthai', 'Hiển thị')
+                ->get();
+            return response()->json(GioHangResource::collection($cartItems), Response::HTTP_OK);
 
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -477,20 +483,38 @@ class GioHangFrontendAPI extends BaseFrontendController
      * @OA\Delete(
      *     path="/api/toi/giohang/{id}",
      *     tags={"Giỏ hàng (tôi)"},
-     *     summary="ID bản ghi giỏ hàng cần xóa",
+     *     summary="Xóa sản phẩm khỏi giỏ hàng",
      *     security={{"bearerAuth": {}}},
      *     @OA\Parameter(
-     *         name="id_bienthesp",
+     *         name="id",
      *         in="path",
      *         required=true,
-     *         description="ID của sản phẩm cần xóa",
+     *         description="ID bản ghi giỏ hàng cần xóa",
      *         @OA\Schema(type="integer", example=3)
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Xóa sản phẩm khỏi giỏ hàng thành công"
+     *         description="Xóa sản phẩm khỏi giỏ hàng thành công",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Xóa sản phẩm khỏi giỏ hàng thành công"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items()
+     *             )
+     *         )
      *     ),
-     *     @OA\Response(response=404, description="Không tìm thấy sản phẩm trong giỏ hàng")
+     *     @OA\Response(
+     *         response=404,
+     *         description="Không tìm thấy sản phẩm trong giỏ hàng",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Không tìm thấy sản phẩm trong giỏ hàng")
+     *         )
+     *     )
      * )
      */
     public function destroy(Request $request, $id)

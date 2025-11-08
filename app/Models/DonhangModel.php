@@ -64,6 +64,10 @@ class DonhangModel extends Model
     {
         return $this->belongsTo(NguoidungModel::class, 'id_nguoidung');
     }
+        public function khachhang()
+        {
+            return $this->belongsTo(NguoidungModel::class, 'id_nguoidung');
+        }
 
     /**
      * 🔗 Quan hệ: Một đơn hàng có thể có một mã giảm giá
@@ -104,6 +108,10 @@ class DonhangModel extends Model
     {
         return $this->hasMany(ChitietdonhangModel::class, 'id_donhang');
     }
+        public function chitiet()
+        {
+            return $this->hasMany(ChitietdonhangModel::class, 'id_donhang');
+        }
 
     /**
      * 🧭 Scope lọc theo trạng thái xử lý

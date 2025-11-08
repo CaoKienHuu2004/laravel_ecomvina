@@ -9,13 +9,16 @@ use App\Models\Nguoidung;
 use App\Models\Sanpham;
 use Illuminate\Http\Request;
 use App\Models\Bienthe;
+use App\Models\DonhangModel;
+use App\Models\NguoidungModel;
+use App\Models\SanphamModel;
 
 class DonhangController extends Controller
 {
     // Danh sách đơn hàng
     public function index(Request $request)
     {
-        $query = Donhang::with(['khachhang', 'chitiet']);
+        $query = DonhangModel::with(['khachhang', 'chitiet.bienthe.sanpham']);
         // ->where('is_deleted', 0); // nếu bạn muốn lọc đơn chưa xóa thì bỏ comment
 
         // Filter theo mã đơn
@@ -66,6 +69,8 @@ class DonhangController extends Controller
                 3 => 'Đã hủy',
                 default => 'Không rõ',
             };
+            //TrangThai DonHang 'Chờ xử lý','Đã xác nhận','Đang chuẩn bị hàng','Đang giao hàng','Đã giao hàng','Đã hủy'
+            //TrangThai ThanhToan 'Chưa thanh toán','Đã thanh toán','Thanh toán thất bại','Đã hoàn tiền'
             return $donhang;
         });
 
@@ -75,8 +80,8 @@ class DonhangController extends Controller
     // Hiển thị form tạo đơn hàng
     public function create()
     {
-        $customers = Nguoidung::all();
-        $products  = Sanpham::with('bienthe')->get();
+        $customers = NguoidungModel::all();
+        $products  = SanphamModel::with('bienthe')->get();
         return view('donhang.create', compact('customers', 'products'));
     }
 
@@ -94,7 +99,7 @@ class DonhangController extends Controller
 
         $validated['ma_donhang'] = $ma_donhang;
 
-        Donhang::create($validated);
+        DonhangModel::create($validated);
 
         return redirect()->route('danh-sach-don-hang')
             ->with('success', 'Tạo đơn hàng thành công!');
@@ -105,7 +110,7 @@ class DonhangController extends Controller
     {
         do {
             $code = Str::upper(Str::random(5));
-        } while (Donhang::where('ma_donhang', $code)->exists());
+        } while (DonhangModel::where('ma_donhang', $code)->exists());
 
         return $code;
     }
@@ -113,7 +118,7 @@ class DonhangController extends Controller
     // Chi tiết đơn hàng
     public function show($id)
     {
-        $donhang = Donhang::with(['khachhang', 'chitiet.sanpham'])
+        $donhang = DonhangModel::with(['khachhang', 'chitiet.sanpham'])
             ->findOrFail($id);
 
         return view('donhang.show', compact('donhang'));
@@ -122,7 +127,7 @@ class DonhangController extends Controller
     // API chi tiết đơn hàng
     public function showApi($id)
     {
-        $order = Donhang::with('chitiet')
+        $order = DonhangModel::with('chitiet')
             ->where('is_deleted', 0)
             ->findOrFail($id);
 
@@ -137,8 +142,8 @@ class DonhangController extends Controller
     // Form sửa đơn hàng
     public function edit($id)
     {
-        $donhang = Donhang::with('khachhang')->findOrFail($id);
-        $products = Sanpham::all();
+        $donhang = DonhangModel::with('khachhang')->findOrFail($id);
+        $products = SanphamModel::all();
 
         return view('donhang.edit', compact('donhang', 'products'));
     }
@@ -146,7 +151,7 @@ class DonhangController extends Controller
     // Cập nhật đơn hàng
     public function update(Request $request, $id)
     {
-        $donhang = Donhang::findOrFail($id);
+        $donhang = DonhangModel::findOrFail($id);
 
         $validated = $request->validate([
             'ghichu'       => 'nullable|string',
@@ -164,7 +169,7 @@ class DonhangController extends Controller
     // Xóa đơn hàng (ẩn dữ liệu)
     public function destroy($id)
     {
-        $donhang = Donhang::findOrFail($id);
+        $donhang = DonhangModel::findOrFail($id);
         $donhang->forceDelete();
 
         return redirect()->route('danh-sach-don-hang')
@@ -178,7 +183,7 @@ class DonhangController extends Controller
             'soluong' => 'required|integer|min:1',
         ]);
 
-        $order = Donhang::with('chitiets')->where('is_deleted', 0)->findOrFail($orderId);
+        $order = DonhangModel::with('chitiet')->where('is_deleted', 0)->findOrFail($orderId);
         $item = $order->chitiets()->where('id', $itemId)->first();
 
         if (!$item) {

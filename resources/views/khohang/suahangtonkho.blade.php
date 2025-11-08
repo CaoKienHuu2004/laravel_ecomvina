@@ -46,13 +46,13 @@
                                     <input type="text" name="soluong" value="{{ $bienthe->soluong }}"
                                         class="form-control" />
                                 </div>
-                            </div>  
-                        </div>                 
+                            </div>
+                        </div>
                     </div>
                     <div class="col-lg-3">
                         <button type="submit" class="btn btn-primary">Cập nhật</button>
                     </div>
-                    
+
                 </form>
             </div>
         </div>

@@ -9,8 +9,11 @@ use App\Http\Controllers\ThuonghieuController;
 use App\Http\Controllers\BientheController;
 use App\Http\Controllers\DonhangController;
 use App\Http\Controllers\NguoidungController;
+use App\Http\Controllers\Web\DanhMucWebApi;
+use App\Http\Controllers\Web\DonHangWebApi;
 use App\Http\Controllers\Web\GioHangWebApi;
 use App\Http\Controllers\Web\SanphamAllWebAPI;
+use App\Http\Controllers\Web\TheoDoiDonHangWebApi;
 use App\Http\Controllers\Web\TrangChuWebAPI;
 
 // use App\Http\Controllers\SanphamController;
@@ -191,13 +194,26 @@ Route::post('/toi/giohang', [GioHangWebApi::class, 'store']);
 Route::put('/toi/giohang/{id}', [GioHangWebApi::class, 'update']);
 Route::delete('/toi/giohang/{id}', [GioHangWebApi::class, 'destroy']);
 
-Route::get('/san-pham', [SanphamAllWebAPI::class, 'index']);
-Route::get('/san-pham/{id}', [SanphamAllWebAPI::class, 'show']);
+Route::get('/api-san-pham', [SanphamAllWebAPI::class, 'index']);
+Route::get('/api-san-pham/{id}', [SanphamAllWebAPI::class, 'show']);
 
-Route::get('/trang-chu', [TrangChuWebAPI::class, 'index']);
+Route::get('/api-trang-chu', [TrangChuWebAPI::class, 'index']);
 
+Route::get('/api-danh-muc', [DanhMucWebApi::class, 'index']);
 
-//-------------------------------------------------- Guest User --------------------------------//
+//-------------------------------------------------- Guest User authetication --------------------------------//
+
+Route::middleware(['auth.api'])->group(function () {
+    Route::get('/toi/donhang', [DonHangWebApi::class, 'index']);
+    Route::post('/toi/donhang', [DonHangWebApi::class, 'store']);
+    Route::put('/toi/donhang/{id}', [DonHangWebApi::class, 'update']);
+    Route::patch('/toi/donhang/{id}/huy', [DonHangWebApi::class, 'cancel']);
+});
+
+Route::middleware(['auth.api'])->group(function () {
+    Route::get('/toi/theodoi-donhang', [TheoDoiDonHangWebApi::class, 'index']);
+    Route::put('/toi/theodoi-donhang/{id}', [TheoDoiDonHangWebApi::class, 'update']);
+});
 
 //-------------------------------------------------- Admin --------------------------------//
 // Route::get('admin/category/trash', [CategoryController::class, 'trash'])->middleware('auth','role:admin');
