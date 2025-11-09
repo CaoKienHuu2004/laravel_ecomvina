@@ -15,6 +15,9 @@ use App\Http\Controllers\Web\GioHangWebApi;
 use App\Http\Controllers\Web\SanphamAllWebAPI;
 use App\Http\Controllers\Web\TheoDoiDonHangWebApi;
 use App\Http\Controllers\Web\TrangChuWebAPI;
+use App\Http\Controllers\Web\YeuThichWebApi;
+
+use App\Http\Controllers\HinhAnhSanphamController;
 
 // use App\Http\Controllers\SanphamController;
 // use App\Http\Controllers\DanhmucController;
@@ -163,6 +166,23 @@ Route::middleware(['auth', 'admin'])->group(function () {
         // Tìm kiếm sản phẩm autocomplete
         Route::get('/api/search-products', [DonhangController::class, 'searchProducts']);
     });
+
+
+    /* ===================== Hình Ảnh Sản Phẩm ===================== */
+    Route::prefix('hinhanhsanpham')->group(function () {
+        Route::get('/', [HinhAnhSanphamController::class, 'index'])->name('hinhanhsanpham.index');
+        Route::get('/create', [HinhAnhSanphamController::class, 'create'])->name('hinhanhsanpham.create');
+        Route::post('/store', [HinhAnhSanphamController::class, 'store'])->name('hinhanhsanpham.store');
+        Route::get('/show/{id}', [HinhAnhSanphamController::class, 'show'])->name('hinhanhsanpham.show');
+        Route::get('/edit/{id}', [HinhAnhSanphamController::class, 'edit'])->name('hinhanhsanpham.edit');
+        Route::put('/update/{id}', [HinhAnhSanphamController::class, 'update'])->name('hinhanhsanpham.update');
+        Route::delete('/delete/{id}', [HinhAnhSanphamController::class, 'destroy'])->name('hinhanhsanpham.destroy');
+
+        // 🗑️ Thùng rác
+        Route::get('/trash', [HinhAnhSanphamController::class, 'trash'])->name('hinhanhsanpham.trash');
+        Route::post('/restore/{id}', [HinhAnhSanphamController::class, 'restore'])->name('hinhanhsanpham.restore');
+        Route::delete('/force-delete/{id}', [HinhAnhSanphamController::class, 'forceDelete'])->name('hinhanhsanpham.forceDelete');
+    });
 });
 // Route::get('/dashboard', function () {
 //     return Inertia::render('Dashboard');
@@ -193,7 +213,6 @@ Route::get('/toi/giohang', [GioHangWebApi::class, 'index']);
 Route::post('/toi/giohang', [GioHangWebApi::class, 'store']);
 Route::put('/toi/giohang/{id}', [GioHangWebApi::class, 'update']);
 Route::delete('/toi/giohang/{id}', [GioHangWebApi::class, 'destroy']);
-
 Route::get('/api-san-pham', [SanphamAllWebAPI::class, 'index']);
 Route::get('/api-san-pham/{id}', [SanphamAllWebAPI::class, 'show']);
 
@@ -213,6 +232,11 @@ Route::middleware(['auth.api'])->group(function () {
 Route::middleware(['auth.api'])->group(function () {
     Route::get('/toi/theodoi-donhang', [TheoDoiDonHangWebApi::class, 'index']);
     Route::put('/toi/theodoi-donhang/{id}', [TheoDoiDonHangWebApi::class, 'update']);
+});
+Route::middleware(['auth.api'])->group(function () {
+    Route::get('/toi/yeuthich', [YeuThichWebApi::class, 'index']); // Xem danh sách yêu thích
+    Route::post('/toi/yeuthich', [YeuThichWebApi::class, 'store']); // Thêm sản phẩm vào yêu thích
+    Route::put('/toi/yeuthich/{id_sanpham}', [YeuThichWebApi::class, 'update']); // Bỏ yêu thích (chuyển trạng thái)
 });
 
 //-------------------------------------------------- Admin --------------------------------//

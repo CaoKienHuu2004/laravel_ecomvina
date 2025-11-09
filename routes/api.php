@@ -165,6 +165,7 @@ use App\Http\Controllers\API\Frontend\DonHangFrontendAPI;
 use App\Http\Controllers\API\Frontend\GioHangFrontendAPI;
 use App\Http\Controllers\API\Frontend\SanPhamAllFrontendAPI;
 use App\Http\Controllers\API\Frontend\SanPhamFrontendAPI;
+use App\Http\Controllers\API\Frontend\TheoDoiDonHangFrontendAPI;
 use App\Http\Controllers\API\Frontend\ThongBaoFrontendAPI;
 use App\Http\Controllers\API\Frontend\TimKiemAPI;
 use App\Http\Controllers\API\Frontend\TrangChuAPI;
@@ -244,6 +245,10 @@ use App\Http\Controllers\API\ThongBaoAPI;
         Route::put('/toi/donhangs/{id}', [DonHangFrontendAPI::class, 'update']);
         Route::patch('/toi/donhangs/{id}/huy', [DonHangFrontendAPI::class, 'cancel']);
     });
+        Route::middleware(['auth.api'])->group(function () {
+            Route::get('/toi/theodoi-donhang', [TheoDoiDonHangFrontendAPI::class, 'index']);
+            Route::put('/toi/theodoi-donhang/{id}', [TheoDoiDonHangFrontendAPI::class, 'update']);
+        });
     Route::middleware(['auth.api'])->group(function () {
         Route::get('/toi/danhgias', [DanhGiaFrontendAPI::class, 'index']);
         Route::post('/toi/danhgias', [DanhGiaFrontendAPI::class, 'store']);
