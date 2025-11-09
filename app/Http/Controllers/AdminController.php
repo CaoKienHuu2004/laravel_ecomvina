@@ -10,6 +10,7 @@ use PhpParser\Node\Expr\AssignOp\Mod;
 
 class AdminController extends Controller
 {
+
     // Trang chính admin
     public function dashboard()
     {

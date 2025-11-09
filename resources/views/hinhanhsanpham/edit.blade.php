@@ -50,6 +50,14 @@
                         </select>
                     </div>
 
+                    @if(!empty($hinhanh->hinhanh))
+                    <div class="mb-3">
+                        <a href="{{ $hinhanh->hinhanh }}" rel="noopener noreferrer" target="_blank">
+                            <strong>Tên Hình Ảnh:</strong> {{ $hinhanh->hinhanh }}
+                        </a>
+                    </div>
+                @endif
+
                     {{-- Ảnh hiện tại --}}
                     <div class="mb-3">
                         <label class="form-label fw-bold">Hình ảnh hiện tại:</label><br>

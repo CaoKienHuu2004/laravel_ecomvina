@@ -2,6 +2,8 @@
 
 @section('title', 'Danh sách danh mục | Quản trị hệ thống Siêu Thị Vina')
 
+{{-- $quangcaos->hinhanh: Link http://148.230.100.215/assets/client/images/bg/tenfilehinhanh.jpg --}}
+
 @section('content')
 <div class="page-wrapper">
     <div class="content">

@@ -18,6 +18,7 @@ use App\Http\Controllers\Web\TrangChuWebAPI;
 use App\Http\Controllers\Web\YeuThichWebApi;
 
 use App\Http\Controllers\HinhAnhSanphamController;
+use App\Http\Controllers\QuangCaoController;
 
 // use App\Http\Controllers\SanphamController;
 // use App\Http\Controllers\DanhmucController;
@@ -58,49 +59,37 @@ Route::middleware(['auth', 'admin'])->group(function () {
         return view('trangchu');
     })->name('trang-chu');
     /* ===================== SẢN PHẨM ===================== */
-    Route::prefix('san-pham')->group(function () {
-        Route::get('/danh-sach', [SanphamController::class, 'index'])->name('danh-sach');
-        Route::get('/', [SanphamController::class, 'index']);
+    // Route::prefix('san-pham')->group(function () {
+    //     Route::get('/danh-sach', [SanphamController::class, 'index'])->name('danh-sach');
+    //     Route::get('/', [SanphamController::class, 'index']);
 
-        Route::get('/tao-san-pham', [SanphamController::class, 'create'])->name('tao-san-pham');
-        Route::post('/luu', [SanphamController::class, 'store'])->name('luu-san-pham');
+    //     Route::get('/tao-san-pham', [SanphamController::class, 'create'])->name('tao-san-pham');
+    //     Route::post('/luu', [SanphamController::class, 'store'])->name('luu-san-pham');
 
-        Route::get('/{slug}-{id}', [SanphamController::class, 'show'])
-            ->where(['id' => '[0-9]+', 'slug' => '[a-z0-9-]+'])
-            ->name('chi-tiet-san-pham');
+    //     Route::get('/{slug}-{id}', [SanphamController::class, 'show'])
+    //         ->where(['id' => '[0-9]+', 'slug' => '[a-z0-9-]+'])
+    //         ->name('chi-tiet-san-pham');
 
-        Route::get('/{id}/chinh-sua', [SanphamController::class, 'edit'])->name('chinh-sua-san-pham');
-        Route::post('/{id}/cap-nhat', [SanphamController::class, 'update'])->name('cap-nhat-san-pham'); // giữ POST theo dự án
-        Route::get('/{id}/xoa', [SanphamController::class, 'destroy'])->name('xoa-san-pham');           // giữ GET theo dự án
-    });
+    //     Route::get('/{id}/chinh-sua', [SanphamController::class, 'edit'])->name('chinh-sua-san-pham');
+    //     Route::post('/{id}/cap-nhat', [SanphamController::class, 'update'])->name('cap-nhat-san-pham'); // giữ POST theo dự án
+    //     Route::get('/{id}/xoa', [SanphamController::class, 'destroy'])->name('xoa-san-pham');           // giữ GET theo dự án
+    // });
 
-    /* ===================== DANH MỤC ===================== */
-    Route::prefix('danh-muc')->group(function () {
-        Route::get('/danh-sach', [DanhmucController::class, 'index'])->name('danh-sach-danh-muc');
-        Route::get('/', [DanhmucController::class, 'index']);
 
-        Route::get('/tao-danh-muc', [DanhmucController::class, 'create'])->name('tao-danh-muc');
-        Route::post('/luu', [DanhmucController::class, 'store'])->name('luu-danh-muc');
-
-        Route::get('/{id}/chinh-sua', [DanhmucController::class, 'edit'])->name('chinh-sua-danh-muc');
-        Route::post('/{id}/cap-nhat', [DanhmucController::class, 'update'])->name('cap-nhat-danh-muc');
-
-        Route::delete('/{id}/xoa', [DanhmucController::class, 'destroy'])->name('xoa-danh-muc');
-    });
 
     /* ===================== THƯƠNG HIỆU ===================== */
-    Route::prefix('thuong-hieu')->group(function () {
-        Route::get('/danh-sach', [ThuonghieuController::class, 'index'])->name('danh-sach-thuong-hieu');
-        Route::get('/', [ThuonghieuController::class, 'index']);
+    // Route::prefix('thuong-hieu')->group(function () {
+    //     Route::get('/danh-sach', [ThuonghieuController::class, 'index'])->name('danh-sach-thuong-hieu');
+    //     Route::get('/', [ThuonghieuController::class, 'index']);
 
-        Route::get('/tao-thuong-hieu', [ThuonghieuController::class, 'create'])->name('tao-thuong-hieu');
-        Route::post('/luu', [ThuonghieuController::class, 'store'])->name('luu-thuong-hieu');
+    //     Route::get('/tao-thuong-hieu', [ThuonghieuController::class, 'create'])->name('tao-thuong-hieu');
+    //     Route::post('/luu', [ThuonghieuController::class, 'store'])->name('luu-thuong-hieu');
 
-        Route::get('/{id}/chinh-sua', [ThuonghieuController::class, 'edit'])->name('chinh-sua-thuong-hieu');
-        Route::post('/{id}/cap-nhat', [ThuonghieuController::class, 'update'])->name('cap-nhat-thuong-hieu');
+    //     Route::get('/{id}/chinh-sua', [ThuonghieuController::class, 'edit'])->name('chinh-sua-thuong-hieu');
+    //     Route::post('/{id}/cap-nhat', [ThuonghieuController::class, 'update'])->name('cap-nhat-thuong-hieu');
 
-        Route::delete('/{id}/xoa', [ThuonghieuController::class, 'destroy'])->name('xoa-thuong-hieu');
-    });
+    //     Route::delete('/{id}/xoa', [ThuonghieuController::class, 'destroy'])->name('xoa-thuong-hieu');
+    // });
 
     /* ===================== KHO HÀNG (BIẾN THỂ) ===================== */
     Route::prefix('kho-hang')->group(function () {
@@ -182,6 +171,46 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('/trash', [HinhAnhSanphamController::class, 'trash'])->name('hinhanhsanpham.trash');
         Route::post('/restore/{id}', [HinhAnhSanphamController::class, 'restore'])->name('hinhanhsanpham.restore');
         Route::delete('/force-delete/{id}', [HinhAnhSanphamController::class, 'forceDelete'])->name('hinhanhsanpham.forceDelete');
+    });
+    /* ===================== DANH MỤC ===================== */
+    Route::prefix('danhmuc')->group(function () {
+        Route::get('/', [DanhmucController::class, 'index'])->name('danhmuc.index');
+        Route::get('/create', [DanhmucController::class, 'create'])->name('danhmuc.create');
+        Route::post('/store', [DanhmucController::class, 'store'])->name('danhmuc.store');
+        Route::get('/show/{id}', [DanhmucController::class, 'show'])->name('danhmuc.show');
+        Route::get('/edit/{id}', [DanhmucController::class, 'edit'])->name('danhmuc.edit');
+        Route::put('/update/{id}', [DanhmucController::class, 'update'])->name('danhmuc.update');
+        Route::delete('/delete/{id}', [DanhmucController::class, 'destroy'])->name('danhmuc.destroy');
+    });
+    /* ===================== SẢN PHẨM ===================== */
+    Route::prefix('sanpham')->group(function () {
+        Route::get('/', [SanphamController::class, 'index'])->name('sanpham.index');
+        Route::get('/create', [SanphamController::class, 'create'])->name('sanpham.create');
+        Route::post('/store', [SanphamController::class, 'store'])->name('sanpham.store');
+        Route::get('/show/{id}', [SanphamController::class, 'show'])->name('sanpham.show');
+        Route::get('/edit/{id}', [SanphamController::class, 'edit'])->name('sanpham.edit');
+        Route::put('/update/{id}', [SanphamController::class, 'update'])->name('sanpham.update');
+        Route::delete('/delete/{id}', [SanphamController::class, 'destroy'])->name('sanpham.destroy');
+    });
+    /* ===================== QUẢNG CÁO ===================== */
+    Route::prefix('quangcao')->group(function () {
+        Route::get('/', [QuangCaoController::class, 'index'])->name('quangcao.index');
+        Route::get('/create', [QuangCaoController::class, 'create'])->name('quangcao.create');
+        Route::post('/store', [QuangCaoController::class, 'store'])->name('quangcao.store');
+        Route::get('/show/{id}', [QuangCaoController::class, 'show'])->name('quangcao.show');
+        Route::get('/edit/{id}', [QuangCaoController::class, 'edit'])->name('quangcao.edit');
+        Route::put('/update/{id}', [QuangCaoController::class, 'update'])->name('quangcao.update');
+        Route::delete('/delete/{id}', [QuangCaoController::class, 'destroy'])->name('quangcao.destroy');
+    });
+    /* ===================== THƯƠNG HIỆU ===================== */
+    Route::prefix('thuonghieu')->group(function () {
+        Route::get('/', [ThuonghieuController::class, 'index'])->name('thuonghieu.index');
+        Route::get('/create', [ThuonghieuController::class, 'create'])->name('thuonghieu.create');
+        Route::post('/store', [ThuonghieuController::class, 'store'])->name('thuonghieu.store');
+        Route::get('/show/{id}', [ThuonghieuController::class, 'show'])->name('thuonghieu.show');
+        Route::get('/edit/{id}', [ThuonghieuController::class, 'edit'])->name('thuonghieu.edit');
+        Route::put('/update/{id}', [ThuonghieuController::class, 'update'])->name('thuonghieu.update');
+        Route::delete('/delete/{id}', [ThuonghieuController::class, 'destroy'])->name('thuonghieu.destroy');
     });
 });
 // Route::get('/dashboard', function () {

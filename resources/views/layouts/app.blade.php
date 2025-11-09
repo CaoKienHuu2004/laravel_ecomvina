@@ -259,8 +259,7 @@
                   <span class="menu-arrow"></span
                 ></a>
                 <ul>
-                  <li><a class="{{ request()->routeIs('danh-sach') || request()->routeIs('chinh-sua-san-pham') || request()->routeIs('tao-san-pham') || request()->routeIs('chi-tiet-san-pham') ? 'active' : '' }}" href="{{ route('danh-sach') }}">Danh sách sản phẩm</a></li>
-                  <li><a class="{{ request()->routeIs('danh-sach-danh-muc') || request()->routeIs('chinh-sua-danh-muc') || request()->routeIs('tao-danh-muc') ? 'active' : '' }}" href="{{ route('danh-sach-danh-muc') }}">Danh mục sản phẩm</a></li>
+                  <li><a class="{{ request()->routeIs('sanpham.index') || request()->routeIs('sanpham.edit') || request()->routeIs('sanpham.create') || request()->routeIs('sanpham.show') ? 'active' : '' }}" href="{{ route('sanpham.index') }}">Danh sách sản phẩm</a></li>
                   {{-- //---- Hình Ảnh Sản Phẩm ---// --}}
                   <li><a class="{{ request()->routeIs('hinhanhsanpham.index') || request()->routeIs('hinhanhsanpham.edit') || request()->routeIs('hinhanhsanpham.create') ? 'active' : '' }}" href="{{ route('hinhanhsanpham.index') }}">Hình ảnh sản phẩm</a></li>
                   {{-- <li><a class="{{ request()->routeIs('danh-sach-thuong-hieu') || request()->routeIs('chinh-sua-thuong-hieu') || request()->routeIs('tao-thuong-hieu') ? 'active' : '' }}" href="{{ route('danh-sach-thuong-hieu') }}">Thương hiệu sản phẩm</a></li> --}}
@@ -289,32 +288,26 @@
               {{-- // -- Quản lý thương hiệu --// --}}
               <li class="submenu">
                 <a href="javascript:void(0);"
-                  ><img src="{{asset('img/icons/quotation1.svg')}}" alt="img" /><span>
+                  ><img src="{{asset('img/icons/brands-svgrepo-com.svg')}}" alt="img" /><span>
                     Quản lý thương hiệu</span
                   >
                   <span class="menu-arrow"></span
                 ></a>
                 <ul>
-                  <li><a href="quotationList.html">Quotation List</a></li>
-                  <li><a href="addquotation.html">Add Quotation</a></li>
+                  <li><a class="{{ request()->routeIs('thuonghieu.index') || request()->routeIs('thuonghieu.edit') || request()->routeIs('thuonghieu.create') || request()->routeIs('thuonghieu.show') ? 'active' : '' }}" href="{{ route('thuonghieu.index') }}">Danh sách thương hiệu</a></li>
                 </ul>
               </li>
 
               {{-- // -- Quản lý danh mục --// --}}
               <li class="submenu">
                 <a href="javascript:void(0);"
-                  ><img src="{{asset('img/icons/sales1.svg')}}" alt="img" /><span>
+                  ><img src="{{asset('img/icons/category-svgrepo-com.svg')}}" alt="img" /><span>
                     Quản lý danh mục</span
                   >
                   <span class="menu-arrow"></span
                 ></a>
                 <ul>
-                  <li><a href="saleslist.html">Voucher</a></li>
-                  <li><a href="pos.html">Ưu đãi sản phẩm</a></li>
-                  <li><a href="pos.html">Sự kiện khuyến mãi</a></li>
-                  <li><a href="/">Đánh giá sản phẩm</a></li>
-                  <li><a href="pos.html">Danh sách đơn hàng</a></li>
-
+                    <li><a class="{{ request()->routeIs('danhmuc.index') || request()->routeIs('danhmuc.edit') || request()->routeIs('danhmuc.create') ? 'active' : '' }}" href="{{ route('danhmuc.index') }}">Danh mục sản phẩm</a></li>
                 </ul>
               </li>
 
@@ -357,17 +350,13 @@
               {{-- // -- Quản lý sự kiện --// --}}
               <li class="submenu">
                 <a href="javascript:void(0);"
-                  ><img src="{{asset('img/icons/sales1.svg')}}" alt="img" /><span>
+                  ><img src="{{asset('img/icons/event-promotion-sale.svg')}}" alt="img" /><span>
                     Quản lý sự kiện</span
                   >
                   <span class="menu-arrow"></span
                 ></a>
                 <ul>
-                  <li><a href="saleslist.html">Voucher</a></li>
-                  <li><a href="pos.html">Ưu đãi sản phẩm</a></li>
-                  <li><a href="pos.html">Sự kiện khuyến mãi</a></li>
-                  <li><a href="/">Đánh giá sản phẩm</a></li>
-                  <li><a href="pos.html">Danh sách đơn hàng</a></li>
+                  <li><a class="{{ request()->routeIs('quangcao.index') || request()->routeIs('quangcao.edit') || request()->routeIs('quangcao.create') || request()->routeIs('quangcao.show') ? 'active' : '' }}" href="{{ route('quangcao.index') }}">Danh sách Banner<br>Quảng Cáo(trang chủ)</a></li>
 
                 </ul>
               </li>

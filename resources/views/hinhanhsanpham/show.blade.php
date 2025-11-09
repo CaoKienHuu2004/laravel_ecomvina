@@ -28,6 +28,14 @@
                     <strong>Sản phẩm:</strong> {{ $hinhanh->sanpham->ten ?? 'Không xác định' }}
                 </div>
 
+                @if(!empty($hinhanh->hinhanh))
+                    <div class="mb-3">
+                        <a href="{{ $hinhanh->hinhanh }}" rel="noopener noreferrer" target="_blank">
+                            <strong>Tên Hình Ảnh:</strong> {{ $hinhanh->hinhanh }}
+                        </a>
+                    </div>
+                @endif
+
                 <div class="mb-3">
                     <strong>Hình ảnh:</strong><br>
                     @if ($hinhanh->hinhanh)
