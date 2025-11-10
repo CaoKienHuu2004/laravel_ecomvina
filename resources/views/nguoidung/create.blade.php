@@ -2,6 +2,7 @@
 
 @section('title', 'Thêm mới người dùng')
 {{-- // các route sư dụng  nguoidung.index,nguoi.store --}}
+{{-- // controller truyền xuống $tinhthanhs  --}}
 @section('content')
 <div class="page-wrapper">
     <div class="content">
@@ -121,10 +122,11 @@
                         <label for="diachi_tinhthanh">Tỉnh/Thành phố <span class="text-danger">*</span></label>
                         <select name="diachi_tinhthanh" id="diachi_tinhthanh" class="form-control" required>
                             <option value="">-- Chọn tỉnh/thành --</option>
-                            <option value="TP. Hồ Chí Minh" {{ old('diachi_tinhthanh') == 'TP. Hồ Chí Minh' ? 'selected' : '' }}>TP. Hồ Chí Minh</option>
-                            <option value="Hà Nội" {{ old('diachi_tinhthanh') == 'Hà Nội' ? 'selected' : '' }}>Hà Nội</option>
-                            <option value="Đà Nẵng" {{ old('diachi_tinhthanh') == 'Đà Nẵng' ? 'selected' : '' }}>Đà Nẵng</option>
-                            {{-- Thêm các tỉnh/thành khác nếu cần --}}
+                            @foreach ($tinhthanhs as $tinhthanh)
+                                <option value="{{ $tinhthanh }}" {{ old('diachi_tinhthanh') == $tinhthanh ? 'selected' : '' }}>
+                                    {{ $tinhthanh }}
+                                </option>
+                            @endforeach
                         </select>
                     </div>
 

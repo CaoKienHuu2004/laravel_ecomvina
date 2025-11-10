@@ -3,6 +3,7 @@
 @section('title', 'Chỉnh sửa người dùng')
 {{-- // các route sư dụng  nguoidung.index, nguoidung.update --}}
 {{-- $nguoidung->avatar: Link http://148.230.100.215/storage/assets/client/images/profiles/tenfilehinhanh.jpg --}}
+{{-- // controller truyền xuống $tinhthanhs,$nguoidung  --}}
 @section('content')
 <div class="page-wrapper">
     <div class="content">
@@ -185,17 +186,15 @@
                             required
                         >
                             @php
+                                // Lấy giá trị tỉnh thành hiện tại:
+                                // ưu tiên old input (nếu có), không thì lấy từ địa chỉ mặc định của user
                                 $tinhthanh = old('diachi_tinhthanh', $nguoidung->diachi->where('trangthai', 'Mặc định')->first()->tinhthanh ?? '');
-                                $listTinhThanh = [
-                                    'TP. Hồ Chí Minh',
-                                    'Hà Nội',
-                                    'Đà Nẵng',
-                                    // ... thêm tỉnh thành khác theo nhu cầu
-                                ];
                             @endphp
                             <option value="">-- Chọn tỉnh/thành --</option>
-                            @foreach($listTinhThanh as $tinh)
-                                <option value="{{ $tinh }}" {{ $tinhthanh === $tinh ? 'selected' : '' }}>{{ $tinh }}</option>
+                            @foreach($tinhthanhs as $tinh)
+                                <option value="{{ $tinh }}" {{ $tinhthanh === $tinh ? 'selected' : '' }}>
+                                    {{ $tinh }}
+                                </option>
                             @endforeach
                         </select>
                     </div>

@@ -2369,6 +2369,55 @@
                 }
             }
         },
+        "/api/tinh-thanh": {
+            "get": {
+                "tags": [
+                    "Tỉnh Thành Việt Nam"
+                ],
+                "summary": "Lấy danh sách tất cả các tỉnh/thành Việt Nam, dùng cho selectbox địa chỉ giao hàng",
+                "description": "Trả về danh sách các tỉnh/thành, có thể lọc theo khu vực (khuvuc) bằng query param",
+                "operationId": "2fe3a45a7d26721d89d9ba99f79f31ba",
+                "parameters": [
+                    {
+                        "name": "khuvuc",
+                        "in": "query",
+                        "description": "Tên khu vực để lọc, ví dụ: Đông Nam Bộ",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Danh sách tỉnh/thành được trả về thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Danh Sách Tỉnh/Thành Phố Việt Nam"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/TinhThanhVietNam"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/trang-chu": {
             "get": {
                 "tags": [
@@ -3417,6 +3466,271 @@
                         "description": "Không tìm thấy sự kiện"
                     }
                 }
+            }
+        },
+        "/toi/theodoi-donhang": {
+            "get": {
+                "tags": [
+                    "Theo dõi đơn hàng (tôi) (web)"
+                ],
+                "summary": "Lấy danh sách đơn hàng của người dùng",
+                "description": "API cho phép người dùng xem danh sách các đơn hàng của họ, có thể lọc theo trạng thái hoặc mã đơn hàng.Yêu cầu phải có `username` và `madon` để xác thực.",
+                "operationId": "9394a7059381dbb345ecaffa3d1a1fc3",
+                "parameters": [
+                    {
+                        "name": "username",
+                        "in": "query",
+                        "description": "Tên tài khoản người dùng, bắt buộc để xác thực",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "madon",
+                        "in": "query",
+                        "description": "Mã đơn hàng, bắt buộc để xác thực",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "trangthai",
+                        "in": "query",
+                        "description": "Lọc đơn hàng theo trạng thái. Giá trị hợp lệ: Chờ xử lý, Đã xác nhận, Đang chuẩn bị hàng, Đang giao hàng, Đã giao hàng, Đã hủy",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "Chờ xử lý",
+                                "Đã xác nhận",
+                                "Đang chuẩn bị hàng",
+                                "Đang giao hàng",
+                                "Đã giao hàng",
+                                "Đã hủy"
+                            ]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Danh sách đơn hàng của người dùng",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Danh Sách Đơn Hàng Theo Trạng Thái..."
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/TheoDoiDonHangResource"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Thiếu hoặc không xác thực được người dùng (username hoặc madon sai hoặc thiếu)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Thiếu tên tài khoản hoặc mã đơn hàng để xác thực!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Không có quyền truy cập đơn hàng (madon không thuộc user này)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Thiếu tên tài khoản hoặc mã đơn hàng để xác thực!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": [],
+                        "ApiKeyOrder": []
+                    }
+                ]
+            }
+        },
+        "/toi/theodoi-donhang/{id}": {
+            "put": {
+                "tags": [
+                    "Theo dõi đơn hàng (tôi) (web)"
+                ],
+                "summary": "Cập nhật trạng thái đơn hàng",
+                "description": "API cho phép người dùng cập nhật trạng thái đơn hàng của họ theo ID đơn hàng. Yêu cầu phải có `username` và `madon` để xác thực.",
+                "operationId": "eea6a5662b390ee28fddc43fc69c400e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID đơn hàng cần cập nhật",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "username",
+                        "in": "query",
+                        "description": "Tên tài khoản người dùng, bắt buộc để xác thực",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "madon",
+                        "in": "query",
+                        "description": "Mã đơn hàng, bắt buộc để xác thực",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "trangthai"
+                                ],
+                                "properties": {
+                                    "trangthai": {
+                                        "description": "Trạng thái mới của đơn hàng",
+                                        "type": "string",
+                                        "enum": [
+                                            "Chờ xử lý",
+                                            "Đã xác nhận",
+                                            "Đang chuẩn bị hàng",
+                                            "Đang giao hàng",
+                                            "Đã giao hàng",
+                                            "Đã hủy"
+                                        ]
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Đơn hàng đã được cập nhật trạng thái thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TheoDoiDonHangResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Thiếu hoặc không xác thực được người dùng (username hoặc madon sai hoặc thiếu)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Thiếu tên tài khoản hoặc mã đơn hàng để xác thực!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Không có quyền truy cập đơn hàng (madon không thuộc user này)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Thiếu tên tài khoản hoặc mã đơn hàng để xác thực!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Không tìm thấy đơn hàng hoặc không có quyền cập nhật",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Không tìm thấy đơn hàng hoặc bạn không có quyền."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "ApiKeyAuth": [],
+                        "ApiKeyOrder": []
+                    }
+                ]
             }
         }
     },
@@ -4511,6 +4825,29 @@
                 },
                 "type": "object"
             },
+            "TinhThanhVietNam": {
+                "title": "TinhThanhVietNam",
+                "description": "Thông tin tỉnh/thành Việt Nam",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "ten": {
+                        "type": "string",
+                        "example": "TP. Hà Nội"
+                    },
+                    "code": {
+                        "type": "string",
+                        "example": "HN"
+                    },
+                    "khuvuc": {
+                        "type": "string",
+                        "example": "Đồng bằng Sông Hồng"
+                    }
+                },
+                "type": "object"
+            },
             "GioHangResource": {
                 "title": "GioHangResource",
                 "description": "Resource giỏ hàng của người dùng",
@@ -4832,6 +5169,10 @@
             "description": "API cho phép người dùng xem và cập nhật trạng thái đơn hàng của họ"
         },
         {
+            "name": "Tỉnh Thành Việt Nam",
+            "description": "Hiển thị danh sách tỉnh/thành Việt Nam"
+        },
+        {
             "name": "Trang Chủ",
             "description": " sản phẩm của trang chủ được lọc theo yêu cầu nghiệp vụ của từng selection, tên cũ sanphams-selection"
         },
@@ -4850,6 +5191,10 @@
         {
             "name": "Chương trình & Sự kiện",
             "description": "API xem danh sách và chi tiết các chương trình, sự kiện đang hoạt động"
+        },
+        {
+            "name": "Theo dõi đơn hàng (tôi) (web)",
+            "description": "API cho phép người dùng xem và cập nhật trạng thái đơn hàng của họ"
         },
         {
             "name": "Bài viết",

@@ -7,6 +7,7 @@ use App\Http\Controllers\SanphamController;
 use App\Http\Controllers\DanhmucController;
 use App\Http\Controllers\ThuonghieuController;
 use App\Http\Controllers\BientheController;
+use App\Http\Controllers\DiaChiGiaoHangController;
 use App\Http\Controllers\DonhangController;
 use App\Http\Controllers\NguoidungController;
 use App\Http\Controllers\Web\DanhMucWebApi;
@@ -19,6 +20,7 @@ use App\Http\Controllers\Web\YeuThichWebApi;
 
 use App\Http\Controllers\HinhAnhSanphamController;
 use App\Http\Controllers\QuangCaoController;
+use App\Http\Controllers\Web\TinhThanhVietNamWebApi;
 
 // use App\Http\Controllers\SanphamController;
 // use App\Http\Controllers\DanhmucController;
@@ -227,6 +229,21 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::post('/restore/{id}', [NguoidungController::class, 'restore'])->name('nguoidung.restore');
         Route::delete('/force-delete/{id}', [NguoidungController::class, 'forceDelete'])->name('nguoidung.forceDelete');
     });
+    /* ===================== ĐỊA CHỈ GIAO HÀNG ===================== */
+    Route::prefix('diachigiaohang')->group(function () {
+        Route::get('/', [DiaChiGiaoHangController::class, 'index'])->name('diachigiaohang.index');
+        Route::get('/create', [DiaChiGiaoHangController::class, 'create'])->name('diachigiaohang.create');
+        Route::post('/store', [DiaChiGiaoHangController::class, 'store'])->name('diachigiaohang.store');
+        Route::get('/show/{id}', [DiaChiGiaoHangController::class, 'show'])->name('diachigiaohang.show');
+        Route::get('/edit/{id}', [DiaChiGiaoHangController::class, 'edit'])->name('diachigiaohang.edit');
+        Route::put('/update/{id}', [DiaChiGiaoHangController::class, 'update'])->name('diachigiaohang.update');
+        Route::delete('/delete/{id}', [DiaChiGiaoHangController::class, 'destroy'])->name('diachigiaohang.destroy');
+
+        // 🗑️ Thùng rác
+        Route::get('/trash', [DiaChiGiaoHangController::class, 'trash'])->name('diachigiaohang.trash');
+        Route::post('/restore/{id}', [DiaChiGiaoHangController::class, 'restore'])->name('diachigiaohang.restore');
+        Route::delete('/force-delete/{id}', [DiaChiGiaoHangController::class, 'forceDelete'])->name('diachigiaohang.forceDelete');
+    });
 });
 // Route::get('/dashboard', function () {
 //     return Inertia::render('Dashboard');
@@ -264,6 +281,8 @@ Route::get('/api-trang-chu', [TrangChuWebAPI::class, 'index']);
 
 Route::get('/api-danh-muc', [DanhMucWebApi::class, 'index']);
 
+Route::get('/api-tinh-thanh', [TinhThanhVietNamWebApi::class, 'index']);
+
 //-------------------------------------------------- Guest User authetication --------------------------------//
 
 Route::middleware(['auth.api'])->group(function () {
@@ -273,7 +292,7 @@ Route::middleware(['auth.api'])->group(function () {
     Route::patch('/toi/donhang/{id}/huy', [DonHangWebApi::class, 'cancel']);
 });
 
-Route::middleware(['auth.api'])->group(function () {
+Route::middleware(['auth.username_order'])->group(function () {
     Route::get('/toi/theodoi-donhang', [TheoDoiDonHangWebApi::class, 'index']);
     Route::put('/toi/theodoi-donhang/{id}', [TheoDoiDonHangWebApi::class, 'update']);
 });

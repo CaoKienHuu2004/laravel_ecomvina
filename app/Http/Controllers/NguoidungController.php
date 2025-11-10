@@ -7,15 +7,18 @@ use App\Models\NguoidungModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class NguoidungController extends Controller
 {
     protected $uploadDir = "assets/client/images/profiles"; // thư mục lưu file, relative so với storage/app/public
     protected $domain;
+    protected $provinces;
 
     public function __construct()
     {
         $this->domain = env('DOMAIN', 'http://148.230.100.215/');
+        $this->provinces = config('tinhthanh');
     }
 
     /**
@@ -43,7 +46,8 @@ class NguoidungController extends Controller
      */
     public function create()
     {
-        return view('nguoidung.create');
+        $tinhthanhs = collect($this->provinces)->pluck('ten')->toArray();
+        return view('nguoidung.create', compact('tinhthanhs'));
     }
 
     /**
@@ -54,6 +58,7 @@ class NguoidungController extends Controller
      */
     public function store(Request $request)
     {
+        $provinceNames = collect($this->provinces)->pluck('ten')->toArray();
         // Validate dữ liệu người dùng + địa chỉ giao hàng
         $request->validate([
             'username'    => 'required|string|max:255|unique:nguoidung,username',
@@ -68,7 +73,7 @@ class NguoidungController extends Controller
 
             // Validate địa chỉ giao hàng
             'diachi_diachi'    => 'required|string',
-            'diachi_tinhthanh' => 'required|string|in:TP. Hồ Chí Minh,Hà Nội,Đà Nẵng,...', // list tỉnh thành bạn định nghĩa
+            'diachi_tinhthanh' => ['required', 'string', Rule::in($provinceNames)], // list tỉnh thành bạn định nghĩa
             'diachi_trangthai' => 'nullable|in:Mặc định,Khác,Tạm ẩn',
         ]);
 
@@ -124,7 +129,9 @@ class NguoidungController extends Controller
     public function edit($id)
     {
         $nguoidung = NguoidungModel::findOrFail($id);
-        return view('nguoidung.edit', compact('nguoidung'));
+        $tinhthanhs = collect($this->provinces)->pluck('ten')->toArray();
+
+        return view('nguoidung.edit', compact('nguoidung','tinhthanhs'));
     }
 
     /**
@@ -132,6 +139,7 @@ class NguoidungController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $provinceNames = collect($this->provinces)->pluck('ten')->toArray();
         $nguoidung = NguoidungModel::findOrFail($id);
 
         $request->validate([
@@ -148,7 +156,7 @@ class NguoidungController extends Controller
             // Validate địa chỉ giao hàng
 
             'diachi_diachi'    => 'required|string',
-            'diachi_tinhthanh' => 'required|string|in:TP. Hồ Chí Minh,Hà Nội,Đà Nẵng,...', // list tỉnh thành bạn định nghĩa
+            'diachi_tinhthanh' => ['required', 'string', Rule::in($provinceNames)], // list tỉnh thành bạn định nghĩa
             'diachi_trangthai' => 'nullable|in:Mặc định,Khác,Tạm ẩn',
         ]);
 

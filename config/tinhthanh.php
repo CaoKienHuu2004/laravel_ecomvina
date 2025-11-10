@@ -1,0 +1,43 @@
+<?php
+
+return [
+    // 6 Thành phố trực thuộc Trung ương
+    ['id' => 1, 'ten' => 'TP. Hà Nội', 'code' => 'HN', 'khuvuc' => 'Đồng bằng Sông Hồng'],
+    ['id' => 2, 'ten' => 'TP. Hồ Chí Minh', 'code' => 'HCM', 'khuvuc' => 'Đông Nam Bộ'],
+    ['id' => 3, 'ten' => 'TP. Hải Phòng', 'code' => 'HP', 'khuvuc' => 'Đồng bằng Sông Hồng'],
+    ['id' => 4, 'ten' => 'TP. Đà Nẵng', 'code' => 'ĐN', 'khuvuc' => 'Duyên hải Nam Trung Bộ'],
+    ['id' => 5, 'ten' => 'TP. Cần Thơ', 'code' => 'CT', 'khuvuc' => 'Đồng bằng Sông Cửu Long'],
+    ['id' => 6, 'ten' => 'TP. Huế', 'code' => 'HUE', 'khuvuc' => 'Bắc Trung Bộ'],
+
+    // Các tỉnh còn lại
+    ['id' => 7, 'ten' => 'Hà Giang', 'code' => 'HG', 'khuvuc' => 'Trung du & Miền núi phía Bắc'],
+    ['id' => 8, 'ten' => 'Cao Bằng', 'code' => 'CB', 'khuvuc' => 'Trung du & Miền núi phía Bắc'],
+    ['id' => 9, 'ten' => 'Lào Cai', 'code' => 'LC', 'khuvuc' => 'Trung du & Miền núi phía Bắc'],
+    ['id' => 10, 'ten' => 'Sơn La', 'code' => 'SL', 'khuvuc' => 'Trung du & Miền núi phía Bắc'],
+    ['id' => 11, 'ten' => 'Tuyên Quang', 'code' => 'TQ', 'khuvuc' => 'Trung du & Miền núi phía Bắc'],
+    ['id' => 12, 'ten' => 'Lai Châu', 'code' => 'LCU', 'khuvuc' => 'Trung du & Miền núi phía Bắc'],
+    ['id' => 13, 'ten' => 'Lạng Sơn', 'code' => 'LS', 'khuvuc' => 'Trung du & Miền núi phía Bắc'],
+    ['id' => 14, 'ten' => 'Yên Bái', 'code' => 'YB', 'khuvuc' => 'Trung du & Miền núi phía Bắc'],
+    ['id' => 15, 'ten' => 'Quảng Ninh', 'code' => 'QN', 'khuvuc' => 'Đồng bằng Sông Hồng'],
+    ['id' => 16, 'ten' => 'Bắc Giang', 'code' => 'BG', 'khuvuc' => 'Trung du & Miền núi phía Bắc'],
+    ['id' => 17, 'ten' => 'Phú Thọ', 'code' => 'PT', 'khuvuc' => 'Trung du & Miền núi phía Bắc'],
+    ['id' => 18, 'ten' => 'Vĩnh Phúc', 'code' => 'VP', 'khuvuc' => 'Đồng bằng Sông Hồng'],
+    ['id' => 19, 'ten' => 'Hải Dương', 'code' => 'HD', 'khuvuc' => 'Đồng bằng Sông Hồng'],
+    ['id' => 20, 'ten' => 'Thái Bình', 'code' => 'TB', 'khuvuc' => 'Đồng bằng Sông Hồng'],
+    ['id' => 21, 'ten' => 'Nam Định', 'code' => 'ND', 'khuvuc' => 'Đồng bằng Sông Hồng'],
+    ['id' => 22, 'ten' => 'Ninh Bình', 'code' => 'NB', 'khuvuc' => 'Đồng bằng Sông Hồng'],
+    ['id' => 23, 'ten' => 'Thanh Hóa', 'code' => 'TH', 'khuvuc' => 'Bắc Trung Bộ'],
+    ['id' => 24, 'ten' => 'Nghệ An', 'code' => 'NA', 'khuvuc' => 'Bắc Trung Bộ'],
+    ['id' => 25, 'ten' => 'Quảng Bình', 'code' => 'QB', 'khuvuc' => 'Bắc Trung Bộ'],
+    ['id' => 26, 'ten' => 'Quảng Trị', 'code' => 'QT', 'khuvuc' => 'Bắc Trung Bộ'],
+    ['id' => 27, 'ten' => 'Quảng Nam', 'code' => 'QNM', 'khuvuc' => 'Duyên hải Nam Trung Bộ'],
+    ['id' => 28, 'ten' => 'Gia Lai', 'code' => 'GL', 'khuvuc' => 'Tây Nguyên'],
+    ['id' => 29, 'ten' => 'Đắk Lắk', 'code' => 'ĐL', 'khuvuc' => 'Tây Nguyên'],
+    ['id' => 30, 'ten' => 'Khánh Hòa', 'code' => 'KH', 'khuvuc' => 'Duyên hải Nam Trung Bộ'],
+    ['id' => 31, 'ten' => 'Lâm Đồng', 'code' => 'LĐ', 'khuvuc' => 'Tây Nguyên'],
+    ['id' => 32, 'ten' => 'Đồng Nai', 'code' => 'ĐN', 'khuvuc' => 'Đông Nam Bộ'],
+    ['id' => 33, 'ten' => 'Bình Dương', 'code' => 'BD', 'khuvuc' => 'Đông Nam Bộ'],
+    ['id' => 34, 'ten' => 'Bà Rịa - Vũng Tàu', 'code' => 'BRVT', 'khuvuc' => 'Đông Nam Bộ'],
+    ['id' => 35, 'ten' => 'Kiên Giang', 'code' => 'KG', 'khuvuc' => 'Đồng bằng Sông Cửu Long'],
+    ['id' => 36, 'ten' => 'Cà Mau', 'code' => 'CM', 'khuvuc' => 'Đồng bằng Sông Cửu Long'],
+];

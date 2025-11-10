@@ -168,6 +168,7 @@ use App\Http\Controllers\API\Frontend\SanPhamFrontendAPI;
 use App\Http\Controllers\API\Frontend\TheoDoiDonHangFrontendAPI;
 use App\Http\Controllers\API\Frontend\ThongBaoFrontendAPI;
 use App\Http\Controllers\API\Frontend\TimKiemAPI;
+use App\Http\Controllers\API\Frontend\TinhThanhVietNamFrontendAPI;
 use App\Http\Controllers\API\Frontend\TrangChuAPI;
 use App\Http\Controllers\API\Frontend\TukhoaFrontendAPI;
 use App\Http\Controllers\API\Frontend\YeuThichFrontendAPI;
@@ -200,6 +201,8 @@ use App\Http\Controllers\API\ThongBaoAPI;
     //bảng banner_quangcao
     Route::apiResource('bannerquangcaos', BannerQuangCaoFrontendAPI::class)->only(['index']);
     //bảng banner_quangcao
+
+    Route::get('/tinh-thanh', [TinhThanhVietNamFrontendAPI::class, 'index']);
 
     // có slug: sanpham, danhmuc,
     Route::apiResource('sanphams', SanphamAPI::class)->only(['index','show']);

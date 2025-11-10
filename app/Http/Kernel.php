@@ -65,15 +65,18 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'role' => \App\Http\Middleware\EnsureUserHasRole::class,
+        'vaitro' => \App\Http\Middleware\EnsureUserHasRole::class,
 
         'apikey' => \App\Http\Middleware\ApiKeyMiddleware::class,
         'auth:sanctum' => \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
+
         'auth.api' => \App\Http\Middleware\ApiAuthMiddleware::class,
-        'vaitro' => \App\Http\Middleware\EnsureUserHasRole::class,
+        'auth.username_order' => \App\Http\Middleware\AuthUsernameOrderMiddleware::class,
 
     ];
     protected $routeMiddleware = [
         'role' => \App\Http\Middleware\RoleMiddleware::class,
         'admin' => \App\Http\Middleware\CheckAdmin::class,
+        'auth.username_order' => \App\Http\Middleware\AuthUsernameOrderMiddleware::class,
     ];
 }
