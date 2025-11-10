@@ -10,6 +10,14 @@ use PhpParser\Node\Expr\AssignOp\Mod;
 
 class AdminController extends Controller
 {
+    // php artisan storage:link nhớ dùng khi lưu ảnh vào storage/app/public
+    protected $uploadDir = "assets/client/images/profiles"; // thư mục lưu file, relative so với public
+    protected $domain;
+
+    public function __construct()
+    {
+        $this->domain = env('DOMAIN', 'http://148.230.100.215/');
+    }
 
     // Trang chính admin
     public function dashboard()
@@ -93,26 +101,23 @@ class AdminController extends Controller
         /** @var \App\Models\NguoidungModel $user */
         $user = Auth::user();
 
-        // chỉ id, avatar
         $request->validate([
             'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
 
         if ($request->hasFile('avatar')) {
-            // // Xoá avatar cũ nếu có, cái này hơi mệt kia kết hợp với nextjs
-            // if ($user->avatar && Storage::disk('public')->exists($user->avatar)) {
-            //     Storage::disk('public')->delete($user->avatar);
-            // }
-            // php artisan storage:link nhớ chạy lệnh này để tạo liên kết lưu trữ
-            $avatarPath = $request->file('avatar')->store('nguoidung/avatar', 'uploads');
-            $imgName = basename($avatarPath);
-            // Cập nhật đường dẫn avatar mới
+            $filename = $request->file('avatar')->getClientOriginalName();
+
+            $avatarPath = $request->file('avatar')->storeAs($this->uploadDir, $filename, 'public');
+
+            $imgName = $this->domain . 'storage/' . $this->uploadDir . '/' . $filename;
+
             $user->avatar = $imgName;
             $user->save();
         }
 
         return redirect()->route('thong-tin-tai-khoan')
-                         ->with('success', 'Cập nhật ảnh đại diện thành công.');
+                        ->with('success', 'Cập nhật ảnh đại diện thành công.');
     }
 }
 

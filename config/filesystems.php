@@ -43,10 +43,10 @@ return [
             'visibility' => 'public',
             'throw' => false,
         ],
-        'uploads' => [
+        'assets' => [
             'driver' => 'local',
-            'root' => storage_path('app/public/uploads'),
-            'url' => env('APP_URL').'/storage/uploads',
+            'root' => storage_path('app/assets'),
+            'url' => env('APP_URL').'/storage',
             'visibility' => 'public',
             'throw' => false,
         ],

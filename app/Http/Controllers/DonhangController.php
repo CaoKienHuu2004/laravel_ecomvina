@@ -3,12 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Str;
-use App\Models\Donhang;
-use App\Models\ChitietDonhang;
-use App\Models\Nguoidung;
-use App\Models\Sanpham;
+
 use Illuminate\Http\Request;
-use App\Models\Bienthe;
+
 use App\Models\DonhangModel;
 use App\Models\NguoidungModel;
 use App\Models\SanphamModel;

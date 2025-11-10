@@ -2,7 +2,7 @@
 
 @section('title', 'Danh sách danh mục | Quản trị hệ thống Siêu Thị Vina')
 
-{{-- $quangcaos->hinhanh: Link http://148.230.100.215/assets/client/images/bg/tenfilehinhanh.jpg --}}
+{{-- $user->avatar: Link http://148.230.100.215/storage/assets/client/images/profiles/tenfilehinhanh.jpg --}}
 
 @section('content')
 <div class="page-wrapper">
@@ -54,7 +54,7 @@
                     @csrf
                         <div class="profile-content">
                             <div class="profile-contentimg">
-                                <img src="{{ asset('storage/'.'uploads/nguoidung/avatar/'.$user->avatar)}}" alt="img" id="blah" >
+                                <img src="{{$user->avatar}}" alt="img" id="blah" >
                                 <div class="profileupload">
                                 <input type="file" name="avatar" id="imgInp" required>
                                     <a href="javascript:void(0);"><img src="{{ asset('img/icons/edit-set.svg')}}" alt="img"></a>

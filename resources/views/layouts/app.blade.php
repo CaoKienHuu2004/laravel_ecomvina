@@ -198,8 +198,8 @@
                     <span class="menu-arrow"></span
                     ></a>
                     <ul>
-                        {{-- /* ===================== KHÁCH HÀNG ===================== */ --}}
-                    <li><a class="{{ request()->routeIs('danh-sach-khach-hang') || request()->routeIs('chinh-sua-khach-hang') || request()->routeIs('tao-khach-hang') || request()->routeIs('chi-tiet-khach-hang') ? 'active' : '' }}" href="{{ route('danh-sach-khach-hang') }}">Danh sách khách hàng</a></li>
+                        {{-- /* ===================== NGƯỜI DÙNG ===================== */ --}}
+                    <li><a class="{{ request()->routeIs('nguoidung.index') || request()->routeIs('nguoidung.edit') || request()->routeIs('nguoidung.create') || request()->routeIs('nguoidung.show') ? 'active' : '' }}" href="{{ route('nguoidung.index') }}">Danh sách tài khoản người dùng</a></li>
                     {{--  --}}
                     </ul>
                 </li>

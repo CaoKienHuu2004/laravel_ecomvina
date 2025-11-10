@@ -1,92 +1,253 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Http\Request;
 
 use App\Models\DiaChiGiaoHangModel;
 use App\Models\NguoidungModel;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 
 class NguoidungController extends Controller
 {
+    protected $uploadDir = "assets/client/images/profiles"; // thư mục lưu file, relative so với storage/app/public
+    protected $domain;
+
+    public function __construct()
+    {
+        $this->domain = env('DOMAIN', 'http://148.230.100.215/');
+    }
+
     /**
-     * Display a listing of the resource.
+     * Hiển thị danh sách người dùng (chưa xóa)
      */
     public function index(Request $request)
     {
-        $danhsach = NguoidungModel::with('diachi')->where('vaitro', 'client')
-            ->get();
-        $diachi = DiaChiGiaoHangModel::all();
+        $search = $request->input('search');
 
-        return view("khachhang.index", compact("danhsach","diachi"));
+        $query = NguoidungModel::orderByDesc('id');
+
+        if ($search) {
+            $query->where('username', 'like', "%{$search}%")
+                  ->orWhere('hoten', 'like', "%{$search}%")
+                  ->orWhere('sodienthoai', 'like', "%{$search}%");
+        }
+
+        $nguoidungs = $query->paginate(10)->withQueryString();
+
+        return view('nguoidung.index', compact('nguoidungs', 'search'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Form thêm mới người dùng
      */
     public function create()
     {
-        return view('khachhang.create');
+        return view('nguoidung.create');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Lưu người dùng mới vào CSDL
+     */
+    /**
+     * Lưu người dùng mới và địa chỉ giao hàng
      */
     public function store(Request $request)
     {
-        //
-        // Nguoidung::create($request->only(['ten', 'mota', 'trangthai']));
-        // return redirect()->route('danh-sach-thuong-hieu')->with('success', 'Tạo thương hiệu thành công!');
+        // Validate dữ liệu người dùng + địa chỉ giao hàng
+        $request->validate([
+            'username'    => 'required|string|max:255|unique:nguoidung,username',
+            'password'    => 'required|string|min:6|confirmed',
+            'hoten'       => 'required|string|max:255',
+            'sodienthoai' => 'nullable|string|max:10',
+            'gioitinh'    => 'nullable|in:Nam,Nữ',
+            'ngaysinh'    => 'nullable|date',
+            'vaitro'      => 'required|in:admin,seller,client',
+            'trangthai'   => 'required|in:Hoạt động,Tạm khóa,Dừng hoạt động',
+            'avatar'      => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+
+            // Validate địa chỉ giao hàng
+            'diachi_diachi'    => 'required|string',
+            'diachi_tinhthanh' => 'required|string|in:TP. Hồ Chí Minh,Hà Nội,Đà Nẵng,...', // list tỉnh thành bạn định nghĩa
+            'diachi_trangthai' => 'nullable|in:Mặc định,Khác,Tạm ẩn',
+        ]);
+
+        // Tạo người dùng
+        $nguoidung = new NguoidungModel();
+        $nguoidung->username = $request->username;
+        $nguoidung->password = Hash::make($request->password);
+        $nguoidung->hoten = $request->hoten;
+        $nguoidung->sodienthoai = $request->sodienthoai;
+        $nguoidung->gioitinh = $request->gioitinh;
+        $nguoidung->ngaysinh = $request->ngaysinh;
+        $nguoidung->vaitro = $request->vaitro;
+        $nguoidung->trangthai = $request->trangthai;
+
+        if ($request->hasFile('avatar')) {
+            $file = $request->file('avatar');
+            $filename = $file->getClientOriginalName(); // time() . '_' .
+            $file->storeAs($this->uploadDir, $filename, 'public');
+            $link_hinh_anh = $this->domain . 'storage/' . $this->uploadDir . '/';
+            $nguoidung->avatar = $link_hinh_anh.$filename;
+        } else {
+            $nguoidung->avatar = 'khachhang.jpg';
+        }
+
+        $nguoidung->save();
+
+        // Tạo địa chỉ giao hàng liên kết với người dùng vừa tạo
+        // sử dụng lại hoten và sodienthoai từ nguoidung, bắt buộc form phải thêm 3 trường diachi tinhthanh và trangthai
+        $diachi = new DiaChiGiaoHangModel();
+        $diachi->id_nguoidung = $nguoidung->id;
+        $diachi->hoten = $request->hoten;
+        $diachi->sodienthoai = $request->sodienthoai;
+        $diachi->diachi = $request->diachi_diachi;
+        $diachi->tinhthanh = $request->diachi_tinhthanh;
+        $diachi->trangthai = $request->diachi_trangthai ?? 'Khác'; // mặc định nếu không có
+        $diachi->save();
+
+        return redirect()->route('nguoidung.index')->with('success', 'Thêm người dùng và địa chỉ giao hàng thành công!');
     }
 
     /**
-     * Display the specified resource.
+     * Hiển thị chi tiết người dùng
      */
-    public function show(string $id)
+    public function show($id)
     {
-        //
-        // $danhmuc = Nguoidung::findOrFail($id);
-        // return view('suadanhmuc', compact('danhmuc'));
+        $nguoidung = NguoidungModel::findOrFail($id);
+        return view('nguoidung.show', compact('nguoidung'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Hiển thị form chỉnh sửa người dùng
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        //
-        // $danhmuc = Nguoidung::findOrFail($id);
-        // $danhmuc->update($request->only(['ten', 'trangthai']));
-        // return redirect()->route('danh-sach-danh-muc')->with('success', 'Đã cập nhật thành công!');
+        $nguoidung = NguoidungModel::findOrFail($id);
+        return view('nguoidung.edit', compact('nguoidung'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Cập nhật người dùng và địa chỉ giao hàng mặc định
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
-        //  $danhmuc = Nguoidung::findOrFail($id);
-        // $danhmuc->update($request->only(['ten', 'trangthai']));
-        // return redirect()->route('danh-sach-danh-muc')->with('success', 'Đã cập nhật thành công!');
+        $nguoidung = NguoidungModel::findOrFail($id);
+
+        $request->validate([
+            'username'    => 'required|string|max:255|unique:nguoidung,username,' . $nguoidung->id,
+            'password'    => 'nullable|string|min:6|confirmed',
+            'hoten'       => 'required|string|max:255',
+            'sodienthoai' => 'nullable|string|max:10',
+            'gioitinh'    => 'nullable|in:Nam,Nữ',
+            'ngaysinh'    => 'nullable|date',
+            'vaitro'      => 'required|in:admin,seller,client',
+            'trangthai'   => 'required|in:Hoạt động,Tạm khóa,Dừng hoạt động',
+            'avatar'      => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+
+            // Validate địa chỉ giao hàng
+
+            'diachi_diachi'    => 'required|string',
+            'diachi_tinhthanh' => 'required|string|in:TP. Hồ Chí Minh,Hà Nội,Đà Nẵng,...', // list tỉnh thành bạn định nghĩa
+            'diachi_trangthai' => 'nullable|in:Mặc định,Khác,Tạm ẩn',
+        ]);
+
+        // Cập nhật người dùng
+        $nguoidung->username = $request->username;
+        $nguoidung->hoten = $request->hoten;
+        $nguoidung->sodienthoai = $request->sodienthoai;
+        $nguoidung->gioitinh = $request->gioitinh;
+        $nguoidung->ngaysinh = $request->ngaysinh;
+        $nguoidung->vaitro = $request->vaitro;
+        $nguoidung->trangthai = $request->diachi_trangthai ?? 'Khác'; // mặc định nếu không có
+
+        if ($request->filled('password')) {
+            $nguoidung->password = Hash::make($request->password);
+        }
+
+
+        if ($request->hasFile('avatar')) {
+            // if ($nguoidung->avatar) {
+            //     $oldPath = public_path(parse_url($nguoidung->avatar, PHP_URL_PATH));
+            //     if (file_exists($oldPath) && $nguoidung->avatar != 'khachhang.jpg') {
+            //         unlink($oldPath);
+            //     }
+            // }
+            $file = $request->file('avatar');
+            $filename = $file->getClientOriginalName(); //time() . '_' .
+            $file->storeAs($this->uploadDir, $filename, 'public');
+            $link_hinh_anh = $this->domain . 'storage/' . $this->uploadDir . '/';
+            $nguoidung->avatar = $link_hinh_anh.$filename;
+        }
+
+        $nguoidung->save();
+
+        // Cập nhật hoặc tạo mới địa chỉ giao hàng mặc định cho người dùng này
+        $diachi = $nguoidung->diachi()->where('trangthai', 'Mặc định')->first();
+
+        if (!$diachi) {
+            $diachi = new DiaChiGiaoHangModel();
+            $diachi->id_nguoidung = $nguoidung->id;
+        }
+
+        // sử dụng lại hoten và sodienthoai từ nguoidung, bắt buộc form phải thêm 3 trường diachi tinhthanh và trangthai
+        $diachi->hoten = $request->hoten;
+        $diachi->sodienthoai = $request->sodienthoai;
+        $diachi->diachi = $request->diachi_diachi;
+        $diachi->tinhthanh = $request->diachi_tinhthanh;
+        $diachi->trangthai = $request->diachi_trangthai;
+        $diachi->save();
+
+        return redirect()->route('nguoidung.index')->with('success', 'Cập nhật người dùng và địa chỉ giao hàng thành công!');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Xóa mềm người dùng (soft delete)
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        //
-        // $danhmuc = Nguoidung::findOrFail($id);
+        $nguoidung = NguoidungModel::findOrFail($id);
+        $nguoidung->delete();
 
-        // // Check nếu có sản phẩm thì không cho xóa
-        // if ($danhmuc->sanpham()->count() > 0) {
-        //     return redirect()->route('danh-sach-danh-muc')
-        //         ->with('error', 'Không thể xóa! Danh mục này vẫn còn sản phẩm.');
+        return redirect()->route('nguoidung.index')->with('success', 'Đã chuyển người dùng vào thùng rác!');
+    }
+
+    /**
+     * Hiển thị danh sách người dùng đã xóa mềm
+     */
+    public function trash()
+    {
+        $nguoidungs = NguoidungModel::onlyTrashed()->orderByDesc('deleted_at')->paginate(10);
+        return view('nguoidung.trash', compact('nguoidungs'));
+    }
+
+    /**
+     * Khôi phục người dùng đã xóa mềm
+     */
+    public function restore($id)
+    {
+        $nguoidung = NguoidungModel::onlyTrashed()->findOrFail($id);
+        $nguoidung->restore();
+
+        return redirect()->route('nguoidung.trash')->with('success', 'Khôi phục người dùng thành công!');
+    }
+
+    /**
+     * Xóa vĩnh viễn người dùng khỏi DB và xóa avatar vật lý nếu có
+     */
+    public function forceDelete($id)
+    {
+        $nguoidung = NguoidungModel::onlyTrashed()->findOrFail($id);
+
+        // if ($nguoidung->avatar && $nguoidung->avatar != 'khachhang.jpg') {
+        //     $filePath = public_path(parse_url($nguoidung->avatar, PHP_URL_PATH));
+        //     if (file_exists($filePath)) {
+        //         unlink($filePath);
+        //     }
         // }
 
-        // $danhmuc->delete();
+        $nguoidung->forceDelete();
 
-        // return redirect()->route('danh-sach-danh-muc')
-        //     ->with('success', 'Xóa danh mục thành công!');
+        return redirect()->route('nguoidung.trash')->with('success', 'Đã xóa vĩnh viễn người dùng!');
     }
 }

@@ -102,26 +102,26 @@ Route::middleware(['auth', 'admin'])->group(function () {
     });
 
     /* ===================== KHÁCH HÀNG ===================== */
-    Route::prefix('khach-hang')->group(function () {
-        Route::get('/', [NguoidungController::class, 'index'])->name('danh-sach-khach-hang');
-        Route::get('/danh-sach', [NguoidungController::class, 'index']);
+    // Route::prefix('khach-hang')->group(function () {
+    //     Route::get('/', [NguoidungController::class, 'index'])->name('danh-sach-khach-hang');
+    //     Route::get('/danh-sach', [NguoidungController::class, 'index']);
 
-        // Tạo mới
-        Route::get('/tao-khach-hang', [NguoidungController::class, 'create'])->name('tao-khach-hang');
-        Route::post('/luu', [NguoidungController::class, 'store'])->name('luu-khach-hang');
+    //     // Tạo mới
+    //     Route::get('/tao-khach-hang', [NguoidungController::class, 'create'])->name('tao-khach-hang');
+    //     Route::post('/luu', [NguoidungController::class, 'store'])->name('luu-khach-hang');
 
-        // Chỉnh sửa
-        Route::get('/{id}/chinh-sua', [NguoidungController::class, 'edit'])->name('chinh-sua-khach-hang');
-        Route::put('/{id}/cap-nhat', [NguoidungController::class, 'update'])->name('cap-nhat-khach-hang');
+    //     // Chỉnh sửa
+    //     Route::get('/{id}/chinh-sua', [NguoidungController::class, 'edit'])->name('chinh-sua-khach-hang');
+    //     Route::put('/{id}/cap-nhat', [NguoidungController::class, 'update'])->name('cap-nhat-khach-hang');
 
-        // Xem chi tiết (View)
-        Route::get('/{id}', [NguoidungController::class, 'show'])->name('chi-tiet-khach-hang');
+    //     // Xem chi tiết (View)
+    //     Route::get('/{id}', [NguoidungController::class, 'show'])->name('chi-tiet-khach-hang');
 
-        // Xóa
-        Route::delete('/{id}/xoa', [NguoidungController::class, 'destroy'])->name('xoa-khach-hang');
+    //     // Xóa
+    //     Route::delete('/{id}/xoa', [NguoidungController::class, 'destroy'])->name('xoa-khach-hang');
 
 
-    });
+    // });
 
 
     /* ===================== ĐƠN HÀNG ===================== */
@@ -211,6 +211,21 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('/edit/{id}', [ThuonghieuController::class, 'edit'])->name('thuonghieu.edit');
         Route::put('/update/{id}', [ThuonghieuController::class, 'update'])->name('thuonghieu.update');
         Route::delete('/delete/{id}', [ThuonghieuController::class, 'destroy'])->name('thuonghieu.destroy');
+    });
+    /* ===================== NGƯỜI DÙNG ===================== */
+    Route::prefix('nguoidung')->group(function () {
+        Route::get('/', [NguoidungController::class, 'index'])->name('nguoidung.index');
+        Route::get('/create', [NguoidungController::class, 'create'])->name('nguoidung.create');
+        Route::post('/store', [NguoidungController::class, 'store'])->name('nguoidung.store');
+        Route::get('/show/{id}', [NguoidungController::class, 'show'])->name('nguoidung.show');
+        Route::get('/edit/{id}', [NguoidungController::class, 'edit'])->name('nguoidung.edit');
+        Route::put('/update/{id}', [NguoidungController::class, 'update'])->name('nguoidung.update');
+        Route::delete('/delete/{id}', [NguoidungController::class, 'destroy'])->name('nguoidung.destroy');
+
+        // 🗑️ Thùng rác
+        Route::get('/trash', [NguoidungController::class, 'trash'])->name('nguoidung.trash');
+        Route::post('/restore/{id}', [NguoidungController::class, 'restore'])->name('nguoidung.restore');
+        Route::delete('/force-delete/{id}', [NguoidungController::class, 'forceDelete'])->name('nguoidung.forceDelete');
     });
 });
 // Route::get('/dashboard', function () {
