@@ -141,6 +141,9 @@ class TukhoaFrontendAPI extends BaseFrontendController
     {
         $tuKhoa = TukhoaModel::findOrFail($id);
 
+        $tuKhoa->increment('luottruycap');
+        $tuKhoa->refresh();
+
         return $this->jsonResponse([
             'status' => true,
             'message' => '📄 Chi tiết từ khóa',

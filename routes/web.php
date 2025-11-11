@@ -20,7 +20,9 @@ use App\Http\Controllers\Web\YeuThichWebApi;
 
 use App\Http\Controllers\HinhAnhSanphamController;
 use App\Http\Controllers\QuangCaoController;
+use App\Http\Controllers\Web\TimKiemWebApi;
 use App\Http\Controllers\Web\TinhThanhVietNamWebApi;
+use App\Http\Controllers\Web\TukhoaWebApi;
 
 // use App\Http\Controllers\SanphamController;
 // use App\Http\Controllers\DanhmucController;
@@ -289,6 +291,10 @@ Route::get('/api-trang-chu', [TrangChuWebAPI::class, 'index']);
 Route::get('/api-danh-muc', [DanhMucWebApi::class, 'index']);
 
 Route::get('/api-tinh-thanh', [TinhThanhVietNamWebApi::class, 'index']);
+
+Route::apiResource('api-tim-kiem', TimKiemWebApi::class)->only(['index']);
+
+Route::apiResource('api-tu-khoa', TukhoaWebApi::class)->only(['index','store','update']);
 
 //-------------------------------------------------- Guest User authetication --------------------------------//
 

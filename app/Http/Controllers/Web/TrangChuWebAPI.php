@@ -340,7 +340,7 @@ class TrangChuWebAPI extends BaseFrontendController
 
         // Thêm trường lienket vào từng item, giả sử bạn tạo link tìm kiếm từ từ khóa
         $hotKeywords->transform(function ($item) {
-            $item->lienket = url('/api/tim-kiem/?query=' . urlencode($item->tukhoa));
+            $item->lienket = url('/api-tim-kiem/?query=' . urlencode($item->tukhoa));
             return $item;
         });
 
