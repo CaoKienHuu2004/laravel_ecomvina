@@ -2,6 +2,13 @@
 
 @section('title', 'Danh sách sản phẩm | Quản trị hệ thống Siêu Thị Vina')
 
+{{-- // controller truyền xuống $sanphams,$thuonghieus danhmucs  --}}
+{{-- // các route sư dụng sanpham.create sanpham.trash sanpham.index sanpham.index(?param) sanpham.show sanpham.edit sanpham.destroy   --}}
+{{--  $sanphams->hinhanhsanpham->first()->hihanh: Link http://148.230.100.215/assets/client/images/thumbs/tenfilehinhanh.jpg --}}
+
+{{-- bản củ // controller truyền xuống $sanphams,$thuonghieus danhmucs  --}}
+{{-- {{-- dir_part asset storage/uploads/anh_sanpham/media/anh_sanpham.png --}}
+{{--  tao-san-pham danh-sach xoa-san-pham chinh-sua-san-pham chi-tiet-san-pham   --}}
 @section('content')
 <div class="page-wrapper">
   <div class="content">
@@ -11,23 +18,33 @@
         <h6>
             {{-- Đếm sản phẩm có ít nhất 1 biến thể hết hàng --}}
             {{ $sanphams->filter(function ($sp) {
-                return $sp->bienThe->where('soluong', 0)->count() > 0;
+                return $sp->bienthe->where('soluong', 0)->count() > 0;
             })->count() }} sản phẩm có biến thể hết hàng
             <br>
-
-            {{-- Đếm sản phẩm đang hoạt động --}}
-            {{ $sanphams->where('trangthai', 'hoat_dong')->count() }} sản phẩm đang hoạt động
+            {{ $sanphams->where('trangthai', 'Công khai')->count() }} Công khai sản phẩm
+            <br>
+            {{ $sanphams->where('trangthai', 'Chờ duyệt')->count() }} Chờ duyệt sản phẩm
             <br>
 
-            {{-- Đếm sản phẩm bị ngưng hoạt động --}}
-            {{ $sanphams->where('trangthai', 'ngung_hoat_dong')->count() }} sản phẩm bị ngưng hoạt động
+            {{ $sanphams->where('trangthai', 'Tạm ẩn')->count() }} Tạm ẩn sản phẩm
+            <br>
+
+            {{ $sanphams->where('trangthai', 'Tạm khóa')->count() }} Tạm khóa sản phẩm
         </h6>
       </div>
-      <div class="page-btn">
-        <a href="{{route('tao-san-pham')}}" class="btn btn-added"><img
-            src="{{asset('img/icons/plus.svg')}}"
-            alt="img"
-            class="me-1" />Tạo sản phẩm</a>
+      <div class="d-flex">
+        <div class="page-btn">
+            <a href="{{route('sanpham.create')}}" class="btn btn-added"><img
+                src="{{asset('img/icons/plus.svg')}}"
+                alt="img"
+                class="me-1" />Tạo sản phẩm</a>
+        </div>
+        <div class="page-btn ms-1">
+            <a href="{{route('sanpham.trash')}}" class="btn btn-added"><img
+                src="{{asset('img/icons/delete.svg')}}"
+                alt="img"
+                class="me-1" />Thùng Rác</a>
+        </div>
       </div>
     </div>
     @if(session('success'))
@@ -64,7 +81,7 @@
           <div class="card-body pb-0">
             <label for="" class="mb-2"><strong>Lọc danh sách sản phẩm</strong></label>
             <div class="row">
-              <form id="filterForm" class="col-lg-12 col-sm-12" method="GET" action="{{ route('danh-sach') }}">
+              <form id="filterForm" class="col-lg-12 col-sm-12" method="GET" action="{{ route('sanpham.index') }}">
                 <div class="row">
                   <div class="col-lg col-sm-6 col-12">
                     <div class="form-group">
@@ -81,10 +98,10 @@
                   <div class="col-lg col-sm-6 col-12">
                     <div class="form-group">
                       <select class="select" name="thuonghieu">
-                        <option value="">--Cửa hàng--</option>
-                        @foreach($cuaHang as $ch)
-                        <option value="{{ $ch->id }}" {{ request('cuahang') == $ch->id ? 'selected' : '' }}>
-                          {{ $ch->ten_cuahang }}
+                        <option value="">--Thương Hiệu--</option>
+                        @foreach($thuonghieus as $th)
+                        <option value="{{ $th->id }}" {{ request('cuahang') == $th->id ? 'selected' : '' }}>
+                          {{ $th->ten }}
                         </option>
                         @endforeach
                       </select>
@@ -102,7 +119,7 @@
                   </div>
                   <div class="col-lg col-sm-6 col-12">
                     <div class="form-group row">
-                      <a class="btn btn-outline-danger col-lg-3" href="{{ route('danh-sach') }}">X</a>
+                      <a class="btn btn-outline-danger col-lg-3" href="{{ route('sanpham.index') }}">X</a>
                       <button type="submit" class="btn btn-filters ms-2 col-lg-3">
                         <img src="{{asset('img/icons/search-whites.svg')}}" alt="img" />
                       </button>
@@ -124,14 +141,15 @@
                           <span class="checkmarks"></span>
                         </label>
                       </th> -->
-                <th>Tên sản phẩm</th>
+                <th class="text-center">Tên sản phẩm</th>
                 <th>Danh mục</th>
-                <th>Cửa hàng</th>
-                <th>Giá</th>
+                <th>Thương hiệu</th>
+                <th>Giá Gốc</th>
                 <th>Loại</th>
                 <th>Số lượng</th>
                 <th>Lượt mua</th>
-                <th>Ngày cập nhật</th>
+                <th>Lượt Tặng</th>
+                <th>Giảm</th>
                 <th>Hành động</th>
               </tr>
             </thead>
@@ -165,11 +183,11 @@
                 <td class="productimgname center-cell" >
                     <a href="{{ url('/') }}" class="product-img">
                         <img
-                            src="{{ asset('storage/' . ($sp->anhSanPham->first()->media ?? 'uploads/anh_sanpham/media/anh_sanpham.png')) }}"
+                            src="{{ $sp->hinhanhsanpham->first()->hinhanh }}"
                             alt="{{ $sp->ten ?? 'Sản phẩm' }}"
                         />
                     </a>
-                  <a href="{{url('/')}}" style="max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" data-bs-toggle="tooltip" data-bs-placement="top" title="{{$sp->ten}}">{{$sp->ten}}</a>
+                  <a href="{{url('/')}}" >{!! wordwrap($sp->ten, 25, '<br>') !!}</a>
                 </td>
                 <td title="{!! $sp->danhmuc->pluck('ten')->implode(', ') ?: 'Chưa có danh mục' !!}">
                     @php
@@ -185,16 +203,16 @@
                     @endif
                 </td>
                 @php
-                    $tenCuaHang = $sp->cuahang->ten_cuahang ?? 'Không có';
+                    $tenCuaHang = $sp->thuonghieu->ten ?? 'Không có';
                 @endphp
                 <td>{!! nl2br(e(wordwrap($tenCuaHang, 12, "\n"))) !!}</td>
                 <td>
                   @if($sp->bienthe->count())
                     @php
-                    $giaMin = $sp->bienthe->min('gia');
-                    $giaMax = $sp->bienthe->max('gia');
+                    $giaMin = $sp->bienthe->min('giagoc');
+                    $giaMax = $sp->bienthe->max('giagoc');
                     @endphp
-                    <pre class="text-center"><span class="text-success">{!! wordwrap((number_format($sp->bienthe->min('gia'), 0, ',', '.').'đ'), 15, "\n") !!}</span></pre>
+                    <pre class="text-center"><span class="text-success">{!! wordwrap((number_format($sp->bienthe->min('giagoc'), 0, ',', '.').'đ'), 15, "\n") !!}</span></pre>
                     {{-- {{ number_format($sp->bienthe->min('gia'), 0, ',', '.') }} đ --}}
                     {{-- Chỉ hiển thị giá max nếu > giá min --}}
                     @if($giaMax > $giaMin)
@@ -230,26 +248,50 @@
                     @endif
                 </td>
                 @php
-                    $tongChiTietDonHang = $sp->bienThe->flatMap->chiTietDonHang->count();
+                    $tongLuotBan = $sp->bienThe->sum('luotban')
                 @endphp
 
-                <td>{{ $tongChiTietDonHang }}</td>
+                <td>{{ $tongLuotBan }}</td>
+                @php
+                    $tongLuotTang = $sp->bienThe->sum('luottang')
+                @endphp
+
+                <td>{{ $tongLuotTang }}</td>
                 <td>
-                    <pre>{!! wordwrap($sp->updated_at->format('d/m/Y H:j'), 10, "\n") !!}</pre>
+                    {{-- <pre>{!! wordwrap($sp->updated_at->format('d/m/Y H:j'), 10, "\n") !!}</pre> --}}
+                    {{-- {{ $sp->updated_at->format('H:j - d/m/Y') }} --}}
+                    {{ $sp->giamgia.'%' ?? '0%' }}
+                </td>
+
+                {{-- <td> --}}
+                    {{-- <pre>{!! wordwrap($sp->updated_at->format('d/m/Y H:j'), 10, "\n") !!}</pre> --}}
                     {{-- {{ $sp->updated_at->format('H:j - d/m/Y') }} --}}
 
-                </td>
+                {{--</td> --}}
                 <td>
-                  <a class="me-3" href="{{ route('chi-tiet-san-pham', ['id' => $sp->id, 'slug' => Str::slug($sp->ten)]) }}" title="xem chi tiết">
-                    <img src="{{asset('img/icons/eye.svg')}}" alt="img" />
-                  </a>
-                  <a class="me-3" href="{{ route('chinh-sua-san-pham',$sp->id) }}">
-                    <img src="{{asset('img/icons/edit.svg')}}" alt="img" />
-                  </a>
+                  <div class="d-flex justify-content-center align-items-center">
+                    <a class="me-3 d-flex justify-content-center align-items-center" href="{{ route('sanpham.show',$sp->id)}}" title="xem chi tiết">
+                        <img src="{{asset('img/icons/eye.svg')}}" alt="img" />
+                    </a>
+                    <a class="me-3 d-flex justify-content-center align-items-center" href="{{ route('sanpham.edit',$sp->id) }}">
+                        <img src="{{asset('img/icons/edit.svg')}}" alt="img" />
+                    </a>
+                  </div>
+                  <a href="#"
+                        class="me-3 d-flex justify-content-center align-items-center"
+                        title="Xóa"
+                        onclick="event.preventDefault();
+                                    if(confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+                                    document.getElementById('delete-form-{{ $sp->id }}').submit();
+                                    }">
+                        <img src="{{ asset('img/icons/delete.svg') }}" alt="Xóa" />
+                    </a>
+                    <form id="delete-form-{{ $sp->id }}" action="{{ route('sanpham.destroy', $sp->id) }}" method="POST" style="display: none;">
+                    @csrf
+                    @method('DELETE')
+                    </form>
 
-                  <a class="me-3" href="{{route('xoa-san-pham', $sp->id)}}" onclick="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?');">
-                    <img src="{{asset('img/icons/delete.svg')}}" alt="img" />
-                  </a>
+
                 </td>
               </tr>
               @endforeach

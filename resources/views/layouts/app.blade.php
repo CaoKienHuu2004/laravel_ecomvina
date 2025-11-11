@@ -227,11 +227,7 @@
                     <span class="menu-arrow"></span
                     ></a>
                     <ul>
-                    <li><a href="saleslist.html">Voucher</a></li>
-                    <li><a href="pos.html">Ưu đãi sản phẩm</a></li>
-                    <li><a href="pos.html">Sự kiện khuyến mãi</a></li>
-                    <li><a href="/">Đánh giá sản phẩm</a></li>
-                    <li><a href="pos.html">Danh sách đơn hàng</a></li>
+                        <li><a class="{{ request()->routeIs('danh-sach-kho-hang') ? 'active' : '' }}" href="{{ route('danh-sach-kho-hang') }}">Kho hàng</a></li>
 
                     </ul>
                 </li>
@@ -261,11 +257,11 @@
                   <span class="menu-arrow"></span
                 ></a>
                 <ul>
-                  <li><a class="{{ request()->routeIs('sanpham.index') || request()->routeIs('sanpham.edit') || request()->routeIs('sanpham.create') || request()->routeIs('sanpham.show') ? 'active' : '' }}" href="{{ route('sanpham.index') }}">Danh sách sản phẩm</a></li>
+                  <li><a class="{{ request()->routeIs('sanpham.index') || request()->routeIs('sanpham.edit') || request()->routeIs('sanpham.create') || request()->routeIs('sanpham.show') ||  request()->routeIs('sanpham.trash') ? 'active' : '' }}" href="{{ route('sanpham.index') }}">Danh sách sản phẩm</a></li>
                   {{-- //---- Hình Ảnh Sản Phẩm ---// --}}
                   <li><a class="{{ request()->routeIs('hinhanhsanpham.index') || request()->routeIs('hinhanhsanpham.edit') || request()->routeIs('hinhanhsanpham.create') ? 'active' : '' }}" href="{{ route('hinhanhsanpham.index') }}">Hình ảnh sản phẩm</a></li>
                   {{-- <li><a class="{{ request()->routeIs('danh-sach-thuong-hieu') || request()->routeIs('chinh-sua-thuong-hieu') || request()->routeIs('tao-thuong-hieu') ? 'active' : '' }}" href="{{ route('danh-sach-thuong-hieu') }}">Thương hiệu sản phẩm</a></li> --}}
-                  <li><a class="{{ request()->routeIs('danh-sach-kho-hang') ? 'active' : '' }}" href="{{ route('danh-sach-kho-hang') }}">Kho hàng</a></li>
+                  {{-- <li><a class="{{ request()->routeIs('danh-sach-kho-hang') ? 'active' : '' }}" href="{{ route('danh-sach-kho-hang') }}">Kho hàng</a></li> --}}
                 </ul>
               </li>
 

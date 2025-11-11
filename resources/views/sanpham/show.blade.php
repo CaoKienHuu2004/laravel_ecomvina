@@ -3,7 +3,13 @@
 @section('title')
 {{ $sanpham->ten }} | Sản phẩm | Quản trị hệ thống Siêu Thị Vina
 @endsection
+{{-- // controller truyền xuống $sanpham  --}}
+{{-- // các route sư dụng không có    --}}
+{{--  $sanphams->hinhanhsanpham->first()->hihanh: Link http://148.230.100.215/assets/client/images/thumbs/tenfilehinhanh.jpg --}}
 
+{{-- bản củ // controller truyền xuống $sanphams,$thuonghieus danhmucs  --}}
+{{-- {{-- dir_part asset storage/uploads/anh_sanpham/media/anh_sanpham.png --}}
+{{--  tao-san-pham danh-sach xoa-san-pham chinh-sua-san-pham chi-tiet-san-pham   --}}
 @section('content')
 <div class="page-wrapper">
     <div class="content">
@@ -52,7 +58,7 @@
                                         <ul>
                                             <li>
                                                 @foreach ($sanpham->bienthe as $bt)
-                                                @if ($bt->soluong > 10)
+                                                @if ($bt->soluong > 5)
                                                 <span class="text-success fs-6" title="Còn hàng"><strong>Loại: </strong> {{ $bt->loaiBienThe->ten }} <span class="badges bg-lightgreen p-1">Còn hàng</span></span>
                                                 @elseif($bt->soluong == 0)
                                                 <span class="text-danger fs-6" title="Hết hàng"><strong>Loại: </strong> {{ $bt->loaiBienThe->ten }} <span class="badges bg-lightred p-1">Hết hàng</span></span>
@@ -61,7 +67,7 @@
                                                 @endif
 
                                                 <ul>
-                                                    <li><strong>- Giá:</strong> {{ number_format($bt->gia, 0, ',', '.') }} đ</li>
+                                                    <li><strong>- Giá Gốc:</strong> {{ number_format($bt->giagoc, 0, ',', '.') }} đ</li>
                                                     <li><strong>- Số lượng:</strong> {{ $bt->soluong }}</li>
 
                                                 </ul>
@@ -77,10 +83,12 @@
                                 <li>
                                     <h4><strong>Trạng thái</strong></h4>
                                     <h6>
-                                        @if ($sanpham->trangthai==0)
-                                            <span class="badges bg-lightgreen">Đang hoạt động</span>
+                                        @if ($sanpham->trangthai=="Công khai")
+                                            <span class="badges bg-lightgreen">{{$sanpham->trangthai}}</span>
+                                        @elseif($sanpham->trangthai=="Chờ duyệt")
+                                            <span class="badges bg-warning text-dark">{{$sanpham->trangthai}}</span>
                                         @else
-                                            <span class="badges bg-lightred">Tạm ẩn</span>
+                                            <span class="badges bg-lightred">{{$sanpham->trangthai}}</span>
                                         @endif
                                     </h6>
                                 </li>
@@ -94,12 +102,15 @@
                     <div class="card-body">
                         <div class="slider-product-details">
                             <div class="owl-carousel owl-theme product-slide">
-                                @foreach ($sanpham->anhsanpham as $anh)
+                                @foreach ($sanpham->hinhanhsanpham as $anh)
                                 <div class="slider-product">
-                                    <!-- <img class="img-fluid rounded border" src="{{ asset('img/product/' . $anh->media) }}" alt="img" title="{{ $sanpham->ten }}" /> -->
-                                    <a href="{{ asset('img/product/' . $anh->media) }}" class="image-popup-desc" data-title="{{ $sanpham->ten }}" data-description="{{ $anh->media }}">
-                                        <img src="{{ asset('img/product/' . $anh->media) }}" class="img-fluid" alt="work-thumbnail" />
+
+                                    <a href="{{ $anh->hinhanh }}" class="image-popup-desc" data-title="{{ $sanpham->ten }}" data-description="{{ $anh->media }}">
+                                        <img src="{{ $anh->hinhanh }}" class="img-fluid" alt="work-thumbnail" />
                                     </a>
+                                    {{-- <a href="{{ asset('img/product/' . $anh->media) }}" class="image-popup-desc" data-title="{{ $sanpham->ten }}" data-description="{{ $anh->media }}">
+                                        <img src="{{ asset('img/product/' . $anh->media) }}" class="img-fluid" alt="work-thumbnail" />
+                                    </a> --}}
                                     <h4>{{ $anh->media }}</h4>
                                 </div>
                                 @endforeach

@@ -1,7 +1,13 @@
 @extends('layouts.app')
 
 @section('title', 'Tạo sản phẩm | Quản trị hệ thống Siêu Thị Vina')
+{{-- // controller truyền xuống $thuonghieus,$danhmucs loaibienthes $selectbox_sanpham_trangthais  --}}
+{{-- // các route sư dụng sanpham.store  --}}
 
+{{-- trường trangthai giá trị mới 'Công khai','Chờ duyệt','Tạm ẩn','Tạm khóa' --}}
+
+{{-- bản củ // controller truyền xuống $cuaHang,$danhmucs loaibienthes  --}}
+{{--  luu-san-pham   --}}
 @section('content')
 <div class="page-wrapper">
 
@@ -44,7 +50,7 @@
 
     <div class="card">
       <div class="card-body">
-        <form class="row" action="{{ route('luu-san-pham') }}" method="POST" enctype="multipart/form-data">
+        <form class="row" action="{{ route('sanpham.store') }}" method="POST" enctype="multipart/form-data">
           @csrf
 
           <div class="col-lg-4 col-sm-6 col-12">
@@ -73,13 +79,13 @@
 
           <div class="col-lg-4 col-sm-6 col-12">
             <div class="form-group">
-              <label>Cửa hàng<span class="text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Bắt buộc">*</span></label>
-              <select class="form-select" name="id_cuahang">
-                <option class="text-secondary">--Chọn cửa hàng--</option>
-                @foreach ($cuaHang as $ch)
-                    <option value="{{ $ch->id }}">{{ $ch->ten_cuahang }}</option>
+              <label>Thương Hiệu<span class="text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Bắt buộc">*</span></label>
+              <select class="form-select" name="id_thuonghieu">
+                <option class="text-secondary">--Chọn Thương Hiệu--</option>
+                @foreach ($thuonghieus as $th)
+                    <option value="{{ $th->id }}">{{ $th->ten }}</option>
                 @endforeach
-                @error('id_cuahang')
+                @error('id_thuonghieu')
                   <span class="text-danger">{{ $message }}</span>
                 @enderror
               </select>
@@ -108,22 +114,37 @@
 
           <div class="col-lg-3 col-sm-6 col-12">
             <div class="form-group">
-              <label>Video giới thiệu sản phẩm</label>
-              <input type="text" name="mediaurl" placeholder="Url Youtube..."/>
-              @error('mediaurl')
+              <label>Giảm Giá(%)</label>
+              <input type="number" class="form-control" min="0" max="100" step="1" name="giamgia" placeholder="Quy định giảm giá theo %..."/>
+              @error('giamgia')
                   <span class="text-danger">{{ $message }}</span>
                 @enderror
             </div>
           </div>
+          <div class="col-lg-3 col-sm-6 col-12">
+            <div class="form-group">
+              <label>Lượt Xem</label>
+              <input readonly disabled type="number" class="form-control" min="0" step="1" name="luotxem" placeholder="Mặc định 0..."/>
+            </div>
+          </div>
+          <div class="col-lg-3 col-sm-6 col-12">
+            <div class="form-group">
+              <label>Slug</label>
+              <input readonly type="text" disabled name="slug" placeholder="Tự động sinh theo tên sản phẩm..."/>
+            </div>
+          </div>
 
+
+            {{-- 'Công khai','Chờ duyệt','Tạm ẩn','Tạm khóa' --}}
             <div class="col-lg-3 col-sm-6 col-12">
                 <div class="form-group">
                     <label>Trạng thái</label>
                     <select class="form-select" name="trangthai">
-                    <option value="hoat_dong" {{ old('trangthai') == 'hoat_dong' ? 'selected' : '' }}>Hoạt động</option>
-                    <option value="ngung_hoat_dong" {{ old('trangthai') == 'ngung_hoat_dong' ? 'selected' : '' }}>Ngừng hoạt động</option>
-                    <option value="bi_khoa" {{ old('trangthai') == 'bi_khoa' ? 'selected' : '' }}>Bị khóa</option>
-                    <option value="cho_duyet" {{ old('trangthai') == 'cho_duyet' ? 'selected' : '' }}>Chờ duyệt</option>
+                        @foreach ($selectbox_sanpham_trangthais as $trangthai)
+                            <option value="{{ $trangthai }}">
+                                {{ $trangthai }}
+                            </option>
+                        @endforeach
                     </select>
                 </div>
             </div>

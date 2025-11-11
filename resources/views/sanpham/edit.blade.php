@@ -1,5 +1,11 @@
 @extends('layouts.app')
+{{-- // controller truyền xuống $sanpham $danhmucs $thuonghieus $loaibienthes $selectbox_sanpham_trangthais --}}
+{{-- // các route sư dụng  sanpham.update   --}}
+{{--  $sanphams->hinhanhsanpham->first()->hihanh: Link http://148.230.100.215/assets/client/images/thumbs/tenfilehinhanh.jpg --}}
 
+{{-- bản củ // controller truyền xuống $sanpham,$danhmucs $cuaHang $loaibienthes  --}}
+{{-- {{-- dir_part asset storage/uploads/anh_sanpham/media/anh_sanpham.png --}}
+{{--  cap-nhat-san-pham    --}}
 @section('title')
     Sửa "{{ $sanpham->ten }}" | Sản phẩm | Quản trị hệ thống Siêu Thị Vina
 @endsection
@@ -16,9 +22,9 @@
 
         <div class="card">
             <div class="card-body">
-                <form class="row" action="{{ route('cap-nhat-san-pham',$sanpham->id) }}" method="POST" enctype="multipart/form-data">
+                <form class="row" action="{{ route('sanpham.update',$sanpham->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
-
+                    @method('PUT')
                     <div class="col-lg-4 col-sm-6 col-12">
                         <div class="form-group">
                             <label>Tên sản phẩm <span class="text-danger" data-bs-toggle="tooltip"
@@ -56,7 +62,7 @@
                             <select class="form-select" name="id_thuonghieu" id="id_thuonghieu">
                                 @foreach ($thuonghieus as $th)
                                 <option value="{{ $th->id }}"
-                                    {{ $sanpham->thuong_hieu_id == $th->id ? 'selected' : '' }}>
+                                    {{ $sanpham->id_thuonghieu == $th->id ? 'selected' : '' }}>
                                     {{ $th->ten }}
                                 </option>
                                 @endforeach
@@ -93,16 +99,28 @@
 
                     <div class="col-lg-3 col-sm-6 col-12">
                         <div class="form-group">
-                            <label>Video giới thiệu sản phẩm</label>
-                            <input type="text" name="mediaurl" value="{{ old('mediaurl', $sanpham->mediaurl) }}"
-                                placeholder="Url Youtube..." />
-                            @error('mediaurl')
+                        <label>Giảm Giá(%)</label>
+                        <input type="number" value="{{ old('giamgia', $sanpham->giamgia) }}" class="form-control" min="0" max="100" step="1" name="giamgia" placeholder="Quy định giảm giá theo %..."/>
+                        @error('giamgia')
                             <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>
                     </div>
-
                     <div class="col-lg-3 col-sm-6 col-12">
+                        <div class="form-group">
+                        <label>Lượt Xem</label>
+                        <input type="number" value="{{ old('luotxem', $sanpham->luotxem) }}" class="form-control" min="0" step="1" name="luotxem" placeholder="Mặc định 0..."/>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-sm-6 col-12">
+                        <div class="form-group">
+                        <label>Slug <span class="text-danger" data-bs-toggle="tooltip"
+                                    data-bs-placement="top" title="Bắt buộc">*</span></label>
+                        <input type="text" value="{{ old('slug', $sanpham->slug) }}" name="slug" required placeholder="Tự động sinh theo tên sản phẩm..."/>
+                        </div>
+                    </div>
+
+                    {{-- <div class="col-lg-3 col-sm-6 col-12">
                         <div class="form-group">
                             <label>Trạng thái</label>
                             <select class="form-select" name="trangthai">
@@ -110,6 +128,20 @@
                                 </option>
                                 <option value="1" {{ old('trangthai',$sanpham->trangthai)==1?'selected':'' }}>Hết hàng
                                 </option>
+                            </select>
+                        </div>
+                    </div> --}}
+
+                    {{-- 'Công khai','Chờ duyệt','Tạm ẩn','Tạm khóa' --}}
+                    <div class="col-lg-3 col-sm-6 col-12">
+                        <div class="form-group">
+                            <label>Trạng thái</label>
+                            <select class="form-select" name="trangthai">
+                                @foreach ($selectbox_sanpham_trangthais as $trangthai)
+                                    <option value="{{ $trangthai }}" {{ old('trangthai',$sanpham->trangthai)== $trangthai ?'selected':'' }}>
+                                        {{ $trangthai }}
+                                    </option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
@@ -139,7 +171,7 @@
                                     <select class="form-select sua_bienthe" name="bienthe[{{ $i }}][id_tenloai]">
                                         @foreach($loaibienthes as $loai)
                                         <option value="{{ $loai->id }}"
-                                            {{ $bienthe->id_tenloai == $loai->id ? 'selected' : '' }}>{{ $loai->ten }}
+                                            {{ $bienthe->id_loaibienthe  == $loai->id ? 'selected' : '' }}>{{ $loai->ten }}
                                         </option>
                                         @endforeach
                                     </select>
@@ -147,13 +179,25 @@
                             </div>
                             <div class="col-lg-3 col-sm-6 col-12">
                                 <div class="form-group">
-                                    <input type="text" name="bienthe[{{ $i }}][gia]" value="{{ $bienthe->gia }}"
+                                    <input type="text" name="bienthe[{{ $i }}][gia]" value="{{ $bienthe->giagoc }}"
                                         class="form-control" />
                                 </div>
                             </div>
                             <div class="col-lg-3 col-sm-6 col-12">
                                 <div class="form-group">
                                     <input type="text" name="bienthe[{{ $i }}][soluong]" value="{{ $bienthe->soluong }}"
+                                        class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-6 col-12">
+                                <div class="form-group">
+                                    <input type="text" name="bienthe[{{ $i }}][luottang]" value="{{ $bienthe->luottang }}"
+                                        class="form-control" />
+                                </div>
+                            </div>
+                            <div class="col-lg-3 col-sm-6 col-12">
+                                <div class="form-group">
+                                    <input type="text" name="bienthe[{{ $i }}][luotban]" value="{{ $bienthe->luotban }}"
                                         class="form-control" />
                                 </div>
                             </div>
@@ -270,6 +314,16 @@
         <div class="col-lg-3 col-sm-6 col-12">
             <div class="form-group">
                 <input type="text" name="bienthe[${index}][soluong]" placeholder="Số lượng" class="form-control"/>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-6 col-12">
+            <div class="form-group">
+                <input type="text" name="bienthe[${index}][luottang]" placeholder="Số lượt tặng bên quản lý quà tặng" class="form-control"/>
+            </div>
+        </div>
+        <div class="col-lg-3 col-sm-6 col-12">
+            <div class="form-group">
+                <input type="text" name="bienthe[${index}][luotban]" placeholder="Số lượng bán bên tiếp thị đề xuất" class="form-control"/>
             </div>
         </div>
         <div class="col-lg-3 col-sm-6 col-12">

@@ -193,6 +193,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('/edit/{id}', [SanphamController::class, 'edit'])->name('sanpham.edit');
         Route::put('/update/{id}', [SanphamController::class, 'update'])->name('sanpham.update');
         Route::delete('/delete/{id}', [SanphamController::class, 'destroy'])->name('sanpham.destroy');
+
+        // 🗑️ Thùng rác
+        Route::get('/trash', [SanphamController::class, 'trash'])->name('sanpham.trash');
+        Route::post('/restore/{id}', [SanphamController::class, 'restore'])->name('sanpham.restore');
+        Route::delete('/force-delete/{id}', [SanphamController::class, 'forceDelete'])->name('sanpham.forceDelete');
     });
     /* ===================== QUẢNG CÁO ===================== */
     Route::prefix('quangcao')->group(function () {
@@ -203,6 +208,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('/edit/{id}', [QuangCaoController::class, 'edit'])->name('quangcao.edit');
         Route::put('/update/{id}', [QuangCaoController::class, 'update'])->name('quangcao.update');
         Route::delete('/delete/{id}', [QuangCaoController::class, 'destroy'])->name('quangcao.destroy');
+
+
     });
     /* ===================== THƯƠNG HIỆU ===================== */
     Route::prefix('thuonghieu')->group(function () {
