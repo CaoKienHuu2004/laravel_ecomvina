@@ -3,17 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Models\Anhsp;
 use App\Models\BientheModel;
-use App\Models\Sanpham;
-use App\Models\Danhmuc;
-use App\Models\Bienthesp;
 use App\Models\DanhmucModel;
 use App\Models\HinhanhsanphamModel;
-use App\Models\Loaibienthe;
 use App\Models\LoaibientheModel;
 use App\Models\SanphamModel;
-use App\Models\ThongTinNguoiBanHang;
 use App\Models\ThuongHieuModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;

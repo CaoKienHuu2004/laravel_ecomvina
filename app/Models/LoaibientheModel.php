@@ -52,4 +52,37 @@ class LoaibientheModel extends Model
 
         return $matches[1];
     }
+
+    /**
+     * Xóa Cứng luốn các bảng liên quan đến sanpham, thủ công mới 4 bảng, database chỉnh ondelete cascade không cần thủ công quá nhiều
+     */
+    protected static function booted()
+    {
+        static::deleting(function ($loaibienthe) {
+            // 1️⃣ Lấy danh sách id sản phẩm liên quan đến loại biến thể này
+            $idSanPhams = BientheModel::where('id_loaibienthe', $loaibienthe->id)
+                ->pluck('id_sanpham')
+                ->unique()
+                ->toArray();
+
+            // 2️⃣ Xóa cứng các bản ghi trong bảng bienthe
+            BientheModel::withTrashed()
+                ->where('id_loaibienthe', $loaibienthe->id)
+                ->forceDelete();
+
+            // 3️⃣ Nếu có sản phẩm liên quan thì xóa luôn ảnh và sản phẩm
+            if (!empty($idSanPhams)) {
+
+                // 🖼️ Xóa cứng hình ảnh sản phẩm liên quan
+                HinhanhSanphamModel::withTrashed()
+                    ->whereIn('id_sanpham', $idSanPhams)
+                    ->forceDelete();
+
+                // 🛒 Xóa cứng sản phẩm
+                SanphamModel::withTrashed()
+                    ->whereIn('id', $idSanPhams)
+                    ->forceDelete();
+            }
+        });
+    }
 }

@@ -19,6 +19,7 @@ use App\Http\Controllers\Web\TrangChuWebAPI;
 use App\Http\Controllers\Web\YeuThichWebApi;
 
 use App\Http\Controllers\HinhAnhSanphamController;
+use App\Http\Controllers\LoaiBientheController;
 use App\Http\Controllers\QuangCaoController;
 use App\Http\Controllers\Web\TimKiemWebApi;
 use App\Http\Controllers\Web\TinhThanhVietNamWebApi;
@@ -201,6 +202,16 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::post('/restore/{id}', [SanphamController::class, 'restore'])->name('sanpham.restore');
         Route::delete('/force-delete/{id}', [SanphamController::class, 'forceDelete'])->name('sanpham.forceDelete');
     });
+        /* ===================== LOẠI BIẾN THỂ ===================== */
+        Route::prefix('loaibienthe')->group(function () {
+            Route::get('/', [LoaiBientheController::class, 'index'])->name('loaibienthe.index');
+            Route::get('/create', [LoaiBientheController::class, 'create'])->name('loaibienthe.create');
+            Route::post('/store', [LoaiBientheController::class, 'store'])->name('loaibienthe.store');
+            Route::get('/show/{id}', [LoaiBientheController::class, 'show'])->name('loaibienthe.show');
+            Route::get('/edit/{id}', [LoaiBientheController::class, 'edit'])->name('loaibienthe.edit');
+            Route::put('/update/{id}', [LoaiBientheController::class, 'update'])->name('loaibienthe.update');
+            Route::delete('/delete/{id}', [LoaiBientheController::class, 'destroy'])->name('loaibienthe.destroy');
+        });
     /* ===================== QUẢNG CÁO ===================== */
     Route::prefix('quangcao')->group(function () {
         Route::get('/', [QuangCaoController::class, 'index'])->name('quangcao.index');

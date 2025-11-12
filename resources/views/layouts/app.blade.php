@@ -257,9 +257,13 @@
                   <span class="menu-arrow"></span
                 ></a>
                 <ul>
+                    {{-- //----Sản Phẩm ---// --}}
                   <li><a class="{{ request()->routeIs('sanpham.index') || request()->routeIs('sanpham.edit') || request()->routeIs('sanpham.create') || request()->routeIs('sanpham.show') ||  request()->routeIs('sanpham.trash') ? 'active' : '' }}" href="{{ route('sanpham.index') }}">Danh sách sản phẩm</a></li>
+
                   {{-- //---- Hình Ảnh Sản Phẩm ---// --}}
                   <li><a class="{{ request()->routeIs('hinhanhsanpham.index') || request()->routeIs('hinhanhsanpham.edit') || request()->routeIs('hinhanhsanpham.create') ? 'active' : '' }}" href="{{ route('hinhanhsanpham.index') }}">Hình ảnh sản phẩm</a></li>
+                  {{-- //---- Loại Biến Thể ---// --}}
+                  <li><a class="{{ request()->routeIs('loaibienthe.index') || request()->routeIs('loaibienthe.edit') || request()->routeIs('loaibienthe.create') || request()->routeIs('loaibienthe.show') ? 'active' : '' }}" href="{{ route('loaibienthe.index') }}">Danh sách loại biến thể</a></li>
                   {{-- <li><a class="{{ request()->routeIs('danh-sach-thuong-hieu') || request()->routeIs('chinh-sua-thuong-hieu') || request()->routeIs('tao-thuong-hieu') ? 'active' : '' }}" href="{{ route('danh-sach-thuong-hieu') }}">Thương hiệu sản phẩm</a></li> --}}
                   {{-- <li><a class="{{ request()->routeIs('danh-sach-kho-hang') ? 'active' : '' }}" href="{{ route('danh-sach-kho-hang') }}">Kho hàng</a></li> --}}
                 </ul>
