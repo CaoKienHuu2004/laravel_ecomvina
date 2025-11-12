@@ -208,14 +208,16 @@
                 {{-- // -- phuong thuc thanh toan --// --}}
               <li class="submenu">
                 <a href="javascript:void(0);"
-                  ><img src="{{asset('img/icons/expense1.svg')}}" alt="img" /><span>
+                  ><img src="{{asset('img/icons/payment-method-cash-svgrepo-com.svg')}}" alt="img" /><span>
                     Phương thức Thanh toán</span
                   >
                   <span class="menu-arrow"></span
                 ></a>
                 <ul>
-                  <li><a href="expenselist.html">Phương thức thanh toán</a></li>
-                  <li><a href="createexpense.html">Lịch sử thanh toán</a></li>
+                  {{-- <li><a href="expenselist.html">Phương thức thanh toán</a></li>
+                  <li><a href="createexpense.html">Lịch sử thanh toán</a></li> --}}
+                  {{-- //---- Phương Thức Thanh Toán ---// --}}
+                  <li><a class="{{ request()->routeIs('phuongthuc.index') || request()->routeIs('phuongthuc.edit') || request()->routeIs('phuongthuc.create') || request()->routeIs('phuongthuc.show') ? 'active' : '' }}" href="{{ route('phuongthuc.index') }}">Danh sách phương thức thanh toán</a></li>
                 </ul>
               </li>
                 {{-- // -- quản lý kho --// --}}
@@ -272,7 +274,7 @@
               {{-- // -- Quản lý đơn hàng --// --}}
               <li class="submenu">
                 <a href="javascript:void(0);"
-                  ><img src="{{asset('img/icons/sales1.svg')}}" alt="img" /><span>
+                  ><img src="{{asset('img/icons/expense1.svg')}}" alt="img" /><span>
                     Quản lý đơn hàng</span
                   >
                   <span class="menu-arrow"></span

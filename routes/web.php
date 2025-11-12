@@ -20,6 +20,7 @@ use App\Http\Controllers\Web\YeuThichWebApi;
 
 use App\Http\Controllers\HinhAnhSanphamController;
 use App\Http\Controllers\LoaiBientheController;
+use App\Http\Controllers\PhuongThucController;
 use App\Http\Controllers\QuangCaoController;
 use App\Http\Controllers\Web\TimKiemWebApi;
 use App\Http\Controllers\Web\TinhThanhVietNamWebApi;
@@ -263,6 +264,16 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('/trash', [DiaChiGiaoHangController::class, 'trash'])->name('diachigiaohang.trash');
         Route::post('/restore/{id}', [DiaChiGiaoHangController::class, 'restore'])->name('diachigiaohang.restore');
         Route::delete('/force-delete/{id}', [DiaChiGiaoHangController::class, 'forceDelete'])->name('diachigiaohang.forceDelete');
+    });
+    /* ===================== PHƯƠNG THỨC THANH TOÁN ===================== */
+    Route::prefix('phuongthuc')->group(function () {
+        Route::get('/', [PhuongThucController::class, 'index'])->name('phuongthuc.index');
+        Route::get('/create', [PhuongThucController::class, 'create'])->name('phuongthuc.create');
+        Route::post('/store', [PhuongThucController::class, 'store'])->name('phuongthuc.store');
+        Route::get('/show/{id}', [PhuongThucController::class, 'show'])->name('phuongthuc.show');
+        Route::get('/edit/{id}', [PhuongThucController::class, 'edit'])->name('phuongthuc.edit');
+        Route::put('/update/{id}', [PhuongThucController::class, 'update'])->name('phuongthuc.update');
+        Route::delete('/delete/{id}', [PhuongThucController::class, 'destroy'])->name('phuongthuc.destroy');
     });
 });
 // Route::get('/dashboard', function () {
