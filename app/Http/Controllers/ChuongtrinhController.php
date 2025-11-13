@@ -101,14 +101,15 @@ class ChuongtrinhController extends Controller
             // === Lưu chương trình ===
             $chuongtrinh = new ChuongTrinhModel();
             $chuongtrinh->tieude = $request->tieude;
-            $chuongtrinh->slug = Str::slug($request->tieude);
+            $chuongtrinh->slug = Str::slug(str_replace('/', '-', $request->tieude)); // $chuongtrinh->slug = Str::slug($request->tieude);
             $chuongtrinh->noidung = $request->noidung;
             $chuongtrinh->trangthai = $request->trangthai;
 
             // Xử lý upload hình ảnh chương trình
             if ($request->hasFile('hinhanh')) {
                 $file = $request->file('hinhanh');
-                $fileName = Str::slug($request->tieude) . '.' . $file->getClientOriginalExtension();
+                $fileName = Str::slug(str_replace('/', '-', $request->tieude)) . '.' . $file->getClientOriginalExtension();
+                // $fileName = Str::slug($request->tieude) . '.' . $file->getClientOriginalExtension();
 
                 $path = public_path($this->uploadDir);
                 if (!file_exists($path)) mkdir($path, 0755, true);
@@ -134,7 +135,8 @@ class ChuongtrinhController extends Controller
                 // Nếu có upload ảnh riêng cho quà tặng
                 if (isset($item['hinhanh']) && $item['hinhanh'] instanceof \Illuminate\Http\UploadedFile) {
                     $giftFile = $item['hinhanh'];
-                    $giftName = Str::slug($item['tieude']) . '.' . $giftFile->getClientOriginalExtension();
+                    $giftName = Str::slug(str_replace('/', '-', $item['tieude'])) . '.' . $giftFile->getClientOriginalExtension();
+                    // $giftName = Str::slug($item['tieude']) . '.' . $giftFile->getClientOriginalExtension();
                     $giftPath = public_path($this->uploadDir);
                     if (!file_exists($giftPath)) mkdir($giftPath, 0755, true);
                     $link_hinh_anh = $this->domain . $this->uploadDir . '/' . $giftName;
@@ -227,14 +229,14 @@ class ChuongtrinhController extends Controller
         try {
             // Cập nhật chương trình
             $chuongtrinh->tieude = $request->tieude;
-            $chuongtrinh->slug = Str::slug($request->tieude);
+            $chuongtrinh->slug = Str::slug(str_replace('/', '-', $request->tieude));
             $chuongtrinh->noidung = $request->noidung;
             $chuongtrinh->trangthai = $request->trangthai;
 
             // Xử lý upload ảnh chương trình mới (nếu có)
             if ($request->hasFile('hinhanh')) {
                 $file = $request->file('hinhanh');
-                $fileName = Str::slug($request->tieude) . '.' . $file->getClientOriginalExtension();
+                $fileName = Str::slug(str_replace('/', '-', $request->tieude)) . '.' . $file->getClientOriginalExtension();
                 $path = public_path($this->uploadDir);
 
                 if (!file_exists($path)) {
@@ -286,7 +288,8 @@ class ChuongtrinhController extends Controller
                             }
 
                             $giftFile = $item['hinhanh'];
-                            $giftName = Str::slug($item['tieude']) . '.' . $giftFile->getClientOriginalExtension();
+                            $giftName = Str::slug(str_replace('/', '-', $item['tieude'])) . '.' . $giftFile->getClientOriginalExtension();
+                            // $giftName = Str::slug($item['tieude']) . '.' . $giftFile->getClientOriginalExtension();
                             $giftPath = public_path($this->uploadDir);
                             if (!file_exists($giftPath)) mkdir($giftPath, 0755, true);
                             $link_hinh_anh = $this->domain . $this->uploadDir . '/' . $giftName;

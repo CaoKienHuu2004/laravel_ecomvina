@@ -260,8 +260,13 @@
 </script>
 
 <script>
-  ClassicEditor.create(document.querySelector('#noi_dung'), editorConfig);
-  ClassicEditor.create(document.querySelector('#thong_tin'), editorConfig);
+  ClassicEditor
+    .create(document.querySelector('#noi_dung'))
+    .catch(error => console.error(error));
+
+  ClassicEditor
+    .create(document.querySelector('#thong_tin'))
+    .catch(error => console.error(error));
 </script>
 <script>
 document.getElementById('hinhanh-upload').addEventListener('change', function(event) {
