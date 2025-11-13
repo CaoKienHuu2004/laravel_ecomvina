@@ -25,8 +25,8 @@ class TheoDoiDonHangFrontendAPI extends Controller
     /**
      * @OA\Get(
      *     path="/api/toi/theodoi-donhang",
-     *     summary="Lấy danh sách đơn hàng của người dùng",
-     *     description="API này trả về danh sách các đơn hàng của người dùng hiện tại, có thể lọc theo trạng thái hoặc mã đơn hàng.",
+     *     summary="Lấy danh sách đơn hàng của người dùng (theo trạng thái)",
+     *     description="API này trả về danh sách các đơn hàng của người dùng hiện tại, được phân loại theo trạng thái (VD: Chờ thanh toán, Đang xác nhận,...).",
      *     tags={"Theo dõi đơn hàng (tôi)"},
      *     security={{"bearerAuth": {}}},
      *     @OA\Parameter(
@@ -48,11 +48,26 @@ class TheoDoiDonHangFrontendAPI extends Controller
      *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Danh sách đơn hàng của người dùng",
+     *         description="Danh sách đơn hàng được nhóm theo trạng thái",
      *         @OA\JsonContent(
+     *             type="object",
      *             @OA\Property(property="status", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Danh Sách Đơn Hàng Theo Trạng Thái..."),
-     *             @OA\Property(property="data", type="array", @OA\Items(ref="#/components/schemas/TheoDoiDonHangResource"))
+     *             @OA\Property(property="message", type="string", example="Danh Sách Đơn Hàng Theo Trạng Thái Đơn Hàng Của Khách Hàng #5: Nguyễn Văn A"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(property="label", type="string", example="Đang xác nhận"),
+     *                     @OA\Property(property="trangthai", type="string", example="Đã xác nhận"),
+     *                     @OA\Property(property="soluong", type="integer", example=3),
+     *                     @OA\Property(
+     *                         property="donhang",
+     *                         type="array",
+     *                         @OA\Items(ref="#/components/schemas/TheoDoiDonHangResource")
+     *                     )
+     *                 )
+     *             )
      *         )
      *     ),
      *     @OA\Response(
@@ -64,6 +79,7 @@ class TheoDoiDonHangFrontendAPI extends Controller
     public function index(Request $request)
     {
         $user = $request->get('auth_user');
+
         if (!$user) {
             return $this->jsonResponse([
                 'status' => false,
@@ -71,9 +87,7 @@ class TheoDoiDonHangFrontendAPI extends Controller
             ], Response::HTTP_UNAUTHORIZED);
         }
 
-        $query = DonhangModel::with(['chitietdonhang.bienthe.sanpham', 'chitietdonhang.bienthe.loaibienthe','chitietdonhang.bienthe.sanpham.hinhanhsanpham'])
-            ->where('id_nguoidung', $user->id);
-
+        // Danh sách trạng thái thực tế trong DB
         $validTrangThai = [
             'Chờ xử lý',
             'Đã xác nhận',
@@ -83,22 +97,51 @@ class TheoDoiDonHangFrontendAPI extends Controller
             'Đã hủy',
         ];
 
+        // Label hiển thị tương ứng
+        $labels = [
+            'Chờ xử lý' => 'Chờ thanh toán',
+            'Đã xác nhận' => 'Đang xác nhận',
+            'Đang chuẩn bị hàng' => 'Đang đóng gói',
+            'Đang giao hàng' => 'Đang giao hàng',
+            'Đã giao hàng' => 'Đã giao',
+            'Đã hủy' => 'Đã hủy',
+        ];
+
+        $query = DonhangModel::with([
+            'chitietdonhang.bienthe.sanpham',
+            'chitietdonhang.bienthe.loaibienthe',
+            'chitietdonhang.bienthe.sanpham.hinhanhsanpham'
+        ])->where('id_nguoidung', $user->id);
+
+        // Lọc theo trạng thái (nếu có)
         if ($request->filled('trangthai') && in_array($request->trangthai, $validTrangThai)) {
             $query->where('trangthai', $request->trangthai);
         }
 
+        // Lọc theo mã đơn hàng (nếu có)
         if ($request->filled('madon')) {
             $query->where('madon', $request->madon);
         }
 
         $donhangs = $query->latest()->get();
 
-        // TheoDoiDonHangResource::withoutWrapping();
-        // return response()->json(TheoDoiDonHangResource::collection($donhangs), Response::HTTP_OK);
+        // Gom nhóm theo trạng thái và đếm số lượng
+        $grouped = [];
+        foreach ($validTrangThai as $status) {
+            $donTheoTrangThai = $donhangs->where('trangthai', $status);
+            $grouped[] = [
+                'label' => $labels[$status] ?? $status,
+                'trangthai' => $status,
+                'soluong' => $donTheoTrangThai->count(),
+                'donhang' => TheoDoiDonHangResource::collection($donTheoTrangThai),
+            ];
+        }
+
+        // ✅ Trả về theo định dạng chuẩn { status, message, data }
         return $this->jsonResponse([
-                'status' => true,
-                'message' => "Danh Sách Đơn Hàng Theo Trạng Thái Đơn Hàng Của Khách Hàng ".$user->id.":".$user->hoten,
-                'data' => TheoDoiDonHangResource::collection($donhangs)
+            'status' => true,
+            'message' => "Danh Sách Đơn Hàng Theo Trạng Thái Đơn Hàng Của Khách Hàng #{$user->id}: {$user->hoten}",
+            'data' => $grouped
         ], Response::HTTP_OK);
     }
 

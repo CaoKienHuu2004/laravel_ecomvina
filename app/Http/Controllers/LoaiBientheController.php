@@ -8,7 +8,7 @@ use Illuminate\Http\Response;
 use App\Models\LoaibientheModel;
 
 
-class LoaibientheController extends Controller
+class LoaiBientheController extends Controller
 {
     /**
      * Hiển thị danh sách loại biến thể

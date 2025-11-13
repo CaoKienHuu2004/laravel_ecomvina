@@ -360,7 +360,8 @@
                   <span class="menu-arrow"></span
                 ></a>
                 <ul>
-                  <li><a class="{{ request()->routeIs('quangcao.index') || request()->routeIs('quangcao.edit') || request()->routeIs('quangcao.create') || request()->routeIs('quangcao.show') ? 'active' : '' }}" href="{{ route('quangcao.index') }}">Danh sách Banner<br>Quảng Cáo(trang chủ)</a></li>
+                    <li><a class="{{ request()->routeIs('chuongtrinh.index') || request()->routeIs('chuongtrinh.edit') || request()->routeIs('chuongtrinh.create') || request()->routeIs('chuongtrinh.show') ? 'active' : '' }}" href="{{ route('chuongtrinh.index') }}">Danh Sách Chương Trình Sự Kiện</a></li>
+                    <li><a class="{{ request()->routeIs('quangcao.index') || request()->routeIs('quangcao.edit') || request()->routeIs('quangcao.create') || request()->routeIs('quangcao.show') ? 'active' : '' }}" href="{{ route('quangcao.index') }}">Danh sách Banner<br>Quảng Cáo(trang chủ)</a></li>
 
                 </ul>
               </li>

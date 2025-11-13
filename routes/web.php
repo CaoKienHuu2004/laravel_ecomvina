@@ -7,6 +7,7 @@ use App\Http\Controllers\SanphamController;
 use App\Http\Controllers\DanhmucController;
 use App\Http\Controllers\ThuonghieuController;
 use App\Http\Controllers\BientheController;
+use App\Http\Controllers\ChuongtrinhController;
 use App\Http\Controllers\DiaChiGiaoHangController;
 use App\Http\Controllers\DonhangController;
 use App\Http\Controllers\NguoidungController;
@@ -274,6 +275,16 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('/edit/{id}', [PhuongThucController::class, 'edit'])->name('phuongthuc.edit');
         Route::put('/update/{id}', [PhuongThucController::class, 'update'])->name('phuongthuc.update');
         Route::delete('/delete/{id}', [PhuongThucController::class, 'destroy'])->name('phuongthuc.destroy');
+    });
+    /* ===================== CHƯƠNG TRÌNH SỰ KIỆN ===================== */
+    Route::prefix('chuongtrinh')->group(function () {
+        Route::get('/', [ChuongtrinhController::class, 'index'])->name('chuongtrinh.index');
+        Route::get('/create', [ChuongtrinhController::class, 'create'])->name('chuongtrinh.create');
+        Route::post('/store', [ChuongtrinhController::class, 'store'])->name('chuongtrinh.store');
+        Route::get('/show/{id}', [ChuongtrinhController::class, 'show'])->name('chuongtrinh.show');
+        Route::get('/edit/{id}', [ChuongtrinhController::class, 'edit'])->name('chuongtrinh.edit');
+        Route::put('/update/{id}', [ChuongtrinhController::class, 'update'])->name('chuongtrinh.update');
+        Route::delete('/delete/{id}', [ChuongtrinhController::class, 'destroy'])->name('chuongtrinh.destroy');
     });
 });
 // Route::get('/dashboard', function () {

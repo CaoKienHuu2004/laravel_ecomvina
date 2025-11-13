@@ -1866,8 +1866,8 @@
                 "tags": [
                     "Theo dõi đơn hàng (tôi)"
                 ],
-                "summary": "Lấy danh sách đơn hàng của người dùng",
-                "description": "API này trả về danh sách các đơn hàng của người dùng hiện tại, có thể lọc theo trạng thái hoặc mã đơn hàng.",
+                "summary": "Lấy danh sách đơn hàng của người dùng (theo trạng thái)",
+                "description": "API này trả về danh sách các đơn hàng của người dùng hiện tại, được phân loại theo trạng thái (VD: Chờ thanh toán, Đang xác nhận,...).",
                 "operationId": "4f42a3336bce3575407d33eebecd0bae",
                 "parameters": [
                     {
@@ -1899,7 +1899,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Danh sách đơn hàng của người dùng",
+                        "description": "Danh sách đơn hàng được nhóm theo trạng thái",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1910,12 +1910,32 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "Danh Sách Đơn Hàng Theo Trạng Thái..."
+                                            "example": "Danh Sách Đơn Hàng Theo Trạng Thái Đơn Hàng Của Khách Hàng #5: Nguyễn Văn A"
                                         },
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/components/schemas/TheoDoiDonHangResource"
+                                                "properties": {
+                                                    "label": {
+                                                        "type": "string",
+                                                        "example": "Đang xác nhận"
+                                                    },
+                                                    "trangthai": {
+                                                        "type": "string",
+                                                        "example": "Đã xác nhận"
+                                                    },
+                                                    "soluong": {
+                                                        "type": "integer",
+                                                        "example": 3
+                                                    },
+                                                    "donhang": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "$ref": "#/components/schemas/TheoDoiDonHangResource"
+                                                        }
+                                                    }
+                                                },
+                                                "type": "object"
                                             }
                                         }
                                     },
@@ -3473,8 +3493,8 @@
                 "tags": [
                     "Theo dõi đơn hàng (tôi) (web)"
                 ],
-                "summary": "Lấy danh sách đơn hàng của người dùng",
-                "description": "API cho phép người dùng xem danh sách các đơn hàng của họ, có thể lọc theo trạng thái hoặc mã đơn hàng.Yêu cầu phải có `username` và `madon` để xác thực.",
+                "summary": "Lấy danh sách đơn hàng của người dùng (theo trạng thái)",
+                "description": "API cho phép người dùng xem tất cả các đơn hàng của họ, được phân loại theo từng trạng thái. Mỗi trạng thái bao gồm nhãn hiển thị, mã trạng thái, tổng số đơn và danh sách chi tiết các đơn hàng tương ứng.",
                 "operationId": "9394a7059381dbb345ecaffa3d1a1fc3",
                 "parameters": [
                     {
@@ -3489,7 +3509,7 @@
                     {
                         "name": "madon",
                         "in": "query",
-                        "description": "Mã đơn hàng, bắt buộc để xác thực",
+                        "description": "Mã đơn hàng của người dùng, bắt buộc để xác thực quyền truy cập",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -3498,7 +3518,7 @@
                     {
                         "name": "trangthai",
                         "in": "query",
-                        "description": "Lọc đơn hàng theo trạng thái. Giá trị hợp lệ: Chờ xử lý, Đã xác nhận, Đang chuẩn bị hàng, Đang giao hàng, Đã giao hàng, Đã hủy",
+                        "description": "(Tùy chọn) Lọc đơn hàng theo trạng thái. Giá trị hợp lệ: Chờ xử lý, Đã xác nhận, Đang chuẩn bị hàng, Đang giao hàng, Đã giao hàng, Đã hủy",
                         "required": false,
                         "schema": {
                             "type": "string",
@@ -3515,27 +3535,38 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Danh sách đơn hàng của người dùng",
+                        "description": "Danh sách đơn hàng được nhóm theo trạng thái",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Danh Sách Đơn Hàng Theo Trạng Thái..."
-                                        },
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/TheoDoiDonHangResource"
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "label": {
+                                                "description": "Tên hiển thị của trạng thái",
+                                                "type": "string",
+                                                "example": "Đang xác nhận"
+                                            },
+                                            "trangthai": {
+                                                "description": "Tên trạng thái thực tế trong cơ sở dữ liệu",
+                                                "type": "string",
+                                                "example": "Đã xác nhận"
+                                            },
+                                            "soluong": {
+                                                "description": "Tổng số đơn hàng thuộc trạng thái này",
+                                                "type": "integer",
+                                                "example": 3
+                                            },
+                                            "donhang": {
+                                                "description": "Danh sách đơn hàng thuộc trạng thái này",
+                                                "type": "array",
+                                                "items": {
+                                                    "$ref": "#/components/schemas/TheoDoiDonHangResource"
+                                                }
                                             }
-                                        }
-                                    },
-                                    "type": "object"
+                                        },
+                                        "type": "object"
+                                    }
                                 }
                             }
                         }
@@ -3552,7 +3583,7 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "Thiếu tên tài khoản hoặc mã đơn hàng để xác thực!"
+                                            "example": "Không xác thực được user."
                                         }
                                     },
                                     "type": "object"
@@ -3572,7 +3603,7 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "Thiếu tên tài khoản hoặc mã đơn hàng để xác thực!"
+                                            "example": "Không có quyền truy cập đơn hàng này."
                                         }
                                     },
                                     "type": "object"
