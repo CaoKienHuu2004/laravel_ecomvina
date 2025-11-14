@@ -23,6 +23,7 @@ use App\Http\Controllers\HinhAnhSanphamController;
 use App\Http\Controllers\LoaiBientheController;
 use App\Http\Controllers\PhuongThucController;
 use App\Http\Controllers\QuangCaoController;
+use App\Http\Controllers\QuatangSukienController;
 use App\Http\Controllers\Web\TimKiemWebApi;
 use App\Http\Controllers\Web\TinhThanhVietNamWebApi;
 use App\Http\Controllers\Web\TukhoaWebApi;
@@ -285,6 +286,21 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('/edit/{id}', [ChuongtrinhController::class, 'edit'])->name('chuongtrinh.edit');
         Route::put('/update/{id}', [ChuongtrinhController::class, 'update'])->name('chuongtrinh.update');
         Route::delete('/delete/{id}', [ChuongtrinhController::class, 'destroy'])->name('chuongtrinh.destroy');
+    });
+    /* ===================== QUÀ TẶNG SỰ KIỆN ===================== */
+    Route::prefix('quatangsukien')->group(function () {
+        Route::get('/', [QuatangSukienController::class, 'index'])->name('quatangsukien.index');
+        Route::get('/create', [QuatangSukienController::class, 'create'])->name('quatangsukien.create');
+        Route::post('/store', [QuatangSukienController::class, 'store'])->name('quatangsukien.store');
+        Route::get('/show/{id}', [QuatangSukienController::class, 'show'])->name('quatangsukien.show');
+        Route::get('/edit/{id}', [QuatangSukienController::class, 'edit'])->name('quatangsukien.edit');
+        Route::put('/update/{id}', [QuatangSukienController::class, 'update'])->name('quatangsukien.update');
+        Route::delete('/delete/{id}', [QuatangSukienController::class, 'destroy'])->name('quatangsukien.destroy');
+
+        // 🗑️ Thùng rác
+        Route::get('/trash', [QuatangSukienController::class, 'trash'])->name('quatangsukien.trash');
+        Route::post('/restore/{id}', [QuatangSukienController::class, 'restore'])->name('quatangsukien.restore');
+        Route::delete('/force-delete/{id}', [QuatangSukienController::class, 'forceDelete'])->name('quatangsukien.forceDelete');
     });
 });
 // Route::get('/dashboard', function () {

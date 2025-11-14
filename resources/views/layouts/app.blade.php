@@ -236,17 +236,14 @@
                 {{-- // -- quản lý quà tăng --// --}}
                 <li class="submenu">
                     <a href="javascript:void(0);"
-                    ><img src="{{asset('img/icons/sales1.svg')}}" alt="img" /><span>
+                    ><img src="{{asset('img/icons/gitlfs-svgrepo-com.svg')}}" alt="img" /><span>
                         Quản lý quà tăng</span
                     >
                     <span class="menu-arrow"></span
                     ></a>
                     <ul>
-                    <li><a href="saleslist.html">Voucher</a></li>
-                    <li><a href="pos.html">Ưu đãi sản phẩm</a></li>
-                    <li><a href="pos.html">Sự kiện khuyến mãi</a></li>
-                    <li><a href="/">Đánh giá sản phẩm</a></li>
-                    <li><a href="pos.html">Danh sách đơn hàng</a></li>
+                        {{-- //----Quà tăng sự kiện ---// --}}
+                        <li><a class="{{ request()->routeIs('quatangsukien.index') || request()->routeIs('quatangsukien.edit') || request()->routeIs('quatangsukien.create') || request()->routeIs('quatangsukien.show') ||  request()->routeIs('quatangsukien.trash') ? 'active' : '' }}" href="{{ route('quatangsukien.index') }}">Danh sách quà tặng sự kiện</a></li>
 
                     </ul>
                 </li>
