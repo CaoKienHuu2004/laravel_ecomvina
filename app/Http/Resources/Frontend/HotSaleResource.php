@@ -72,6 +72,7 @@ class HotSaleResource extends JsonResource
                 // 'formatted_count' => $this->formatReviewCount($reviewCount), // Có thể format ở đây hoặc frontend
             ],
             'sold_count' => $this->total_sold ?? 0, // Thêm trường tổng số đã bán nếu cần
+            'have_gift' => (bool) $this->have_gift,
         ];
     }
 }

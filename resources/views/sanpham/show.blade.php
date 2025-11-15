@@ -4,7 +4,7 @@
 {{ $sanpham->ten }} | Sản phẩm | Quản trị hệ thống Siêu Thị Vina
 @endsection
 {{-- // controller truyền xuống $sanpham  --}}
-{{-- // các route sư dụng không có    --}}
+{{-- // các route sư dụng không có  --- của breadcrumb sanpham.index trang-chu   --}}
 {{--  $sanphams->hinhanhsanpham->first()->hihanh: Link http://148.230.100.215/assets/client/images/thumbs/tenfilehinhanh.jpg --}}
 
 {{-- bản củ // controller truyền xuống $sanphams,$thuonghieus danhmucs  --}}
@@ -14,10 +14,14 @@
 <div class="page-wrapper">
     <div class="content">
         <div class="page-header">
-            <div class="page-title">
-                <h4>Sản phẩm "{{ $sanpham->ten }}"</h4>
-                <h6>Xem chi tiết thông tin của sản phẩm.</h6>
-            </div>
+            <x-header.breadcrumb
+                title='Xem Chi Tiết Sản phẩm "{{ $sanpham->ten }}"'
+                :links="[
+                    ['label' => 'Tổng quan', 'route' => 'trang-chu'],
+                    ['label' => 'Danh sách sản phẩm', 'route' => 'sanpham.index']
+                ]"
+                active="Chi tiết"
+            />
         </div>
 
         <div class="row">

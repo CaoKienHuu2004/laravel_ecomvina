@@ -20,6 +20,8 @@ use Illuminate\Support\Str;
  *     @OA\Property(property="id", type="integer", example=12),
  *     @OA\Property(property="ten", type="string", example="Bánh quy ABC"),
  *     @OA\Property(property="slug", type="string", example="banh-quy-abc"),
+ *     @OA\Property(property="have_gift", type="boolean", example="true"),
+ *     @OA\Property(property="", type="string", example="banh-quy-abc"),
  *     @OA\Property(
  *         property="rating",
  *         type="object",
@@ -106,6 +108,7 @@ class SanPhamAllDetailResources extends JsonResource
             'id' => $this->id,
             'ten' => $this->ten,
             'slug'          => $this->slug,
+            'have_gift' => (bool) $this->have_gift?? false,
             'danhmuc' => $this->danhmuc
             ? $this->danhmuc->map(function ($item) {
                 return [

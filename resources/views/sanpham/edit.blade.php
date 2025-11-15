@@ -1,6 +1,6 @@
 @extends('layouts.app')
 {{-- // controller truyền xuống $sanpham $danhmucs $thuonghieus $loaibienthes $selectbox_sanpham_trangthais --}}
-{{-- // các route sư dụng  sanpham.update   --}}
+{{-- // các route sư dụng  sanpham.update  --- của breadcrumb sanpham.index trang-chu  --}}
 {{--  $sanphams->hinhanhsanpham->first()->hihanh: Link http://148.230.100.215/assets/client/images/thumbs/tenfilehinhanh.jpg --}}
 
 {{-- bản củ // controller truyền xuống $sanpham,$danhmucs $cuaHang $loaibienthes  --}}
@@ -14,11 +14,15 @@
 <div class="page-wrapper">
     <div class="content">
         <div class="page-header">
-            <div class="page-title">
-                <h4>Sửa "{{ $sanpham->ten }}"</h4>
-                <h6>Chỉnh sửa sản phẩm của bạn.</h6>
-            </div>
-        </div>
+        <x-header.breadcrumb
+            title="Sửa sản phẩm '{{ $sanpham->ten }}'"
+            :links="[
+                ['label' => 'Tổng quan', 'route' => 'trang-chu'],
+                ['label' => 'Danh sách sản phẩm', 'route' => 'sanpham.index']
+            ]"
+            active="Thêm mới"
+        />
+    </div>
 
         <div class="card">
             <div class="card-body">
@@ -264,14 +268,14 @@
 @endsection
 
 @section('scripts')
-<script>
+{{-- <script>
     /**
      * This configuration was generated using the CKEditor 5 Builder. You can modify it anytime using this link:
      * https://ckeditor.com/ckeditor-5/builder/?redirect=portal#installation/NoNgNARATAdA7DKFIhATgIwBY0gKwZxwAccaZW6xIWeeUAzFgAzEFZT4jIQBuAlsmZhgGMMOFjJAXUhYAZgEM089BGlA
      */
 
     ClassicEditor.create(document.querySelector('#mo_ta_suasp'), editorConfig);
-</script>
+</script> --}}
 
 <script>
     $('.sua_bienthe').select2({

@@ -231,7 +231,17 @@ class SanphamAllWebAPI extends BaseFrontendController
         ->withAvg('danhgia as avg_rating', 'diem')       // điểm trung bình
         ->withCount('danhgia as review_count')           // tổng số đánh giá
         ->withSum('bienthe as total_quantity', 'soluong') // tổng tồn kho
-        ->withSum('bienthe as total_sold', 'luotban');
+        ->withSum('bienthe as total_sold', 'luotban')
+        ->withExists([
+            'bienthe as have_gift' => function ($query) {
+                $query->whereHas('quatangsukien', function ($q) {
+                    $q->where('trangthai', 'Hiển thị')
+                    ->whereDate('ngaybatdau', '<=', now())
+                    ->whereDate('ngayketthuc', '>=', now())
+                    ->whereNull('deleted_at');
+                });
+            }
+        ]);
 
         // --- Tìm kiếm theo tên hoặc mô tả ---
         if ($q) {
@@ -328,6 +338,7 @@ class SanphamAllWebAPI extends BaseFrontendController
                 'id' => $item->id,
                 'name' => $item->ten,
                 'slug' => $item->slug,
+                'have_gift' => (bool) $item->have_gift ?? false,
                 'originalPrice' => (int)optional($item->bienthe->where('giagoc', '>', 0)->sortBy('giagoc')->first())->giagoc,
                 'discount' => (int)$item->giamgia,
                 'sold' => (int)$item->total_sold,
@@ -360,6 +371,14 @@ class SanphamAllWebAPI extends BaseFrontendController
             ->withAvg('danhgia as avg_rating', 'diem') // điểm
             ->withCount('danhgia as review_count') // số lượng đánh giá
             ->withSum('bienthe as total_sold', 'luotban')
+            ->withExists(['bienthe as have_gift' => function ($query) {
+                $query->whereHas('quatangsukien', function ($q) {
+                    $q->where('trangthai', 'Hiển thị')
+                    ->whereDate('ngaybatdau', '<=', now())
+                    ->whereDate('ngayketthuc', '>=', now())
+                    ->whereNull('deleted_at');
+                });
+            }])
             ->with(['bienthe' => function ($q) {
                 $q->orderByDesc('giagoc');
                 // $q->orderByDesc('giagoc')->limit(1);
@@ -388,6 +407,14 @@ class SanphamAllWebAPI extends BaseFrontendController
             ->withSum('bienthe as total_quantity', 'soluong')
             ->withAvg('danhgia as avg_rating', 'diem')
             ->withCount('danhgia as review_count')
+            ->withExists(['bienthe as have_gift' => function ($query) {
+                $query->whereHas('quatangsukien', function ($q) {
+                    $q->where('trangthai', 'Hiển thị')
+                    ->whereDate('ngaybatdau', '<=', now())
+                    ->whereDate('ngayketthuc', '>=', now())
+                    ->whereNull('deleted_at');
+                });
+            }])
             ->with(['bienthe' => function ($q) {
                 $q->orderByDesc('giagoc');
             }])
@@ -419,6 +446,7 @@ class SanphamAllWebAPI extends BaseFrontendController
             }),
             'name' => $query->ten,
             'slug' => $query->slug,
+            'have_gift' => $query->have_gift ?? false,
             'sold' => (int)$query->total_sold,
             'rating' => round($query->avg_rating, 1),
             'brand' => $query->thuonghieu->ten ?? null,
@@ -449,6 +477,7 @@ class SanphamAllWebAPI extends BaseFrontendController
                 'id' => $item->id,
                 'name' => $item->ten,
                 'slug' => $item->slug,
+                'have_gift' => $query->have_gift ?? false,
                 'originalPrice' => (int)optional($item->bienthe->where('giagoc', '>', 0)->sortBy('giagoc')->first())->giagoc,
                 'discount' => (int)$item->giamgia,
                 'sold' => (int)$item->total_sold,
@@ -458,11 +487,15 @@ class SanphamAllWebAPI extends BaseFrontendController
                 'image' => $item->hinhanhsanpham->first()->hinhanh ?? null,
             ];
         })->toArray();
-        $resource = [
-            'chitiet' => $array,
-            'ds_sanpham_tuongtu' => $sanphamTuongtuArray
-        ];
-        return $resource;
+        // $resource = [
+        //     'chitiet' => $array,
+        //     'ds_sanpham_tuongtu' => $sanphamTuongtuArray
+        // ];
+        // return $resource;
+        return response()->json([
+            $array,
+            $sanphamTuongtuArray
+        ], 200);
     }
 }
 

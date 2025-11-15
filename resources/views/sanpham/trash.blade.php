@@ -4,16 +4,20 @@
 {{--$hinhanhs->hinhanh: Link  http://148.230.100.215/assets/client/images/thumbs/tenfilehinhanh.jpg --}}
 
 {{-- // controller truyền xuống $sanphams  --}}
-{{-- // các route sư dụng sanpham.index sanpham.restore sanpham.forceDelete     --}}
+{{-- // các route sư dụng sanpham.restore sanpham.forceDelete --- của breadcrumb sanpham.index trang-chu      --}}
 {{--  $sanphams->hinhanhsanpham->first()->hihanh: Link http://148.230.100.215/assets/client/images/thumbs/tenfilehinhanh.jpg --}}
 @section('content')
 <div class="page-wrapper">
     <div class="content">
         <div class="page-header">
-            <div class="page-title">
-                <h2 class="text-center">🗑️ Thùng rác sản phẩm</h2>
-                <h6 class="text-center text-muted">Quản lý các sản phẩm đã bị xóa tạm thời</h6>
-            </div>
+            <x-header.breadcrumb
+                title="🗑️ Thùng rác sản phẩm đã bị xóa tạm thời"
+                :links="[
+                    ['label' => 'Tổng quan', 'route' => 'trang-chu'],
+                    ['label' => 'Danh sách sản phẩm', 'route' => 'sanpham.index']
+                ]"
+                active="Thùng rác"
+            />
         </div>
 
         <div class="card shadow-sm p-4">
@@ -25,12 +29,6 @@
                 </div>
             @endif
 
-            {{-- Nút quay lại --}}
-            <div class="mb-3 d-flex justify-content-start">
-                <a href="{{ route('sanpham.index') }}" class="btn btn-secondary">
-                    ← Quay lại danh sách
-                </a>
-            </div>
 
             {{-- Bảng dữ liệu --}}
             <div class="table-responsive">
@@ -85,7 +83,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="5" class="text-center text-muted fst-italic">Thùng rác trống.</td>
+                                <td colspan="6" class="text-center text-muted fst-italic">Thùng rác trống.</td>
                             </tr>
                         @endforelse
                     </tbody>

@@ -20,6 +20,7 @@ use App\Http\Resources\Frontend\HotSaleResource;
 use App\Http\Resources\Frontend\RecommentResource;
 use App\Models\DanhgiaModel;
 use App\Models\DanhmucModel;
+use App\Models\MagiamgiaModel;
 use App\Models\QuangcaoModel;
 use App\Models\QuatangsukienModel;
 use App\Models\SanphamModel;
@@ -114,6 +115,11 @@ class TrangChuAPI extends BaseFrontendController
      *                     @OA\Items(ref="#/components/schemas/SanphamItem")
      *                 ),
      *                 @OA\Property(
+     *                     property="new_coupon",
+     *                     type="array",
+     *                     @OA\Items(ref="#/components/schemas/MaGiamGiaItem")
+     *                 ),
+     *                 @OA\Property(
      *                     property="new_launch",
      *                     type="array",
      *                     @OA\Items(ref="#/components/schemas/SanphamItem")
@@ -149,7 +155,27 @@ class TrangChuAPI extends BaseFrontendController
      *         @OA\Property(property="average", type="number", format="float", example=4.8),
      *         @OA\Property(property="count", type="integer", example=128)
      *     ),
-     *     @OA\Property(property="sold_count", type="integer", example=532)
+     *     @OA\Property(property="sold_count", type="integer", example=532),
+     *     @OA\Property(property="have_gift", type="boolean", example=true)
+     * )
+     * @OA\Schema(
+     *     schema="MaGiamGiaItem",
+     *     type="object",
+     *     title="Mã Giảm Giá",
+     *
+     *     @OA\Property(property="id", type="integer", example=1),
+     *     @OA\Property(property="magiamgia", type="integer", example=20241201, description="Mã giảm giá dạng số"),
+     *     @OA\Property(property="dieukien", type="string", example="khachhang_moi", description="Điều kiện áp dụng"),
+     *     @OA\Property(property="mota", type="string", nullable=true, example="Voucher 100K cho khách hàng mới"),
+     *     @OA\Property(property="giatri", type="integer", example=100000, description="Giá trị số tiền được giảm"),
+     *     @OA\Property(property="ngaybatdau", type="string", format="date", example="2024-11-01"),
+     *     @OA\Property(property="ngayketthuc", type="string", format="date", example="2024-12-31"),
+     *     @OA\Property(
+     *          property="trangthai",
+     *          type="string",
+     *          enum={"Hoạt động", "Tạm khóa", "Dừng hoạt động"},
+     *          example="Hoạt động"
+     *     )
      * )
      *
      * @OA\Schema(
@@ -234,6 +260,8 @@ class TrangChuAPI extends BaseFrontendController
             'top_categories' => $this->getTopCategories($request),
             'top_brands'     => $this->getTopBrands($request),
             'best_products'  => $this->getBestProducts($request),
+            'new_coupon' => $this->getNewCoupon($request),
+
             // 'recommend'      => $this->getRecommend($request, $request->get('danhmuc_id')), // bỏ phần recommend
             // Hàng mới chào sân, mới thêm vào hệ thống
             // Được quan tâm nhiều nhất, lượt xem cao nhất, mới thêm vào hệ thống
@@ -278,6 +306,16 @@ class TrangChuAPI extends BaseFrontendController
             ->withAvg('danhgia as avg_rating', 'diem')      // Thêm avg_rating
             ->withCount('danhgia as review_count')         // Thêm review_count
             ->withSum('bienthe as total_sold', 'luotban')
+            ->withExists([
+                'bienthe as have_gift' => function ($query) {
+                    $query->whereHas('quatangsukien', function ($q) {
+                        $q->where('trangthai', 'Hiển thị')
+                        ->whereDate('ngaybatdau', '<=', now())
+                        ->whereDate('ngayketthuc', '>=', now())
+                        ->whereNull('deleted_at');
+                    });
+                }
+            ])
             ->orderByRaw('COALESCE((SELECT giagoc
                         FROM bienthe
                         WHERE id_sanpham = sanpham.id
@@ -300,37 +338,53 @@ class TrangChuAPI extends BaseFrontendController
         $categoryLimit = $request->get('per_page', 6);
         $productLimit = 6;
 
-        $categories = DanhmucModel::with(['sanpham' => function($q) use ($productLimit) {
+        // Lấy danh mục kèm sản phẩm không giới hạn số lượng (limit bỏ ở đây)
+        $categories = DanhmucModel::with(['sanpham' => function($q) {
             $q->withAvg('danhgia as avg_rating', 'diem')
             ->withCount('danhgia as review_count')
             ->with(['hinhanhsanpham', 'thuonghieu', 'bienthe', 'loaibienthe'])
-            ->orderByRaw('COALESCE((SELECT giagoc FROM bienthe WHERE id_sanpham = sanpham.id ORDER BY giagoc DESC LIMIT 1), 0) DESC')
-            ->limit($productLimit);
+            ->withExists([
+                'bienthe as have_gift' => function ($query) {
+                    $query->whereHas('quatangsukien', function ($q) {
+                        $q->where('trangthai', 'Hiển thị')
+                            ->whereDate('ngaybatdau', '<=', now())
+                            ->whereDate('ngayketthuc', '>=', now())
+                            ->whereNull('deleted_at');
+                    });
+                }
+            ])
+            ->orderByRaw('COALESCE((SELECT giagoc FROM bienthe WHERE id_sanpham = sanpham.id ORDER BY giagoc DESC LIMIT 1), 0) DESC');
         }])
-        ->get()
-        ->map(function ($danhmuc) {
-            // ✅ Tính tổng lượt bán theo tất cả biến thể của tất cả sản phẩm trong danh mục
-            if ($danhmuc instanceof DanhmucModel) {
-                $danhmuc->total_sold = $danhmuc->sanpham->reduce(function ($carry, $product) {
-                    return $carry + $product->bienthe->sum('luotban');
-                }, 0);
-            }
+        ->get();
 
-            // ✅ Đồng thời, sắp xếp lại danh sách sản phẩm trong danh mục theo tổng lượt bán của biến thể
+        // Xử lý dữ liệu: tính tổng lượt bán và giới hạn số sản phẩm trên mỗi danh mục
+        $categories = $categories->map(function ($danhmuc) use ($productLimit) {
+            // Tính tổng lượt bán tất cả biến thể tất cả sản phẩm trong danh mục
+            $danhmuc->total_sold = $danhmuc->sanpham->reduce(function ($carry, $product) {
+                return $carry + $product->bienthe->sum('luotban');
+            }, 0);
 
-            if ($danhmuc instanceof DanhmucModel) {
-                $danhmuc->sanpham = $danhmuc->sanpham->sortByDesc(function ($product) {
+            // Sắp xếp sản phẩm trong danh mục theo lượt bán giảm dần, giới hạn số lượng lấy $productLimit
+            $danhmuc->sanpham = $danhmuc->sanpham
+                ->sortByDesc(function ($product) {
                     return $product->bienthe->sum('luotban');
-                })->take(6)->values();
-            }
+                })
+                ->take($productLimit)
+                ->values();
 
             return $danhmuc;
-        })
-        ->sortByDesc('total_sold')
-        ->take($categoryLimit)
-        ->values();
+        });
+
+        // Sắp xếp danh mục theo tổng lượt bán giảm dần, lấy giới hạn số danh mục
+        $categories = $categories
+            ->sortByDesc('total_sold')
+            ->take($categoryLimit)
+            ->values();
 
         return CategoriesHotResource::collection($categories);
+
+        // sql thuần kiểm tra:
+        // SELECT d.id AS id_danhmuc, d.ten AS danhmuc_ten, COALESCE(SUM(bt.luotban), 0) AS total_sold FROM danhmuc d LEFT JOIN danhmuc_sanpham sd ON sd.id_danhmuc = d.id LEFT JOIN sanpham sp ON sp.id = sd.id_sanpham LEFT JOIN bienthe bt ON bt.id_sanpham = sp.id GROUP BY d.id, d.ten ORDER BY total_sold DESC LIMIT 25;
     }
 
 
@@ -386,6 +440,16 @@ class TrangChuAPI extends BaseFrontendController
             ->withAvg('danhgia as avg_rating', 'diem')      // Thêm avg_rating
             ->withCount('danhgia as review_count')         // Thêm review_count
             ->withSum('bienthe as total_sold', 'luotban')
+            ->withExists([
+                'bienthe as have_gift' => function ($query) {
+                    $query->whereHas('quatangsukien', function ($q) {
+                        $q->where('trangthai', 'Hiển thị')
+                        ->whereDate('ngaybatdau', '<=', now())
+                        ->whereDate('ngayketthuc', '>=', now())
+                        ->whereNull('deleted_at');
+                    });
+                }
+            ])
             ->orderByRaw('COALESCE((SELECT giagoc
                         FROM bienthe
                         WHERE id_sanpham = sanpham.id
@@ -535,6 +599,16 @@ class TrangChuAPI extends BaseFrontendController
             ->withAvg('danhgia as avg_rating', 'diem')      // Thêm avg_rating
             ->withCount('danhgia as review_count')         // Thêm review_count
             ->withSum('bienthe as total_sold', 'luotban')
+            ->withExists([
+                'bienthe as have_gift' => function ($query) {
+                    $query->whereHas('quatangsukien', function ($q) {
+                        $q->where('trangthai', 'Hiển thị')
+                        ->whereDate('ngaybatdau', '<=', now())
+                        ->whereDate('ngayketthuc', '>=', now())
+                        ->whereNull('deleted_at');
+                    });
+                }
+            ])
             ->orderByDesc('id');
 
         $products = $query->paginate($perPage);
@@ -563,6 +637,16 @@ class TrangChuAPI extends BaseFrontendController
             ->withAvg('danhgia as avg_rating', 'diem')      // Thêm avg_rating
             ->withCount('danhgia as review_count')         // Thêm review_count
             ->withSum('bienthe as total_sold', 'luotban')
+            ->withExists([
+                'bienthe as have_gift' => function ($query) {
+                    $query->whereHas('quatangsukien', function ($q) {
+                        $q->where('trangthai', 'Hiển thị')
+                        ->whereDate('ngaybatdau', '<=', now())
+                        ->whereDate('ngayketthuc', '>=', now())
+                        ->whereNull('deleted_at');
+                    });
+                }
+            ])
             ->orderByDesc('luotxem');
 
         $products = $query->paginate($perPage);
@@ -570,6 +654,23 @@ class TrangChuAPI extends BaseFrontendController
         // exit();
         // Trả về resource cho frontend //
         return HotSaleResource::collection($products);
+    }
+    public function getNewCoupon(Request $request)
+    {
+        /** 🎁 MÃ GIẢM GIÁ MỚI NHẤT */
+        $perPage = $request->get('per_page', 10);
+        $query = MagiamgiaModel::whereNull('deleted_at')
+            ->where('trangthai', 'Hoạt động')
+            ->orderByDesc('id');
+        if ($q = $request->get('q')) {
+            $query->where(function ($sub) use ($q) {
+                $sub->where('magiamgia', 'LIKE', "%$q%")
+                    ->orWhere('dieukien', 'LIKE', "%$q%");
+            });
+        }
+        $coupon = $query->limit($perPage)->get();
+
+        return $coupon;
     }
 
 }

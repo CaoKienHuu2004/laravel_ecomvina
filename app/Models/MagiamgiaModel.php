@@ -44,6 +44,8 @@ class MagiamgiaModel extends Model
         'Dừng hoạt động'  => 'Ngừng sử dụng',
     ];
 
+    protected $hidden = ['deleted_at'];
+
     /**
      * Kiểm tra mã giảm giá còn hiệu lực hay không.
      */

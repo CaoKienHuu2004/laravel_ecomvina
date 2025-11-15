@@ -42,6 +42,22 @@ class DonHangFrontendAPI extends BaseFrontendController
 {
     use ApiResponse;
 
+
+
+    //--------------- method của Nguyên : begin ------------------ //
+    private function generateUniqueMadon()
+    {
+        do {
+            $letters = strtoupper(Str::random(2));
+            $numbers = rand(10000, 99999);
+            $madon = $letters . $numbers;
+
+        } while (DB::table('donhang')->where('ma_donhang', $madon)->exists());
+
+        return $madon;
+    }
+    //--------------- method của Nguyên : end ------------------ //
+
     /**
      * @OA\Get(
      *     path="/api/toi/donhangs",
@@ -150,7 +166,7 @@ class DonHangFrontendAPI extends BaseFrontendController
             'id_phuongthuc'      => 'required|integer|exists:phuongthuc,id',
             'id_nguoidung'       => 'required|integer|exists:nguoidung,id',
             'id_phivanchuyen'    => 'required|integer|exists:phivanchuyen,id',
-            'id_diachigiaohang'  => 'required|integer|exists:diachigiaohang,id',
+            'id_diachigiaohang'  => 'required|integer|exists:diachi_giaohang,id',
             'id_magiamgia'       => 'nullable|integer|exists:magiamgia,id',
             'tongsoluong'        => 'required|integer|min:1',
             'tamtinh'            => 'required|integer|min:0',
@@ -204,7 +220,7 @@ class DonHangFrontendAPI extends BaseFrontendController
                     'id_bienthe' => $item->id_bienthe,
                     'id_donhang' => $donhang->id,
                     'soluong'    => $item->soluong,
-                    'dongia'     => $item->bienthe->gia ?? 0,
+                    'dongia'     => $item->bienthe->giagoc ?? 0,
                     'trangthai'  => 'Đã đặt',
                 ]);
             }

@@ -21,6 +21,21 @@ class DonHangWebApi extends BaseFrontendController
     use ApiResponse;
 
 
+    //--------------- method của Nguyên : begin ------------------ //
+    private function generateUniqueMadon()
+    {
+        do {
+            $letters = strtoupper(Str::random(2));
+            $numbers = rand(10000, 99999);
+            $madon = $letters . $numbers;
+
+        } while (DB::table('donhang')->where('ma_donhang', $madon)->exists());
+
+        return $madon;
+    }
+    //--------------- method của Nguyên : end ------------------ //
+
+
     // database : 'Chờ xử lý','Đã xác nhận','Đang chuẩn bị hàng','Đang giao hàng','Đã giao hàng','Đã hủy'
     // .. UI Shoppee : Chờ xác nhận, Chờ lấy hang,  chờ giaohang, Đã giao, trả hàng, Đã hủy
     // .. UI sieuthivina : Chờ xác nhận, Chờ lấy hang,  chờ giaohang, Đã giao, trả hàng, Đã hủy
@@ -50,6 +65,8 @@ class DonHangWebApi extends BaseFrontendController
         return response()->json(DonHangResource::collection($donhang), Response::HTTP_OK);
     }
 
+
+
     public function store(Request $request)
     {
         // 🧩 Bước 1: Validate dữ liệu đầu vào
@@ -57,7 +74,7 @@ class DonHangWebApi extends BaseFrontendController
             'id_phuongthuc'      => 'required|integer|exists:phuongthuc,id',
             'id_nguoidung'       => 'required|integer|exists:nguoidung,id',
             'id_phivanchuyen'    => 'required|integer|exists:phivanchuyen,id',
-            'id_diachigiaohang'  => 'required|integer|exists:diachigiaohang,id',
+            'id_diachigiaohang'  => 'required|integer|exists:diachi_giaohang,id',
             'id_magiamgia'       => 'nullable|integer|exists:magiamgia,id',
             'tongsoluong'        => 'required|integer|min:1',
             'tamtinh'            => 'required|integer|min:0',
@@ -111,7 +128,7 @@ class DonHangWebApi extends BaseFrontendController
                     'id_bienthe' => $item->id_bienthe,
                     'id_donhang' => $donhang->id,
                     'soluong'    => $item->soluong,
-                    'dongia'     => $item->bienthe->gia ?? 0,
+                    'dongia'     => $item->bienthe->giagoc ?? 0,
                     'trangthai'  => 'Đã đặt',
                 ]);
             }

@@ -409,7 +409,17 @@ class SanPhamAllFrontendAPI extends BaseFrontendController
         ->withAvg('danhgia as avg_rating', 'diem')       // điểm trung bình
         ->withCount('danhgia as review_count')           // tổng số đánh giá
         ->withSum('bienthe as total_quantity', 'soluong') // tổng tồn kho
-        ->withSum('bienthe as total_sold', 'luotban');
+        ->withSum('bienthe as total_sold', 'luotban')
+        ->withExists([
+            'bienthe as have_gift' => function ($query) {
+                $query->whereHas('quatangsukien', function ($q) {
+                    $q->where('trangthai', 'Hiển thị')
+                    ->whereDate('ngaybatdau', '<=', now())
+                    ->whereDate('ngayketthuc', '>=', now())
+                    ->whereNull('deleted_at');
+                });
+            }
+        ]);
 
         // --- Tìm kiếm theo tên hoặc mô tả ---
         if ($q) {
@@ -559,6 +569,14 @@ class SanPhamAllFrontendAPI extends BaseFrontendController
             ->withSum('bienthe as total_quantity', 'soluong') // tổng số biến thể (tồn kho)
             ->withAvg('danhgia as avg_rating', 'diem') // điểm
             ->withCount('danhgia as review_count') // số lượng đánh giá
+            ->withExists(['bienthe as have_gift' => function ($query) {
+                $query->whereHas('quatangsukien', function ($q) {
+                    $q->where('trangthai', 'Hiển thị')
+                    ->whereDate('ngaybatdau', '<=', now())
+                    ->whereDate('ngayketthuc', '>=', now())
+                    ->whereNull('deleted_at');
+                });
+            }])
             ->with(['bienthe' => function ($q) {
                 $q->orderByDesc('giagoc');
                 // $q->orderByDesc('giagoc')->limit(1);
@@ -587,6 +605,14 @@ class SanPhamAllFrontendAPI extends BaseFrontendController
             ->withSum('bienthe as total_quantity', 'soluong')
             ->withAvg('danhgia as avg_rating', 'diem')
             ->withCount('danhgia as review_count')
+            ->withExists(['bienthe as have_gift' => function ($query) {
+                $query->whereHas('quatangsukien', function ($q) {
+                    $q->where('trangthai', 'Hiển thị')
+                    ->whereDate('ngaybatdau', '<=', now())
+                    ->whereDate('ngayketthuc', '>=', now())
+                    ->whereNull('deleted_at');
+                });
+            }])
             ->with(['bienthe' => function ($q) {
                 $q->orderByDesc('giagoc');
             }])

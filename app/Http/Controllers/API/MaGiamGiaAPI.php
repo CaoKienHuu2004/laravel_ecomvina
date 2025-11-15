@@ -67,7 +67,7 @@ class MaGiamGiaAPI extends BaseController
         $currentPage = $request->get('page', 1);
         $q           = $request->get('q'); // từ khóa tìm kiếm
 
-        $query = MagiamgiaModel::latest('updated_at')
+        $query = MagiamgiaModel::orderBy('id', 'desc')
             ->when($q, function ($query) use ($q) {
                 $query->where(function ($sub) use ($q) {
                     $sub->where('magiamgia', 'like', "%$q%")

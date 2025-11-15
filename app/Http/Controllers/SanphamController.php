@@ -158,7 +158,8 @@ class SanphamController extends Controller
                 'giamgia.max'      => 'Giá biến thể không được lớn hơn 100',
 
                 // Ảnh
-                'anhsanpham.*.image'     => 'Mỗi file tải lên phải là hình ảnh',
+                // 'anhsanpham.*.image'     => 'Mỗi file tải lên phải là hình ảnh',
+                'anhsanpham.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
 
                 // Biến thể
                 'bienthe.*.gia.required' => 'Vui lòng nhập giá cho biến thể',
@@ -197,6 +198,10 @@ class SanphamController extends Controller
             if ($request->id_danhmuc) {
                 $sanpham->danhmuc()->attach($request->id_danhmuc); // tự động thêm insert vào bảng trung gian danhmuc_sanpham
             }
+            // if ($request->filled('id_danhmuc')) {
+            //     // Dùng sync() để tránh duplicate hoặc dùng attach() nếu muốn thêm nhiều lần
+            //     $sanpham->danhmuc()->sync($request->id_danhmuc);
+            // }
 
             if ($request->hasFile('anhsanpham')) {
                 $slugName = Str::slug($request->tensp);

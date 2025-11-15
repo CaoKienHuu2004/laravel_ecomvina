@@ -18,6 +18,10 @@ class DanhmucModel extends Model
     {
         return $this->belongsToMany(SanphamModel::class,'danhmuc_sanpham', 'id_danhmuc', 'id_sanpham');
     }
+    public function danhmucsanpham()
+    {
+        return $this->hasMany(DanhmucSanphamModel::class, 'id_danhmuc');
+    }
 
 
 

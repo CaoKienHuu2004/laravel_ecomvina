@@ -61,6 +61,10 @@ class SanphamModel extends Model
     {
         return $this->belongsToMany(DanhmucModel::class, 'danhmuc_sanpham', 'id_sanpham', 'id_danhmuc');
     }
+        public function danhmucsanpham()
+        {
+            return $this->hasMany(DanhmucSanphamModel::class, 'id_sanpham');
+        }
 
     public function hinhanhsanpham()
     {

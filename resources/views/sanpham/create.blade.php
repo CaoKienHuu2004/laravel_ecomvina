@@ -2,7 +2,7 @@
 
 @section('title', 'Tạo sản phẩm | Quản trị hệ thống Siêu Thị Vina')
 {{-- // controller truyền xuống $thuonghieus,$danhmucs loaibienthes $selectbox_sanpham_trangthais  --}}
-{{-- // các route sư dụng sanpham.store  --}}
+{{-- // các route sư dụng sanpham.store --- của breadcrumb sanpham.index trang-chu  --}}
 
 {{-- trường trangthai giá trị mới 'Công khai','Chờ duyệt','Tạm ẩn','Tạm khóa' --}}
 
@@ -42,11 +42,16 @@
 
   <div class="content">
     <div class="page-header">
-      <div class="page-title">
-        <h4>Tạo sản phẩm</h4>
-        <h6>Tạo mới một sản phẩm của bạn</h6>
-      </div>
+        <x-header.breadcrumb
+            title="Thêm Mới Sản Phẩm"
+            :links="[
+                ['label' => 'Tổng quan', 'route' => 'trang-chu'],
+                ['label' => 'Danh sách sản phẩm', 'route' => 'sanpham.index']
+            ]"
+            active="Thêm mới"
+        />
     </div>
+
 
     <div class="card">
       <div class="card-body">
@@ -255,7 +260,7 @@
 @endsection
 
 @section('scripts')
-<script>
+{{-- <script>
   /**
  * This configuration was generated using the CKEditor 5 Builder. You can modify it anytime using this link:
  * https://ckeditor.com/ckeditor-5/builder/?redirect=portal#installation/NoNgNARATAdA7DKFIhATgIwBY0gKwZxwAccaZW6xIWeeUAzFgAzEFZT4jIQBuAlsmZhgGMMOFjJAXUhYAZgEM089BGlA
@@ -263,7 +268,7 @@
 
 ClassicEditor.create(document.querySelector('#mo_ta'), editorConfig);
 
-</script>
+</script> --}}
 
 <script>
     let index = 1;

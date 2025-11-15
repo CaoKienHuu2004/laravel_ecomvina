@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Frontend;
 
+use DragonCode\Support\Helpers\Boolean;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Str;
@@ -17,6 +18,7 @@ use Illuminate\Support\Str;
  *     @OA\Property(property="id", type="integer", example=1, description="ID sản phẩm"),
  *     @OA\Property(property="ten", type="string", example="Bánh quy ABC", description="Tên sản phẩm"),
  *     @OA\Property(property="slug", type="string", example="banh-quy-abc", description="Slug của sản phẩm"),
+ *     @OA\Property(property="have_gift", type="boolean", example="true", description="trong thời gian có siêu quà tặng sự kiện, nếu nó có quà tặng sự kiện thì trả về true, không có thì false"),
  *     @OA\Property(property="hinh_anh", type="string", example="banh-quy.jpg", description="Ảnh đại diện sản phẩm, lấy từ hinhanhsanpham và lấy theo hình ảnh đầu tiên của sản phẩm và thời gian creaed_at mới nhất"),
  *     @OA\Property(property="luotxem", type="integer", example="1", description="vì detail có tự động +1 khi gọi tới show nên thêm vào"),
  *
@@ -71,7 +73,7 @@ class SanPhamAllResources extends JsonResource
         $averageRating = round($this->avg_rating ?? 0, 1);
         $reviewCount = $this->review_count; // Tổng số lượng đánh giá
 
-        $hinhanhsanpham = $this->hinhanhsanpham->sortByDesc('updated_at')->first()->hinhanh;
+        $hinhanhsanpham = $this->hinhanhsanpham->sortByDesc('id')->first()->hinhanh;
 
         return [
             // 1. Dữ liệu cơ bản
@@ -79,7 +81,7 @@ class SanPhamAllResources extends JsonResource
             'ten' => $this->ten,
             // 'slug'          => Str::slug($this->ten),
             'slug'          => $this->slug,
-
+            'have_gift' => (bool) $this->have_gift ?? false,
 
             'hinh_anh' =>  $hinhanhsanpham,
             // . Đánh giá (Rating - dựa trên 'danhgia' và withAvg)
@@ -112,6 +114,7 @@ class SanPhamAllResources extends JsonResource
                 'active' => $this->trangthai,
                 'in_stock' => $this->total_quantity > 0,
             ],
+
         ];
     }
 }

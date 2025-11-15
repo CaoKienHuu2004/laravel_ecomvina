@@ -2555,6 +2555,12 @@
                                                         "$ref": "#/components/schemas/SanphamItem"
                                                     }
                                                 },
+                                                "new_coupon": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/MaGiamGiaItem"
+                                                    }
+                                                },
                                                 "new_launch": {
                                                     "type": "array",
                                                     "items": {
@@ -4373,6 +4379,65 @@
                     "sold_count": {
                         "type": "integer",
                         "example": 532
+                    },
+                    "have_gift": {
+                        "type": "boolean",
+                        "example": true
+                    }
+                },
+                "type": "object"
+            },
+            "MaGiamGiaItem": {
+                "title": "Mã Giảm Giá",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "magiamgia": {
+                        "description": "Mã giảm giá dạng số",
+                        "type": "integer",
+                        "example": 20241201
+                    },
+                    "dieukien": {
+                        "description": "Điều kiện áp dụng",
+                        "type": "string",
+                        "example": "khachhang_moi"
+                    },
+                    "mota": {
+                        "type": "string",
+                        "example": "Giảm giá 50% cho khách hàng mới",
+                        "nullable": true
+                    },
+                    "giatri": {
+                        "description": "Giá trị giảm, có thể % hoặc tiền",
+                        "type": "integer",
+                        "example": 50
+                    },
+                    "ngaybatdau": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-11-01"
+                    },
+                    "ngayketthuc": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2024-12-31"
+                    },
+                    "trangthai": {
+                        "type": "string",
+                        "enum": [
+                            "Hoạt động",
+                            "Tạm khóa",
+                            "Dừng hoạt động"
+                        ],
+                        "example": "Hoạt động"
+                    },
+                    "deleted_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": null,
+                        "nullable": true
                     }
                 },
                 "type": "object"
@@ -4604,6 +4669,14 @@
                         "type": "string",
                         "example": "banh-quy-abc"
                     },
+                    "have_gift": {
+                        "type": "boolean",
+                        "example": "true"
+                    },
+                    "": {
+                        "type": "string",
+                        "example": "banh-quy-abc"
+                    },
                     "rating": {
                         "properties": {
                             "average": {
@@ -4774,6 +4847,11 @@
                         "description": "Slug của sản phẩm",
                         "type": "string",
                         "example": "banh-quy-abc"
+                    },
+                    "have_gift": {
+                        "description": "trong thời gian có siêu quà tặng sự kiện, nếu nó có quà tặng sự kiện thì trả về true, không có thì false",
+                        "type": "boolean",
+                        "example": "true"
                     },
                     "hinh_anh": {
                         "description": "Ảnh đại diện sản phẩm, lấy từ hinhanhsanpham và lấy theo hình ảnh đầu tiên của sản phẩm và thời gian creaed_at mới nhất",

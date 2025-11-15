@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -136,4 +135,47 @@ class DonhangModel extends Model
     {
         return self::where('trangthaithanhtoan', 'Đã thanh toán')->sum('thanhtien');
     }
+
+
+    //--------------- method của Nguyên : begin ------------------ //
+    public function capNhatSoLuongVaLuotBan()
+    {
+        // Lặp qua tất cả các chi tiết đơn hàng
+        foreach ($this->chitietdonhang as $chitiet) {
+            // Giả sử bảng SanphamModel có cột luotban và soluong
+            $sanpham = $chitiet->sanpham;
+
+            if ($this->trangthai == 'Đã hoàn tất') {
+                // Cập nhật số lượng sản phẩm
+                $sanpham->soluong -= $chitiet->soluong;
+                $sanpham->luotban += $chitiet->soluong;
+            } elseif ($this->trangthai == 'Đã hủy') {
+                // Cập nhật số lượng khi hủy đơn hàng (thêm lại số lượng)
+                $sanpham->soluong += $chitiet->soluong;
+                $sanpham->luotban -= $chitiet->soluong;
+            }
+
+            $sanpham->save();
+        }
+    }
+    public function capNhatTrangThai($newStatus)
+    {
+        $this->trangthai = $newStatus;
+        $this->save();
+
+        // Sau khi thay đổi trạng thái, cập nhật số lượng và lượt bán
+        $this->capNhatSoLuongVaLuotBan();
+    }
+
+    /**
+     * 🧭 Hàm tạo mã đơn hàng tự động
+     */
+    public static function generateOrderNumber()
+    {
+        // Tạo mã đơn hàng như đã hướng dẫn trước đó
+
+    }
+
+    //--------------- method của Nguyên : end ------------------ //
+
 }

@@ -24,6 +24,7 @@ use App\Http\Controllers\LoaiBientheController;
 use App\Http\Controllers\PhuongThucController;
 use App\Http\Controllers\QuangCaoController;
 use App\Http\Controllers\QuatangSukienController;
+use App\Http\Controllers\Web\MaGiamGiaWebApi;
 use App\Http\Controllers\Web\TimKiemWebApi;
 use App\Http\Controllers\Web\TinhThanhVietNamWebApi;
 use App\Http\Controllers\Web\TukhoaWebApi;
@@ -344,6 +345,8 @@ Route::get('/api-tinh-thanh', [TinhThanhVietNamWebApi::class, 'index']);
 Route::apiResource('api-tim-kiem', TimKiemWebApi::class)->only(['index']);
 
 Route::apiResource('api-tu-khoa', TukhoaWebApi::class)->only(['index','store','update']);
+
+Route::apiResource('api-ma-giam-gia', MaGiamGiaWebApi::class)->only(['index','show']);
 
 //-------------------------------------------------- Guest User authetication --------------------------------//
 
