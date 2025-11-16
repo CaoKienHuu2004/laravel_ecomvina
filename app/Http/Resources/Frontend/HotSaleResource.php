@@ -28,7 +28,7 @@ class HotSaleResource extends JsonResource
         $storeName = optional($this->thuonghieu)->ten ?? 'Không rõ cửa hàng';
 
         // Dữ liệu đánh giá: 'avg_rating' và tổng số lượng đánh giá (17k)
-        $averageRating = round($this->avg_rating ?? 0, 1);
+        $averageRating = round($this->avg_rating ?? 5, 1);
         $reviewCount = $this->review_count; // Tổng số lượng đánh giá
 
         $hinhanhsanpham = optional(
