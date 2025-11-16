@@ -179,12 +179,13 @@ use App\Http\Controllers\API\ThongBaoAPI;
 
 //------------------------
 // Route::middleware(['cors'])->group(function () {
-        Route::prefix('auth')->group(function () {
+    Route::prefix('auth')->group(function () {
         Route::post('dang-nhap', [AuthFrontendController::class, 'login']);
         Route::post('dang-ky', [AuthFrontendController::class, 'register']);
 
         Route::middleware('auth.api')->group(function () {
             Route::get('thong-tin-nguoi-dung', [AuthFrontendController::class, 'profile']);
+            Route::post('cap-nhat-thong-tin', [AuthFrontendController::class, 'updateProfile']);
             Route::post('dang-xuat', [AuthFrontendController::class, 'logout']);
         });
     });

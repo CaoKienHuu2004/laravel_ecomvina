@@ -368,7 +368,7 @@
                     "Xác thực người dùng (Auth)"
                 ],
                 "summary": "Đăng ký tài khoản mới",
-                "description": "Tạo tài khoản mới bằng tên, username và mật khẩu.",
+                "description": "Tạo tài khoản mới bằng tên, username, số điện thoại và mật khẩu. Và tự động gửi thông báo nhắc người dùng cập nhật thông tin người dùng",
                 "operationId": "1167faf5e6ebce762e6019984fd8db77",
                 "requestBody": {
                     "required": true,
@@ -376,13 +376,13 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "name",
+                                    "hoten",
                                     "username",
                                     "password",
                                     "password_confirmation"
                                 ],
                                 "properties": {
-                                    "name": {
+                                    "hoten": {
                                         "type": "string",
                                         "example": "Nguyễn Văn Duy"
                                     },
@@ -397,6 +397,37 @@
                                     "password_confirmation": {
                                         "type": "string",
                                         "example": "123456"
+                                    },
+                                    "sodienthoai": {
+                                        "description": "chỉ gồm 10 chữ số",
+                                        "type": "string",
+                                        "example": "1234567890"
+                                    },
+                                    "ngaysinh": {
+                                        "description": "mặc định 2000-01-01",
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "null"
+                                    },
+                                    "vaitro": {
+                                        "description": "mặc định client",
+                                        "type": "string",
+                                        "example": "null"
+                                    },
+                                    "gioitinh": {
+                                        "description": "mặc định Nam",
+                                        "type": "string",
+                                        "example": "null"
+                                    },
+                                    "avatar": {
+                                        "description": "mặc định domain-ip/assets/client/images/thumbs/khachhang.jpg",
+                                        "type": "string",
+                                        "example": "null"
+                                    },
+                                    "trangthai": {
+                                        "description": "mặc định Hoạt động",
+                                        "type": "string",
+                                        "example": "null"
                                     }
                                 },
                                 "type": "object"
@@ -419,15 +450,106 @@
                 "tags": [
                     "Xác thực người dùng (Auth)"
                 ],
-                "summary": "Lấy thông tin người dùng hiện tại",
+                "summary": "Lấy thông tin người dùng hiện tại + địa chỉ người dùng, lưu ý người dùng mới đăng ký nhắc người dùng cập nhật địa chỉ và 1 số thông tin đang set mặc định ",
                 "description": "Yêu cầu header Authorization: Bearer {token}",
                 "operationId": "92ccc4ff78f280c05c71d0d06fc45afa",
                 "responses": {
                     "200": {
-                        "description": "Trả về thông tin người dùng"
+                        "description": "Trả về thông tin người dùng và địa chỉ người dùng (địa chỉ giao hàng)"
                     },
                     "401": {
                         "description": "Token không hợp lệ hoặc đã hết hạn"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/cap-nhat-thong-tin": {
+            "post": {
+                "tags": [
+                    "Xác thực người dùng (Auth)"
+                ],
+                "summary": "Cập nhật thông tin người dùng hiện tại",
+                "description": "Cập nhật thông tin cá nhân, avatar và địa chỉ giao hàng mặc định. Yêu cầu header Authorization: Bearer {token}",
+                "operationId": "911557ea3285127e2221d53a082fb6fd",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "hoten": {
+                                        "description": "Họ và tên",
+                                        "type": "string",
+                                        "example": "Nguyễn Văn A"
+                                    },
+                                    "sodienthoai": {
+                                        "description": "Số điện thoại liên hệ",
+                                        "type": "string",
+                                        "example": "0987654321"
+                                    },
+                                    "ngaysinh": {
+                                        "description": "Ngày sinh",
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "1990-01-01"
+                                    },
+                                    "gioitinh": {
+                                        "description": "Giới tính",
+                                        "type": "string",
+                                        "enum": [
+                                            "Nam",
+                                            "Nữ"
+                                        ],
+                                        "example": "Nam"
+                                    },
+                                    "avatar": {
+                                        "description": "Ảnh đại diện (file hình ảnh)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "diachi": {
+                                        "description": "Địa chỉ giao hàng",
+                                        "type": "string",
+                                        "example": "123 Đường ABC, Quận XYZ"
+                                    },
+                                    "tinhthanh": {
+                                        "description": "Tỉnh thành",
+                                        "type": "string",
+                                        "example": "Hà Nội"
+                                    },
+                                    "trangthai_diachi": {
+                                        "description": "Trạng thái địa chỉ giao hàng",
+                                        "type": "string",
+                                        "enum": [
+                                            "Mặc định",
+                                            "Khác",
+                                            "Tạm ẩn"
+                                        ],
+                                        "example": "Mặc định"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Cập nhật thông tin thành công"
+                    },
+                    "401": {
+                        "description": "Token không hợp lệ hoặc đã hết hạn"
+                    },
+                    "404": {
+                        "description": "Người dùng không tồn tại"
+                    },
+                    "422": {
+                        "description": "Dữ liệu đầu vào không hợp lệ"
                     }
                 },
                 "security": [
@@ -4406,13 +4528,13 @@
                     },
                     "mota": {
                         "type": "string",
-                        "example": "Giảm giá 50% cho khách hàng mới",
+                        "example": "Voucher 100K cho khách hàng mới",
                         "nullable": true
                     },
                     "giatri": {
-                        "description": "Giá trị giảm, có thể % hoặc tiền",
+                        "description": "Giá trị số tiền được giảm",
                         "type": "integer",
-                        "example": 50
+                        "example": 100000
                     },
                     "ngaybatdau": {
                         "type": "string",
@@ -4432,12 +4554,6 @@
                             "Dừng hoạt động"
                         ],
                         "example": "Hoạt động"
-                    },
-                    "deleted_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": null,
-                        "nullable": true
                     }
                 },
                 "type": "object"

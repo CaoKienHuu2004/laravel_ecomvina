@@ -15,13 +15,17 @@ class ThongTinNguoiDungResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'username' => $this->username,
             'sodienthoai' => $this->sodienthoai,
             'hoten' => $this->hoten,
             'gioitinh' => $this->gioitinh,
-            'ngaysinh' => $this->ngaysinh,
+            'ngaysinh' => $this->ngaysinh ? $this->ngaysinh->format('Y-m-d') : null,
             'avatar' => $this->avatar,
+            'vaitro' => $this->vaitro,
             'trangthai' => $this->trangthai,
+            // Thêm địa chỉ
+            'diachi' => DiachiGiaohangResource::collection($this->whenLoaded('diachi')),
         ];
     }
 }

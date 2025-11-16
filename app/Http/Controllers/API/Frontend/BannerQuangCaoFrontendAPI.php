@@ -110,7 +110,7 @@ class BannerQuangCaoFrontendAPI extends BaseFrontendController
 
         if ($request->has('per_page')) {
             $perPage = (int) $request->get('per_page', 5);
-            $banners = $query->orderByDesc('created_at')->paginate($perPage);
+            $banners = $query->orderByDesc('id')->paginate($perPage);
 
             return $this->jsonResponse([
                 'status' => true,
@@ -127,7 +127,7 @@ class BannerQuangCaoFrontendAPI extends BaseFrontendController
             ], Response::HTTP_OK);
         }
 
-        $banners = $query->orderByDesc('created_at')->get();
+        $banners = $query->orderByDesc('id')->get();
 
         return $this->jsonResponse([
             'status' => true,

@@ -81,7 +81,7 @@ class SuKienAPI extends BaseController
             });
         }
 
-        $items = $query->latest('created_at')->paginate($perPage);
+        $items = $query->orderBy('id', 'desc')->paginate($perPage);
 
         return $this->jsonResponse([
             'status' => true,

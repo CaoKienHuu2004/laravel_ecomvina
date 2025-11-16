@@ -88,14 +88,16 @@ class NguoidungController extends Controller
         $nguoidung->vaitro = $request->vaitro;
         $nguoidung->trangthai = $request->trangthai;
 
+        $link_hinh_anh = $this->domain . 'storage/' . $this->uploadDir . '/';
         if ($request->hasFile('avatar')) {
             $file = $request->file('avatar');
-            $filename = $file->getClientOriginalName(); // time() . '_' .
+            // $filename = $file->getClientOriginalName(); // time() . '_' .
+            $filename = time() . '_' .$file->getClientOriginalName(); // thêm này đi cho chắc mắc công nhằm người dùng là toang
             $file->storeAs($this->uploadDir, $filename, 'public');
-            $link_hinh_anh = $this->domain . 'storage/' . $this->uploadDir . '/';
+
             $nguoidung->avatar = $link_hinh_anh.$filename;
         } else {
-            $nguoidung->avatar = 'khachhang.jpg';
+            $nguoidung->avatar = $link_hinh_anh.'khachhang.jpg';
         }
 
         $nguoidung->save();
@@ -182,7 +184,8 @@ class NguoidungController extends Controller
             //     }
             // }
             $file = $request->file('avatar');
-            $filename = $file->getClientOriginalName(); //time() . '_' .
+            $filename = time() . '_' .$file->getClientOriginalName(); // thêm này đi cho chắc mắc công nhằm người dùng là toang
+            // $filename = $file->getClientOriginalName(); //time() . '_' .
             $file->storeAs($this->uploadDir, $filename, 'public');
             $link_hinh_anh = $this->domain . 'storage/' . $this->uploadDir . '/';
             $nguoidung->avatar = $link_hinh_anh.$filename;
