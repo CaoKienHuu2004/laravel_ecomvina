@@ -195,7 +195,7 @@ class GioHangFrontendAPI extends BaseFrontendController
                 $currentFreeQty = $existingFreeItem ? $existingFreeItem->soluong : 0;
                 $deltaFree = $numFree - $currentFreeQty;
 
-                // Chỉ trừ hoặc cộng lại phần chênh lệch quà tặng
+                // Chỉ trừ hoặc cộng lại phần chênh lệch quà tặng, bỏ vì thay đổi logic luottang là Tăng theo table Donhang chứ ko phải là quản lý số quà tặng
                 if ($deltaFree > 0) {
                     DB::table('bienthe')
                         ->where('id', $id_bienthe)

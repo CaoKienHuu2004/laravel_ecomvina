@@ -9,58 +9,10 @@ use App\Models\MagiamgiaModel;
 use Illuminate\Http\Response;
 
 
-/**
- * @OA\Tag(
- *     name="Mã giảm giá",
- *     description="API quản lý mã giảm giá (tìm kiếm, chi tiết, CRUD)"
- * )
- */
+
 class MaGiamGiaAPI extends BaseController
 {
-    /**
-     * @OA\Get(
-     *     path="/api/magiamgias",
-     *     tags={"Mã giảm giá"},
-     *     summary="Lấy danh sách mã giảm giá (có tìm kiếm + phân trang)",
-     *     description="Trả về danh sách các mã giảm giá, có hỗ trợ tìm kiếm theo mã, mô tả hoặc trạng thái.",
-     *     @OA\Parameter(
-     *         name="q",
-     *         in="query",
-     *         required=false,
-     *         description="Từ khóa tìm kiếm (theo mã, mô tả, trạng thái)",
-     *         @OA\Schema(type="string", example="SALE50")
-     *     ),
-     *     @OA\Parameter(
-     *         name="page",
-     *         in="query",
-     *         required=false,
-     *         description="Trang hiện tại",
-     *         @OA\Schema(type="integer", example=1)
-     *     ),
-     *     @OA\Parameter(
-     *         name="per_page",
-     *         in="query",
-     *         required=false,
-     *         description="Số lượng phần tử mỗi trang",
-     *         @OA\Schema(type="integer", example=10)
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Danh sách mã giảm giá",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Danh sách mã giảm giá"),
-     *             @OA\Property(property="data", type="array", @OA\Items(type="object")),
-     *             @OA\Property(property="meta", type="object",
-     *                 @OA\Property(property="current_page", type="integer"),
-     *                 @OA\Property(property="last_page", type="integer"),
-     *                 @OA\Property(property="per_page", type="integer"),
-     *                 @OA\Property(property="total", type="integer")
-     *             )
-     *         )
-     *     )
-     * )
-     */
+
     public function index(Request $request)
     {
         $perPage     = $request->get('per_page', 10);
@@ -104,31 +56,7 @@ class MaGiamGiaAPI extends BaseController
         ], Response::HTTP_OK);
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/magiamgias/{id}",
-     *     tags={"Mã giảm giá"},
-     *     summary="Xem chi tiết 1 mã giảm giá",
-     *     description="Trả về thông tin chi tiết của một mã giảm giá theo ID.",
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         description="ID của mã giảm giá",
-     *         @OA\Schema(type="integer", example=1)
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Chi tiết mã giảm giá",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Chi tiết mã giảm giá"),
-     *             @OA\Property(property="data", type="object")
-     *         )
-     *     ),
-     *     @OA\Response(response=404, description="Không tìm thấy mã giảm giá")
-     * )
-     */
+
     public function show($id)
     {
         $item = MagiamgiaModel::with('donhang')->find($id);

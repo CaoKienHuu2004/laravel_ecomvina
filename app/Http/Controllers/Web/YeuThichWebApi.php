@@ -22,7 +22,9 @@ class YeuThichWebApi extends Controller
                 'sanpham',
                 'sanpham.hinhanhsanpham',
                 'sanpham.danhmuc',
-                'sanpham.thuonghieu'
+                'sanpham.thuonghieu',
+                'sanpham.bienthe',
+                'sanpham.bienthe.loaibienthe',
             )
             ->where('id_nguoidung', $userId)
             ->where('trangthai', 'Hiển thị')

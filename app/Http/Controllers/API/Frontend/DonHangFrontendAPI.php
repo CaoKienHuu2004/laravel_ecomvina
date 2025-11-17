@@ -9,10 +9,11 @@ use Illuminate\Http\Response;
 use App\Models\DonhangModel;
 use App\Models\ChitietdonhangModel;
 use App\Models\GiohangModel;
+use App\Models\PhuongthucModel;
 use Illuminate\Support\Str;
 use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\Validator;
-
+use Illuminate\Validation\Rule;
 use OpenApi\Annotations as OA;
 
 /**
@@ -44,18 +45,7 @@ class DonHangFrontendAPI extends BaseFrontendController
 
 
 
-    //--------------- method của Nguyên : begin ------------------ //
-    private function generateUniqueMadon()
-    {
-        do {
-            $letters = strtoupper(Str::random(2));
-            $numbers = rand(10000, 99999);
-            $madon = $letters . $numbers;
 
-        } while (DB::table('donhang')->where('ma_donhang', $madon)->exists());
-
-        return $madon;
-    }
     //--------------- method của Nguyên : end ------------------ //
 
     /**
@@ -199,19 +189,39 @@ class DonHangFrontendAPI extends BaseFrontendController
         DB::beginTransaction();
 
         try {
+            $idPhuongthuc = $validated['id_phuongthuc'];
+
+            // Lấy trạng thái đơn hàng theo id_phuongthuc
+            $phuongthuc = PhuongthucModel::find($idPhuongthuc);
+
+            $trangthaiDonhang = 'Chờ xử lý'; // default
+            $trangthaiThanhtoan = 'Chưa thanh toán';
+
+            if ($phuongthuc) {
+                if ($idPhuongthuc != 3) {
+                    $mapTrangthai = [
+                        'Hoạt động' => 'Chờ xử lý',
+                        'Tạm khóa' => 'Đã hủy', // 2 cái này ko cần lắm liên quan đến trangthai bẳng phương thức
+                        'Dừng hoạt động' => 'Đã hủy', // 2 cái này ko cần lắm liên quan đến trangthai bẳng phương thức
+                    ];
+                    $trangthaiDonhang = $mapTrangthai[$phuongthuc->trangthai] ?? 'Chờ xử lý';
+                    $trangthaiThanhtoan = 'Đã thanh toán';
+                }
+            }
+
             // 🧩 Bước 3: Tạo đơn hàng
             $donhang = DonhangModel::create([
-                'id_phuongthuc'     => $validated['id_phuongthuc'],
-                'id_nguoidung'      => $user->id,
-                'id_phivanchuyen'   => $validated['id_phivanchuyen'],
-                'id_diachigiaohang' => $validated['id_diachigiaohang'],
-                'id_magiamgia'      => $validated['id_magiamgia'] ?? null,
-                'madon'             => strtoupper(Str::random(10)),
-                'tongsoluong'       => $giohang->sum('soluong'),
-                'tamtinh'           => $validated['tamtinh'],
-                'thanhtien'         => $validated['thanhtien'],
-                'trangthaithanhtoan'=> 'Chưa thanh toán',
-                'trangthai'         => 'Chờ xử lý',
+                'id_phuongthuc'       => $idPhuongthuc,
+                'id_nguoidung'        => $user->id,
+                'id_phivanchuyen'     => $validated['id_phivanchuyen'],
+                'id_diachigiaohang'   => $validated['id_diachigiaohang'],
+                'id_magiamgia'        => $validated['id_magiamgia'] ?? null,
+                'madon'               => DonhangModel::generateOrderCode(),
+                'tongsoluong'         => $giohang->sum('soluong'),
+                'tamtinh'             => $validated['tamtinh'],
+                'thanhtien'           => $validated['thanhtien'],
+                'trangthaithanhtoan'  => $trangthaiThanhtoan,
+                'trangthai'           => $trangthaiDonhang,
             ]);
 
             // 🧩 Bước 4: Tạo chi tiết đơn hàng
@@ -286,12 +296,17 @@ class DonHangFrontendAPI extends BaseFrontendController
      */
     public function update(Request $request, $id)
     {
+        $enumTrangthai = DonhangModel::getEnumValues('trangthai');
         $user = $request->get('auth_user');
 
+        // Giả sử bạn có cách kiểm tra admin, ví dụ:
+        $isAdmin = $user->role === 'admin'; // hoặc tùy cách bạn định nghĩa quyền
+
+        // Validate input, các trường có thể không bắt buộc nếu người dùng không update
         $validated = $request->validate([
-            'id_phuongthuc' => 'sometimes|exists:phuongthuc,id',
-            'id_magiamgia'  => 'nullable|exists:magiamgia,id',
-            'trangthai'     => 'sometimes|string|in:Chờ xử lý,Đã chấp nhận,Đang giao hàng,Đã giao hàng,Đã hủy đơn',
+            'id_phuongthuc' => ['sometimes', 'exists:phuongthuc,id'],
+            'id_magiamgia'  => ['nullable', 'exists:magiamgia,id'],
+            'trangthai'     => ['sometimes', Rule::in($enumTrangthai)],
         ]);
 
         $donhang = DonhangModel::with('chitietdonhang.bienthe')
@@ -308,21 +323,53 @@ class DonHangFrontendAPI extends BaseFrontendController
 
         DB::beginTransaction();
         try {
-            // 🧩 Nếu cập nhật phương thức hoặc mã giảm giá → chỉ cho phép khi còn "Chờ xử lý"
-            if (isset($validated['id_phuongthuc']) || isset($validated['id_magiamgia'])) {
-                if ($donhang->trangthai !== 'Chờ xử lý') {
+            // Chỉ cho phép cập nhật id_phuongthuc hoặc id_magiamgia khi đơn hàng đang "Chờ xử lý"
+            if ((isset($validated['id_phuongthuc']) || array_key_exists('id_magiamgia', $validated))
+                && $donhang->trangthai !== 'Chờ xử lý') {
+                DB::rollBack();
+                return $this->jsonResponse([
+                    'status'  => false,
+                    'message' => 'Chỉ có thể thay đổi thông tin thanh toán khi đơn hàng đang ở trạng thái "Chờ xử lý".',
+                ], Response::HTTP_BAD_REQUEST);
+            }
+
+            // Kiểm tra trạng thái mới (nếu có) có hợp lệ (không được lùi trạng thái trừ admin)
+            if (isset($validated['trangthai'])) {
+                $currentStatus = $donhang->trangthai;
+                $newStatus = $validated['trangthai'];
+
+                // Danh sách thứ tự trạng thái (giả định theo quy trình)
+                $statusOrder = [
+                    'Chờ xử lý'    => 1,
+                    'Đã chấp nhận' => 2,
+                    'Đang giao hàng'=> 3,
+                    'Đã giao hàng' => 4,
+                    'Đã hủy đơn'   => 5,
+                ];
+
+                if (!$isAdmin && $statusOrder[$newStatus] < $statusOrder[$currentStatus]) {
                     DB::rollBack();
                     return $this->jsonResponse([
                         'status'  => false,
-                        'message' => 'Chỉ có thể thay đổi thông tin thanh toán khi đơn hàng đang ở trạng thái "Chờ xử lý".',
-                    ], Response::HTTP_BAD_REQUEST);
+                        'message' => 'Không được phép thay đổi trạng thái lùi lại trừ khi có quyền quản trị.',
+                    ], Response::HTTP_FORBIDDEN);
                 }
             }
 
-            // 🧩 Cập nhật thông tin đơn hàng
+            // Cập nhật thông tin đơn hàng
             $donhang->update($validated);
 
-            // 🧩 Nếu thay đổi trạng thái, đồng bộ chi tiết
+            // Đồng bộ trạng thái thanh toán theo id_phuongthuc (nếu có thay đổi)
+            if (isset($validated['id_phuongthuc'])) {
+                if (in_array($validated['id_phuongthuc'], [1, 2])) {
+                    $donhang->trangthaithanhtoan = 'Đã thanh toán';
+                } elseif ($validated['id_phuongthuc'] == 3) {
+                    $donhang->trangthaithanhtoan = 'Chưa thanh toán';
+                }
+                $donhang->save();
+            }
+
+            // Đồng bộ trạng thái chi tiết nếu cập nhật trạng thái đơn hàng
             if (isset($validated['trangthai'])) {
                 foreach ($donhang->chitietdonhang as $ct) {
                     $ct->update(['trangthai' => $validated['trangthai']]);

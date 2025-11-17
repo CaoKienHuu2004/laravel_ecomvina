@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class DiaChiGiaoHangModel extends Model
 {
@@ -26,6 +27,8 @@ class DiaChiGiaoHangModel extends Model
         'trangthai',
         'deleted_at',
     ];
+
+    public $timestamps = false;
 
     // Ép kiểu dữ liệu nếu cần
     protected $casts = [
@@ -66,5 +69,19 @@ class DiaChiGiaoHangModel extends Model
     public function scopeTheoTinh($query, $tinh)
     {
         return $query->where('tinhthanh', $tinh);
+    }
+
+    /**
+     * //Model động lấy field enum động
+     */
+    public static function getEnumValues($column)
+    {
+        $table = (new static)->getTable();
+
+        $result = DB::select("SHOW COLUMNS FROM {$table} WHERE Field = '{$column}'");
+
+        preg_match_all("/'([^']+)'/", $result[0]->Type, $matches);
+
+        return $matches[1];
     }
 }

@@ -8,57 +8,10 @@ use App\Models\QuatangsukienModel;
 use Illuminate\Http\Response;
 
 
-/**
- * @OA\Tag(
- *     name="Quà tặng sự kiện",
- *     description="API quản lý quà tặng khuyến mãi trong các chương trình sự kiện"
- * )
- */
+
 class QuaTangSuKienAPI extends BaseController
 {
-    /**
-     * @OA\Get(
-     *     path="/api/quatangkhuyenmais",
-     *     tags={"Quà tặng sự kiện"},
-     *     summary="Lấy danh sách quà tặng sự kiện (phân trang, tìm kiếm)",
-     *     description="Trả về danh sách quà tặng có thể tìm kiếm theo tiêu đề hoặc tên sản phẩm, có phân trang.",
-     *     @OA\Parameter(
-     *         name="q",
-     *         in="query",
-     *         required=false,
-     *         description="Từ khóa tìm kiếm (theo tiêu đề, tên biến thể hoặc sự kiện)",
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="page",
-     *         in="query",
-     *         required=false,
-     *         description="Trang hiện tại",
-     *         @OA\Schema(type="integer", example=1)
-     *     ),
-     *     @OA\Parameter(
-     *         name="per_page",
-     *         in="query",
-     *         required=false,
-     *         description="Số lượng phần tử mỗi trang",
-     *         @OA\Schema(type="integer", example=10)
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Danh sách quà tặng sự kiện",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Danh sách quà tặng sự kiện"),
-     *             @OA\Property(property="data", type="array", @OA\Items(type="object")),
-     *             @OA\Property(property="meta", type="object",
-     *                 @OA\Property(property="current_page", type="integer"),
-     *                 @OA\Property(property="last_page", type="integer"),
-     *                 @OA\Property(property="total", type="integer")
-     *             )
-     *         )
-     *     )
-     * )
-     */
+
     public function index(Request $request)
     {
         $perPage     = $request->get('per_page', 10);
@@ -128,31 +81,7 @@ class QuaTangSuKienAPI extends BaseController
         ], Response::HTTP_OK);
     }
 
-     /**
-     * @OA\Get(
-     *     path="/api/quatangkhuyenmais/{id}",
-     *     tags={"Quà tặng sự kiện"},
-     *     summary="Xem chi tiết 1 quà tặng sự kiện",
-     *     description="Trả về thông tin chi tiết 1 quà tặng sự kiện theo ID.",
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         description="ID của quà tặng sự kiện",
-     *         @OA\Schema(type="integer", example=1)
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Chi tiết quà tặng sự kiện",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Chi tiết quà tặng sự kiện"),
-     *             @OA\Property(property="data", type="object")
-     *         )
-     *     ),
-     *     @OA\Response(response=404, description="Không tìm thấy quà tặng sự kiện")
-     * )
-     */
+
     public function store(Request $request)
     {
         $validated = $request->validate([

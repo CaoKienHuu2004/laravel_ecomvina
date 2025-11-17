@@ -63,17 +63,22 @@
                                                 style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;"
                                             />
                                         </a>
-                                        <a href="javascript:void(0);">{{ $nguoidung->hoten }}</a>
+                                        <a href="javascript:void(0);">{!! wordwrap($nguoidung->hoten, 10, '<br>') !!}</a>
                                     </td>
                                     <td>
-                                        {{ $nguoidung->username }}
+                                        {!! wordwrap($nguoidung->username, 10, '<br>') !!}
                                     </td>
                                     <td>{{ $nguoidung->sodienthoai ?? '-' }}</td>
                                     <td>
-                                        @if ($nguoidung->diachi->isNotEmpty())
-                                            {{ $nguoidung->diachi->first()->diachi }} ({{ $nguoidung->diachi->first()->tinhthanh }})
+
+                                        @php
+                                            $diachi = $nguoidung->diachi->first();
+                                        @endphp
+
+                                        @if($diachi)
+                                            {!! wordwrap($diachi->diachi . ' (' . $diachi->tinhthanh . ')', 30, '<br>') !!}
                                         @else
-                                            <span class="text-muted">Chưa có địa chỉ</span>
+                                            <i>Chưa có địa chỉ</i>
                                         @endif
                                     </td>
                                     <td>

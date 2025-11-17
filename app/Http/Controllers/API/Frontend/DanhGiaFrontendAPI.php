@@ -103,7 +103,7 @@ class DanhGiaFrontendAPI extends Controller
 
         $danhgias = DanhgiaModel::with('sanpham','chitietdonhang')
             ->where('id_nguoidung', $user->id)
-            ->orderByDesc('created_at')
+            ->orderByDesc('id')
             ->get();
         return response()->json([
             'success' => true,

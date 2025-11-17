@@ -7,27 +7,10 @@ use App\Models\SanphamModel;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
-/**
- * @OA\Tag(
- *     name="Sản phẩm",
- *     description="Quản lý sản phẩm trong hệ thống"
- * )
- */
+
 class SanphamAPI extends BaseController
 {
-    /**
-     * @OA\Get(
-     *     path="/api/sanphams",
-     *     tags={"Sản phẩm"},
-     *     summary="Lấy danh sách sản phẩm (có lọc + phân trang)",
-     *     @OA\Parameter(name="page", in="query", @OA\Schema(type="integer")),
-     *     @OA\Parameter(name="per_page", in="query", @OA\Schema(type="integer")),
-     *     @OA\Parameter(name="thuonghieu", in="query", @OA\Schema(type="string")),
-     *     @OA\Parameter(name="trangthai", in="query", @OA\Schema(type="string")),
-     *     @OA\Parameter(name="q", in="query", description="Từ khóa tìm kiếm", @OA\Schema(type="string")),
-     *     @OA\Response(response=200, description="Danh sách sản phẩm")
-     * )
-     */
+
     public function index(Request $request)
     {
         $perPage     = $request->get('per_page', 20);
@@ -110,15 +93,7 @@ class SanphamAPI extends BaseController
         ], Response::HTTP_CREATED);
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/sanphams/{id}",
-     *     tags={"Sản phẩm"},
-     *     summary="Xem chi tiết sản phẩm",
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(response=200, description="Chi tiết sản phẩm")
-     * )
-     */
+
     public function show(string $id)
     {
         $product = SanphamModel::with(['thuonghieu', 'danhmuc', 'hinhanhsanpham', 'bienthe','loaibienthe','danhgia','chitietdonhang','danhgia.nguoidung',])

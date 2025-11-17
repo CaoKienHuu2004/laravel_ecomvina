@@ -62,6 +62,7 @@ class AuthFrontendController extends BaseFrontendController
 
     public function __construct()
     {
+        $this->domain = env('DOMAIN', 'http://148.230.100.215/');
         $this->provinces = config('tinhthanh');
     }
     /**
@@ -275,7 +276,7 @@ class AuthFrontendController extends BaseFrontendController
 
         try {
 
-            $link_hinh_anh = $this->domain . 'storage/' . $this->uploadDir . '/';
+            $link_hinh_anh = $this->domain . 'storage/' . $this->uploadDirBaoMat . '/';
 
             $userData = $req->only(['hoten', 'sodienthoai', 'ngaysinh', 'gioitinh']);
 
@@ -283,7 +284,7 @@ class AuthFrontendController extends BaseFrontendController
             if ($req->hasFile('avatar')) {
                 $file = $req->file('avatar');
                 $filename = time() . '_' . $file->getClientOriginalName();
-                $file->storeAs($this->uploadDir, $filename, 'public');
+                $file->storeAs($this->uploadDirBaoMat, $filename, 'public');
                 $userData['avatar'] = $link_hinh_anh . $filename;
             } else {
                 $userData['avatar'] = $link_hinh_anh . 'khachhang.jpg';

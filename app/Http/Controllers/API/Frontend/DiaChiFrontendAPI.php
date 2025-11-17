@@ -9,6 +9,7 @@ use Illuminate\Http\Response;
 
 use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use OpenApi\Annotations as OA;
 
 
@@ -37,6 +38,13 @@ use OpenApi\Annotations as OA;
 class DiaChiFrontendAPI extends BaseFrontendController
 {
     use ApiResponse;
+
+    protected $provinces;
+
+    public function __construct()
+    {
+        $this->provinces = config('tinhthanh');
+    }
 
     /**
      * @OA\Get(
@@ -99,13 +107,17 @@ class DiaChiFrontendAPI extends BaseFrontendController
      */
     public function store(Request $request)
     {
+        $provinceNames = collect($this->provinces)->pluck('ten')->toArray();
+        $trangthaiEnum = DiaChiGiaoHangModel::getEnumValues('trangthai');
         $user = $request->get('auth_user');
 
         $validated = $request->validate([
             'hoten' => 'required|string|max:255',
             'sodienthoai' => 'required|string|size:10',
             'diachi' => 'required|string',
-            'trangthai' => 'nullable|in:Mặc định,Khác,Tạm ẩn',
+            'diachi' => 'required|string',
+            'tinhthanh' => ['required', 'string', Rule::in($provinceNames)],
+            'trangthai' => 'required|in:' . implode(',', $trangthaiEnum),
         ]);
 
         DB::beginTransaction();
@@ -173,6 +185,8 @@ class DiaChiFrontendAPI extends BaseFrontendController
      */
     public function update(Request $request, $id)
     {
+        $provinceNames = collect($this->provinces)->pluck('ten')->toArray();
+        $trangthaiEnum = DiaChiGiaoHangModel::getEnumValues('trangthai');
         $user = $request->get('auth_user');
 
         $diachi = DiaChiGiaoHangModel::where('id', $id)
@@ -190,7 +204,8 @@ class DiaChiFrontendAPI extends BaseFrontendController
             'hoten' => 'sometimes|string|max:255',
             'sodienthoai' => 'sometimes|string|size:10',
             'diachi' => 'sometimes|string',
-            'trangthai' => 'nullable|in:Mặc định,Khác,Tạm ẩn',
+            'tinhthanh' => ['required', 'string', Rule::in($provinceNames)],
+            'trangthai' => ['required', Rule::in($trangthaiEnum)],
         ]);
 
         DB::beginTransaction();

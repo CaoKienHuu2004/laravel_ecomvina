@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\API\Frontend;
 
 use App\Http\Controllers\Controller;
-use App\Models\YeuThichModel;
+use App\Http\Resources\Toi\YeuThichResource;
+use App\Models\YeuthichModel;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -17,6 +18,58 @@ use Illuminate\Http\Response;
  *     @OA\Property(property="id_nguoidung", type="integer", example=5),
  *     @OA\Property(property="id_sanpham", type="integer", example=12),
  *     @OA\Property(property="trangthai", type="string", example="Hiển thị"),
+ *     @OA\Property(
+ *         property="sanpham",
+ *         type="object",
+ *         description="Thông tin sản phẩm",
+ *         @OA\Property(property="id", type="integer", example=12),
+ *         @OA\Property(property="tensanpham", type="string", example="Áo thun nam"),
+ *         @OA\Property(property="gia", type="number", format="float", example=250000),
+ *         // ... thêm các thuộc tính cần thiết của sanpham
+ *         @OA\Property(
+ *             property="hinhanhsanpham",
+ *             type="array",
+ *             description="Danh sách hình ảnh sản phẩm",
+ *             @OA\Items(
+ *                 type="object",
+ *                 @OA\Property(property="id", type="integer", example=3),
+ *                 @OA\Property(property="url", type="string", example="https://example.com/images/sp1.jpg"),
+ *                 // ... các thuộc tính khác của hình ảnh
+ *             )
+ *         ),
+ *         @OA\Property(
+ *             property="danhmuc",
+ *             type="object",
+ *             description="Danh mục sản phẩm",
+ *             @OA\Property(property="id", type="integer", example=2),
+ *             @OA\Property(property="tendanhmuc", type="string", example="Thời trang nam"),
+ *             // ... các thuộc tính khác
+ *         ),
+ *         @OA\Property(
+ *             property="thuonghieu",
+ *             type="object",
+ *             description="Thương hiệu sản phẩm",
+ *             @OA\Property(property="id", type="integer", example=1),
+ *             @OA\Property(property="tenthuonghieu", type="string", example="Nike"),
+ *             // ... các thuộc tính khác
+ *         ),
+ *         @OA\Property(
+ *             property="bienthe",
+ *             type="object",
+ *             description="Biến thể sản phẩm",
+ *             @OA\Property(property="id", type="integer", example=10),
+ *             @OA\Property(property="tenbienthe", type="string", example="Size M"),
+ *             // ... các thuộc tính khác
+ *             @OA\Property(
+ *                 property="loaibienthe",
+ *                 type="object",
+ *                 description="Loại biến thể",
+ *                 @OA\Property(property="id", type="integer", example=100),
+ *                 @OA\Property(property="tenloaibienthe", type="string", example="Size"),
+ *                 // ... các thuộc tính khác
+ *             )
+ *         )
+ *     )
  * )
  */
 class YeuThichFrontendAPI extends Controller
@@ -45,10 +98,17 @@ class YeuThichFrontendAPI extends Controller
      */
     public function index(Request $request)
     {
-        $user = $request->get('auth_user');
+       $user = $request->get('auth_user');
         $userId = $user->id;
 
-        $yeuThichs = YeuThichModel::with('sanpham')
+        $yeuThichs = YeuthichModel::with(
+                'sanpham',
+                'sanpham.hinhanhsanpham',
+                'sanpham.danhmuc',
+                'sanpham.thuonghieu',
+                'sanpham.bienthe',
+                'sanpham.bienthe.loaibienthe',
+            )
             ->where('id_nguoidung', $userId)
             ->where('trangthai', 'Hiển thị')
             ->get();
@@ -56,9 +116,11 @@ class YeuThichFrontendAPI extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Danh sách sản phẩm yêu thích',
-            'data' => $yeuThichs
+            'data' => YeuThichResource::collection($yeuThichs)
         ], Response::HTTP_OK);
     }
+
+
 
     /**
      * @OA\Post(

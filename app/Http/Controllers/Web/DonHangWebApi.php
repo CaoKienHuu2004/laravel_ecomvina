@@ -14,6 +14,7 @@ use App\Models\GiohangModel;
 use Illuminate\Support\Str;
 use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 
 class DonHangWebApi extends BaseFrontendController
@@ -114,7 +115,7 @@ class DonHangWebApi extends BaseFrontendController
                 'id_phivanchuyen'   => $validated['id_phivanchuyen'],
                 'id_diachigiaohang' => $validated['id_diachigiaohang'],
                 'id_magiamgia'      => $validated['id_magiamgia'] ?? null,
-                'madon'             => strtoupper(Str::random(10)),
+                'madon'             => DonhangModel::generateOrderCode(),
                 'tongsoluong'       => $giohang->sum('soluong'),
                 'tamtinh'           => $validated['tamtinh'],
                 'thanhtien'         => $validated['thanhtien'],
@@ -157,12 +158,13 @@ class DonHangWebApi extends BaseFrontendController
 
     public function update(Request $request, $id)
     {
+        $enumTrangthai = DonhangModel::getEnumValues('trangthai');
         $user = $request->get('auth_user');
 
         $validated = $request->validate([
-            'id_phuongthuc' => 'sometimes|exists:phuongthuc,id',
-            'id_magiamgia'  => 'nullable|exists:magiamgia,id',
-            'trangthai'     => 'sometimes|string|in:Chờ xử lý,Đã chấp nhận,Đang giao hàng,Đã giao hàng,Đã hủy đơn',
+            'id_phuongthuc' => ['required', 'exists:phuongthuc,id'],
+            'id_magiamgia'  => ['nullable', 'exists:magiamgia,id'],
+            'trangthai'     => ['required', Rule::in($enumTrangthai)],
         ]);
 
         $donhang = DonhangModel::with('chitietdonhang.bienthe')

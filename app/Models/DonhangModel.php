@@ -1,9 +1,12 @@
 <?php
 namespace App\Models;
 
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class DonhangModel extends Model
 {
@@ -134,6 +137,43 @@ class DonhangModel extends Model
     public static function tongTienDaThanhToan()
     {
         return self::where('trangthaithanhtoan', 'Đã thanh toán')->sum('thanhtien');
+    }
+    public static function generateOrderCode()
+    {
+        // $prefix = 'VNA'; // hoặc "SIEUVINA" nếu tránh unicode
+        // $time   = now()->format('YmdHis'); // 20251117, hoặc 20251117173245 (giây)
+        // $rand   = strtoupper(Str::random(6)); // độ dài tùy chỉnh
+        // return "{$prefix}{$time}{$rand}";
+        // $prefix = 'VNA'; // 3 ký tự // VNA
+        // $time = now()->format('Hi'); // GiờPhútGiây, ví dụ: 214016
+        // // $rand   = strtoupper(Str::random(1)); // 1 ký tự -> Tổng = 10
+
+        // return "{$prefix}{$time}";
+        // $prefix = 'VNA';                 // 3 ký tự
+        // $time   = now()->format('Hi');   // 4 ký tự: Hour + Minute
+        // $month  = substr(now()->format('m'), -1); // Lấy số cuối của tháng
+
+        // return "{$prefix}{$month}{$time}"; // Tổng = 3 + 4 + 1 = 8 ký tự
+        $prefix = 'VNA';                   // 3 ký tự
+        $time   = now()->format('Hi');     // 4 ký tự (giờ + phút)
+        $month  = now()->format('m');      // 2 ký tự
+        $ramd = rand(0, 9); // 1 ký tự ngẫu nhiên
+        // $ramd = strtoupper(Str::random(1)); // 1 ký tự ngẫu nhiên
+
+        return "{$prefix}{$month}{$time}{$ramd}"; // Tổng: 3 + 2 + 4 = 9 ký tự + 1 = 10 ký tự
+    }
+    /**
+     * //Model động lấy field enum động
+     */
+    public static function getEnumValues($column)
+    {
+        $table = (new static)->getTable();
+
+        $result = DB::select("SHOW COLUMNS FROM {$table} WHERE Field = '{$column}'");
+
+        preg_match_all("/'([^']+)'/", $result[0]->Type, $matches);
+
+        return $matches[1];
     }
 
 

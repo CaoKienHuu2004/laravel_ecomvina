@@ -337,16 +337,14 @@ Route::get('/api-san-pham', [SanphamAllWebAPI::class, 'index']);
 Route::get('/api-san-pham/{id}', [SanphamAllWebAPI::class, 'show']);
 
 Route::get('/api-trang-chu', [TrangChuWebAPI::class, 'index']);
+    Route::apiResource('api-tim-kiem', TimKiemWebApi::class)->only(['index']);
+    Route::apiResource('api-tu-khoa', TukhoaWebApi::class)->only(['index','store','update']);
+    Route::get('/api-danh-muc', [DanhMucWebApi::class, 'index']);
 
-Route::get('/api-danh-muc', [DanhMucWebApi::class, 'index']);
-
+// gọi kèm các routes WebApi khác
 Route::get('/api-tinh-thanh', [TinhThanhVietNamWebApi::class, 'index']);
-
-Route::apiResource('api-tim-kiem', TimKiemWebApi::class)->only(['index']);
-
-Route::apiResource('api-tu-khoa', TukhoaWebApi::class)->only(['index','store','update']);
-
 Route::apiResource('api-ma-giam-gia', MaGiamGiaWebApi::class)->only(['index','show']);
+// gọi kèm các routes WebApi khác
 
 //-------------------------------------------------- Guest User authetication --------------------------------//
 

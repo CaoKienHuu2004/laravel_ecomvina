@@ -12,314 +12,6 @@
         }
     ],
     "paths": {
-        "/api/baiviets": {
-            "get": {
-                "tags": [
-                    "Bài viết"
-                ],
-                "summary": "Lấy danh sách bài viết đang hiển thị",
-                "description": "Hỗ trợ phân trang và tìm kiếm theo từ khóa",
-                "operationId": "11f18eaa98b85a793092dea2eb251a44",
-                "parameters": [
-                    {
-                        "name": "page",
-                        "in": "query",
-                        "description": "Trang hiện tại",
-                        "schema": {
-                            "type": "integer",
-                            "default": 1
-                        }
-                    },
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "description": "Số lượng bài viết trên một trang",
-                        "schema": {
-                            "type": "integer",
-                            "default": 10
-                        }
-                    },
-                    {
-                        "name": "q",
-                        "in": "query",
-                        "description": "Từ khóa tìm kiếm theo tiêu đề hoặc nội dung",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Danh sách bài viết thành công"
-                    },
-                    "404": {
-                        "description": "Trang không tồn tại"
-                    }
-                }
-            }
-        },
-        "/api/baiviets/{id}": {
-            "get": {
-                "tags": [
-                    "Bài viết"
-                ],
-                "summary": "Xem chi tiết một bài viết",
-                "description": "Chỉ xem bài viết đang hiển thị, lượt xem sẽ tự động tăng",
-                "operationId": "27b93cbe7f0d4109b1059555e1aef15f",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID của bài viết",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Chi tiết bài viết thành công"
-                    },
-                    "404": {
-                        "description": "Bài viết không tồn tại hoặc đang tạm ẩn"
-                    }
-                }
-            }
-        },
-        "/api/danhgias": {
-            "get": {
-                "tags": [
-                    "Đánh giá"
-                ],
-                "summary": "Lấy danh sách đánh giá",
-                "description": "Trả về danh sách các đánh giá với phân trang và tìm kiếm.",
-                "operationId": "8bb8fcb931f45a9e411ee27ac327c353",
-                "parameters": [
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "description": "Số lượng phần tử mỗi trang",
-                        "required": false,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "name": "q",
-                        "in": "query",
-                        "description": "Từ khóa tìm kiếm theo nội dung, trạng thái, sản phẩm hoặc người dùng",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Danh sách đánh giá trả về thành công"
-                    }
-                }
-            }
-        },
-        "/api/danhgias/{id}": {
-            "get": {
-                "tags": [
-                    "Đánh giá"
-                ],
-                "summary": "Xem chi tiết đánh giá",
-                "description": "Trả về thông tin chi tiết của một đánh giá theo ID.",
-                "operationId": "37603fc16ba8fe9073ffc17e386e1429",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID của đánh giá",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Chi tiết đánh giá được trả về thành công"
-                    },
-                    "404": {
-                        "description": "Không tìm thấy đánh giá"
-                    }
-                }
-            }
-        },
-        "/api/danhmucs": {
-            "get": {
-                "tags": [
-                    "Danh mục"
-                ],
-                "summary": "Lấy danh sách danh mục (phân trang + tìm kiếm)",
-                "description": "Trả về danh sách danh mục có hỗ trợ tìm kiếm theo tên hoặc slug, và tự động phân trang bằng query ?page=",
-                "operationId": "adc5c5c10702c5e7da390c5e8b2dcff0",
-                "parameters": [
-                    {
-                        "name": "q",
-                        "in": "query",
-                        "description": "Từ khóa tìm kiếm theo tên hoặc slug",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "description": "Số lượng danh mục mỗi trang (mặc định 10)",
-                        "required": false,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Danh sách danh mục",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Danh sách danh mục"
-                                        },
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "id": {
-                                                        "type": "integer",
-                                                        "example": 1
-                                                    },
-                                                    "ten": {
-                                                        "type": "string",
-                                                        "example": "Điện thoại"
-                                                    },
-                                                    "slug": {
-                                                        "type": "string",
-                                                        "example": "dien-thoai"
-                                                    },
-                                                    "logo": {
-                                                        "type": "string",
-                                                        "example": "danhmuc.jpg"
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        },
-                                        "meta": {
-                                            "properties": {
-                                                "current_page": {
-                                                    "type": "integer",
-                                                    "example": 1
-                                                },
-                                                "last_page": {
-                                                    "type": "integer",
-                                                    "example": 5
-                                                },
-                                                "per_page": {
-                                                    "type": "integer",
-                                                    "example": 10
-                                                },
-                                                "total": {
-                                                    "type": "integer",
-                                                    "example": 50
-                                                },
-                                                "next_page_url": {
-                                                    "type": "string",
-                                                    "example": "http://localhost/api/danhmucs?page=2"
-                                                },
-                                                "prev_page_url": {
-                                                    "type": "string",
-                                                    "example": null
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/danhmucs/{id}": {
-            "get": {
-                "tags": [
-                    "Danh mục"
-                ],
-                "summary": "Xem chi tiết 1 danh mục",
-                "operationId": "a4f504c8547f0856c5a65a8601dde1ab",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID danh mục",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Chi tiết danh mục",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Chi tiết danh mục"
-                                        },
-                                        "data": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer",
-                                                    "example": 1
-                                                },
-                                                "ten": {
-                                                    "type": "string",
-                                                    "example": "Điện thoại"
-                                                },
-                                                "slug": {
-                                                    "type": "string",
-                                                    "example": "dien-thoai"
-                                                },
-                                                "logo": {
-                                                    "type": "string",
-                                                    "example": "danhmuc.jpg"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/api/auth/dang-nhap": {
             "post": {
                 "tags": [
@@ -1713,6 +1405,172 @@
                 ]
             }
         },
+        "/api/ma-giam-gia": {
+            "get": {
+                "tags": [
+                    "Mã giảm giá"
+                ],
+                "summary": "Lấy danh sách mã giảm giá có hỗ trợ tìm kiếm và phân trang",
+                "description": "Trả về danh sách các mã giảm giá, hỗ trợ tìm kiếm theo mã giảm giá, mô tả hoặc trạng thái, kèm phân trang.",
+                "operationId": "11d665d9dc772980c78cd63abf263e40",
+                "parameters": [
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Từ khóa tìm kiếm (theo mã giảm giá, mô tả hoặc trạng thái)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "SALE50"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Số trang cần lấy",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Số lượng bản ghi trên mỗi trang",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Danh sách mã giảm giá kèm phân trang",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Danh sách mã giảm giá"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/MaGiamGia"
+                                            }
+                                        },
+                                        "pagination": {
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 100
+                                                },
+                                                "per_page": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "current_page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "last_page": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "from": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "to": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/ma-giam-gia/{id}": {
+            "get": {
+                "tags": [
+                    "Mã giảm giá"
+                ],
+                "summary": "Lấy chi tiết mã giảm giá theo ID",
+                "description": "Trả về thông tin chi tiết của một mã giảm giá dựa trên ID.",
+                "operationId": "6f98602ab596dff0a65c48e332c7b8a3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID của mã giảm giá cần lấy",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thông tin chi tiết mã giảm giá",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Chi tiết mã giảm giá"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/MaGiamGia"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Không tìm thấy mã giảm giá",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Mã giảm giá không tồn tại"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/sanphams-all": {
             "get": {
                 "tags": [
@@ -3075,547 +2933,6 @@
                 ]
             }
         },
-        "/api/magiamgias": {
-            "get": {
-                "tags": [
-                    "Mã giảm giá"
-                ],
-                "summary": "Lấy danh sách mã giảm giá (có tìm kiếm + phân trang)",
-                "description": "Trả về danh sách các mã giảm giá, có hỗ trợ tìm kiếm theo mã, mô tả hoặc trạng thái.",
-                "operationId": "fd5a8469eb1582670c795629be27c65b",
-                "parameters": [
-                    {
-                        "name": "q",
-                        "in": "query",
-                        "description": "Từ khóa tìm kiếm (theo mã, mô tả, trạng thái)",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "example": "SALE50"
-                        }
-                    },
-                    {
-                        "name": "page",
-                        "in": "query",
-                        "description": "Trang hiện tại",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    },
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "description": "Số lượng phần tử mỗi trang",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "example": 10
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Danh sách mã giảm giá",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Danh sách mã giảm giá"
-                                        },
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object"
-                                            }
-                                        },
-                                        "meta": {
-                                            "properties": {
-                                                "current_page": {
-                                                    "type": "integer"
-                                                },
-                                                "last_page": {
-                                                    "type": "integer"
-                                                },
-                                                "per_page": {
-                                                    "type": "integer"
-                                                },
-                                                "total": {
-                                                    "type": "integer"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/magiamgias/{id}": {
-            "get": {
-                "tags": [
-                    "Mã giảm giá"
-                ],
-                "summary": "Xem chi tiết 1 mã giảm giá",
-                "description": "Trả về thông tin chi tiết của một mã giảm giá theo ID.",
-                "operationId": "64da1887229b47870a06104c554cf269",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID của mã giảm giá",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Chi tiết mã giảm giá",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Chi tiết mã giảm giá"
-                                        },
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Không tìm thấy mã giảm giá"
-                    }
-                }
-            }
-        },
-        "/api/quatangkhuyenmais": {
-            "get": {
-                "tags": [
-                    "Quà tặng sự kiện"
-                ],
-                "summary": "Lấy danh sách quà tặng sự kiện (phân trang, tìm kiếm)",
-                "description": "Trả về danh sách quà tặng có thể tìm kiếm theo tiêu đề hoặc tên sản phẩm, có phân trang.",
-                "operationId": "3819ee2ce9c21a71157113394d5863f1",
-                "parameters": [
-                    {
-                        "name": "q",
-                        "in": "query",
-                        "description": "Từ khóa tìm kiếm (theo tiêu đề, tên biến thể hoặc sự kiện)",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "page",
-                        "in": "query",
-                        "description": "Trang hiện tại",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    },
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "description": "Số lượng phần tử mỗi trang",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "example": 10
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Danh sách quà tặng sự kiện",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Danh sách quà tặng sự kiện"
-                                        },
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "object"
-                                            }
-                                        },
-                                        "meta": {
-                                            "properties": {
-                                                "current_page": {
-                                                    "type": "integer"
-                                                },
-                                                "last_page": {
-                                                    "type": "integer"
-                                                },
-                                                "total": {
-                                                    "type": "integer"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/quatangkhuyenmais/{id}": {
-            "get": {
-                "tags": [
-                    "Quà tặng sự kiện"
-                ],
-                "summary": "Xem chi tiết 1 quà tặng sự kiện",
-                "description": "Trả về thông tin chi tiết 1 quà tặng sự kiện theo ID.",
-                "operationId": "64370140d15f38c5d467254dc0cf19c0",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID của quà tặng sự kiện",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Chi tiết quà tặng sự kiện",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Chi tiết quà tặng sự kiện"
-                                        },
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Không tìm thấy quà tặng sự kiện"
-                    }
-                }
-            }
-        },
-        "/api/sanphams": {
-            "get": {
-                "tags": [
-                    "Sản phẩm"
-                ],
-                "summary": "Lấy danh sách sản phẩm (có lọc + phân trang)",
-                "operationId": "ffe944329727765475d9564aa5dc722b",
-                "parameters": [
-                    {
-                        "name": "page",
-                        "in": "query",
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "name": "thuonghieu",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "trangthai",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "q",
-                        "in": "query",
-                        "description": "Từ khóa tìm kiếm",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Danh sách sản phẩm"
-                    }
-                }
-            }
-        },
-        "/api/sanphams/{id}": {
-            "get": {
-                "tags": [
-                    "Sản phẩm"
-                ],
-                "summary": "Xem chi tiết sản phẩm",
-                "operationId": "7857bf29a46713152e07dbd6e1552b62",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Chi tiết sản phẩm"
-                    }
-                }
-            }
-        },
-        "/api/chuongtrinhsukiens": {
-            "get": {
-                "tags": [
-                    "Chương trình & Sự kiện"
-                ],
-                "summary": "Lấy danh sách sự kiện (có hỗ trợ tìm kiếm và phân trang)",
-                "description": "Trả về danh sách các sự kiện đang có trong hệ thống, có thể tìm kiếm bằng từ khóa hoặc phân trang.",
-                "operationId": "16099e07bf3c7b734c99749975944a88",
-                "parameters": [
-                    {
-                        "name": "q",
-                        "in": "query",
-                        "description": "Từ khóa tìm kiếm (theo tiêu đề, slug hoặc nội dung)",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "example": "khuyến mãi"
-                        }
-                    },
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "description": "Số lượng kết quả mỗi trang (mặc định: 10)",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "example": 10
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Danh sách sự kiện",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Danh sách sự kiện"
-                                        },
-                                        "data": {
-                                            "properties": {
-                                                "current_page": {
-                                                    "type": "integer",
-                                                    "example": 1
-                                                },
-                                                "data": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "properties": {
-                                                            "id": {
-                                                                "type": "integer",
-                                                                "example": 1
-                                                            },
-                                                            "tieude": {
-                                                                "type": "string",
-                                                                "example": "Sự kiện Black Friday"
-                                                            },
-                                                            "slug": {
-                                                                "type": "string",
-                                                                "example": "su-kien-black-friday"
-                                                            },
-                                                            "hinhanh": {
-                                                                "type": "string",
-                                                                "example": "event.jpg"
-                                                            },
-                                                            "noidung": {
-                                                                "type": "string",
-                                                                "example": "Giảm giá toàn bộ sản phẩm 50%"
-                                                            },
-                                                            "ngaybatdau": {
-                                                                "type": "string",
-                                                                "format": "date",
-                                                                "example": "2025-11-01"
-                                                            },
-                                                            "ngayketthuc": {
-                                                                "type": "string",
-                                                                "format": "date",
-                                                                "example": "2025-11-30"
-                                                            },
-                                                            "trangthai": {
-                                                                "type": "string",
-                                                                "example": "Hiển thị"
-                                                            }
-                                                        },
-                                                        "type": "object"
-                                                    }
-                                                },
-                                                "total": {
-                                                    "type": "integer",
-                                                    "example": 15
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/chuongtrinhsukiens/{id}": {
-            "get": {
-                "tags": [
-                    "Chương trình & Sự kiện"
-                ],
-                "summary": "Lấy chi tiết một sự kiện",
-                "description": "Trả về thông tin chi tiết của một sự kiện theo ID.",
-                "operationId": "8cdd5578a2ca776d2dcc537aecdb6713",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID của sự kiện cần xem chi tiết",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Chi tiết sự kiện",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Chi tiết sự kiện"
-                                        },
-                                        "data": {
-                                            "properties": {
-                                                "id": {
-                                                    "type": "integer",
-                                                    "example": 1
-                                                },
-                                                "tieude": {
-                                                    "type": "string",
-                                                    "example": "Sự kiện Noel 2025"
-                                                },
-                                                "slug": {
-                                                    "type": "string",
-                                                    "example": "su-kien-noel-2025"
-                                                },
-                                                "hinhanh": {
-                                                    "type": "string",
-                                                    "example": "noel.jpg"
-                                                },
-                                                "noidung": {
-                                                    "type": "string",
-                                                    "example": "Mua 1 tặng 1 trong mùa Noel"
-                                                },
-                                                "ngaybatdau": {
-                                                    "type": "string",
-                                                    "format": "date",
-                                                    "example": "2025-12-01"
-                                                },
-                                                "ngayketthuc": {
-                                                    "type": "string",
-                                                    "format": "date",
-                                                    "example": "2025-12-25"
-                                                },
-                                                "trangthai": {
-                                                    "type": "string",
-                                                    "example": "Hiển thị"
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Không tìm thấy sự kiện"
-                    }
-                }
-            }
-        },
         "/toi/theodoi-donhang": {
             "get": {
                 "tags": [
@@ -3895,112 +3212,6 @@
     },
     "components": {
         "schemas": {
-            "Baiviet": {
-                "title": "Bài viết",
-                "description": "Thông tin chi tiết bài viết",
-                "properties": {
-                    "id": {
-                        "description": "ID bài viết",
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "id_nguoidung": {
-                        "description": "ID người dùng tạo bài viết",
-                        "type": "integer",
-                        "example": 5
-                    },
-                    "tieude": {
-                        "description": "Tiêu đề bài viết",
-                        "type": "string",
-                        "example": "Tiêu đề bài viết"
-                    },
-                    "slug": {
-                        "description": "Slug URL của bài viết",
-                        "type": "string",
-                        "example": "tieu-de-bai-viet"
-                    },
-                    "noidung": {
-                        "description": "Nội dung bài viết",
-                        "type": "string",
-                        "example": "Nội dung chi tiết bài viết..."
-                    },
-                    "luotxem": {
-                        "description": "Số lượt xem bài viết",
-                        "type": "integer",
-                        "example": 125
-                    },
-                    "hinhanh": {
-                        "description": "Hình ảnh đại diện bài viết",
-                        "type": "string",
-                        "example": "images/bai-viet/1.jpg"
-                    },
-                    "trangthai": {
-                        "description": "Trạng thái hiển thị bài viết",
-                        "type": "string",
-                        "enum": [
-                            "Hiển thị",
-                            "Tạm ẩn"
-                        ],
-                        "example": "Hiển thị"
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2025-10-15T19:53:24Z"
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2025-10-15T19:55:40Z"
-                    },
-                    "deleted_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": null,
-                        "nullable": true
-                    }
-                },
-                "type": "object"
-            },
-            "Danhmuc": {
-                "title": "Danh mục",
-                "description": "Thông tin danh mục sản phẩm",
-                "properties": {
-                    "id": {
-                        "description": "ID danh mục",
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "ten": {
-                        "description": "Tên danh mục",
-                        "type": "string",
-                        "example": "Điện thoại"
-                    },
-                    "slug": {
-                        "description": "Đường dẫn thân thiện",
-                        "type": "string",
-                        "example": "dien-thoai"
-                    },
-                    "logo": {
-                        "description": "Ảnh hoặc logo danh mục",
-                        "type": "string",
-                        "example": "danhmuc.jpg"
-                    },
-                    "created_at": {
-                        "description": "Ngày tạo",
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2025-10-10T12:00:00Z"
-                    },
-                    "updated_at": {
-                        "description": "Ngày cập nhật",
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2025-10-12T14:30:00Z"
-                    }
-                },
-                "type": "object"
-            },
             "NguoiDung": {
                 "title": "Người dùng",
                 "description": "Thông tin chi tiết người dùng",
@@ -4769,6 +3980,44 @@
                 },
                 "type": "object"
             },
+            "MaGiamGia": {
+                "title": "Mã giảm giá",
+                "description": "Thông tin chi tiết của mã giảm giá",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "magiamgia": {
+                        "type": "string",
+                        "example": "SALE50"
+                    },
+                    "mota": {
+                        "type": "string",
+                        "example": "Giảm 50% cho đơn hàng đầu tiên"
+                    },
+                    "trangthai": {
+                        "type": "string",
+                        "example": "Hoạt động"
+                    },
+                    "giatri": {
+                        "type": "number",
+                        "format": "float",
+                        "example": 50
+                    },
+                    "ngaybatdau": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2025-01-01"
+                    },
+                    "ngayketthuc": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2025-12-31"
+                    }
+                },
+                "type": "object"
+            },
             "SanPhamAllDetailResources": {
                 "title": "Chi tiết sản phẩm",
                 "description": "Thông tin chi tiết của sản phẩm bao gồm giá, biến thể, hình ảnh và đánh giá",
@@ -5382,12 +4631,12 @@
     },
     "tags": [
         {
-            "name": "Đánh giá",
-            "description": "Quản lý đánh giá sản phẩm của người dùng"
-        },
-        {
             "name": "Giỏ hàng (tôi)",
             "description": "Các API thao tác với giỏ hàng của người dùng frontend"
+        },
+        {
+            "name": "Mã giảm giá",
+            "description": "Hiện thị tất các mã giảm giá đang có trên hệ thống"
         },
         {
             "name": "Theo dõi đơn hàng (tôi)",
@@ -5402,32 +4651,8 @@
             "description": " sản phẩm của trang chủ được lọc theo yêu cầu nghiệp vụ của từng selection, tên cũ sanphams-selection"
         },
         {
-            "name": "Mã giảm giá",
-            "description": "API quản lý mã giảm giá (tìm kiếm, chi tiết, CRUD)"
-        },
-        {
-            "name": "Quà tặng sự kiện",
-            "description": "API quản lý quà tặng khuyến mãi trong các chương trình sự kiện"
-        },
-        {
-            "name": "Sản phẩm",
-            "description": "Quản lý sản phẩm trong hệ thống"
-        },
-        {
-            "name": "Chương trình & Sự kiện",
-            "description": "API xem danh sách và chi tiết các chương trình, sự kiện đang hoạt động"
-        },
-        {
             "name": "Theo dõi đơn hàng (tôi) (web)",
             "description": "API cho phép người dùng xem và cập nhật trạng thái đơn hàng của họ"
-        },
-        {
-            "name": "Bài viết",
-            "description": "Bài viết"
-        },
-        {
-            "name": "Danh mục",
-            "description": "Danh mục"
         },
         {
             "name": "Xác thực người dùng (Auth)",
@@ -5440,6 +4665,10 @@
         {
             "name": "Đánh giá (tôi)",
             "description": "Đánh giá (tôi)"
+        },
+        {
+            "name": "Danh mục",
+            "description": "Danh mục"
         },
         {
             "name": "Địa chỉ (tôi)",

@@ -8,64 +8,10 @@ use App\Models\SukienModel;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
-/**
- * @OA\Tag(
- *     name="Chương trình & Sự kiện",
- *     description="API xem danh sách và chi tiết các chương trình, sự kiện đang hoạt động"
- * )
- */
+
 class SuKienAPI extends BaseController
 {
-    /**
-     * @OA\Get(
-     *     path="/api/chuongtrinhsukiens",
-     *     tags={"Chương trình & Sự kiện"},
-     *     summary="Lấy danh sách sự kiện (có hỗ trợ tìm kiếm và phân trang)",
-     *     description="Trả về danh sách các sự kiện đang có trong hệ thống, có thể tìm kiếm bằng từ khóa hoặc phân trang.",
-     *     @OA\Parameter(
-     *         name="q",
-     *         in="query",
-     *         description="Từ khóa tìm kiếm (theo tiêu đề, slug hoặc nội dung)",
-     *         required=false,
-     *         @OA\Schema(type="string", example="khuyến mãi")
-     *     ),
-     *     @OA\Parameter(
-     *         name="per_page",
-     *         in="query",
-     *         description="Số lượng kết quả mỗi trang (mặc định: 10)",
-     *         required=false,
-     *         @OA\Schema(type="integer", example=10)
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Danh sách sự kiện",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Danh sách sự kiện"),
-     *             @OA\Property(
-     *                 property="data",
-     *                 type="object",
-     *                 @OA\Property(property="current_page", type="integer", example=1),
-     *                 @OA\Property(
-     *                     property="data",
-     *                     type="array",
-     *                     @OA\Items(
-     *                         @OA\Property(property="id", type="integer", example=1),
-     *                         @OA\Property(property="tieude", type="string", example="Sự kiện Black Friday"),
-     *                         @OA\Property(property="slug", type="string", example="su-kien-black-friday"),
-     *                         @OA\Property(property="hinhanh", type="string", example="event.jpg"),
-     *                         @OA\Property(property="noidung", type="string", example="Giảm giá toàn bộ sản phẩm 50%"),
-     *                         @OA\Property(property="ngaybatdau", type="string", format="date", example="2025-11-01"),
-     *                         @OA\Property(property="ngayketthuc", type="string", format="date", example="2025-11-30"),
-     *                         @OA\Property(property="trangthai", type="string", example="Hiển thị")
-     *                     )
-     *                 ),
-     *                 @OA\Property(property="total", type="integer", example=15)
-     *             )
-     *         )
-     *     )
-     * )
-     */
+
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
@@ -90,42 +36,7 @@ class SuKienAPI extends BaseController
         ], Response::HTTP_OK);
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/chuongtrinhsukiens/{id}",
-     *     tags={"Chương trình & Sự kiện"},
-     *     summary="Lấy chi tiết một sự kiện",
-     *     description="Trả về thông tin chi tiết của một sự kiện theo ID.",
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         description="ID của sự kiện cần xem chi tiết",
-     *         @OA\Schema(type="integer", example=1)
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Chi tiết sự kiện",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Chi tiết sự kiện"),
-     *             @OA\Property(
-     *                 property="data",
-     *                 type="object",
-     *                 @OA\Property(property="id", type="integer", example=1),
-     *                 @OA\Property(property="tieude", type="string", example="Sự kiện Noel 2025"),
-     *                 @OA\Property(property="slug", type="string", example="su-kien-noel-2025"),
-     *                 @OA\Property(property="hinhanh", type="string", example="noel.jpg"),
-     *                 @OA\Property(property="noidung", type="string", example="Mua 1 tặng 1 trong mùa Noel"),
-     *                 @OA\Property(property="ngaybatdau", type="string", format="date", example="2025-12-01"),
-     *                 @OA\Property(property="ngayketthuc", type="string", format="date", example="2025-12-25"),
-     *                 @OA\Property(property="trangthai", type="string", example="Hiển thị")
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(response=404, description="Không tìm thấy sự kiện")
-     * )
-     */
+
     public function show($id)
     {
         $item = ChuongTrinhModel::findOrFail($id);

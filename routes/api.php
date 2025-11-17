@@ -138,6 +138,7 @@
 // //     // Route::get('/articles', [ArticleController::class, 'index']);
 // // });
 
+use App\Http\Controllers\API\BaiVietAPI;
 use App\Http\Controllers\API\DanhGiaAPI;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -163,6 +164,7 @@ use App\Http\Controllers\API\Frontend\DanhmucFrontendAPI;
 use App\Http\Controllers\API\Frontend\DiaChiFrontendAPI;
 use App\Http\Controllers\API\Frontend\DonHangFrontendAPI;
 use App\Http\Controllers\API\Frontend\GioHangFrontendAPI;
+use App\Http\Controllers\API\Frontend\MaGiamGiaFrontendAPI;
 use App\Http\Controllers\API\Frontend\SanPhamAllFrontendAPI;
 use App\Http\Controllers\API\Frontend\SanPhamFrontendAPI;
 use App\Http\Controllers\API\Frontend\TheoDoiDonHangFrontendAPI;
@@ -194,21 +196,25 @@ use App\Http\Controllers\API\ThongBaoAPI;
 
     Route::apiResource('trang-chu', TrangChuAPI::class)->only(['index']);
         Route::apiResource('tim-kiem', TimKiemAPI::class)->only(['index']);
-    // table tu_khoa srearch từ khóa nhiều nhất cho placehoder
-    // limit 5 Lấy danh sách tất cả từ khóa (sắp xếp theo số lượt giảm dần)
-    Route::apiResource('tukhoas', TukhoaFrontendAPI::class)->only(['index','store','update']);
+        // table tu_khoa srearch từ khóa nhiều nhất cho placehoder
+        // limit 5 Lấy danh sách tất cả từ khóa (sắp xếp theo số lượt giảm dần)
+        Route::apiResource('tukhoas', TukhoaFrontendAPI::class)->only(['index','store','update']);
         // Route riêng cho tăng lượt
         // Route::post('tukhoas/{id}/increment', [TukhoaFrontendAPI::class, 'increment']);
-    //bảng banner_quangcao
-    Route::apiResource('bannerquangcaos', BannerQuangCaoFrontendAPI::class)->only(['index']);
-    //bảng banner_quangcao
+        //bảng banner_quangcao
+        Route::apiResource('bannerquangcaos', BannerQuangCaoFrontendAPI::class)->only(['index']);
+        //bảng banner_quangcao
 
+
+    // gọi kèm các routes api khác
     Route::get('/tinh-thanh', [TinhThanhVietNamFrontendAPI::class, 'index']);
+    Route::apiResource('ma-giam-gia', MaGiamGiaFrontendAPI::class)->only(['index','show']);
+    // gọi kèm các routes api khác
 
     // có slug: sanpham, danhmuc,
-    Route::apiResource('sanphams', SanphamAPI::class)->only(['index','show']);
+    // Route::apiResource('sanphams', SanphamAPI::class)->only(['index','show']);
 
-        Route::apiResource('sanphams-all', SanPhamAllFrontendAPI::class)->only(['index','show']);
+    Route::apiResource('sanphams-all', SanPhamAllFrontendAPI::class)->only(['index','show']);
         // GET /api/sanphams-selection?selection=hot_sales // limit 10 //  giả cả rẻ + giảm giá + nhiều đơn hàng của sản phẩm nhất
         // GET /api/sanphams-selection?selection=top_categories // limit 4:danhmuc limit 8:sanpham // tồng bộ danh mục luôn + querry có lượt mua nhiều nhất
         // GET /api/sanphams-selection?selection=top_brands // limit 10 // nhiều đơn hàng của sản phẩm nhất // list danh sách thuong hieu ko phải sản phẩm
@@ -216,15 +222,15 @@ use App\Http\Controllers\API\ThongBaoAPI;
         // GET /api/sanphams-selection?selection=recommend&danhmuc_id=3 hoặc // limit 8 //Recommend (theo danh mục): // tùy theo lược xem + giả cả rẻ + giảm giá
         // GET /api/sanphams-selection?per_page=20&page=1&thuonghieu=2&gia_min=100000&gia_max=500000 //Default (phân trang + filter): //
 
-    Route::apiResource('loaibienthes', LoaiBienTheAPI::class)->only(['index','show']); // làm menu khi hover list products da cấp
-    Route::apiResource('danhmucs', DanhmucAPI::class)->only(['index','show']);
+    // Route::apiResource('loaibienthes', LoaiBienTheAPI::class)->only(['index','show']); // làm menu khi hover list products da cấp
+    // Route::apiResource('danhmucs', DanhmucAPI::class)->only(['index','show']);
         // Route::apiResource('danhmucs-selection', DanhmucFrontendAPI::class)->only(['index','show']); // tổng hợp vào sanpham-seletion rồi nên nó thành dữ
-        Route::apiResource('danhmucs-all', DanhmucAllFrontendAPI::class)->only(['index']); // thanh menu aside lọc sản phẩm củ, UI mới thì ko chưa biết chưa có cứ làm tạm vậy
+    Route::apiResource('danhmucs-all', DanhmucAllFrontendAPI::class)->only(['index']); // thanh menu aside lọc sản phẩm củ, UI mới thì ko chưa biết chưa có cứ làm tạm vậy
 
-    Route::apiResource('chuongtrinhsukiens', SuKienAPI::class)->only(['index','show']);
-    Route::apiResource('quatangkhuyenmais', QuaTangSuKienAPI::class)->only(['index','show']);
-    Route::apiResource('magiamgias', MaGiamGiaAPI::class)->only(['index','show']);
-    Route::apiResource('danhgias', DanhGiaAPI::class)->only(['index','show']);
+    // Route::apiResource('chuongtrinhsukiens', SuKienAPI::class)->only(['index','show']);
+    // Route::apiResource('quatangkhuyenmais', QuaTangSuKienAPI::class)->only(['index','show']);
+    // Route::apiResource('magiamgias', MaGiamGiaAPI::class)->only(['index','show']);
+    // Route::apiResource('danhgias', DanhGiaAPI::class)->only(['index','show']);
     // guest
 
     //begin: Api frontend // User + anonymous + admin
@@ -264,6 +270,7 @@ use App\Http\Controllers\API\ThongBaoAPI;
         Route::post('/yeuthichs', [YeuThichFrontendAPI::class, 'store']); // Thêm sản phẩm vào yêu thích
         Route::put('/yeuthichs/{id_sanpham}', [YeuThichFrontendAPI::class, 'update']); // Bỏ yêu thích (chuyển trạng thái)
     });
+
     Route::middleware(['auth.api'])->prefix('toi')->group(function () {
         Route::get('/diachis', [DiaChiFrontendAPI::class, 'index']);
         Route::post('/diachis', [DiaChiFrontendAPI::class, 'store']);
@@ -286,13 +293,13 @@ use App\Http\Controllers\API\ThongBaoAPI;
     // Admin only + have api-key
     Route::middleware(['auth.api','vaitro:admin'])->group(function () {
 
-        Route::apiResource('magiamgias', MaGiamGiaAPI::class)->only(['store','update','destroy']);
-        Route::apiResource('danhgias', DanhGiaAPI::class)->only(['store','update','destroy']);
-        Route::apiResource('sanphams', SanphamAPI::class)->only(['store','update','destroy']);
-        Route::apiResource('loaibienthes', LoaiBienTheAPI::class)->only(['store','update','destroy']); // làm menu khi hover list products da cấp
-        Route::apiResource('danhmucs', DanhmucAPI::class)->only(['store','update','destroy']);
-        Route::apiResource('chuongtrinhsukiens', SuKienAPI::class)->only(['store','update','destroy']);
-        Route::apiResource('quatangkhuyenmais', QuaTangSuKienAPI::class)->only(['store','update','destroy']);
+        Route::apiResource('magiamgias', MaGiamGiaAPI::class)->only(['index','show','store','update','destroy']);
+        Route::apiResource('danhgias', DanhGiaAPI::class)->only(['index','show','store','update','destroy']);
+        Route::apiResource('sanphams', SanphamAPI::class)->only(['index','show','store','update','destroy']);
+        Route::apiResource('loaibienthes', LoaiBienTheAPI::class)->only(['index','show','store','update','destroy']); // làm menu khi hover list products da cấp
+        Route::apiResource('danhmucs', DanhmucAPI::class)->only(['index','show','store','update','destroy']);
+        Route::apiResource('chuongtrinhsukiens', SuKienAPI::class)->only(['index','show','store','update','destroy']);
+        Route::apiResource('quatangkhuyenmais', QuaTangSuKienAPI::class)->only(['index','show','store','update','destroy']);
 
         Route::apiResource('giohangs', GioHangAPI::class)->only(['index','show','store','update','destroy']);
 
@@ -301,28 +308,28 @@ use App\Http\Controllers\API\ThongBaoAPI;
         Route::apiResource('yeuthichs', YeuThichAPI::class)->only(['index','show','store','update','destroy']);
         Route::apiResource('nguoidungs', NguoidungAPI::class)->only(['index','show','store','update','destroy']);
 
-
+        Route::apiResource('baiviets', BaiVietAPI::class)->only(['index','show']); // đang thiếu method
         Route::apiResource('thongbaos', ThongBaoAPI::class)->only(['index','show','store','update','destroy']);
 
     });
 
-    Route::middleware(['auth.api','vaitro:seller'])->group(function () {
-        Route::apiResource('magiamgias', MaGiamGiaAPI::class)->only(['store','update','destroy']);
-        Route::apiResource('danhgias', DanhGiaAPI::class)->only(['store','update','destroy']);
-        Route::apiResource('sanphams', SanphamAPI::class)->only(['store','update','destroy']);
-        Route::apiResource('loaibienthes', LoaiBienTheAPI::class)->only(['store','update','destroy']); // làm menu khi hover list products da cấp
-        Route::apiResource('danhmucs', DanhmucAPI::class)->only(['store','update','destroy']);
-        Route::apiResource('chuongtrinhsukiens', SuKienAPI::class)->only(['store','update','destroy']);
-        Route::apiResource('quatangkhuyenmais', QuaTangSuKienAPI::class)->only(['store','update','destroy']);
+    // Route::middleware(['auth.api','vaitro:seller'])->group(function () {
+    //     Route::apiResource('magiamgias', MaGiamGiaAPI::class)->only(['store','update','destroy']);
+    //     Route::apiResource('danhgias', DanhGiaAPI::class)->only(['store','update','destroy']);
+    //     Route::apiResource('sanphams', SanphamAPI::class)->only(['store','update','destroy']);
+    //     Route::apiResource('loaibienthes', LoaiBienTheAPI::class)->only(['store','update','destroy']); // làm menu khi hover list products da cấp
+    //     Route::apiResource('danhmucs', DanhmucAPI::class)->only(['store','update','destroy']);
+    //     Route::apiResource('chuongtrinhsukiens', SuKienAPI::class)->only(['store','update','destroy']);
+    //     Route::apiResource('quatangkhuyenmais', QuaTangSuKienAPI::class)->only(['store','update','destroy']);
 
-        Route::apiResource('giohangs', GioHangAPI::class)->only(['index','show','store','update','destroy']);
+    //     Route::apiResource('giohangs', GioHangAPI::class)->only(['index','show','store','update','destroy']);
 
-        Route::apiResource('diachis', DiaChiNguoiDungAPI::class)->only(['index','show','store','update','destroy']);
+    //     Route::apiResource('diachis', DiaChiNguoiDungAPI::class)->only(['index','show','store','update','destroy']);
 
-        Route::apiResource('yeuthichs', YeuThichAPI::class)->only(['index','show','store','update','destroy']);
-        Route::apiResource('nguoidungs', NguoidungAPI::class)->only(['index','show','store','update','destroy']);
+    //     Route::apiResource('yeuthichs', YeuThichAPI::class)->only(['index','show','store','update','destroy']);
+    //     Route::apiResource('nguoidungs', NguoidungAPI::class)->only(['index','show','store','update','destroy']);
 
-    });
+    // });
 // });
 
 

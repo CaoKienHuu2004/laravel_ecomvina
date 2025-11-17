@@ -7,25 +7,9 @@ use Illuminate\Http\Request;
 use App\Models\DanhgiaModel;
 use Illuminate\Http\Response;
 
-/**
- * @OA\Tag(
- *     name="Đánh giá",
- *     description="Quản lý đánh giá sản phẩm của người dùng"
- * )
- */
 class DanhGiaAPI extends BaseController
 {
-    /**
-     * @OA\Get(
-     *     path="/api/danhgias",
-     *     tags={"Đánh giá"},
-     *     summary="Lấy danh sách đánh giá",
-     *     description="Trả về danh sách các đánh giá với phân trang và tìm kiếm.",
-     *     @OA\Parameter(name="per_page", in="query", description="Số lượng phần tử mỗi trang", required=false, @OA\Schema(type="integer")),
-     *     @OA\Parameter(name="q", in="query", description="Từ khóa tìm kiếm theo nội dung, trạng thái, sản phẩm hoặc người dùng", required=false, @OA\Schema(type="string")),
-     *     @OA\Response(response=200, description="Danh sách đánh giá trả về thành công")
-     * )
-     */
+
     public function index(Request $request)
     {
         $perPage = $request->get('per_page', 10);
@@ -76,17 +60,7 @@ class DanhGiaAPI extends BaseController
         ], Response::HTTP_OK);
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/danhgias/{id}",
-     *     tags={"Đánh giá"},
-     *     summary="Xem chi tiết đánh giá",
-     *     description="Trả về thông tin chi tiết của một đánh giá theo ID.",
-     *     @OA\Parameter(name="id", in="path", required=true, description="ID của đánh giá", @OA\Schema(type="integer")),
-     *     @OA\Response(response=200, description="Chi tiết đánh giá được trả về thành công"),
-     *     @OA\Response(response=404, description="Không tìm thấy đánh giá")
-     * )
-     */
+
     public function show($id)
     {
         $item = DanhgiaModel::with(['sanpham', 'nguoidung:id,hoten','chitietdonhang'])->findOrFail($id);
