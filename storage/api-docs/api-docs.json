@@ -1105,8 +1105,8 @@
                 "tags": [
                     "Giỏ hàng (tôi)"
                 ],
-                "summary": "Thêm sản phẩm vào giỏ hàng (có xử lý ưu đãi và quà tặng)",
-                "description": "\n     *      - API dùng để thêm sản phẩm vào giỏ hàng của người dùng hiện tại.\n     *      - Tự động kiểm tra chương trình quà tặng (`quatang_sukien`) nếu có.\n     *      - Nếu số lượng mua thỏa điều kiện `dieukien` và trong thời gian hiệu lực (`ngaybatdau` - `ngayketthuc`),\n     *        sẽ cộng thêm số lượng quà tặng miễn phí (với `thanhtien = 0`).\n     *      - Trường `luottang` trong bảng `bienthe` sẽ được cập nhật giảm tương ứng số lượng quà tặng.\n     *     ",
+                "summary": "Thêm sản phẩm vào giỏ hàng (tự động áp dụng khuyến mãi/quà tặng nếu có)",
+                "description": "\n     *      - Thêm sản phẩm vào giỏ hàng của người dùng hiện tại.\n     *      - Tự động kiểm tra và áp dụng chương trình quà tặng/sự kiện nếu thỏa điều kiện (`dieukien <= tổng số lượng sản phẩm`) và trong thời gian hiệu lực.\n     *      - Tự động thêm hoặc xóa quà tặng miễn phí tương ứng (`thanhtien = 0`).\n     *      - Không còn quản lý số lượng lượt tặng (`luottang`) trong bảng biến thể.\n     *     ",
                 "operationId": "8ca4a60b35d7fd3b6da07cf9a9169c5c",
                 "requestBody": {
                     "description": "Thông tin sản phẩm cần thêm vào giỏ hàng",
@@ -1125,7 +1125,7 @@
                                         "example": 21
                                     },
                                     "soluong": {
-                                        "description": "Số lượng sản phẩm muốn thêm",
+                                        "description": "Số lượng sản phẩm muốn thêm (phải >= 1)",
                                         "type": "integer",
                                         "example": 2
                                     }
@@ -1151,7 +1151,7 @@
                                             "example": "Thêm sản phẩm vào giỏ hàng thành công"
                                         },
                                         "data": {
-                                            "description": "Danh sách sản phẩm trong giỏ hàng sau khi thêm",
+                                            "description": "Danh sách sản phẩm trong giỏ hàng sau khi thêm, bao gồm cả quà tặng miễn phí",
                                             "type": "array",
                                             "items": {
                                                 "$ref": "#/components/schemas/GioHangResource"
@@ -1221,7 +1221,7 @@
                     "Giỏ hàng (tôi)"
                 ],
                 "summary": "Cập nhật số lượng sản phẩm trong giỏ hàng (tự động áp dụng khuyến mãi/quà tặng nếu có)",
-                "description": "\n     *     - Cập nhật số lượng sản phẩm trong giỏ hàng.\n     *     - Nếu số lượng mới bằng 0, sản phẩm sẽ bị xóa khỏi giỏ hàng.\n     *     - Áp dụng tự động chương trình quà tặng/sự kiện nếu thỏa điều kiện (`dieukien <= soluong` và trong thời gian hiệu lực).\n     *     - Cập nhật số lượng quà tặng miễn phí và lượt tặng (`luottang`) tương ứng.\n     *     ",
+                "description": "\n     *     - Cập nhật số lượng sản phẩm trong giỏ hàng.\n     *     - Nếu số lượng mới bằng 0, sản phẩm sẽ bị xóa khỏi giỏ hàng cùng quà tặng liên quan.\n     *     - Áp dụng tự động chương trình quà tặng/sự kiện nếu thỏa điều kiện (`dieukien <= soluong`) và trong thời gian hiệu lực.\n     *     - Tự động thêm hoặc xóa quà tặng miễn phí tương ứng với số lượng sản phẩm.\n     *     - Không còn quản lý số lượng lượt tặng (`luottang`) trong bảng biến thể.\n     *     ",
                 "operationId": "07103609c72dbee47dea2043693ab594",
                 "parameters": [
                     {
@@ -1245,7 +1245,7 @@
                                 ],
                                 "properties": {
                                     "soluong": {
-                                        "description": "Số lượng mới của sản phẩm. Nếu = 0 sẽ xóa sản phẩm khỏi giỏ hàng.",
+                                        "description": "Số lượng mới của sản phẩm. Nếu = 0 sẽ xóa sản phẩm khỏi giỏ hàng cùng quà tặng liên quan.",
                                         "type": "integer",
                                         "example": 5
                                     }
@@ -1271,7 +1271,7 @@
                                             "example": "Cập nhật số lượng thành công"
                                         },
                                         "data": {
-                                            "description": "Danh sách sản phẩm trong giỏ hàng sau khi cập nhật",
+                                            "description": "Danh sách sản phẩm trong giỏ hàng sau khi cập nhật, bao gồm cả quà tặng miễn phí",
                                             "type": "array",
                                             "items": {
                                                 "$ref": "#/components/schemas/GioHangResource"
@@ -3976,6 +3976,98 @@
                     "trangthai": {
                         "type": "string",
                         "example": "Hiển thị"
+                    },
+                    "sanpham": {
+                        "description": "Thông tin sản phẩm",
+                        "properties": {
+                            "id": {
+                                "type": "integer",
+                                "example": 12
+                            },
+                            "tensanpham": {
+                                "type": "string",
+                                "example": "Áo thun nam"
+                            },
+                            "gia": {
+                                "type": "number",
+                                "format": "float",
+                                "example": 250000
+                            },
+                            "hinhanhsanpham": {
+                                "description": "Danh sách hình ảnh sản phẩm",
+                                "type": "array",
+                                "items": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 3
+                                        },
+                                        "url": {
+                                            "type": "string",
+                                            "example": "https://example.com/images/sp1.jpg"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            },
+                            "danhmuc": {
+                                "description": "Danh mục sản phẩm",
+                                "properties": {
+                                    "id": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "tendanhmuc": {
+                                        "type": "string",
+                                        "example": "Thời trang nam"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "thuonghieu": {
+                                "description": "Thương hiệu sản phẩm",
+                                "properties": {
+                                    "id": {
+                                        "type": "integer",
+                                        "example": 1
+                                    },
+                                    "tenthuonghieu": {
+                                        "type": "string",
+                                        "example": "Nike"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "bienthe": {
+                                "description": "Biến thể sản phẩm",
+                                "properties": {
+                                    "id": {
+                                        "type": "integer",
+                                        "example": 10
+                                    },
+                                    "tenbienthe": {
+                                        "type": "string",
+                                        "example": "Size M"
+                                    },
+                                    "loaibienthe": {
+                                        "description": "Loại biến thể",
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 100
+                                            },
+                                            "tenloaibienthe": {
+                                                "type": "string",
+                                                "example": "Size"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "type": "object"
                     }
                 },
                 "type": "object"

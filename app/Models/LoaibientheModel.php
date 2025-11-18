@@ -71,6 +71,7 @@ class LoaibientheModel extends Model
                 ->forceDelete();
 
             // 3️⃣ Nếu có sản phẩm liên quan thì xóa luôn ảnh và sản phẩm
+            // đang thiêu 1 số các table liên quan đến sản phẩm, và chưa xóa hình trên vps mới xóa trong table hinhanhsanpham
             if (!empty($idSanPhams)) {
 
                 DanhmucSanphamModel::whereIn('id_sanpham', $idSanPhams)->forceDelete();

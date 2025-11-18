@@ -25,7 +25,7 @@ use Illuminate\Http\Response;
  *         @OA\Property(property="id", type="integer", example=12),
  *         @OA\Property(property="tensanpham", type="string", example="Áo thun nam"),
  *         @OA\Property(property="gia", type="number", format="float", example=250000),
- *         // ... thêm các thuộc tính cần thiết của sanpham
+ *
  *         @OA\Property(
  *             property="hinhanhsanpham",
  *             type="array",
@@ -34,7 +34,7 @@ use Illuminate\Http\Response;
  *                 type="object",
  *                 @OA\Property(property="id", type="integer", example=3),
  *                 @OA\Property(property="url", type="string", example="https://example.com/images/sp1.jpg"),
- *                 // ... các thuộc tính khác của hình ảnh
+ *
  *             )
  *         ),
  *         @OA\Property(
@@ -43,7 +43,7 @@ use Illuminate\Http\Response;
  *             description="Danh mục sản phẩm",
  *             @OA\Property(property="id", type="integer", example=2),
  *             @OA\Property(property="tendanhmuc", type="string", example="Thời trang nam"),
- *             // ... các thuộc tính khác
+ *
  *         ),
  *         @OA\Property(
  *             property="thuonghieu",
@@ -51,7 +51,7 @@ use Illuminate\Http\Response;
  *             description="Thương hiệu sản phẩm",
  *             @OA\Property(property="id", type="integer", example=1),
  *             @OA\Property(property="tenthuonghieu", type="string", example="Nike"),
- *             // ... các thuộc tính khác
+ *
  *         ),
  *         @OA\Property(
  *             property="bienthe",
@@ -59,14 +59,14 @@ use Illuminate\Http\Response;
  *             description="Biến thể sản phẩm",
  *             @OA\Property(property="id", type="integer", example=10),
  *             @OA\Property(property="tenbienthe", type="string", example="Size M"),
- *             // ... các thuộc tính khác
+ *
  *             @OA\Property(
  *                 property="loaibienthe",
  *                 type="object",
  *                 description="Loại biến thể",
  *                 @OA\Property(property="id", type="integer", example=100),
  *                 @OA\Property(property="tenloaibienthe", type="string", example="Size"),
- *                 // ... các thuộc tính khác
+ *
  *             )
  *         )
  *     )

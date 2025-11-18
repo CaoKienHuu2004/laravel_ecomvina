@@ -122,7 +122,7 @@ class GioHangWebApi extends Controller
             $promotion = DB::table('quatang_sukien as qs')
                 ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
                 ->where('qs.id_bienthe', $id_bienthe)
-                ->where('bt.luottang', '>', 0)
+                // ->where('bt.luottang', '>', 0)
                 ->where('qs.dieukien', '<=', $totalQuantity)
                 ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
                 ->select('qs.dieukien as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
@@ -144,20 +144,20 @@ class GioHangWebApi extends Controller
                     ->lockForUpdate()
                     ->first();
 
-                $currentFreeQty = $existingFreeItem ? $existingFreeItem->soluong : 0;
-                $deltaFree = $numFree - $currentFreeQty;
+                // $currentFreeQty = $existingFreeItem ? $existingFreeItem->soluong : 0;
+                // $deltaFree = $numFree - $currentFreeQty;
 
-                // Chỉ trừ hoặc cộng lại phần chênh lệch quà tặng
-                if ($deltaFree > 0) {
-                    DB::table('bienthe')
-                        ->where('id', $id_bienthe)
-                        ->update(['luottang' => DB::raw("GREATEST(luottang - {$deltaFree}, 0)")]);
-                } elseif ($deltaFree < 0) {
-                    $restore = abs($deltaFree);
-                    DB::table('bienthe')
-                        ->where('id', $id_bienthe)
-                        ->update(['luottang' => DB::raw("luottang + {$restore}")]);
-                }
+                // // Chỉ trừ hoặc cộng lại phần chênh lệch quà tặng
+                // if ($deltaFree > 0) {
+                //     DB::table('bienthe')
+                //         ->where('id', $id_bienthe)
+                //         ->update(['luottang' => DB::raw("GREATEST(luottang - {$deltaFree}, 0)")]);
+                // } elseif ($deltaFree < 0) {
+                //     $restore = abs($deltaFree);
+                //     DB::table('bienthe')
+                //         ->where('id', $id_bienthe)
+                //         ->update(['luottang' => DB::raw("luottang + {$restore}")]);
+                // }
 
                 // Cập nhật hoặc tạo dòng quà tặng
                 if ($numFree > 0) {
@@ -297,7 +297,7 @@ class GioHangWebApi extends Controller
             $promotion = DB::table('quatang_sukien as qs')
                 ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
                 ->where('qs.id_bienthe', $id_bienthe)
-                ->where('bt.luottang', '>', 0)
+                // ->where('bt.luottang', '>', 0)
                 ->where('qs.dieukien', '<=', $soluongNew)
                 ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
                 ->select(
@@ -326,22 +326,22 @@ class GioHangWebApi extends Controller
                 ->lockForUpdate()
                 ->first();
 
-            $numFreeOld = $freeItem ? $freeItem->soluong : 0;
-            $delta = $numFreeNew - $numFreeOld;
+            // $numFreeOld = $freeItem ? $freeItem->soluong : 0;
+            // $delta = $numFreeNew - $numFreeOld;
 
-            // ✅ Cập nhật lại luottang theo chênh lệch
-            if ($delta > 0) {
-                // Giảm thêm
-                DB::table('bienthe')
-                    ->where('id', $id_bienthe)
-                    ->update(['luottang' => DB::raw("GREATEST(luottang - {$delta}, 0)")]);
-            } elseif ($delta < 0) {
-                // Hoàn lại phần giảm
-                $restore = abs($delta);
-                DB::table('bienthe')
-                    ->where('id', $id_bienthe)
-                    ->update(['luottang' => DB::raw("luottang + {$restore}")]);
-            }
+            // // ✅ Cập nhật lại luottang theo chênh lệch
+            // if ($delta > 0) {
+            //     // Giảm thêm
+            //     DB::table('bienthe')
+            //         ->where('id', $id_bienthe)
+            //         ->update(['luottang' => DB::raw("GREATEST(luottang - {$delta}, 0)")]);
+            // } elseif ($delta < 0) {
+            //     // Hoàn lại phần giảm
+            //     $restore = abs($delta);
+            //     DB::table('bienthe')
+            //         ->where('id', $id_bienthe)
+            //         ->update(['luottang' => DB::raw("luottang + {$restore}")]);
+            // }
 
             // ✅ Cập nhật sản phẩm chính
             $item->update([

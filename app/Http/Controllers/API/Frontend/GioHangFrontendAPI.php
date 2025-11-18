@@ -87,13 +87,12 @@ class GioHangFrontendAPI extends BaseFrontendController
      * @OA\Post(
      *     path="/api/toi/giohang",
      *     tags={"Giỏ hàng (tôi)"},
-     *     summary="Thêm sản phẩm vào giỏ hàng (có xử lý ưu đãi và quà tặng)",
+     *     summary="Thêm sản phẩm vào giỏ hàng (tự động áp dụng khuyến mãi/quà tặng nếu có)",
      *     description="
-     *      - API dùng để thêm sản phẩm vào giỏ hàng của người dùng hiện tại.
-     *      - Tự động kiểm tra chương trình quà tặng (`quatang_sukien`) nếu có.
-     *      - Nếu số lượng mua thỏa điều kiện `dieukien` và trong thời gian hiệu lực (`ngaybatdau` - `ngayketthuc`),
-     *        sẽ cộng thêm số lượng quà tặng miễn phí (với `thanhtien = 0`).
-     *      - Trường `luottang` trong bảng `bienthe` sẽ được cập nhật giảm tương ứng số lượng quà tặng.
+     *      - Thêm sản phẩm vào giỏ hàng của người dùng hiện tại.
+     *      - Tự động kiểm tra và áp dụng chương trình quà tặng/sự kiện nếu thỏa điều kiện (`dieukien <= tổng số lượng sản phẩm`) và trong thời gian hiệu lực.
+     *      - Tự động thêm hoặc xóa quà tặng miễn phí tương ứng (`thanhtien = 0`).
+     *      - Không còn quản lý số lượng lượt tặng (`luottang`) trong bảng biến thể.
      *     ",
      *     security={{"bearerAuth": {}}},
      *     @OA\RequestBody(
@@ -102,7 +101,7 @@ class GioHangFrontendAPI extends BaseFrontendController
      *         @OA\JsonContent(
      *             required={"id_bienthe","soluong"},
      *             @OA\Property(property="id_bienthe", type="integer", example=21, description="ID biến thể sản phẩm"),
-     *             @OA\Property(property="soluong", type="integer", example=2, description="Số lượng sản phẩm muốn thêm")
+     *             @OA\Property(property="soluong", type="integer", example=2, description="Số lượng sản phẩm muốn thêm (phải >= 1)")
      *         )
      *     ),
      *     @OA\Response(
@@ -115,7 +114,7 @@ class GioHangFrontendAPI extends BaseFrontendController
      *             @OA\Property(
      *                 property="data",
      *                 type="array",
-     *                 description="Danh sách sản phẩm trong giỏ hàng sau khi thêm",
+     *                 description="Danh sách sản phẩm trong giỏ hàng sau khi thêm, bao gồm cả quà tặng miễn phí",
      *                 @OA\Items(ref="#/components/schemas/GioHangResource")
      *             )
      *         )
@@ -170,7 +169,7 @@ class GioHangFrontendAPI extends BaseFrontendController
             $promotion = DB::table('quatang_sukien as qs')
                 ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
                 ->where('qs.id_bienthe', $id_bienthe)
-                ->where('bt.luottang', '>', 0)
+                // ->where('bt.luottang', '>', 0)
                 ->where('qs.dieukien', '<=', $totalQuantity)
                 ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
                 ->select('qs.dieukien as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
@@ -192,20 +191,21 @@ class GioHangFrontendAPI extends BaseFrontendController
                     ->lockForUpdate()
                     ->first();
 
-                $currentFreeQty = $existingFreeItem ? $existingFreeItem->soluong : 0;
-                $deltaFree = $numFree - $currentFreeQty;
+                // $currentFreeQty = $existingFreeItem ? $existingFreeItem->soluong : 0;
+                // $deltaFree = $numFree - $currentFreeQty;
 
                 // Chỉ trừ hoặc cộng lại phần chênh lệch quà tặng, bỏ vì thay đổi logic luottang là Tăng theo table Donhang chứ ko phải là quản lý số quà tặng
-                if ($deltaFree > 0) {
-                    DB::table('bienthe')
-                        ->where('id', $id_bienthe)
-                        ->update(['luottang' => DB::raw("GREATEST(luottang - {$deltaFree}, 0)")]);
-                } elseif ($deltaFree < 0) {
-                    $restore = abs($deltaFree);
-                    DB::table('bienthe')
-                        ->where('id', $id_bienthe)
-                        ->update(['luottang' => DB::raw("luottang + {$restore}")]);
-                }
+                // Bỏ vì luottang sẽ liên quan đế thông kế chưa ko còn là quản lý số quà tặng
+                // if ($deltaFree > 0) {
+                //     DB::table('bienthe')
+                //         ->where('id', $id_bienthe)
+                //         ->update(['luottang' => DB::raw("GREATEST(luottang - {$deltaFree}, 0)")]);
+                // } elseif ($deltaFree < 0) {
+                //     $restore = abs($deltaFree);
+                //     DB::table('bienthe')
+                //         ->where('id', $id_bienthe)
+                //         ->update(['luottang' => DB::raw("luottang + {$restore}")]);
+                // }
 
                 // Cập nhật hoặc tạo dòng quà tặng
                 if ($numFree > 0) {
@@ -273,9 +273,10 @@ class GioHangFrontendAPI extends BaseFrontendController
      *     summary="Cập nhật số lượng sản phẩm trong giỏ hàng (tự động áp dụng khuyến mãi/quà tặng nếu có)",
      *     description="
      *     - Cập nhật số lượng sản phẩm trong giỏ hàng.
-     *     - Nếu số lượng mới bằng 0, sản phẩm sẽ bị xóa khỏi giỏ hàng.
-     *     - Áp dụng tự động chương trình quà tặng/sự kiện nếu thỏa điều kiện (`dieukien <= soluong` và trong thời gian hiệu lực).
-     *     - Cập nhật số lượng quà tặng miễn phí và lượt tặng (`luottang`) tương ứng.
+     *     - Nếu số lượng mới bằng 0, sản phẩm sẽ bị xóa khỏi giỏ hàng cùng quà tặng liên quan.
+     *     - Áp dụng tự động chương trình quà tặng/sự kiện nếu thỏa điều kiện (`dieukien <= soluong`) và trong thời gian hiệu lực.
+     *     - Tự động thêm hoặc xóa quà tặng miễn phí tương ứng với số lượng sản phẩm.
+     *     - Không còn quản lý số lượng lượt tặng (`luottang`) trong bảng biến thể.
      *     ",
      *     security={{"bearerAuth": {}}},
      *     @OA\Parameter(
@@ -293,7 +294,7 @@ class GioHangFrontendAPI extends BaseFrontendController
      *                 property="soluong",
      *                 type="integer",
      *                 example=5,
-     *                 description="Số lượng mới của sản phẩm. Nếu = 0 sẽ xóa sản phẩm khỏi giỏ hàng."
+     *                 description="Số lượng mới của sản phẩm. Nếu = 0 sẽ xóa sản phẩm khỏi giỏ hàng cùng quà tặng liên quan."
      *             )
      *         )
      *     ),
@@ -307,7 +308,7 @@ class GioHangFrontendAPI extends BaseFrontendController
      *             @OA\Property(
      *                 property="data",
      *                 type="array",
-     *                 description="Danh sách sản phẩm trong giỏ hàng sau khi cập nhật",
+     *                 description="Danh sách sản phẩm trong giỏ hàng sau khi cập nhật, bao gồm cả quà tặng miễn phí",
      *                 @OA\Items(ref="#/components/schemas/GioHangResource")
      *             )
      *         )
@@ -359,11 +360,11 @@ class GioHangFrontendAPI extends BaseFrontendController
                     ->where('thanhtien', 0)
                     ->first();
 
-                if ($freeItem) {
-                    $restoreQty = $freeItem->soluong;
-                    DB::table('bienthe')->where('id', $id_bienthe)
-                        ->update(['luottang' => DB::raw("luottang + {$restoreQty}")]);
-                }
+                // if ($freeItem) {
+                //     $restoreQty = $freeItem->soluong;
+                //     DB::table('bienthe')->where('id', $id_bienthe)
+                //         ->update(['luottang' => DB::raw("luottang + {$restoreQty}")]);
+                // }
 
                 GiohangModel::where('id_nguoidung', $userId)
                     ->where('id_bienthe', $id_bienthe)
@@ -384,7 +385,7 @@ class GioHangFrontendAPI extends BaseFrontendController
             $promotion = DB::table('quatang_sukien as qs')
                 ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
                 ->where('qs.id_bienthe', $id_bienthe)
-                ->where('bt.luottang', '>', 0)
+                // ->where('bt.luottang', '>', 0)
                 ->where('qs.dieukien', '<=', $soluongNew)
                 ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
                 ->select(
@@ -413,22 +414,23 @@ class GioHangFrontendAPI extends BaseFrontendController
                 ->lockForUpdate()
                 ->first();
 
-            $numFreeOld = $freeItem ? $freeItem->soluong : 0;
-            $delta = $numFreeNew - $numFreeOld;
+            // $numFreeOld = $freeItem ? $freeItem->soluong : 0;
+            // $delta = $numFreeNew - $numFreeOld;
 
             // ✅ Cập nhật lại luottang theo chênh lệch
-            if ($delta > 0) {
-                // Giảm thêm
-                DB::table('bienthe')
-                    ->where('id', $id_bienthe)
-                    ->update(['luottang' => DB::raw("GREATEST(luottang - {$delta}, 0)")]);
-            } elseif ($delta < 0) {
-                // Hoàn lại phần giảm
-                $restore = abs($delta);
-                DB::table('bienthe')
-                    ->where('id', $id_bienthe)
-                    ->update(['luottang' => DB::raw("luottang + {$restore}")]);
-            }
+            // Bỏ vì luottang sẽ liên quan đế thông kế chưa ko còn là quản lý số quà tặng
+            // if ($delta > 0) {
+            //     // Giảm thêm
+            //     DB::table('bienthe')
+            //         ->where('id', $id_bienthe)
+            //         ->update(['luottang' => DB::raw("GREATEST(luottang - {$delta}, 0)")]);
+            // } elseif ($delta < 0) {
+            //     // Hoàn lại phần giảm
+            //     $restore = abs($delta);
+            //     DB::table('bienthe')
+            //         ->where('id', $id_bienthe)
+            //         ->update(['luottang' => DB::raw("luottang + {$restore}")]);
+            // }
 
             // ✅ Cập nhật sản phẩm chính
             $item->update([
