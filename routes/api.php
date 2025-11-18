@@ -254,7 +254,16 @@ use App\Http\Controllers\API\ThongBaoAPI;
         Route::post('/toi/donhangs', [DonHangFrontendAPI::class, 'store']);
         Route::put('/toi/donhangs/{id}', [DonHangFrontendAPI::class, 'update']);
         Route::patch('/toi/donhangs/{id}/huy', [DonHangFrontendAPI::class, 'cancel']);
+
+        // Tích hợp thanh toán VNPAY, cần thêm 3 route
+        Route::post('/toi/donhangs/{id}/payment-url', [DonHangFrontendAPI::class, 'createPaymentUrl']);
+        Route::get('/toi/donhangs/{id}/status', [DonHangFrontendAPI::class, 'getPaymentStatus']);
     });
+        // Tích hợp thanh toán VNPAY, cần thêm 3 route
+        Route::get('/toi/donhangs/payment-callback', [DonHangFrontendAPI::class, 'handlePaymentCallback'])
+        ->name('api.toi.donhangs.payment-callback');
+        // ko cần auth vì là hook từ VNPAY gửi về, nếu auth có thể dẫn đến lỗi 401 Unauthorized
+
         Route::middleware(['auth.api'])->group(function () {
             Route::get('/toi/theodoi-donhang', [TheoDoiDonHangFrontendAPI::class, 'index']);
             Route::put('/toi/theodoi-donhang/{id}', [TheoDoiDonHangFrontendAPI::class, 'update']);

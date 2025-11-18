@@ -333,6 +333,7 @@ Route::get('/toi/giohang', [GioHangWebApi::class, 'index']);
 Route::post('/toi/giohang', [GioHangWebApi::class, 'store']);
 Route::put('/toi/giohang/{id}', [GioHangWebApi::class, 'update']);
 Route::delete('/toi/giohang/{id}', [GioHangWebApi::class, 'destroy']);
+
 Route::get('/api-san-pham', [SanphamAllWebAPI::class, 'index']);
 Route::get('/api-san-pham/{id}', [SanphamAllWebAPI::class, 'show']);
 
@@ -353,12 +354,20 @@ Route::middleware(['auth.api'])->group(function () {
     Route::post('/toi/donhang', [DonHangWebApi::class, 'store']);
     Route::put('/toi/donhang/{id}', [DonHangWebApi::class, 'update']);
     Route::patch('/toi/donhang/{id}/huy', [DonHangWebApi::class, 'cancel']);
-});
 
-Route::middleware(['auth.username_order'])->group(function () {
-    Route::get('/toi/theodoi-donhang', [TheoDoiDonHangWebApi::class, 'index']);
-    Route::put('/toi/theodoi-donhang/{id}', [TheoDoiDonHangWebApi::class, 'update']);
+    // Tích hợp thanh toán VNPAY, cần thêm 3 route
+    Route::post('/toi/donhang/{id}/payment-url', [DonHangWebApi::class, 'createPaymentUrl']);
+    Route::get('/toi/donhang/{id}/status', [DonHangWebApi::class, 'getPaymentStatus']);
 });
+    // Tích hợp thanh toán VNPAY, cần thêm 3 route
+    Route::get('/toi/donhang/payment-callback', [DonHangWebApi::class, 'handlePaymentCallback'])
+    ->name('toi.donhang.payment-callback');;
+    // ko cần auth vì là hook từ VNPAY gửi về, nếu auth có thể dẫn đến lỗi 401 Unauthorized
+
+    Route::middleware(['auth.username_order'])->group(function () {
+        Route::get('/toi/theodoi-donhang', [TheoDoiDonHangWebApi::class, 'index']);
+        Route::put('/toi/theodoi-donhang/{id}', [TheoDoiDonHangWebApi::class, 'update']);
+    });
 Route::middleware(['auth.api'])->group(function () {
     Route::get('/toi/yeuthich', [YeuThichWebApi::class, 'index']); // Xem danh sách yêu thích
     Route::post('/toi/yeuthich', [YeuThichWebApi::class, 'store']); // Thêm sản phẩm vào yêu thích

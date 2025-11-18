@@ -46,7 +46,7 @@ class DonHangFrontendAPI extends BaseFrontendController
 
 
 
-    //--------------- method của Nguyên : end ------------------ //
+
 
     /**
      * @OA\Get(
@@ -244,7 +244,7 @@ class DonHangFrontendAPI extends BaseFrontendController
             return response()->json([
                 'status'  => true,
                 'message' => 'Tạo đơn hàng thành công!',
-                'data'    => $donhang->load('chitietdonhang.bienthe.sanpham'),
+                'data'    => $donhang->makeVisible(['created_at'])->load('chitietdonhang.bienthe.sanpham'),
             ], Response::HTTP_CREATED);
 
         } catch (\Exception $e) {
@@ -448,4 +448,104 @@ class DonHangFrontendAPI extends BaseFrontendController
             'data' => $donhang,
         ], Response::HTTP_OK);
     }
+
+    // #Begin------------------- Tích hợp thanh toán VNPAY, cần thêm 3 route ----------------------//
+
+    public function createPaymentUrl(Request $request, $id)
+    {
+        $user = $request->get('auth_user');
+        $donhang = DonhangModel::where('id', $id)->where('id_nguoidung', $user->id)->first();
+
+        if (!$donhang || $donhang->trangthaithanhtoan !== 'Chưa thanh toán') {
+            return response()->json(['status' => false, 'message' => 'Đơn hàng không hợp lệ hoặc đã thanh toán.'], 400);
+        }
+
+        $vnp_Url = config('vnpay.payment_url');
+        $vnp_TmnCode = config('vnpay.tmn_code');
+        $vnp_HashSecret = config('vnpay.hash_secret');
+        $vnp_Returnurl = route('api.toi.donhangs.payment-callback');
+
+        $inputData = [
+            'vnp_Version' => '2.1.0',
+            'vnp_TmnCode' => $vnp_TmnCode,
+            'vnp_Amount' => $donhang->thanhtien * 100,
+            'vnp_Command' => 'pay',
+            'vnp_CreateDate' => date('YmdHis'),
+            'vnp_CurrCode' => 'VND',
+            'vnp_IpAddr' => $request->ip(),
+            'vnp_Locale' => 'vn',
+            'vnp_OrderInfo' => "Thanh toán đơn hàng #{$donhang->madon}",
+            'vnp_OrderType' => 'other',
+            'vnp_ReturnUrl' => $vnp_Returnurl,
+            'vnp_TxnRef' => $donhang->madon,
+        ];
+
+        ksort($inputData);
+        $query = http_build_query($inputData, '', '&');
+        $vnp_SecureHash = hash_hmac('sha512', $query, $vnp_HashSecret);
+        $paymentUrl = $vnp_Url . '?' . $query . '&vnp_SecureHash=' . $vnp_SecureHash;
+
+        return response()->json(['status' => true, 'payment_url' => $paymentUrl]);
+        // return redirect($paymentUrl); có thể dùng redirect nếu muốn chuyển hướng ngay
+    }
+
+    public function handlePaymentCallback(Request $request)
+    {
+        $vnp_HashSecret = config('vnpay.hash_secret');
+        $inputData = $request->all();
+
+        $vnp_SecureHash = $inputData['vnp_SecureHash'] ?? '';
+        unset($inputData['vnp_SecureHash']);
+        unset($inputData['vnp_SecureHashType']);
+
+        ksort($inputData);
+        $query = http_build_query($inputData, '', '&');
+        $computedHash = hash_hmac('sha512', $query, $vnp_HashSecret);
+
+        if ($computedHash !== $vnp_SecureHash) {
+            return response('Chữ ký không hợp lệ', 400);
+        }
+
+        $orderCode = $inputData['vnp_TxnRef'] ?? null;
+        $responseCode = $inputData['vnp_ResponseCode'] ?? null;
+
+        if (!$orderCode) {
+            return response('Không tìm thấy đơn hàng', 400);
+        }
+
+        $donhang = DonhangModel::where('madon', $orderCode)->first();
+
+        if (!$donhang) {
+            return response('Đơn hàng không tồn tại', 404);
+        }
+
+        if ($responseCode === '00') {
+            $donhang->trangthaithanhtoan = 'Đã thanh toán';
+            $donhang->trangthai = 'Chờ xử lý';
+            $donhang->save();
+            return response('OK', 200);
+        } else {
+            $donhang->trangthaithanhtoan = 'Thanh toán thất bại';
+            $donhang->trangthai = 'Đã hủy';
+            $donhang->save();
+            return response('Thanh toán thất bại', 200);
+        }
+    }
+
+    public function getPaymentStatus(Request $request, $id)
+    {
+        $user = $request->get('auth_user');
+        $donhang = DonhangModel::where('id', $id)->where('id_nguoidung', $user->id)->first();
+
+        if (!$donhang) {
+            return response()->json(['status' => false, 'message' => 'Đơn hàng không tồn tại'], 404);
+        }
+
+        return response()->json([
+            'status' => true,
+            'payment_status' => $donhang->trangthaithanhtoan,
+            'order_status' => $donhang->trangthai,
+        ]);
+    }
+    // #End------------------- Tích hợp thanh toán VNPAY, cần thêm 3 route ----------------------//
 }
