@@ -227,7 +227,7 @@ class AuthFrontendController extends BaseFrontendController
      *                 @OA\Property(property="gioitinh", type="string", enum={"Nam","Nữ"}, example="Nam", description="Giới tính"),
      *                 @OA\Property(property="avatar", type="string", format="binary", description="Ảnh đại diện (file hình ảnh)"),
      *                 @OA\Property(property="diachi", type="string", example="123 Đường ABC, Quận XYZ", description="Địa chỉ giao hàng"),
-     *                 @OA\Property(property="tinhthanh", type="string", example="Hà Nội", description="Tỉnh thành"),
+     *                 @OA\Property(property="tinhthanh", type="string", example="Thành Phố Hà Nội", description="Tỉnh thành"),
      *                 @OA\Property(property="trangthai_diachi", type="string", enum={"Mặc định","Khác","Tạm ẩn"}, example="Mặc định", description="Trạng thái địa chỉ giao hàng")
      *             )
      *         )
@@ -263,7 +263,7 @@ class AuthFrontendController extends BaseFrontendController
         // Validate input
         $req->validate([
             'hoten' => 'required|string',
-            'sodienthoai' => 'required|string|max:10|unique:nguoidung,sodienthoai,' . $user->id,
+            'sodienthoai' => 'required|string|max:10',
             'ngaysinh' => 'required|date',
             'gioitinh' => 'required|in:Nam,Nữ',
             'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -280,21 +280,29 @@ class AuthFrontendController extends BaseFrontendController
 
             $userData = $req->only(['hoten', 'sodienthoai', 'ngaysinh', 'gioitinh']);
 
+            // var_dump($userData);
+            // exit;
+
+
             // Avatar
             if ($req->hasFile('avatar')) {
                 $file = $req->file('avatar');
                 $filename = time() . '_' . $file->getClientOriginalName();
                 $file->storeAs($this->uploadDirBaoMat, $filename, 'public');
                 $userData['avatar'] = $link_hinh_anh . $filename;
-            } else {
-                $userData['avatar'] = $link_hinh_anh . 'khachhang.jpg';
             }
 
+
             // Update user info
+            // $result = $user->update($userData); // để debug
             $user->update($userData);
+
+            // ttới debug đang ok
 
             // === Địa chỉ giao hàng ===
             $diachiGiaohang = $user->diachi()->where('trangthai', 'Mặc định')->first();
+
+
 
             $diachiData = [
                 'hoten' => $req->hoten,
@@ -304,7 +312,10 @@ class AuthFrontendController extends BaseFrontendController
                 'trangthai' => $req->trangthai_diachi,
             ];
 
+
+
             if ($diachiGiaohang) {
+                // $result2 = $diachiGiaohang->update($diachiData); // để debug
                 $diachiGiaohang->update($diachiData);
             } else {
                 $diachiData['id_nguoidung'] = $user->id;
@@ -316,14 +327,29 @@ class AuthFrontendController extends BaseFrontendController
                 }
             }
 
+
+
             // Reset địa chỉ khác
             if ($req->trangthai_diachi === 'Mặc định' && $diachiGiaohang) {
+                // $result3 = $user->diachi()
+                //     ->where('id', '!=', $diachiGiaohang->id)
+                //     ->update(['trangthai' => 'Khác']); // để debug
                 $user->diachi()
                     ->where('id', '!=', $diachiGiaohang->id)
                     ->update(['trangthai' => 'Khác']);
             }
 
+
+
+            // $result4 = DB::commit(); // để debug
             DB::commit(); // ================= COMMIT =================
+
+            //tới đây đúng hết rồi chỉ là cái trả res nó sida á ^^
+            // return $this->jsonResponse([
+            //     'success' => false,
+            //     'message' => 'Lỗi khi cập nhật dữ liệu!',
+            //     'error' => [$userData,$filename,$result, $diachiGiaohang,$diachiData,$result2,$result3,$result4], // Tạm bật debug cho frontend xem
+            // ], 500); //để debug
 
             return $this->jsonResponse([
                 'success' => true,
