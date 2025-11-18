@@ -73,8 +73,10 @@ class LoaibientheModel extends Model
             // 3️⃣ Nếu có sản phẩm liên quan thì xóa luôn ảnh và sản phẩm
             if (!empty($idSanPhams)) {
 
+                DanhmucSanphamModel::whereIn('id_sanpham', $idSanPhams)->forceDelete();
+
                 // 🖼️ Xóa cứng hình ảnh sản phẩm liên quan
-                HinhanhSanphamModel::withTrashed()
+                HinhanhsanphamModel::withTrashed()
                     ->whereIn('id_sanpham', $idSanPhams)
                     ->forceDelete();
 

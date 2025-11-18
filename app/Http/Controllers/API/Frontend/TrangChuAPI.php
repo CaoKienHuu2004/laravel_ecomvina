@@ -335,8 +335,8 @@ class TrangChuAPI extends BaseFrontendController
     {
         /** 🔥 DANH MỤC HÀNG ĐẦU DỰA THEO LUOTBAN CỦA BIẾN THỂ */
         /** DANH MỤC HÀNG ĐẦU */ //-------------------------------- + nhiều đơn hàng của sản phẩm nhất , UI chỉ có 6 limmit danh mục con, All là 4 limmit //
-        $categoryLimit = $request->get('per_page', 6);
-        $productLimit = 6;
+        $categoryLimit = $request->get('per_page', 5); //ban đầu là 6
+        $productLimit = 12; //ban đầu là 6
 
         // Lấy danh mục kèm sản phẩm không giới hạn số lượng (limit bỏ ở đây)
         $categories = DanhmucModel::with(['sanpham' => function($q) {
@@ -397,7 +397,7 @@ class TrangChuAPI extends BaseFrontendController
         /** 🔥 THƯƠNG HIỆU HÀNG ĐẦU DỰA THEO LUOTBAN CỦA BIẾN THỂ */
         //--------------------------- limit 10 // nhiều đơn hàng của sản phẩm nhất // list danh sách thuong hieu ko phải sản phẩm
 
-        $perPage = $request->get('per_page', 10);
+        $perPage = $request->get('per_page', 5); // ban đầu 10
 
         // Lấy thương hiệu kèm theo sản phẩm và biến thể
         $brands = ThuongHieuModel::with(['sanpham.bienthe'])
@@ -426,7 +426,7 @@ class TrangChuAPI extends BaseFrontendController
         // @OA\Items(ref="#/components/schemas/HotSaleResource")
         // v1 GET /api/sanphams-selection?selection=best_products // limit 8 // nhiều đơn hàng của sản phẩm nhất và đánh giá
         // v2 từ 4 -5 sao trở lên, bán chạy uy tín
-        $perPage = $request->get('per_page', 8);
+        $perPage = $request->get('per_page', 10);
 
         $query = SanphamModel::with([
                 'hinhanhsanpham',   // hình ảnh sản phẩm
