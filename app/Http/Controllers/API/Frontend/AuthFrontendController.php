@@ -70,28 +70,83 @@ class AuthFrontendController extends BaseFrontendController
      *     path="/api/auth/dang-nhap",
      *     tags={"Xác thực người dùng (Auth)"},
      *     summary="Đăng nhập người dùng",
-     *     description="Gửi username và password để đăng nhập, trả về token hợp lệ.",
+     *     description="Đăng nhập bằng username hoặc email cùng mật khẩu, trả về token phiên làm việc hợp lệ.",
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"username","password"},
-     *             @OA\Property(property="username", type="string", example="khacduy"),
-     *             @OA\Property(property="password", type="string", example="123456")
+     *             oneOf={
+     *                 @OA\Schema(
+     *                     required={"email","password"},
+     *                     @OA\Property(property="email", type="string", format="email", example="user@example.com", description="Email đăng nhập"),
+     *                     @OA\Property(property="password", type="string", example="123456", description="Mật khẩu")
+     *                 ),
+     *                 @OA\Schema(
+     *                     required={"username","password"},
+     *                     @OA\Property(property="username", type="string", example="khacduy", description="Tên đăng nhập (chỉ chữ, số, dấu _ tối đa 15 ký tự)"),
+     *                     @OA\Property(property="password", type="string", example="123456", description="Mật khẩu")
+     *                 )
+     *             }
      *         )
      *     ),
-     *     @OA\Response(response=200, description="Đăng nhập thành công"),
-     *     @OA\Response(response=401, description="Tên đăng nhập hoặc mật khẩu không chính xác")
+     *     @OA\Response(
+     *         response=200,
+     *         description="Đăng nhập thành công",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="token", type="string", example="random_generated_token_string"),
+     *             @OA\Property(property="message", type="string", example="Đăng Nhập Thành Công")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Tên đăng nhập hoặc mật khẩu không chính xác",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Tên đăng nhập hoặc mật khẩu không chính xác 😓")
+     *         )
+     *     )
      * )
      */
     public function login(Request $req)
     {
-        $req->validate([
-            'username' => 'required|string',
-            'password' => 'required|string',
-        ]);
+        // Nếu gửi email → validate theo email
+        if ($req->has('email')) {
+            $req->validate([
+                'email' => 'required|email',
+                'password' => 'required|string',
+            ]);
 
-        $user = NguoidungModel::where('username', $req->username)->first();
+            $input = $req->email;
 
+            // tìm theo email (phần sau dấu phẩy)
+            $user = NguoidungModel::whereRaw(
+                "SUBSTRING_INDEX(username, ',', -1) = ?",
+                [$input]
+            )->first();
+
+        }
+        // Nếu gửi username → validate theo username
+        else {
+            $req->validate([
+                'username' => [
+                    'required',
+                    'string',
+                    'max:15',
+                    'regex:/^[A-Za-z0-9_]+$/',   // chỉ cho chữ, số và dấu _
+                ],
+                'password' => 'required|string',
+            ]);
+
+            $input = $req->username;
+
+            // tìm theo username (phần trước dấu phẩy)
+            $user = NguoidungModel::whereRaw(
+                "SUBSTRING_INDEX(username, ',', 1) = ?",
+                [$input]
+            )->first();
+        }
+
+        // Kiểm tra user + mật khẩu
         if (!$user || !Hash::check($req->password, $user->password)) {
             return $this->jsonResponse([
                 'success' => false,
@@ -99,9 +154,9 @@ class AuthFrontendController extends BaseFrontendController
             ], 401);
         }
 
+        // Tạo token
         $token = Str::random(60);
-        $key = "api_token:$token";
-        Redis::setex($key, 86400, $user->id);
+        Redis::setex("api_token:$token", 86400, $user->id);
 
         return $this->jsonResponse([
             'success' => true,
@@ -110,62 +165,112 @@ class AuthFrontendController extends BaseFrontendController
         ]);
     }
 
+
     /**
      * @OA\Post(
      *     path="/api/auth/dang-ky",
      *     tags={"Xác thực người dùng (Auth)"},
      *     summary="Đăng ký tài khoản mới",
-     *     description="Tạo tài khoản mới bằng tên, username, số điện thoại và mật khẩu. Và tự động gửi thông báo nhắc người dùng cập nhật thông tin người dùng",
+     *     description="Tạo tài khoản mới với họ tên, username, email, số điện thoại, mật khẩu. Tự động tạo thông báo nhắc người dùng cập nhật thông tin cá nhân.",
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"hoten","username","password","password_confirmation"},
-     *             @OA\Property(property="hoten", type="string", example="Nguyễn Văn Duy"),
-     *             @OA\Property(property="username", type="string", example="duy123"),
-     *             @OA\Property(property="password", type="string", example="123456"),
-     *             @OA\Property(property="password_confirmation", type="string", example="123456"),
-     *             @OA\Property(property="sodienthoai", type="string",description="chỉ gồm 10 chữ số" , example="1234567890" ),
-     *             @OA\Property(property="ngaysinh", type="date", description="mặc định 2000-01-01" , example="null" ),
-     *             @OA\Property(property="vaitro", type="string", description="mặc định client" , example="null" ),
-     *             @OA\Property(property="gioitinh", type="string", description="mặc định Nam" , example="null" ),
-     *             @OA\Property(property="avatar", type="string", description="mặc định domain-ip/assets/client/images/thumbs/khachhang.jpg" , example="null" ),
-     *             @OA\Property(property="trangthai", type="string", description="mặc định Hoạt động" , example="null" ),
+     *             required={"hoten","username","email","password","password_confirmation"},
+     *             @OA\Property(property="hoten", type="string", example="Nguyễn Văn Duy", description="Họ và tên đầy đủ"),
+     *             @OA\Property(property="username", type="string", example="duy123", description="Tên đăng nhập, chỉ gồm chữ, số và dấu gạch dưới, tối đa 15 ký tự"),
+     *             @OA\Property(property="email", type="string", format="email", example="duy123@gmail.com", description="Địa chỉ email hợp lệ"),
+     *             @OA\Property(property="password", type="string", format="password", example="123456", description="Mật khẩu"),
+     *             @OA\Property(property="password_confirmation", type="string", format="password", example="123456", description="Xác nhận mật khẩu phải giống trường password"),
+     *             @OA\Property(property="sodienthoai", type="string", maxLength=10, example="1234567890", description="Số điện thoại, tối đa 10 chữ số, có thể bỏ trống"),
+     *             @OA\Property(property="ngaysinh", type="string", format="date", example="2000-01-01", description="Ngày sinh, mặc định 2000-01-01"),
+     *             @OA\Property(property="vaitro", type="string", example="client", description="Vai trò người dùng, mặc định client"),
+     *             @OA\Property(property="gioitinh", type="string", example="Nam", description="Giới tính, mặc định Nam"),
+     *             @OA\Property(property="avatar", type="string", example="domain-ip/assets/client/images/thumbs/khachhang.jpg", description="Ảnh đại diện mặc định"),
+     *             @OA\Property(property="trangthai", type="string", example="Hoạt động", description="Trạng thái tài khoản, mặc định Hoạt động")
      *         )
      *     ),
-     *     @OA\Response(response=201, description="Đăng ký thành công"),
-     *     @OA\Response(response=400, description="Dữ liệu không hợp lệ hoặc username đã tồn tại")
+     *     @OA\Response(
+     *         response=201,
+     *         description="Đăng ký thành công",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="token", type="string", example="random_generated_token_string"),
+     *             @OA\Property(property="message", type="string", example="Đăng Ký Thành Công")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Dữ liệu không hợp lệ hoặc username/email đã tồn tại",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Username đã tồn tại")
+     *         )
+     *     )
      * )
      */
     public function register(Request $req)
     {
+        // Validate trước
         $req->validate([
             'hoten' => 'required|string',
-            'username' => 'required|string|unique:nguoidung,username',
+            'username' => 'required|string|max:15|regex:/^[A-Za-z0-9_]+$/',
+            'email' => 'required|string|email',
             'password' => 'required|string|confirmed',
             'sodienthoai' => 'nullable|string|unique:nguoidung,sodienthoai|max:10',
         ]);
+
+        $onlyUsername = $req->username;
+        $onlyEmail    = $req->email;
+
+        $existsUsername = DB::table('nguoidung')
+            ->whereRaw("SUBSTRING_INDEX(username, ',', 1) = ?", [$onlyUsername])
+            ->exists();
+
+        if ($existsUsername) {
+            return $this->jsonResponse([
+                'success' => false,
+                'message' => 'Username đã tồn tại',
+            ], 422);
+        }
+
+        $existsEmail = DB::table('nguoidung')
+            ->whereRaw("SUBSTRING_INDEX(username, ',', -1) = ?", [$onlyEmail])
+            ->exists();
+
+        if ($existsEmail) {
+            return $this->jsonResponse([
+                'success' => false,
+                'message' => 'Email đã tồn tại',
+            ], 422);
+        }
+
+        // Lưu username dạng username,email
+        $fullUsername = $onlyUsername . ',' . $onlyEmail;
+
         $link_hinh_anh = $this->domain . $this->uploadDir . '/';
+
         $user = NguoidungModel::create([
             'hoten' => $req->hoten,
-            'username' => $req->username,
+            'username' => $fullUsername,
             'password' => bcrypt($req->password),
-            'sodienthoai'  => $req->sodienthoai,
-            'ngaysinh' => '2000-01-01', // mặc định ngày sinh cho người dùng mới
+            'sodienthoai' => $req->sodienthoai,
+            'ngaysinh' => '2000-01-01',
             'vaitro' => 'client',
             'gioitinh' => 'Nam',
-            'avatar' => $link_hinh_anh.'khachhang.jpg',
+            'avatar' => $link_hinh_anh . 'khachhang.jpg',
             'trangthai' => 'Hoạt động',
         ]);
 
-            // Tạo thông báo cho user mới
-            ThongbaoModel::create([
-                'id_nguoidung' => $user->id,
-                'tieude' => 'Cập nhật thông tin cá nhân',
-                'noidung' => 'Bạn vui lòng cập nhật thông tin cá nhân để hoàn thiện hồ sơ.',
-                'lienket' => null, // hoặc link đến trang cập nhật profile nếu có
-                'trangthai' => 'Chưa đọc',
-            ]);
+        // Tạo thông báo
+        ThongbaoModel::create([
+            'id_nguoidung' => $user->id,
+            'tieude' => 'Cập nhật thông tin cá nhân',
+            'noidung' => 'Bạn vui lòng cập nhật thông tin cá nhân để hoàn thiện hồ sơ.',
+            'lienket' => null,
+            'trangthai' => 'Chưa đọc',
+        ]);
 
+        // Token
         $token = Str::random(60);
         Redis::setex("api_token:$token", 86400, $user->id);
 
@@ -176,15 +281,49 @@ class AuthFrontendController extends BaseFrontendController
         ]);
     }
 
+
+
     /**
      * @OA\Get(
      *     path="/api/auth/thong-tin-nguoi-dung",
      *     tags={"Xác thực người dùng (Auth)"},
-     *     summary="Lấy thông tin người dùng hiện tại + địa chỉ người dùng, lưu ý người dùng mới đăng ký nhắc người dùng cập nhật địa chỉ và 1 số thông tin đang set mặc định ",
-     *     description="Yêu cầu header Authorization: Bearer {token}",
+     *     summary="Lấy thông tin người dùng hiện tại và địa chỉ giao hàng của người dùng",
+     *     description="Trả về thông tin chi tiết người dùng bao gồm username, email (được tách ra từ trường username theo định dạng 'username,email'), số điện thoại, họ tên, giới tính, ngày sinh, avatar, vai trò, trạng thái tài khoản, cùng danh sách các địa chỉ giao hàng.
+     *                  Yêu cầu header Authorization: Bearer {token}",
      *     security={{"bearerAuth":{}}},
-     *     @OA\Response(response=200, description="Trả về thông tin người dùng và địa chỉ người dùng (địa chỉ giao hàng)"),
-     *     @OA\Response(response=401, description="Token không hợp lệ hoặc đã hết hạn")
+     *     @OA\Response(
+     *         response=200,
+     *         description="Thông tin người dùng trả về thành công",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="user", type="object",
+     *                 @OA\Property(property="id", type="integer", example=123),
+     *                 @OA\Property(property="username", type="string", example="username123"),
+     *                 @OA\Property(property="email", type="string", example="email@example.com"),
+     *                 @OA\Property(property="sodienthoai", type="string", example="0987654321"),
+     *                 @OA\Property(property="hoten", type="string", example="Nguyễn Văn A"),
+     *                 @OA\Property(property="gioitinh", type="string", enum={"Nam","Nữ"}, example="Nam"),
+     *                 @OA\Property(property="ngaysinh", type="string", format="date", example="1990-01-01"),
+     *                 @OA\Property(property="avatar", type="string", example="https://domain.com/storage/path/avatar.jpg"),
+     *                 @OA\Property(property="vaitro", type="string", example="admin"),
+     *                 @OA\Property(property="trangthai", type="string", example="active"),
+     *                 @OA\Property(
+     *                     property="diachi",
+     *                     type="array",
+     *                     description="Danh sách địa chỉ giao hàng",
+     *                     @OA\Items(ref="#/components/schemas/DiachiGiaohangResource")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Token không hợp lệ hoặc đã hết hạn",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Token không hợp lệ hoặc đã hết hạn!")
+     *         )
+     *     )
      * )
      */
     public function profile(Request $req)
@@ -214,7 +353,9 @@ class AuthFrontendController extends BaseFrontendController
      *     path="/api/auth/cap-nhat-thong-tin",
      *     tags={"Xác thực người dùng (Auth)"},
      *     summary="Cập nhật thông tin người dùng hiện tại",
-     *     description="Cập nhật thông tin cá nhân, avatar và (nếu cung cấp đầy đủ 3 trường) cập nhật hoặc thêm địa chỉ giao hàng mặc định. Yêu cầu header Authorization: Bearer {token}",
+     *     description="Cập nhật thông tin cá nhân, avatar và (nếu cung cấp đầy đủ 3 trường) cập nhật hoặc thêm địa chỉ giao hàng mặc định.
+     *                  Email được cập nhật nằm trong trường 'username' theo định dạng 'username,email' (phần email nằm sau dấu phẩy).
+     *                  Yêu cầu header Authorization: Bearer {token}",
      *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
@@ -253,13 +394,20 @@ class AuthFrontendController extends BaseFrontendController
      *                     format="binary",
      *                     description="Ảnh đại diện (file hình ảnh)"
      *                 ),
-     *
+     *                 @OA\Property(
+     *                     property="email",
+     *                     type="string",
+     *                     format="email",
+     *                     nullable=true,
+     *                     example="email@example.com",
+     *                     description="Email sẽ được cập nhật bên trong trường 'username' theo định dạng 'username,email', và ko bắt buộc phải gửi"
+     *                 ),
      *                 @OA\Property(
      *                     property="diachi",
      *                     type="string",
      *                     nullable=true,
      *                     example="123 Đường ABC, Quận XYZ",
-     *                     description="Địa chỉ giao hàng (không bắt buộc — chỉ xử lý nếu cung cấp đủ 3 trường)"
+     *                     description="Địa chỉ giao hàng (không bắt buộc — chỉ xử lý nếu cung cấp đầy đủ 3 trường địa chỉ)"
      *                 ),
      *                 @OA\Property(
      *                     property="tinhthanh",
@@ -274,7 +422,7 @@ class AuthFrontendController extends BaseFrontendController
      *                     nullable=true,
      *                     enum={"Mặc định","Khác","Tạm ẩn"},
      *                     example="Mặc định",
-     *                     description="Trạng thái địa chỉ (không bắt buộc — chỉ áp dụng khi đủ 3 trường)"
+     *                     description="Trạng thái địa chỉ (không bắt buộc — chỉ áp dụng khi đủ 3 trường địa chỉ)"
      *                 )
      *             )
      *         )
@@ -309,6 +457,7 @@ class AuthFrontendController extends BaseFrontendController
 
         // Validate input
         $req->validate([
+            'email' => 'sometimes|email', // là 1 phần tử[1] của username khi bị explode
             'hoten' => 'required|string',
             'sodienthoai' => 'required|string|max:10',
             'ngaysinh' => 'required|date',
@@ -330,6 +479,13 @@ class AuthFrontendController extends BaseFrontendController
             $link_hinh_anh = $this->domain . 'storage/' . $this->uploadDirBaoMat . '/';
 
             $userData = $req->only(['hoten', 'sodienthoai', 'ngaysinh', 'gioitinh']);
+            if ($req->has('email')) {
+                $oldUsernameEmail = $user->username; // dạng: "username,email"
+                $arrayFiledUsername = explode(',', $oldUsernameEmail);
+                $oldUsername = $arrayFiledUsername[0];
+                $newEmail = $req->input('email', $arrayFiledUsername[1]);
+                $userData['username'] = $oldUsername . ',' . $newEmail;
+            }
 
             // var_dump($userData);
             // exit;
@@ -347,48 +503,6 @@ class AuthFrontendController extends BaseFrontendController
             // Update user info
             // $result = $user->update($userData); // để debug
             $user->update($userData);
-
-            // ttới debug đang ok
-
-            // === Địa chỉ giao hàng ===
-            // begin=== Với logic edit profile, nguoidung yêu cầu có ít nhất 1 diachi_giaohang ===
-            // $diachiGiaohang = $user->diachi()->where('trangthai', 'Mặc định')->first();
-
-
-
-            // $diachiData = [
-            //     'hoten' => $req->hoten,
-            //     'sodienthoai' => $req->sodienthoai,
-            //     'diachi' => $req->diachi,
-            //     'tinhthanh' => $req->tinhthanh,
-            //     'trangthai' => $req->trangthai_diachi,
-            // ];
-
-
-
-            // if ($diachiGiaohang) {
-            //     // $result2 = $diachiGiaohang->update($diachiData); // để debug
-            //     $diachiGiaohang->update($diachiData);
-            // } else {
-            //     $diachiData['id_nguoidung'] = $user->id;
-            //     $newAddress = $user->diachi()->create($diachiData);
-
-            //     // Nếu tạo mới mà được đánh dấu mặc định -> đặt $diachiGiaohang là record mới
-            //     if ($req->trangthai_diachi === 'Mặc định') {
-            //         $diachiGiaohang = $newAddress;
-            //     }
-            // }
-
-            // // Reset địa chỉ khác
-            // if ($req->trangthai_diachi === 'Mặc định' && $diachiGiaohang) {
-            //     // $result3 = $user->diachi()
-            //     //     ->where('id', '!=', $diachiGiaohang->id)
-            //     //     ->update(['trangthai' => 'Khác']); // để debug
-            //     $user->diachi()
-            //         ->where('id', '!=', $diachiGiaohang->id)
-            //         ->update(['trangthai' => 'Khác']);
-            // }
-            // End=== Với logic edit profile, nguoidung yêu cầu có ít nhất 1 diachi_giaohang ===
 
             // === XỬ LÝ ĐỊA CHỈ GIAO HÀNG ===
             // Begin===CHỈ xử lý khi người dùng gửi đầy đủ cả 3 trường, logic bây h` có thì insert diachi_giaohang ko thì bỏ qua===

@@ -18,38 +18,102 @@
                     "Xác thực người dùng (Auth)"
                 ],
                 "summary": "Đăng nhập người dùng",
-                "description": "Gửi username và password để đăng nhập, trả về token hợp lệ.",
+                "description": "Đăng nhập bằng username hoặc email cùng mật khẩu, trả về token phiên làm việc hợp lệ.",
                 "operationId": "da33544cc75f245d50b4b75744e622f5",
                 "requestBody": {
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "username",
-                                    "password"
-                                ],
-                                "properties": {
-                                    "username": {
-                                        "type": "string",
-                                        "example": "khacduy"
+                                "oneOf": [
+                                    {
+                                        "required": [
+                                            "email",
+                                            "password"
+                                        ],
+                                        "properties": {
+                                            "email": {
+                                                "description": "Email đăng nhập",
+                                                "type": "string",
+                                                "format": "email",
+                                                "example": "user@example.com"
+                                            },
+                                            "password": {
+                                                "description": "Mật khẩu",
+                                                "type": "string",
+                                                "example": "123456"
+                                            }
+                                        },
+                                        "type": "object"
                                     },
-                                    "password": {
-                                        "type": "string",
-                                        "example": "123456"
+                                    {
+                                        "required": [
+                                            "username",
+                                            "password"
+                                        ],
+                                        "properties": {
+                                            "username": {
+                                                "description": "Tên đăng nhập (chỉ chữ, số, dấu _ tối đa 15 ký tự)",
+                                                "type": "string",
+                                                "example": "khacduy"
+                                            },
+                                            "password": {
+                                                "description": "Mật khẩu",
+                                                "type": "string",
+                                                "example": "123456"
+                                            }
+                                        },
+                                        "type": "object"
                                     }
-                                },
-                                "type": "object"
+                                ]
                             }
                         }
                     }
                 },
                 "responses": {
                     "200": {
-                        "description": "Đăng nhập thành công"
+                        "description": "Đăng nhập thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "random_generated_token_string"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Đăng Nhập Thành Công"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
-                        "description": "Tên đăng nhập hoặc mật khẩu không chính xác"
+                        "description": "Tên đăng nhập hoặc mật khẩu không chính xác",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Tên đăng nhập hoặc mật khẩu không chính xác 😓"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -60,7 +124,7 @@
                     "Xác thực người dùng (Auth)"
                 ],
                 "summary": "Đăng ký tài khoản mới",
-                "description": "Tạo tài khoản mới bằng tên, username, số điện thoại và mật khẩu. Và tự động gửi thông báo nhắc người dùng cập nhật thông tin người dùng",
+                "description": "Tạo tài khoản mới với họ tên, username, email, số điện thoại, mật khẩu. Tự động tạo thông báo nhắc người dùng cập nhật thông tin cá nhân.",
                 "operationId": "1167faf5e6ebce762e6019984fd8db77",
                 "requestBody": {
                     "required": true,
@@ -70,56 +134,70 @@
                                 "required": [
                                     "hoten",
                                     "username",
+                                    "email",
                                     "password",
                                     "password_confirmation"
                                 ],
                                 "properties": {
                                     "hoten": {
+                                        "description": "Họ và tên đầy đủ",
                                         "type": "string",
                                         "example": "Nguyễn Văn Duy"
                                     },
                                     "username": {
+                                        "description": "Tên đăng nhập, chỉ gồm chữ, số và dấu gạch dưới, tối đa 15 ký tự",
                                         "type": "string",
                                         "example": "duy123"
                                     },
-                                    "password": {
+                                    "email": {
+                                        "description": "Địa chỉ email hợp lệ",
                                         "type": "string",
+                                        "format": "email",
+                                        "example": "duy123@gmail.com"
+                                    },
+                                    "password": {
+                                        "description": "Mật khẩu",
+                                        "type": "string",
+                                        "format": "password",
                                         "example": "123456"
                                     },
                                     "password_confirmation": {
+                                        "description": "Xác nhận mật khẩu phải giống trường password",
                                         "type": "string",
+                                        "format": "password",
                                         "example": "123456"
                                     },
                                     "sodienthoai": {
-                                        "description": "chỉ gồm 10 chữ số",
+                                        "description": "Số điện thoại, tối đa 10 chữ số, có thể bỏ trống",
                                         "type": "string",
+                                        "maxLength": 10,
                                         "example": "1234567890"
                                     },
                                     "ngaysinh": {
-                                        "description": "mặc định 2000-01-01",
+                                        "description": "Ngày sinh, mặc định 2000-01-01",
                                         "type": "string",
                                         "format": "date",
-                                        "example": "null"
+                                        "example": "2000-01-01"
                                     },
                                     "vaitro": {
-                                        "description": "mặc định client",
+                                        "description": "Vai trò người dùng, mặc định client",
                                         "type": "string",
-                                        "example": "null"
+                                        "example": "client"
                                     },
                                     "gioitinh": {
-                                        "description": "mặc định Nam",
+                                        "description": "Giới tính, mặc định Nam",
                                         "type": "string",
-                                        "example": "null"
+                                        "example": "Nam"
                                     },
                                     "avatar": {
-                                        "description": "mặc định domain-ip/assets/client/images/thumbs/khachhang.jpg",
+                                        "description": "Ảnh đại diện mặc định",
                                         "type": "string",
-                                        "example": "null"
+                                        "example": "domain-ip/assets/client/images/thumbs/khachhang.jpg"
                                     },
                                     "trangthai": {
-                                        "description": "mặc định Hoạt động",
+                                        "description": "Trạng thái tài khoản, mặc định Hoạt động",
                                         "type": "string",
-                                        "example": "null"
+                                        "example": "Hoạt động"
                                     }
                                 },
                                 "type": "object"
@@ -129,10 +207,48 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Đăng ký thành công"
+                        "description": "Đăng ký thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "random_generated_token_string"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Đăng Ký Thành Công"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
-                    "400": {
-                        "description": "Dữ liệu không hợp lệ hoặc username đã tồn tại"
+                    "422": {
+                        "description": "Dữ liệu không hợp lệ hoặc username/email đã tồn tại",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Username đã tồn tại"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -142,15 +258,102 @@
                 "tags": [
                     "Xác thực người dùng (Auth)"
                 ],
-                "summary": "Lấy thông tin người dùng hiện tại + địa chỉ người dùng, lưu ý người dùng mới đăng ký nhắc người dùng cập nhật địa chỉ và 1 số thông tin đang set mặc định ",
-                "description": "Yêu cầu header Authorization: Bearer {token}",
+                "summary": "Lấy thông tin người dùng hiện tại và địa chỉ giao hàng của người dùng",
+                "description": "Trả về thông tin chi tiết người dùng bao gồm username, email (được tách ra từ trường username theo định dạng 'username,email'), số điện thoại, họ tên, giới tính, ngày sinh, avatar, vai trò, trạng thái tài khoản, cùng danh sách các địa chỉ giao hàng.\n     *                  Yêu cầu header Authorization: Bearer {token}",
                 "operationId": "92ccc4ff78f280c05c71d0d06fc45afa",
                 "responses": {
                     "200": {
-                        "description": "Trả về thông tin người dùng và địa chỉ người dùng (địa chỉ giao hàng)"
+                        "description": "Thông tin người dùng trả về thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 123
+                                                },
+                                                "username": {
+                                                    "type": "string",
+                                                    "example": "username123"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "email@example.com"
+                                                },
+                                                "sodienthoai": {
+                                                    "type": "string",
+                                                    "example": "0987654321"
+                                                },
+                                                "hoten": {
+                                                    "type": "string",
+                                                    "example": "Nguyễn Văn A"
+                                                },
+                                                "gioitinh": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "Nam",
+                                                        "Nữ"
+                                                    ],
+                                                    "example": "Nam"
+                                                },
+                                                "ngaysinh": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "example": "1990-01-01"
+                                                },
+                                                "avatar": {
+                                                    "type": "string",
+                                                    "example": "https://domain.com/storage/path/avatar.jpg"
+                                                },
+                                                "vaitro": {
+                                                    "type": "string",
+                                                    "example": "admin"
+                                                },
+                                                "trangthai": {
+                                                    "type": "string",
+                                                    "example": "active"
+                                                },
+                                                "diachi": {
+                                                    "description": "Danh sách địa chỉ giao hàng",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/DiachiGiaohangResource"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
-                        "description": "Token không hợp lệ hoặc đã hết hạn"
+                        "description": "Token không hợp lệ hoặc đã hết hạn",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Token không hợp lệ hoặc đã hết hạn!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -166,7 +369,7 @@
                     "Xác thực người dùng (Auth)"
                 ],
                 "summary": "Cập nhật thông tin người dùng hiện tại",
-                "description": "Cập nhật thông tin cá nhân, avatar và (nếu cung cấp đầy đủ 3 trường) cập nhật hoặc thêm địa chỉ giao hàng mặc định. Yêu cầu header Authorization: Bearer {token}",
+                "description": "Cập nhật thông tin cá nhân, avatar và (nếu cung cấp đầy đủ 3 trường) cập nhật hoặc thêm địa chỉ giao hàng mặc định.\n     *                  Email được cập nhật nằm trong trường 'username' theo định dạng 'username,email' (phần email nằm sau dấu phẩy).\n     *                  Yêu cầu header Authorization: Bearer {token}",
                 "operationId": "911557ea3285127e2221d53a082fb6fd",
                 "requestBody": {
                     "required": true,
@@ -204,8 +407,15 @@
                                         "type": "string",
                                         "format": "binary"
                                     },
+                                    "email": {
+                                        "description": "Email sẽ được cập nhật bên trong trường 'username' theo định dạng 'username,email', và ko bắt buộc phải gửi",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "email@example.com",
+                                        "nullable": true
+                                    },
                                     "diachi": {
-                                        "description": "Địa chỉ giao hàng (không bắt buộc — chỉ xử lý nếu cung cấp đủ 3 trường)",
+                                        "description": "Địa chỉ giao hàng (không bắt buộc — chỉ xử lý nếu cung cấp đầy đủ 3 trường địa chỉ)",
                                         "type": "string",
                                         "example": "123 Đường ABC, Quận XYZ",
                                         "nullable": true
@@ -217,7 +427,7 @@
                                         "nullable": true
                                     },
                                     "trangthai_diachi": {
-                                        "description": "Trạng thái địa chỉ (không bắt buộc — chỉ áp dụng khi đủ 3 trường)",
+                                        "description": "Trạng thái địa chỉ (không bắt buộc — chỉ áp dụng khi đủ 3 trường địa chỉ)",
                                         "type": "string",
                                         "enum": [
                                             "Mặc định",
@@ -4629,6 +4839,42 @@
                     "khuvuc": {
                         "type": "string",
                         "example": "Đồng bằng Sông Hồng"
+                    }
+                },
+                "type": "object"
+            },
+            "DiachiGiaohangResource": {
+                "title": "Địa chỉ giao hàng",
+                "properties": {
+                    "id": {
+                        "description": "ID địa chỉ",
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "hoten": {
+                        "description": "Họ tên người nhận",
+                        "type": "string",
+                        "example": "Nguyễn Văn A"
+                    },
+                    "sodienthoai": {
+                        "description": "Số điện thoại",
+                        "type": "string",
+                        "example": "0987654321"
+                    },
+                    "diachi": {
+                        "description": "Địa chỉ chi tiết",
+                        "type": "string",
+                        "example": "123 Đường ABC, Quận XYZ"
+                    },
+                    "tinhthanh": {
+                        "description": "Tỉnh thành",
+                        "type": "string",
+                        "example": "Thành Phố Hà Nội"
+                    },
+                    "trangthai": {
+                        "description": "Trạng thái địa chỉ",
+                        "type": "string",
+                        "example": "Mặc định"
                     }
                 },
                 "type": "object"

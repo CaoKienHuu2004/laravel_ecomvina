@@ -305,4 +305,6 @@ document.getElementById('gift-list').addEventListener('change', function(event) 
 </script>
 @endsection
 
-
+{{-- component của template
+dd-mm-yyyy
+input-groupicon datetimepicker --}}
