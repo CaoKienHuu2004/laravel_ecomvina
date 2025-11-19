@@ -214,21 +214,68 @@ class AuthFrontendController extends BaseFrontendController
      *     path="/api/auth/cap-nhat-thong-tin",
      *     tags={"Xác thực người dùng (Auth)"},
      *     summary="Cập nhật thông tin người dùng hiện tại",
-     *     description="Cập nhật thông tin cá nhân, avatar và địa chỉ giao hàng mặc định. Yêu cầu header Authorization: Bearer {token}",
+     *     description="Cập nhật thông tin cá nhân, avatar và (nếu cung cấp đầy đủ 3 trường) cập nhật hoặc thêm địa chỉ giao hàng mặc định. Yêu cầu header Authorization: Bearer {token}",
      *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\MediaType(
      *             mediaType="multipart/form-data",
      *             @OA\Schema(
-     *                 @OA\Property(property="hoten", type="string", example="Nguyễn Văn A", description="Họ và tên"),
-     *                 @OA\Property(property="sodienthoai", type="string", example="0987654321", description="Số điện thoại liên hệ"),
-     *                 @OA\Property(property="ngaysinh", type="string", format="date", example="1990-01-01", description="Ngày sinh"),
-     *                 @OA\Property(property="gioitinh", type="string", enum={"Nam","Nữ"}, example="Nam", description="Giới tính"),
-     *                 @OA\Property(property="avatar", type="string", format="binary", description="Ảnh đại diện (file hình ảnh)"),
-     *                 @OA\Property(property="diachi", type="string", example="123 Đường ABC, Quận XYZ", description="Địa chỉ giao hàng"),
-     *                 @OA\Property(property="tinhthanh", type="string", example="Thành Phố Hà Nội", description="Tỉnh thành"),
-     *                 @OA\Property(property="trangthai_diachi", type="string", enum={"Mặc định","Khác","Tạm ẩn"}, example="Mặc định", description="Trạng thái địa chỉ giao hàng")
+     *                 @OA\Property(
+     *                     property="hoten",
+     *                     type="string",
+     *                     example="Nguyễn Văn A",
+     *                     description="Họ và tên"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="sodienthoai",
+     *                     type="string",
+     *                     example="0987654321",
+     *                     description="Số điện thoại liên hệ"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="ngaysinh",
+     *                     type="string",
+     *                     format="date",
+     *                     example="1990-01-01",
+     *                     description="Ngày sinh"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="gioitinh",
+     *                     type="string",
+     *                     enum={"Nam","Nữ"},
+     *                     example="Nam",
+     *                     description="Giới tính"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="avatar",
+     *                     type="string",
+     *                     format="binary",
+     *                     description="Ảnh đại diện (file hình ảnh)"
+     *                 ),
+     *
+     *                 @OA\Property(
+     *                     property="diachi",
+     *                     type="string",
+     *                     nullable=true,
+     *                     example="123 Đường ABC, Quận XYZ",
+     *                     description="Địa chỉ giao hàng (không bắt buộc — chỉ xử lý nếu cung cấp đủ 3 trường)"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="tinhthanh",
+     *                     type="string",
+     *                     nullable=true,
+     *                     example="Thành Phố Hà Nội",
+     *                     description="Tỉnh thành (không bắt buộc — phải hợp lệ nếu được gửi)"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="trangthai_diachi",
+     *                     type="string",
+     *                     nullable=true,
+     *                     enum={"Mặc định","Khác","Tạm ẩn"},
+     *                     example="Mặc định",
+     *                     description="Trạng thái địa chỉ (không bắt buộc — chỉ áp dụng khi đủ 3 trường)"
+     *                 )
      *             )
      *         )
      *     ),
@@ -267,9 +314,13 @@ class AuthFrontendController extends BaseFrontendController
             'ngaysinh' => 'required|date',
             'gioitinh' => 'required|in:Nam,Nữ',
             'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'diachi' => 'required|string',
-            'tinhthanh' => ['required', 'string', Rule::in($provinceNames)],
-            'trangthai_diachi' => 'required|in:Mặc định,Khác,Tạm ẩn',
+            // Chuyển lại logic edit profile không bắt buộc nhập trường của địa chỉ
+            // 'diachi' => 'required|string',
+            // 'tinhthanh' => ['required', 'string', Rule::in($provinceNames)],
+            // 'trangthai_diachi' => 'required|in:Mặc định,Khác,Tạm ẩn',
+            'diachi' => 'nullable|string',
+            'tinhthanh' => ['nullable', 'string', Rule::in($provinceNames)],
+            'trangthai_diachi' => 'nullable|in:Mặc định,Khác,Tạm ẩn',
         ]);
 
         DB::beginTransaction(); // ================= BEGIN TRANSACTION =================
@@ -300,45 +351,81 @@ class AuthFrontendController extends BaseFrontendController
             // ttới debug đang ok
 
             // === Địa chỉ giao hàng ===
-            $diachiGiaohang = $user->diachi()->where('trangthai', 'Mặc định')->first();
+            // begin=== Với logic edit profile, nguoidung yêu cầu có ít nhất 1 diachi_giaohang ===
+            // $diachiGiaohang = $user->diachi()->where('trangthai', 'Mặc định')->first();
 
 
 
-            $diachiData = [
-                'hoten' => $req->hoten,
-                'sodienthoai' => $req->sodienthoai,
-                'diachi' => $req->diachi,
-                'tinhthanh' => $req->tinhthanh,
-                'trangthai' => $req->trangthai_diachi,
-            ];
+            // $diachiData = [
+            //     'hoten' => $req->hoten,
+            //     'sodienthoai' => $req->sodienthoai,
+            //     'diachi' => $req->diachi,
+            //     'tinhthanh' => $req->tinhthanh,
+            //     'trangthai' => $req->trangthai_diachi,
+            // ];
 
 
 
-            if ($diachiGiaohang) {
-                // $result2 = $diachiGiaohang->update($diachiData); // để debug
-                $diachiGiaohang->update($diachiData);
-            } else {
-                $diachiData['id_nguoidung'] = $user->id;
-                $newAddress = $user->diachi()->create($diachiData);
+            // if ($diachiGiaohang) {
+            //     // $result2 = $diachiGiaohang->update($diachiData); // để debug
+            //     $diachiGiaohang->update($diachiData);
+            // } else {
+            //     $diachiData['id_nguoidung'] = $user->id;
+            //     $newAddress = $user->diachi()->create($diachiData);
 
-                // Nếu tạo mới mà được đánh dấu mặc định -> đặt $diachiGiaohang là record mới
-                if ($req->trangthai_diachi === 'Mặc định') {
-                    $diachiGiaohang = $newAddress;
+            //     // Nếu tạo mới mà được đánh dấu mặc định -> đặt $diachiGiaohang là record mới
+            //     if ($req->trangthai_diachi === 'Mặc định') {
+            //         $diachiGiaohang = $newAddress;
+            //     }
+            // }
+
+            // // Reset địa chỉ khác
+            // if ($req->trangthai_diachi === 'Mặc định' && $diachiGiaohang) {
+            //     // $result3 = $user->diachi()
+            //     //     ->where('id', '!=', $diachiGiaohang->id)
+            //     //     ->update(['trangthai' => 'Khác']); // để debug
+            //     $user->diachi()
+            //         ->where('id', '!=', $diachiGiaohang->id)
+            //         ->update(['trangthai' => 'Khác']);
+            // }
+            // End=== Với logic edit profile, nguoidung yêu cầu có ít nhất 1 diachi_giaohang ===
+
+            // === XỬ LÝ ĐỊA CHỈ GIAO HÀNG ===
+            // Begin===CHỈ xử lý khi người dùng gửi đầy đủ cả 3 trường, logic bây h` có thì insert diachi_giaohang ko thì bỏ qua===
+            $hasAddressInput = $req->filled('diachi')
+                                && $req->filled('tinhthanh')
+                                && $req->filled('trangthai_diachi');
+
+            if ($hasAddressInput) {
+                $diachiGiaohang = $user->diachi()->where('trangthai', 'Mặc định')->first();
+
+                $diachiData = [
+                    'hoten'       => $req->hoten,
+                    'sodienthoai' => $req->sodienthoai,
+                    'diachi'      => $req->diachi,
+                    'tinhthanh'   => $req->tinhthanh,
+                    'trangthai'   => $req->trangthai_diachi,
+                ];
+
+                if ($diachiGiaohang) {
+                    $diachiGiaohang->update($diachiData);
+                } else {
+                    // Tạo mới
+                    $diachiData['id_nguoidung'] = $user->id;
+                    $newAddress = $user->diachi()->create($diachiData);
+
+                    if ($req->trangthai_diachi === 'Mặc định') {
+                        $diachiGiaohang = $newAddress;
+                    }
+                }
+
+                if ($req->trangthai_diachi === 'Mặc định' && $diachiGiaohang) {
+                    $user->diachi()
+                        ->where('id', '!=', $diachiGiaohang->id)
+                        ->update(['trangthai' => 'Khác']);
                 }
             }
-
-
-
-            // Reset địa chỉ khác
-            if ($req->trangthai_diachi === 'Mặc định' && $diachiGiaohang) {
-                // $result3 = $user->diachi()
-                //     ->where('id', '!=', $diachiGiaohang->id)
-                //     ->update(['trangthai' => 'Khác']); // để debug
-                $user->diachi()
-                    ->where('id', '!=', $diachiGiaohang->id)
-                    ->update(['trangthai' => 'Khác']);
-            }
-
+            // End===CHỈ xử lý khi người dùng gửi đầy đủ cả 3 trường, logic bây h` có thì insert diachi_giaohang ko thì bỏ qua===
 
 
             // $result4 = DB::commit(); // để debug

@@ -449,8 +449,50 @@ class DonHangFrontendAPI extends BaseFrontendController
         ], Response::HTTP_OK);
     }
 
-    // #Begin------------------- Tích hợp thanh toán VNPAY, cần thêm 3 route ----------------------//
+            // #Begin------------------- Tích hợp thanh toán VNPAY, cần thêm 3 route ----------------------//
 
+
+    /**
+     * @OA\Post(
+     *     path="/api/toi/donhangs/{id}/create-payment-url",
+     *     summary="Tạo URL thanh toán VNPAY cho đơn hàng",
+     *     description="
+     *         Tạo URL thanh toán VNPAY dựa trên thông tin đơn hàng và trả về URL này cho frontend để người dùng tiến hành thanh toán.
+     *         - Chỉ tạo cho đơn hàng có trạng thái thanh toán là 'Chưa thanh toán'.
+     *         - Trả về URL đầy đủ có chữ ký bảo mật của VNPAY.
+     *         - Frontend sẽ chuyển hướng người dùng sang URL này để thực hiện thanh toán.
+     *     ",
+     *     tags={"Thanh toán VNPAY"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID đơn hàng cần tạo URL thanh toán",
+     *         required=true,
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Trả về URL thanh toán VNPAY thành công",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="payment_url", type="string", example="https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?...&vnp_SecureHash=...")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Đơn hàng không hợp lệ hoặc đã được thanh toán",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Đơn hàng không hợp lệ hoặc đã thanh toán.")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Token không hợp lệ hoặc chưa đăng nhập"
+     *     )
+     * )
+     */
     public function createPaymentUrl(Request $request, $id)
     {
         $user = $request->get('auth_user');
@@ -489,6 +531,65 @@ class DonHangFrontendAPI extends BaseFrontendController
         // return redirect($paymentUrl); có thể dùng redirect nếu muốn chuyển hướng ngay
     }
 
+
+    /**
+     * @OA\Get(
+     *     path="/api/toi/donhangs/payment-callback",
+     *     summary="Xử lý callback từ VNPAY sau khi thanh toán",
+     *     description="
+     *         Nhận thông tin callback từ VNPAY về kết quả thanh toán.
+     *         - Xác thực chữ ký bảo mật (secure hash) để đảm bảo dữ liệu hợp lệ.
+     *         - Kiểm tra mã đơn hàng và trạng thái thanh toán (vnp_ResponseCode).
+     *         - Nếu thành công (ResponseCode = '00'), cập nhật đơn hàng thành 'Đã thanh toán' và trạng thái đơn hàng là 'Chờ xử lý'.
+     *         - Nếu thất bại, cập nhật trạng thái thanh toán là 'Thanh toán thất bại' và trạng thái đơn hàng là 'Đã hủy'.
+     *         - Trả về chuỗi 'OK' khi thành công để VNPAY ghi nhận callback.
+     *         - Trả về lỗi 400 nếu chữ ký không hợp lệ hoặc dữ liệu không đúng.
+     *     ",
+     *     tags={"Thanh toán VNPAY"},
+     *     @OA\Parameter(
+     *         name="vnp_Amount",
+     *         in="query",
+     *         description="Số tiền thanh toán (đơn vị 100 VND)",
+     *         required=true,
+     *         @OA\Schema(type="integer", example=7500000)
+     *     ),
+     *     @OA\Parameter(
+     *         name="vnp_ResponseCode",
+     *         in="query",
+     *         description="Mã kết quả thanh toán (00: thành công, khác: thất bại)",
+     *         required=true,
+     *         @OA\Schema(type="string", example="00")
+     *     ),
+     *     @OA\Parameter(
+     *         name="vnp_TxnRef",
+     *         in="query",
+     *         description="Mã đơn hàng",
+     *         required=true,
+     *         @OA\Schema(type="string", example="VNA1122001")
+     *     ),
+     *     @OA\Parameter(
+     *         name="vnp_SecureHash",
+     *         in="query",
+     *         description="Chữ ký bảo mật của VNPAY để xác thực dữ liệu",
+     *         required=true,
+     *         @OA\Schema(type="string")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Xử lý callback thành công",
+     *         @OA\MediaType(mediaType="text/plain")
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Chữ ký không hợp lệ hoặc dữ liệu thiếu",
+     *         @OA\MediaType(mediaType="text/plain")
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Không tìm thấy đơn hàng tương ứng"
+     *     )
+     * )
+     */
     public function handlePaymentCallback(Request $request)
     {
         $vnp_HashSecret = config('vnpay.hash_secret');
@@ -532,6 +633,49 @@ class DonHangFrontendAPI extends BaseFrontendController
         }
     }
 
+    /**
+     * @OA\Get(
+     *     path="/api/toi/donhangs/{id}/payment-status",
+     *     summary="Lấy trạng thái thanh toán đơn hàng",
+     *     description="
+     *         API cho phép frontend hoặc client kiểm tra trạng thái thanh toán và trạng thái đơn hàng.
+     *         - Dùng để hiển thị thông tin cập nhật cho người dùng sau khi thanh toán.
+     *         - Trả về:
+     *           + payment_status: trạng thái thanh toán (ví dụ: 'Chưa thanh toán', 'Đã thanh toán', 'Thanh toán thất bại')
+     *           + order_status: trạng thái đơn hàng (ví dụ: 'Chờ xử lý', 'Đã hủy', ...)
+     *     ",
+     *     tags={"Thanh toán VNPAY"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID đơn hàng cần kiểm tra trạng thái thanh toán",
+     *         required=true,
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Trả về trạng thái thanh toán và trạng thái đơn hàng",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="payment_status", type="string", example="Đã thanh toán"),
+     *             @OA\Property(property="order_status", type="string", example="Chờ xử lý")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Không tìm thấy đơn hàng",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Đơn hàng không tồn tại")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Token không hợp lệ hoặc chưa đăng nhập"
+     *     )
+     * )
+     */
     public function getPaymentStatus(Request $request, $id)
     {
         $user = $request->get('auth_user');
@@ -547,5 +691,5 @@ class DonHangFrontendAPI extends BaseFrontendController
             'order_status' => $donhang->trangthai,
         ]);
     }
-    // #End------------------- Tích hợp thanh toán VNPAY, cần thêm 3 route ----------------------//
+            // #End------------------- Tích hợp thanh toán VNPAY, cần thêm 3 route ----------------------//
 }
