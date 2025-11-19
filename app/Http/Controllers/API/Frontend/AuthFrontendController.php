@@ -78,12 +78,12 @@ class AuthFrontendController extends BaseFrontendController
      *                 @OA\Schema(
      *                     required={"email","password"},
      *                     @OA\Property(property="email", type="string", format="email", example="user@example.com", description="Email đăng nhập"),
-     *                     @OA\Property(property="password", type="string", example="123456", description="Mật khẩu")
+     *                     @OA\Property(property="password", type="string", example="123456", description="Mật khẩu (chỉ chữ, số, dấu _ tối đa 15 ký tự)")
      *                 ),
      *                 @OA\Schema(
      *                     required={"username","password"},
      *                     @OA\Property(property="username", type="string", example="khacduy", description="Tên đăng nhập (chỉ chữ, số, dấu _ tối đa 15 ký tự)"),
-     *                     @OA\Property(property="password", type="string", example="123456", description="Mật khẩu")
+     *                     @OA\Property(property="password", type="string", example="123456", description="Mật khẩu (chỉ chữ, số, dấu _ tối đa 15 ký tự)")
      *                 )
      *             }
      *         )
@@ -113,7 +113,7 @@ class AuthFrontendController extends BaseFrontendController
         if ($req->has('email')) {
             $req->validate([
                 'email' => 'required|email',
-                'password' => 'required|string',
+                'password'    => 'required|string|max:15|min:6|confirmed|regex:/^[A-Za-z0-9_]+$/',
             ]);
 
             $input = $req->email;
@@ -134,7 +134,7 @@ class AuthFrontendController extends BaseFrontendController
                     'max:15',
                     'regex:/^[A-Za-z0-9_]+$/',   // chỉ cho chữ, số và dấu _
                 ],
-                'password' => 'required|string',
+                'password'    => 'required|string|max:15|min:6|confirmed|regex:/^[A-Za-z0-9_]+$/',
             ]);
 
             $input = $req->username;
@@ -175,18 +175,13 @@ class AuthFrontendController extends BaseFrontendController
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"hoten","username","email","password","password_confirmation"},
-     *             @OA\Property(property="hoten", type="string", example="Nguyễn Văn Duy", description="Họ và tên đầy đủ"),
+     *             required={"hoten","username","email","sodienthoai","password","password_confirmation"},
+     *             @OA\Property(property="hoten", type="string", example="Nguyễn Văn Duy", description="Họ và tên đầy đủ, 30 ký tự, chỉ gồm chữ và dấu cách"),
      *             @OA\Property(property="username", type="string", example="duy123", description="Tên đăng nhập, chỉ gồm chữ, số và dấu gạch dưới, tối đa 15 ký tự"),
      *             @OA\Property(property="email", type="string", format="email", example="duy123@gmail.com", description="Địa chỉ email hợp lệ"),
-     *             @OA\Property(property="password", type="string", format="password", example="123456", description="Mật khẩu"),
+     *             @OA\Property(property="password", type="string", format="password", example="123456", description="Mật khẩu, chỉ gồm chữ, số và dấu gạch dưới, tối đa 15 ký tự"),
      *             @OA\Property(property="password_confirmation", type="string", format="password", example="123456", description="Xác nhận mật khẩu phải giống trường password"),
-     *             @OA\Property(property="sodienthoai", type="string", maxLength=10, example="1234567890", description="Số điện thoại, tối đa 10 chữ số, có thể bỏ trống"),
-     *             @OA\Property(property="ngaysinh", type="string", format="date", example="2000-01-01", description="Ngày sinh, mặc định 2000-01-01"),
-     *             @OA\Property(property="vaitro", type="string", example="client", description="Vai trò người dùng, mặc định client"),
-     *             @OA\Property(property="gioitinh", type="string", example="Nam", description="Giới tính, mặc định Nam"),
-     *             @OA\Property(property="avatar", type="string", example="domain-ip/assets/client/images/thumbs/khachhang.jpg", description="Ảnh đại diện mặc định"),
-     *             @OA\Property(property="trangthai", type="string", example="Hoạt động", description="Trạng thái tài khoản, mặc định Hoạt động")
+     *             @OA\Property(property="sodienthoai", type="string", maxLength=10, example="1234567890", description="Số điện thoại, tối đa 10 chữ số, có thể bỏ trống")
      *         )
      *     ),
      *     @OA\Response(
@@ -212,10 +207,10 @@ class AuthFrontendController extends BaseFrontendController
     {
         // Validate trước
         $req->validate([
-            'hoten' => 'required|string',
+            'hoten' => 'required|string|max:30|regex:/^[\pL\s]+$/u',
             'username' => 'required|string|max:15|regex:/^[A-Za-z0-9_]+$/',
             'email' => 'required|string|email',
-            'password' => 'required|string|confirmed',
+            'password'    => 'required|string|max:15|min:6|confirmed|regex:/^[A-Za-z0-9_]+$/',
             'sodienthoai' => 'nullable|string|unique:nguoidung,sodienthoai|max:10',
         ]);
 
@@ -254,10 +249,10 @@ class AuthFrontendController extends BaseFrontendController
             'username' => $fullUsername,
             'password' => bcrypt($req->password),
             'sodienthoai' => $req->sodienthoai,
+            'avatar' => $link_hinh_anh . 'khachhang.jpg',
             'ngaysinh' => '2000-01-01',
             'vaitro' => 'client',
             'gioitinh' => 'Nam',
-            'avatar' => $link_hinh_anh . 'khachhang.jpg',
             'trangthai' => 'Hoạt động',
         ]);
 
@@ -458,7 +453,7 @@ class AuthFrontendController extends BaseFrontendController
         // Validate input
         $req->validate([
             'email' => 'sometimes|email', // là 1 phần tử[1] của username khi bị explode
-            'hoten' => 'required|string',
+            'hoten' => 'required|string|max:30|regex:/^[\pL\s]+$/u',
             'sodienthoai' => 'required|string|max:10',
             'ngaysinh' => 'required|date',
             'gioitinh' => 'required|in:Nam,Nữ',
@@ -483,6 +478,12 @@ class AuthFrontendController extends BaseFrontendController
                 $oldUsernameEmail = $user->username; // dạng: "username,email"
                 $arrayFiledUsername = explode(',', $oldUsernameEmail);
                 $oldUsername = $arrayFiledUsername[0];
+                if (!isset($arrayFiledUsername[1])) {
+                    return $this->jsonResponse([
+                        'success' => false,
+                        'message' => 'Tài khoản chưa có email, không thể cập nhật email mới',
+                    ], 422);
+                }
                 $newEmail = $req->input('email', $arrayFiledUsername[1]);
                 $userData['username'] = $oldUsername . ',' . $newEmail;
             }

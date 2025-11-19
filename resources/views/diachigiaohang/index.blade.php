@@ -3,7 +3,7 @@
 @section('title', 'Danh sách địa chỉ giao hàng | Quản trị hệ thống Siêu Thị Vina')
 {{-- // các route sư dụng  diachigiaohang.index, diachigiaohang.create, diachigiaohang.show, diachigiaohang.edit, diachigiaohang.trash  diachigiaohang.destroy --}}
 
-{{-- // controller truyền xuống $diachis $search --}}
+{{-- // controller truyền xuống $diachis --}}
 @section('content')
 <div class="page-wrapper">
     <div class="content">
@@ -12,21 +12,25 @@
                 <h4>Danh sách địa chỉ giao hàng</h4>
                 <h6>Quản lý các địa chỉ giao hàng của khách hàng.</h6>
             </div>
-            <div class="page-btn">
-                <div class="mb-3 d-flex justify-content-between">
-                    <a href="{{ route('diachigiaohang.create') }}" class="btn btn-added">
-                        ➕ Thêm địa chỉ giao hàng
-                    </a>
-                    <a href="{{ route('diachigiaohang.trash') }}" class="btn btn-danger ms-2">
-                        🗑️ Thùng rác
-                    </a>
+            <div class="d-flex">
+                <div class="page-btn">
+                    <a href="{{route('diachigiaohang.create')}}" class="btn btn-added"><img
+                        src="{{asset('img/icons/plus.svg')}}"
+                        alt="img"
+                        class="me-1" />Tạo Mới Địa Chỉ</a>
+                </div>
+                <div class="page-btn ms-1">
+                    <a href="{{route('diachigiaohang.trash')}}" class="btn btn-added"><img
+                        src="{{asset('img/icons/delete.svg')}}"
+                        alt="img"
+                        class="me-1" />Thùng Rác</a>
                 </div>
             </div>
         </div>
 
         <div class="card">
             <div class="card-body">
-                <form method="GET" action="{{ route('diachigiaohang.index') }}" class="mb-3">
+                {{-- <form method="GET" action="{{ route('diachigiaohang.index') }}" class="mb-3">
                     <div class="input-group">
                         <input
                             type="text"
@@ -39,7 +43,7 @@
                             <img src="{{ asset('img/icons/search-white.svg') }}" alt="Tìm kiếm" />
                         </button>
                     </div>
-                </form>
+                </form> --}}
 
                 <div class="table-responsive">
                     <table class="table datanew">
@@ -74,7 +78,12 @@
                                     </td>
                                     <td>
                                         {{-- Hiển thị tên người dùng liên kết nếu có --}}
-                                        {{ $diachi->nguoidung->username ?? '-' }}
+                                        @php
+                                            $usernameValue = explode(',',$diachi->nguoidung->username)[0] ?? '';
+                                            // $emailValue = explode(',',$diachi->nguoidung->username)[1] ?? '';
+                                        @endphp
+                                        {{ $usernameValue ?? '-' }} <br>
+                                        {{-- {{ $emailValue ?? '-' }} --}}
                                     </td>
                                     <td>
                                         <a href="{{ route('diachigiaohang.show', $diachi->id) }}" title="Xem chi tiết" class="me-2">
@@ -101,11 +110,11 @@
                     </table>
                 </div>
 
-                @if ($diachis->hasPages())
+                {{-- @if ($diachis->hasPages())
                     <div class="mt-3">
                         {{ $diachis->links() }}
                     </div>
-                @endif
+                @endif --}}
             </div>
         </div>
     </div>

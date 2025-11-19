@@ -39,7 +39,7 @@
                                                 "example": "user@example.com"
                                             },
                                             "password": {
-                                                "description": "Mật khẩu",
+                                                "description": "Mật khẩu (chỉ chữ, số, dấu _ tối đa 15 ký tự)",
                                                 "type": "string",
                                                 "example": "123456"
                                             }
@@ -58,7 +58,7 @@
                                                 "example": "khacduy"
                                             },
                                             "password": {
-                                                "description": "Mật khẩu",
+                                                "description": "Mật khẩu (chỉ chữ, số, dấu _ tối đa 15 ký tự)",
                                                 "type": "string",
                                                 "example": "123456"
                                             }
@@ -135,12 +135,13 @@
                                     "hoten",
                                     "username",
                                     "email",
+                                    "sodienthoai",
                                     "password",
                                     "password_confirmation"
                                 ],
                                 "properties": {
                                     "hoten": {
-                                        "description": "Họ và tên đầy đủ",
+                                        "description": "Họ và tên đầy đủ, 30 ký tự, chỉ gồm chữ và dấu cách",
                                         "type": "string",
                                         "example": "Nguyễn Văn Duy"
                                     },
@@ -156,7 +157,7 @@
                                         "example": "duy123@gmail.com"
                                     },
                                     "password": {
-                                        "description": "Mật khẩu",
+                                        "description": "Mật khẩu, chỉ gồm chữ, số và dấu gạch dưới, tối đa 15 ký tự",
                                         "type": "string",
                                         "format": "password",
                                         "example": "123456"
@@ -172,32 +173,6 @@
                                         "type": "string",
                                         "maxLength": 10,
                                         "example": "1234567890"
-                                    },
-                                    "ngaysinh": {
-                                        "description": "Ngày sinh, mặc định 2000-01-01",
-                                        "type": "string",
-                                        "format": "date",
-                                        "example": "2000-01-01"
-                                    },
-                                    "vaitro": {
-                                        "description": "Vai trò người dùng, mặc định client",
-                                        "type": "string",
-                                        "example": "client"
-                                    },
-                                    "gioitinh": {
-                                        "description": "Giới tính, mặc định Nam",
-                                        "type": "string",
-                                        "example": "Nam"
-                                    },
-                                    "avatar": {
-                                        "description": "Ảnh đại diện mặc định",
-                                        "type": "string",
-                                        "example": "domain-ip/assets/client/images/thumbs/khachhang.jpg"
-                                    },
-                                    "trangthai": {
-                                        "description": "Trạng thái tài khoản, mặc định Hoạt động",
-                                        "type": "string",
-                                        "example": "Hoạt động"
                                     }
                                 },
                                 "type": "object"

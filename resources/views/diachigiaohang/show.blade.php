@@ -1,21 +1,23 @@
 @extends('layouts.app')
 
 @section('title', 'Chi tiết địa chỉ giao hàng')
-{{-- // các route sư dụng  diachigiaohang.index, diachigiaohang.edit --}}
+
+{{-- // các route sư dụng diachigiaohang.edit --- của breadcrumb diachigiaohang.index trang-chu --}}
 
 {{-- // controller truyền xuống $diachi $countDiaChiNguoiDung --}}
 @section('content')
 <div class="page-wrapper">
     <div class="content">
-        <div class="page-header mb-4">
-            <div class="page-title">
-                <h4>Chi tiết địa chỉ giao hàng</h4>
-                <h6>Thông tin chi tiết địa chỉ giao hàng của khách hàng</h6>
-            </div>
-            <div class="page-btn">
-                <a href="{{ route('diachigiaohang.index') }}" class="btn btn-primary">← Quay lại danh sách</a>
-                <a href="{{ route('diachigiaohang.edit', $diachi->id) }}" class="btn btn-warning ms-2">✏️ Chỉnh sửa</a>
-            </div>
+
+        <div class="page-header">
+            <x-header.breadcrumb
+                title='Xem Chi Tiết địa chỉ giao hàng của người dùng.'
+                :links="[
+                    ['label' => 'Tổng quan', 'route' => 'trang-chu'],
+                    ['label' => 'Danh sách địa chỉ giao hàng', 'route' => 'diachigiaohang.index']
+                ]"
+                active="Chi tiết"
+            />
         </div>
 
         <div class="card">
@@ -43,17 +45,24 @@
                             <td>{{ $diachi->tinhthanh }}</td>
                         </tr>
                         <tr>
-                            <th>Tài Khoản</th>
-                            <td><p> {{ $diachi->nguoidung->username ?? 'N/A' }} có {{ $countDiaChiNguoiDung }} địa chỉ giao hàng.</p></td>
+                            <th>Tài khoản <br> (Username / Email)</th>
+                            @php
+                                $usernameValue = explode(',', $diachi->nguoidung->username ?? '')[0] ?? 'Chưa cập nhật';
+                                $emailValue = explode(',', $diachi->nguoidung->username ?? '')[1] ?? 'Chưa cập nhật';
+                            @endphp
+                            <td>{{ $usernameValue }} / {{ $emailValue }}</td>
                         </tr>
-
+                        <tr>
+                            <th>Số lượng địa chỉ giao hàng</th>
+                            <td>{{ $countDiaChiNguoiDung }}</td>
+                        </tr>
                         <tr>
                             <th>Trạng thái</th>
                             <td>
                                 @php
                                     $statusClass = match($diachi->trangthai) {
                                         'Mặc định' => 'bg-lightgreen',
-                                        'Khác' => 'bg-lightgray',
+                                        'Khác' => 'bg-secondary',
                                         'Tạm ẩn' => 'bg-lightyellow',
                                         default => '',
                                     };
@@ -65,6 +74,7 @@
                 </table>
             </div>
         </div>
+
     </div>
 </div>
 @endsection

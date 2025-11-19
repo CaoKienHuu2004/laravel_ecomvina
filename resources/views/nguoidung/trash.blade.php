@@ -1,21 +1,22 @@
 @extends('layouts.app')
 
 @section('title', 'Thùng rác người dùng | Quản trị hệ thống Siêu Thị Vina')
-{{-- // các route sư dụng  nguoidung.index, nguoidung.restore, nguoidung.forceDelete--}}
+{{-- // controller truyền xuống $nguoidungs  --}}
+{{-- // các route sư dụng nguoidung.restore, nguoidung.forceDelete --- của breadcrumb nguoidung.index trang-chu  --}}
 {{-- $nguoidungs->avatar: Link http://148.230.100.215/storage/assets/client/images/profiles/tenfilehinhanh.jpg --}}
 @section('content')
 <div class="page-wrapper">
     <div class="content">
+
         <div class="page-header">
-            <div class="page-title">
-                <h4>Thùng rác người dùng</h4>
-                <h6>Quản lý người dùng đã bị xóa tạm thời.</h6>
-            </div>
-            <div class="page-btn">
-                <a href="{{ route('nguoidung.index') }}" class="btn btn-primary">
-                    Quay lại danh sách
-                </a>
-            </div>
+            <x-header.breadcrumb
+                title="Danh sách người dùng đang tạm xóa"
+                :links="[
+                    ['label' => 'Tổng quan', 'route' => 'trang-chu'],
+                    ['label' => 'Danh sách người dùng', 'route' => 'nguoidung.index']
+                ]"
+                active="Thùng rác"
+            />
         </div>
 
         <div class="card">
@@ -30,6 +31,7 @@
                             <tr>
                                 <th>Tên khách hàng</th>
                                 <th>Username</th>
+                                <th>Email</th>
                                 <th>Số điện thoại</th>
                                 <th>Địa chỉ (thành phố)</th>
                                 <th>Trạng thái</th>
@@ -45,8 +47,12 @@
                                     </a>
                                     <a href="javascript:void(0);">{{ $nguoidung->hoten }}</a>
                                 </td>
-                                <td>{{ $nguoidung->username }}</td>
-                                <td>{{ $nguoidung->sodienthoai }}</td>
+                                @php
+                                    $usernameValue = explode(',', $nguoidung->username)[0] ?? 'Chưa cập nhật';
+                                    $emailValue = explode(',', $nguoidung->username)[1] ?? 'Chưa cập nhật';
+                                @endphp
+                                <td>{{ $usernameValue }}</td>
+                                <td>{{ $emailValue }}</td>
                                 <td>
                                     @if($nguoidung->diachi->isNotEmpty())
                                         {{ $nguoidung->diachi->first()->diachi }} ({{ $nguoidung->diachi->first()->tinhthanh }})
@@ -83,9 +89,9 @@
                     </table>
                 </div>
 
-                <div class="pagination-wrapper">
+                {{-- <div class="pagination-wrapper">
                     {{ $nguoidungs->links() }}
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>

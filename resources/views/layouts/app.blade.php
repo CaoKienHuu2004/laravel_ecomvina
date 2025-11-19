@@ -199,10 +199,15 @@
                     ></a>
                     <ul>
                         {{-- /* ===================== NGƯỜI DÙNG ===================== */ --}}
-                    <li><a class="{{ request()->routeIs('nguoidung.index') || request()->routeIs('nguoidung.edit') || request()->routeIs('nguoidung.create') || request()->routeIs('nguoidung.show') ? 'active' : '' }}" href="{{ route('nguoidung.index') }}">Danh sách tài khoản người dùng</a></li>
-                    {{-- /* ===================== ĐỊA CHỈ GIAO HÀNG ===================== */ --}}
-                    <li><a class="{{ request()->routeIs('diachigiaohang.index') || request()->routeIs('diachigiaohang.edit') || request()->routeIs('diachigiaohang.create') || request()->routeIs('diachigiaohang.show') ? 'active' : '' }}" href="{{ route('diachigiaohang.index') }}">Danh sách địa chỉ giao hàng</a></li>
-                    {{--  --}}
+                        {{-- <li><a class="{{ request()->routeIs('nguoidung.index') || request()->routeIs('nguoidung.edit') || request()->routeIs('nguoidung.create') || request()->routeIs('nguoidung.show') || request()->routeIs('nguoidung.trash') ? 'active' : '' }}" href="{{ route('nguoidung.index') }}">Danh sách tài khoản người dùng</a></li> --}}
+                        <li>
+                            <a class="{{ request()->routeIs('nguoidung.*') ? 'active' : '' }}" href="{{ route('nguoidung.index') }}">
+                                Danh sách tài khoản người dùng
+                            </a>
+                        </li>
+                        {{-- /* ===================== ĐỊA CHỈ GIAO HÀNG ===================== */ --}}
+                        <li><a class="{{ request()->routeIs('diachigiaohang.index') || request()->routeIs('diachigiaohang.edit') || request()->routeIs('diachigiaohang.create') || request()->routeIs('diachigiaohang.show') || request()->routeIs('diachigiaohang.trash') ? 'active' : '' }}" href="{{ route('diachigiaohang.index') }}">Danh sách địa chỉ giao hàng</a></li>
+                        {{--  --}}
                     </ul>
                 </li>
                 {{-- // -- phuong thuc thanh toan --// --}}

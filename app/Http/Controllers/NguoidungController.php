@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\DiaChiGiaoHangModel;
 use App\Models\NguoidungModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
@@ -26,19 +27,23 @@ class NguoidungController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->input('search');
+        // $search = $request->input('search');
 
-        $query = NguoidungModel::orderByDesc('id');
+        // $query = NguoidungModel::orderByDesc('id');
 
-        if ($search) {
-            $query->where('username', 'like', "%{$search}%")
-                  ->orWhere('hoten', 'like', "%{$search}%")
-                  ->orWhere('sodienthoai', 'like', "%{$search}%");
-        }
+        // if ($search) {
+        //     $query->where('username', 'like', "%{$search}%")
+        //           ->orWhere('hoten', 'like', "%{$search}%")
+        //           ->orWhere('sodienthoai', 'like', "%{$search}%");
+        // }
 
-        $nguoidungs = $query->paginate(10)->withQueryString();
+        // $nguoidungs = $query->paginate(10)->withQueryString();
 
-        return view('nguoidung.index', compact('nguoidungs', 'search'));
+        // return view('nguoidung.index', compact('nguoidungs', 'search'));
+        $nguoidungs = NguoidungModel::where('vaitro', '!=', 'admin')
+            ->orderByDesc('id')
+            ->get();
+        return view('nguoidung.index', compact('nguoidungs'));
     }
 
     /**
@@ -61,10 +66,11 @@ class NguoidungController extends Controller
         $provinceNames = collect($this->provinces)->pluck('ten')->toArray();
         // Validate dữ liệu người dùng + địa chỉ giao hàng
         $request->validate([
-            'username'    => 'required|string|max:255|unique:nguoidung,username',
-            'password'    => 'required|string|min:6|confirmed',
-            'hoten'       => 'required|string|max:255',
-            'sodienthoai' => 'nullable|string|max:10',
+            'username' => 'required|string|max:15|regex:/^[A-Za-z0-9_]+$/',
+            'email' => 'required|string|email',
+            'password'    => 'required|string|max:15|min:6|confirmed|regex:/^[A-Za-z0-9_]+$/',
+            'hoten' => 'required|string|max:30|regex:/^[\pL\s]+$/u',
+            'sodienthoai' => 'nullable|string|unique:nguoidung,sodienthoai|max:10',
             'gioitinh'    => 'nullable|in:Nam,Nữ',
             'ngaysinh'    => 'nullable|date',
             'vaitro'      => 'required|in:admin,seller,client',
@@ -76,44 +82,68 @@ class NguoidungController extends Controller
             'diachi_tinhthanh' => ['required', 'string', Rule::in($provinceNames)], // list tỉnh thành bạn định nghĩa
             'diachi_trangthai' => 'nullable|in:Mặc định,Khác,Tạm ẩn',
         ]);
+        $onlyUsername = $request->username;
+        $onlyEmail    = $request->email;
 
-        // Tạo người dùng
-        $nguoidung = new NguoidungModel();
-        $nguoidung->username = $request->username;
-        $nguoidung->password = Hash::make($request->password);
-        $nguoidung->hoten = $request->hoten;
-        $nguoidung->sodienthoai = $request->sodienthoai;
-        $nguoidung->gioitinh = $request->gioitinh;
-        $nguoidung->ngaysinh = $request->ngaysinh;
-        $nguoidung->vaitro = $request->vaitro;
-        $nguoidung->trangthai = $request->trangthai;
+        $existsUsername = DB::table('nguoidung')
+            ->whereRaw("SUBSTRING_INDEX(username, ',', 1) = ?", [$onlyUsername])
+            ->exists();
+        if($existsUsername)
+            return redirect()->route('nguoidung.index')->with('error', 'Username đã tồn tại!');
 
-        $link_hinh_anh = $this->domain . 'storage/' . $this->uploadDir . '/';
-        if ($request->hasFile('avatar')) {
-            $file = $request->file('avatar');
-            // $filename = $file->getClientOriginalName(); // time() . '_' .
-            $filename = time() . '_' .$file->getClientOriginalName(); // thêm này đi cho chắc mắc công nhằm người dùng là toang
-            $file->storeAs($this->uploadDir, $filename, 'public');
+        $existsEmail = DB::table('nguoidung')
+            ->whereRaw("SUBSTRING_INDEX(username, ',', -1) = ?", [$onlyEmail])
+            ->exists();
 
-            $nguoidung->avatar = $link_hinh_anh.$filename;
-        } else {
-            $nguoidung->avatar = $link_hinh_anh.'khachhang.jpg';
+        if($existsEmail)
+            return redirect()->route('nguoidung.index')->with('error', 'Email đã tồn tại!');
+
+        DB::beginTransaction();
+        try {
+            $fullUsername = $onlyUsername . ',' . $onlyEmail;
+            // Tạo người dùng
+            $nguoidung = new NguoidungModel();
+            $nguoidung->username = $fullUsername;
+            $nguoidung->password = Hash::make($request->password);
+            $nguoidung->hoten = $request->hoten;
+            $nguoidung->sodienthoai = $request->sodienthoai;
+            $nguoidung->gioitinh = $request->gioitinh;
+            $nguoidung->ngaysinh = $request->ngaysinh;
+            $nguoidung->vaitro = $request->vaitro;
+            $nguoidung->trangthai = $request->trangthai;
+
+            $link_hinh_anh = $this->domain . 'storage/' . $this->uploadDir . '/';
+            if ($request->hasFile('avatar')) {
+                $file = $request->file('avatar');
+                // $filename = $file->getClientOriginalName(); // time() . '_' .
+                $filename = time() . '_' .$file->getClientOriginalName(); // thêm này đi cho chắc mắc công nhằm người dùng là toang
+                $file->storeAs($this->uploadDir, $filename, 'public');
+
+                $nguoidung->avatar = $link_hinh_anh.$filename;
+            } else {
+                $nguoidung->avatar = $link_hinh_anh.'khachhang.jpg';
+            }
+
+            $nguoidung->save();
+
+            // Tạo địa chỉ giao hàng liên kết với người dùng vừa tạo
+            // sử dụng lại hoten và sodienthoai từ nguoidung, bắt buộc form phải thêm 3 trường diachi tinhthanh và trangthai
+            $diachi = new DiaChiGiaoHangModel();
+            $diachi->id_nguoidung = $nguoidung->id;
+            $diachi->hoten = $request->hoten;
+            $diachi->sodienthoai = $request->sodienthoai;
+            $diachi->diachi = $request->diachi_diachi;
+            $diachi->tinhthanh = $request->diachi_tinhthanh;
+            $diachi->trangthai = $request->diachi_trangthai ?? 'Khác'; // mặc định nếu không có
+            $diachi->save();
+
+            DB::commit();
+            return redirect()->route('nguoidung.index')->with('success', 'Thêm người dùng và địa chỉ giao hàng thành công!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
         }
-
-        $nguoidung->save();
-
-        // Tạo địa chỉ giao hàng liên kết với người dùng vừa tạo
-        // sử dụng lại hoten và sodienthoai từ nguoidung, bắt buộc form phải thêm 3 trường diachi tinhthanh và trangthai
-        $diachi = new DiaChiGiaoHangModel();
-        $diachi->id_nguoidung = $nguoidung->id;
-        $diachi->hoten = $request->hoten;
-        $diachi->sodienthoai = $request->sodienthoai;
-        $diachi->diachi = $request->diachi_diachi;
-        $diachi->tinhthanh = $request->diachi_tinhthanh;
-        $diachi->trangthai = $request->diachi_trangthai ?? 'Khác'; // mặc định nếu không có
-        $diachi->save();
-
-        return redirect()->route('nguoidung.index')->with('success', 'Thêm người dùng và địa chỉ giao hàng thành công!');
     }
 
     /**
@@ -145,9 +175,10 @@ class NguoidungController extends Controller
         $nguoidung = NguoidungModel::findOrFail($id);
 
         $request->validate([
-            'username'    => 'required|string|max:255|unique:nguoidung,username,' . $nguoidung->id,
-            'password'    => 'nullable|string|min:6|confirmed',
-            'hoten'       => 'required|string|max:255',
+            'username' => 'required|string|max:15|regex:/^[A-Za-z0-9_]+$/',
+            'email' => 'required|string|email',
+            'hoten' => 'required|string|max:30|regex:/^[\pL\s]+$/u',
+            'password'    => 'required|string|max:15|min:6|confirmed|regex:/^[A-Za-z0-9_]+$/',
             'sodienthoai' => 'nullable|string|max:10',
             'gioitinh'    => 'nullable|in:Nam,Nữ',
             'ngaysinh'    => 'nullable|date',
@@ -161,55 +192,83 @@ class NguoidungController extends Controller
             'diachi_tinhthanh' => ['required', 'string', Rule::in($provinceNames)], // list tỉnh thành bạn định nghĩa
             'diachi_trangthai' => 'nullable|in:Mặc định,Khác,Tạm ẩn',
         ]);
+        $onlyUsername = $request->username;
+        $onlyEmail    = $request->email;
 
-        // Cập nhật người dùng
-        $nguoidung->username = $request->username;
-        $nguoidung->hoten = $request->hoten;
-        $nguoidung->sodienthoai = $request->sodienthoai;
-        $nguoidung->gioitinh = $request->gioitinh;
-        $nguoidung->ngaysinh = $request->ngaysinh;
-        $nguoidung->vaitro = $request->vaitro;
-        $nguoidung->trangthai = $request->diachi_trangthai ?? 'Khác'; // mặc định nếu không có
+        $existsUsername = DB::table('nguoidung')
+            ->whereRaw("SUBSTRING_INDEX(username, ',', 1) = ?", [$onlyUsername])
+            ->where('id', '<>', $id)  // loại trừ bản ghi đang update
+            ->exists();
 
-        if ($request->filled('password')) {
-            $nguoidung->password = Hash::make($request->password);
+        if ($existsUsername) {
+            return redirect()->route('nguoidung.index')->with('error', 'Username đã tồn tại!');
         }
 
+        $existsEmail = DB::table('nguoidung')
+            ->whereRaw("SUBSTRING_INDEX(username, ',', -1) = ?", [$onlyEmail])
+            ->where('id', '<>', $id)  // loại trừ bản ghi đang update
+            ->exists();
 
-        if ($request->hasFile('avatar')) {
-            // if ($nguoidung->avatar) {
-            //     $oldPath = public_path(parse_url($nguoidung->avatar, PHP_URL_PATH));
-            //     if (file_exists($oldPath) && $nguoidung->avatar != 'khachhang.jpg') {
-            //         unlink($oldPath);
-            //     }
-            // }
-            $file = $request->file('avatar');
-            $filename = time() . '_' .$file->getClientOriginalName(); // thêm này đi cho chắc mắc công nhằm người dùng là toang
-            // $filename = $file->getClientOriginalName(); //time() . '_' .
-            $file->storeAs($this->uploadDir, $filename, 'public');
-            $link_hinh_anh = $this->domain . 'storage/' . $this->uploadDir . '/';
-            $nguoidung->avatar = $link_hinh_anh.$filename;
+        if ($existsEmail) {
+            return redirect()->route('nguoidung.index')->with('error', 'Email đã tồn tại!');
         }
+        DB::beginTransaction();
+        try {
+            $fullUsername = $onlyUsername . ',' . $onlyEmail;
+            // Cập nhật người dùng
+            $nguoidung->username = $fullUsername;
+            $nguoidung->hoten = $request->hoten;
+            $nguoidung->sodienthoai = $request->sodienthoai;
+            $nguoidung->gioitinh = $request->gioitinh;
+            $nguoidung->ngaysinh = $request->ngaysinh;
+            $nguoidung->vaitro = $request->vaitro;
+            $nguoidung->trangthai = $request->trangthai; // mặc định nếu không có
 
-        $nguoidung->save();
+            if ($request->filled('password')) {
+                $nguoidung->password = Hash::make($request->password);
+            }
 
-        // Cập nhật hoặc tạo mới địa chỉ giao hàng mặc định cho người dùng này
-        $diachi = $nguoidung->diachi()->where('trangthai', 'Mặc định')->first();
 
-        if (!$diachi) {
-            $diachi = new DiaChiGiaoHangModel();
-            $diachi->id_nguoidung = $nguoidung->id;
+            if ($request->hasFile('avatar')) {
+                // if ($nguoidung->avatar) {
+                //     $oldPath = public_path(parse_url($nguoidung->avatar, PHP_URL_PATH));
+                //     if (file_exists($oldPath) && $nguoidung->avatar != 'khachhang.jpg') {
+                //         unlink($oldPath);
+                //     }
+                // }
+                $file = $request->file('avatar');
+                $filename = time() . '_' .$file->getClientOriginalName(); // thêm này đi cho chắc mắc công nhằm người dùng là toang
+                // $filename = $file->getClientOriginalName(); //time() . '_' .
+                $file->storeAs($this->uploadDir, $filename, 'public');
+                $link_hinh_anh = $this->domain . 'storage/' . $this->uploadDir . '/';
+                $nguoidung->avatar = $link_hinh_anh.$filename;
+            }
+
+            $nguoidung->save();
+
+            // Cập nhật hoặc tạo mới địa chỉ giao hàng mặc định cho người dùng này
+            $diachi = $nguoidung->diachi()->where('trangthai', 'Mặc định')->first();
+
+            if (!$diachi) {
+                $diachi = new DiaChiGiaoHangModel();
+                $diachi->id_nguoidung = $nguoidung->id;
+            }
+
+            // sử dụng lại hoten và sodienthoai từ nguoidung, bắt buộc form phải thêm 3 trường diachi tinhthanh và trangthai
+            $diachi->hoten = $request->hoten;
+            $diachi->sodienthoai = $request->sodienthoai;
+            $diachi->diachi = $request->diachi_diachi;
+            $diachi->tinhthanh = $request->diachi_tinhthanh;
+            $diachi->trangthai = $request->diachi_trangthai;
+            $diachi->save();
+
+            DB::commit();
+            return redirect()->route('nguoidung.index')->with('success', 'Cập nhật người dùng và địa chỉ giao hàng thành công!');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
         }
-
-        // sử dụng lại hoten và sodienthoai từ nguoidung, bắt buộc form phải thêm 3 trường diachi tinhthanh và trangthai
-        $diachi->hoten = $request->hoten;
-        $diachi->sodienthoai = $request->sodienthoai;
-        $diachi->diachi = $request->diachi_diachi;
-        $diachi->tinhthanh = $request->diachi_tinhthanh;
-        $diachi->trangthai = $request->diachi_trangthai;
-        $diachi->save();
-
-        return redirect()->route('nguoidung.index')->with('success', 'Cập nhật người dùng và địa chỉ giao hàng thành công!');
     }
 
     /**
@@ -228,7 +287,8 @@ class NguoidungController extends Controller
      */
     public function trash()
     {
-        $nguoidungs = NguoidungModel::onlyTrashed()->orderByDesc('deleted_at')->paginate(10);
+        $nguoidungs = NguoidungModel::onlyTrashed()->orderByDesc('deleted_at')->get(); // paginate clientside
+        // $nguoidungs = NguoidungModel::onlyTrashed()->orderByDesc('deleted_at')->paginate(10);
         return view('nguoidung.trash', compact('nguoidungs'));
     }
 

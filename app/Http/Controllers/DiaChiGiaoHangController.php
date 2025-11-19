@@ -21,22 +21,24 @@ class DiaChiGiaoHangController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->input('search');
+        // $search = $request->input('search');
 
-        $query = DiaChiGiaoHangModel::orderByDesc('id');
+        // $query = DiaChiGiaoHangModel::orderByDesc('id');
 
-        if ($search) {
-            $query->where(function($q) use ($search) {
-                $q->where('hoten', 'like', "%{$search}%")
-                  ->orWhere('sodienthoai', 'like', "%{$search}%")
-                  ->orWhere('diachi', 'like', "%{$search}%")
-                  ->orWhere('tinhthanh', 'like', "%{$search}%");
-            });
-        }
+        // if ($search) {
+        //     $query->where(function($q) use ($search) {
+        //         $q->where('hoten', 'like', "%{$search}%")
+        //           ->orWhere('sodienthoai', 'like', "%{$search}%")
+        //           ->orWhere('diachi', 'like', "%{$search}%")
+        //           ->orWhere('tinhthanh', 'like', "%{$search}%");
+        //     });
+        // }
 
-        $diachis = $query->paginate(10)->withQueryString();
+        // $diachis = $query->paginate(10)->withQueryString();
 
-        return view('diachigiaohang.index', compact('diachis', 'search'));
+        // return view('diachigiaohang.index', compact('diachis', 'search'));
+        $diachis = DiaChiGiaoHangModel::orderByDesc('id')->get(); // clientside paginate
+        return view('diachigiaohang.index', compact('diachis'));
     }
 
     /**
@@ -45,7 +47,13 @@ class DiaChiGiaoHangController extends Controller
     public function create()
     {
         $tinhthanhs = collect($this->provinces)->pluck('ten')->toArray();
-        $nguoidungs = NguoidungModel::all(); // nếu bạn muốn chọn người dùng liên kết
+        $nguoidungs = NguoidungModel::where('vaitro', '!=', 'admin')
+            ->get(['id', 'hoten', 'username']);
+            $nguoidungs->transform(function ($nguoidung) {
+                $parts = explode(',', $nguoidung->username);
+                $nguoidung->username = $parts[0] ?? $nguoidung->username;
+                return $nguoidung;
+            });
         return view('diachigiaohang.create', compact('tinhthanhs', 'nguoidungs'));
     }
 
@@ -102,7 +110,13 @@ class DiaChiGiaoHangController extends Controller
     {
         $diachi = DiaChiGiaoHangModel::findOrFail($id);
         $tinhthanhs = collect($this->provinces)->pluck('ten')->toArray();
-        $nguoidungs = NguoidungModel::all();
+        $nguoidungs = NguoidungModel::where('vaitro', '!=', 'admin')
+            ->get(['id', 'hoten', 'username']);
+            $nguoidungs->transform(function ($nguoidung) {
+                $parts = explode(',', $nguoidung->username);
+                $nguoidung->username = $parts[0] ?? $nguoidung->username;
+                return $nguoidung;
+            });
 
         return view('diachigiaohang.edit', compact('diachi', 'tinhthanhs', 'nguoidungs'));
     }
@@ -160,7 +174,8 @@ class DiaChiGiaoHangController extends Controller
      */
     public function trash()
     {
-        $diachis = DiaChiGiaoHangModel::onlyTrashed()->orderByDesc('deleted_at')->paginate(10);
+        $diachis = DiaChiGiaoHangModel::onlyTrashed()->orderByDesc('deleted_at')->get();  // clientside paginate
+        // $diachis = DiaChiGiaoHangModel::onlyTrashed()->orderByDesc('deleted_at')->paginate(10);
         return view('diachigiaohang.trash', compact('diachis'));
     }
 

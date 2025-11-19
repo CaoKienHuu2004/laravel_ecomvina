@@ -1,22 +1,21 @@
 @extends('layouts.app')
 
 @section('title', 'Thùng rác địa chỉ giao hàng | Quản trị hệ thống Siêu Thị Vina')
-{{-- // các route sư dụng  diachigiaohang.index, diachigiaohang.restore diachigiaohang.forceDelete --}}
+{{-- // các route sư dụng   diachigiaohang.restore diachigiaohang.forceDelete --- của breadcrumb diachigiaohang.index trang-chu --}}
 
 {{-- // controller truyền xuống $diachis --}}
 @section('content')
 <div class="page-wrapper">
     <div class="content">
-        <div class="page-header d-flex justify-content-between align-items-center mb-4">
-            <div class="page-title">
-                <h4>Thùng rác địa chỉ giao hàng</h4>
-                <h6>Danh sách các địa chỉ đã bị xóa mềm</h6>
-            </div>
-            <div>
-                <a href="{{ route('diachigiaohang.index') }}" class="btn btn-primary">
-                    ← Quay lại danh sách
-                </a>
-            </div>
+        <div class="page-header">
+            <x-header.breadcrumb
+                title="Danh sách địa chỉ giao hàng đang tạm xóa"
+                :links="[
+                    ['label' => 'Tổng quan', 'route' => 'trang-chu'],
+                    ['label' => 'Danh sách địa chỉ giao hàng', 'route' => 'diachigiaohang.index']
+                ]"
+                active="Thùng rác"
+            />
         </div>
 
         @if(session('success'))
@@ -25,8 +24,8 @@
 
         @if($diachis->count() > 0)
         <div class="table-responsive">
-            <table class="table table-bordered table-hover">
-                <thead class="table-light">
+            <table class="table datanew">
+                <thead>
                     <tr>
                         <th>#ID</th>
                         <th>Họ tên</th>
@@ -70,11 +69,11 @@
             </table>
         </div>
 
-        @if ($diachis->hasPages())
+        {{-- @if ($diachis->hasPages())
             <div class="mt-3">
                 {{ $diachis->links() }}
             </div>
-        @endif
+        @endif --}}
 
         @else
             <p class="text-center text-muted">Không có địa chỉ nào trong thùng rác.</p>

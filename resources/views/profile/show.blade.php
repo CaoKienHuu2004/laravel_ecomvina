@@ -81,10 +81,23 @@
                                 <input type="text" name="hoten" value="{{ $user->hoten}}" required>
                             </div>
                         </div>
+                        @php
+                            $usernameValue = explode(',',$user->username)[0] ??"";
+                            $emailValue = explode(',',$user->username)[1] ??"";
+                        @endphp
                         <div class="col-lg-6 col-sm-12">
                             <div class="form-group">
                                 <label>Tên Đăng Nhập *</label>
-                                <input type="text" name="username" value="{{ $user->username}}" required>
+                                <input type="text" name="username" value="{{ $usernameValue }}" required>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-sm-12">
+                            <div class="form-group">
+                                <label>Email *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text" id="basic-addon1">@</span>
+                                    <input type="email" class="form-control" name="email" value="{{ $emailValue }}" required>
+                                </div>
                             </div>
                         </div>
                         <div class="col-lg-6 col-sm-12">
@@ -98,6 +111,15 @@
                                 <label>Password *</label>
                                 <div class="pass-group">
                                     <input name="password" type="password" class=" pass-input"  placeholder="***********">
+                                    <span class="fas toggle-password fa-eye-slash"></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-sm-12">
+                            <div class="form-group">
+                                <label>Confirm Password *</label>  <!-- Thay đổi label -->
+                                <div class="pass-group">
+                                    <input name="password_confirmation" type="password" class="pass-input" placeholder="***********"> <!-- name phải là password_confirmation -->
                                     <span class="fas toggle-password fa-eye-slash"></span>
                                 </div>
                             </div>

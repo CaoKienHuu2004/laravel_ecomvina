@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\NguoidungModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use PhpParser\Node\Expr\AssignOp\Mod;
 
@@ -35,22 +37,54 @@ class AdminController extends Controller
     {
         return view('auth.login');
     }
-    public function login(Request $request)
+    public function login(Request $req)
     {
-        $credentials = $request->only('username', 'password');
+        $req->validate([
+            'password' => 'required|string|max:15|min:6|regex:/^[A-Za-z0-9_]+$/',
+        ]);
+        $query = null;
+        if ($req->has('email')) {
+            $req->validate([
+                'email' => 'required|email',
+            ]);
 
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            if ($user->vaitro === 'admin') {
-                return redirect()->route('trang-chu');
-            } else {
-                Auth::logout();
-                return redirect()->route('dang-nhap')->withErrors(['email' => 'Bạn không có quyền truy cập trang admin.']);
-            }
+            $query = NguoidungModel::whereRaw(
+                "SUBSTRING_INDEX(username, ',', -1) = ?",
+                [$req->email]
+            );
+        }
+        else {
+            $req->validate([
+                'username' => [
+                    'required',
+                    'string',
+                    'max:15',
+                    'regex:/^[A-Za-z0-9_]+$/',
+                ]
+            ]);
+            $query = NguoidungModel::whereRaw(
+                "SUBSTRING_INDEX(username, ',', 1) = ?",
+                [$req->username]
+            );
+        }
+        $user = $query->first();
+
+        if (!$user || !Hash::check($req->password, $user->password)) {
+            return back()->withErrors([
+                'login' => 'Tên đăng nhập hoặc mật khẩu không chính xác.',
+            ])->withInput();
         }
 
-        return redirect()->route('dang-nhap')->withErrors(['email' => 'Thông tin đăng nhập không hợp lệ.']);
+        if ($user->vaitro !== 'admin') {
+            return back()->withErrors([
+                'login' => 'Tài khoản này không có quyền truy cập admin.',
+            ]);
+        }
+        Auth::login($user); //Đăng nhập session bình thường
+
+        return redirect()->route('trang-chu')->with('success', 'Đăng nhập thành công!');
     }
+
     public function logout(Request $request)
     {
         Auth::logout();
@@ -70,17 +104,45 @@ class AdminController extends Controller
         $user = Auth::user();
 
         // hoten,username,sodienthoai,gioitinh,pawwword
+
+
         $request->validate([
-            'hoten' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:nguoidung,username,' . $user->id,
+            'hoten' => 'required|string|max:30|regex:/^[\pL\s]+$/u',
+            'email' => 'required|email',
+            'username' => 'required|string|min:6|max:15|regex:/^[A-Za-z0-9_]+$/',
             'sodienthoai' => 'nullable|string|max:20',
             'gioitinh' => 'nullable|in:Nam,Nữ',
-            'password' => 'nullable|string|min:6|confirmed',
+            'password' => 'nullable|string|max:15|min:6|confirmed|regex:/^[A-Za-z0-9_]+$/',
             'ngaysinh' => 'nullable|date',
         ]);
 
+        $onlyUsername = $request->username;
+        $onlyEmail    = $request->email;
+
+        $existsUsername = DB::table('nguoidung')
+            ->whereRaw("SUBSTRING_INDEX(username, ',', 1) = ?", [$onlyUsername])
+            ->where('id', '!=', $user->id) // tránh check trùng chính user hiện tại
+            ->exists();
+
+        if ($existsUsername) {
+            return back()->withErrors(['username' => 'Username đã tồn tại'])
+                        ->withInput();
+        }
+
+        $existsEmail = DB::table('nguoidung')
+            ->whereRaw("SUBSTRING_INDEX(username, ',', -1) = ?", [$onlyEmail])
+            ->where('id', '!=', $user->id) // tránh check trùng chính user hiện tại
+            ->exists();
+
+        if ($existsEmail) {
+            return back()->withErrors(['email' => 'Email đã tồn tại'])
+                        ->withInput();
+        }
+
+        $fullUsername = $onlyUsername . ',' . $onlyEmail;
+
         $user->hoten = $request->input('hoten');
-        $user->username = $request->input('username');
+        $user->username = $fullUsername;
         $user->sodienthoai = $request->input('sodienthoai');
         $user->gioitinh = $request->input('gioitinh');
         $user->ngaysinh = $request->input('ngaysinh');

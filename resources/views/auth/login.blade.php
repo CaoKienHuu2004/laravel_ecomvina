@@ -30,6 +30,11 @@
                         <h3>Đăng Nhập</h3>
                         <h4>Mời Nhập Tài Khoản</h4>
                      </div>
+                     @if ($errors->has('login'))
+                        <div class="alert alert-danger">
+                            {{ $errors->first('login') }}
+                        </div>
+                    @endif
                      <form class="login-form" action="{{ route('xu-ly-dang-nhap')}}" method="POST" >
                         @csrf
                         <div class="form-login">
