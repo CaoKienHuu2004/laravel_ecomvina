@@ -333,17 +333,14 @@
               {{-- // -- Quản lý thông báo --// --}}
               <li class="submenu">
                 <a href="javascript:void(0);"
-                  ><img src="{{asset('img/icons/sales1.svg')}}" alt="img" /><span>
+                  ><img src="{{asset('img/icons/notification-bing.svg')}}" alt="img" /><span>
                     Quản lý thông báo</span
                   >
                   <span class="menu-arrow"></span
                 ></a>
                 <ul>
-                  <li><a href="saleslist.html">Voucher</a></li>
-                  <li><a href="pos.html">Ưu đãi sản phẩm</a></li>
-                  <li><a href="pos.html">Sự kiện khuyến mãi</a></li>
-                  <li><a href="/">Đánh giá sản phẩm</a></li>
-                  <li><a href="pos.html">Danh sách đơn hàng</a></li>
+                  {{-- //----Thông báo ---// --}}
+                  <li><a class="{{ request()->routeIs('thongbao.index') || request()->routeIs('thongbao.edit') || request()->routeIs('thongbao.create') || request()->routeIs('thongbao.show')  ? 'active' : '' }}" href="{{ route('thongbao.index') }}">Danh sách thông báo</a></li>
 
                 </ul>
               </li>

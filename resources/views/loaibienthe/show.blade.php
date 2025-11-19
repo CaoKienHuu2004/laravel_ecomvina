@@ -1,20 +1,24 @@
 @extends('layouts.app')
 
 @section('title')
-Chi tiết loại biến thể: {{ $loaibienthe->ten }} | Quản trị hệ thống
+Chi tiết loại biến thể: {{ $loaibienthe->ten }} | Quản trị hệ thống Siêu Thị Vina
 @endsection
 
 {{-- // controller truyền xuống $loaibienthe  --}}
-{{-- // các route sư dụng  loaibienthe.index loaibienthe.edit    --}}
+{{-- // các route sư dụng  ko sử dụng --- của breadcrumb loaibienthe.index trang-chu   --}}
 
 @section('content')
 <div class="page-wrapper">
     <div class="content">
         <div class="page-header">
-            <div class="page-title">
-                <h4>Loại biến thể "{{ $loaibienthe->ten }}"</h4>
-                <h6>Xem chi tiết thông tin loại biến thể.</h6>
-            </div>
+            <x-header.breadcrumb
+                title='Chi tiết loại biến thể "{{ $loaibienthe->ten }}"'
+                :links="[
+                    ['label' => 'Tổng quan', 'route' => 'trang-chu'],
+                    ['label' => 'Danh sách loại biến thể', 'route' => 'loaibienthe.index']
+                ]"
+                active="Chi tiết"
+            />
         </div>
 
         <div class="row">
@@ -35,9 +39,10 @@ Chi tiết loại biến thể: {{ $loaibienthe->ten }} | Quản trị hệ th�
                                 @endif
                             </li>
                             <li class="list-group-item">
-                                <strong>Số biến thể con (bienthe):</strong>
+                                <strong>Số biến thể con:</strong>
                                 <span>{{ $loaibienthe->bienthe->count() }}</span>
                             </li>
+
                             @if($loaibienthe->bienthe->isNotEmpty())
                             <li class="list-group-item">
                                 <strong>Danh sách biến thể con:</strong>
@@ -45,9 +50,10 @@ Chi tiết loại biến thể: {{ $loaibienthe->ten }} | Quản trị hệ th�
                                     @foreach ($loaibienthe->bienthe as $bt)
                                     <li>
                                         <strong>Mã biến thể:</strong> {{ $bt->id }} |
-                                        <strong>Tên biến thể:</strong> {{ $bt->ten ?? 'N/A' }} |
+                                        <strong>Tên biến thể:</strong> {{ $bt->sanpham->ten ?? 'N/A' }} |
                                         <strong>Số lượng:</strong> {{ $bt->soluong ?? 'N/A' }} |
-                                        <strong>Giá gốc:</strong> {{ isset($bt->giagoc) ? number_format($bt->giagoc, 0, ',', '.') . ' đ' : 'N/A' }}
+                                        <strong>Giá gốc:</strong>
+                                        {{ isset($bt->giagoc) ? number_format($bt->giagoc, 0, ',', '.') . ' đ' : 'N/A' }}
                                     </li>
                                     @endforeach
                                 </ul>
@@ -56,8 +62,7 @@ Chi tiết loại biến thể: {{ $loaibienthe->ten }} | Quản trị hệ th�
                         </ul>
                     </div>
                 </div>
-                <a href="{{ route('loaibienthe.index') }}" class="btn btn-primary mt-3">Quay lại danh sách</a>
-                <a href="{{ route('loaibienthe.edit', $loaibienthe->id) }}" class="btn btn-warning mt-3">Chỉnh sửa loại biến thể</a>
+
             </div>
         </div>
     </div>

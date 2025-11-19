@@ -6,7 +6,8 @@ use App\Models\BientheModel;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\LoaibientheModel;
-
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 class LoaiBientheController extends Controller
 {
@@ -16,23 +17,25 @@ class LoaiBientheController extends Controller
     public function index(Request $request)
     {
         // Lấy từ khóa tìm kiếm
-        $keyword = $request->query('keyword');
+        // $keyword = $request->query('keyword');
 
-        // Tạo query builder
-        $query = LoaibientheModel::query()->orderBy('id', 'desc');
+        // // Tạo query builder
+        // $query = LoaibientheModel::query()->orderBy('id', 'desc');
 
-        // Nếu có từ khóa thì lọc theo tên
-        if (!empty($keyword)) {
-            $query->where('ten', 'LIKE', "%{$keyword}%");
-        }
+        // // Nếu có từ khóa thì lọc theo tên
+        // if (!empty($keyword)) {
+        //     $query->where('ten', 'LIKE', "%{$keyword}%");
+        // }
 
-        // Phân trang (10 bản ghi mỗi trang)
-        $loaibienthes = $query->paginate(10);
+        // // Phân trang (10 bản ghi mỗi trang)
+        // $loaibienthes = $query->paginate(10);
 
-        // Giữ lại tham số tìm kiếm khi chuyển trang
-        $loaibienthes->appends(['keyword' => $keyword]);
+        // // Giữ lại tham số tìm kiếm khi chuyển trang
+        // $loaibienthes->appends(['keyword' => $keyword]);
 
-        return view('loaibienthe.index', compact('loaibienthes', 'keyword'));
+        // return view('loaibienthe.index', compact('loaibienthes', 'keyword'));
+        $loaibienthes = LoaibientheModel::orderBy('id', 'desc')->get();
+        return view('loaibienthe.index', compact('loaibienthes'));
     }
 
 
@@ -116,8 +119,19 @@ class LoaiBientheController extends Controller
     /**
      * Xóa loại biến thể cứng
      */
-    public function destroy($id)
+    public function destroy(Request $request,$id)
     {
+        // Xác thực mật khẩu trước khi xóa
+        $request->validate([
+            'password_confirm' => ['required'],
+        ]);
+        $user = Auth::user();
+        // Kiểm tra mật khẩu nhập lại
+        if (!Hash::check($request->password_confirm, $user->password)) {
+            return redirect()->back()->withErrors(['password_confirm' => 'Mật khẩu không chính xác']);
+        }
+        // Xác thực mật khẩu trước khi xóa
+
         $loaibienthe = LoaibientheModel::findOrFail($id);
 
         try {

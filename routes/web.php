@@ -24,6 +24,7 @@ use App\Http\Controllers\LoaiBientheController;
 use App\Http\Controllers\PhuongThucController;
 use App\Http\Controllers\QuangCaoController;
 use App\Http\Controllers\QuatangSukienController;
+use App\Http\Controllers\ThongBaoController;
 use App\Http\Controllers\Web\MaGiamGiaWebApi;
 use App\Http\Controllers\Web\TimKiemWebApi;
 use App\Http\Controllers\Web\TinhThanhVietNamWebApi;
@@ -302,6 +303,16 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('/trash', [QuatangSukienController::class, 'trash'])->name('quatangsukien.trash');
         Route::post('/restore/{id}', [QuatangSukienController::class, 'restore'])->name('quatangsukien.restore');
         Route::delete('/force-delete/{id}', [QuatangSukienController::class, 'forceDelete'])->name('quatangsukien.forceDelete');
+    });
+    /* ===================== THÔNG BÁO ===================== */
+    Route::prefix('thongbao')->group(function () {
+        Route::get('/', [ThongBaoController::class, 'index'])->name('thongbao.index');
+        Route::get('/create', [ThongBaoController::class, 'create'])->name('thongbao.create');
+        Route::post('/store', [ThongBaoController::class, 'store'])->name('thongbao.store');
+        Route::get('/show/{id}', [ThongBaoController::class, 'show'])->name('thongbao.show');
+        Route::get('/edit/{id}', [ThongBaoController::class, 'edit'])->name('thongbao.edit');
+        Route::put('/update/{id}', [ThongBaoController::class, 'update'])->name('thongbao.update');
+        Route::delete('/delete/{id}', [ThongBaoController::class, 'destroy'])->name('thongbao.destroy');
     });
 });
 // Route::get('/dashboard', function () {

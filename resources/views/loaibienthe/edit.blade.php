@@ -5,17 +5,21 @@
 @endsection
 
 {{-- // controller truyền xuống $loaibienthe $trangthais (dùng để làm selectbox_loaibienthe_trangthais) --}}
-{{-- // các route sư dụng  loaibienthe.update loaibienthe.index   --}}
+{{-- // các route sư dụng  loaibienthe.update --- của breadcrumb loaibienthe.index trang-chu   --}}
 
 
 @section('content')
 <div class="page-wrapper">
     <div class="content">
         <div class="page-header">
-            <div class="page-title">
-                <h4>Sửa loại biến thể</h4>
-                <h6>Chỉnh sửa thông tin loại biến thể</h6>
-            </div>
+        <x-header.breadcrumb
+                title="Sửa loại biến thể: '{{ $loaibienthe->ten }}'"
+                :links="[
+                    ['label' => 'Tổng quan', 'route' => 'trang-chu'],
+                    ['label' => 'Danh sách loại biến thể', 'route' => 'loaibienthe.index']
+                ]"
+                active="Thêm mới"
+            />
         </div>
 
         <div class="card">
@@ -62,7 +66,6 @@
                     </div>
 
                     <button type="submit" class="btn btn-primary">Cập nhật</button>
-                    <a href="{{ route('loaibienthe.index') }}" class="btn btn-secondary">Hủy</a>
                 </form>
             </div>
         </div>

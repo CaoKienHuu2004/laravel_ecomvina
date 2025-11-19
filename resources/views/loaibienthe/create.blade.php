@@ -2,7 +2,7 @@
 
 @section('title', 'Thêm Loại Biến Thể | Quản trị hệ thống Siêu Thị Vina')
 {{-- // controller truyền xuống $trangthais (nó là selectbox_loadbienthe_trangthais)  --}}
-{{-- // các route sư dụng loaibienthe.store loaibienthe.index  --}}
+{{-- // các route sư dụng loaibienthe.store  --- của breadcrumb loaibienthe.index trang-chu --}}
 
 @section('content')
 <div class="page-wrapper">
@@ -37,10 +37,14 @@
     </div>
 
     <div class="page-header">
-      <div class="page-title">
-        <h4>Thêm Loại Biến Thể Mới</h4>
-        <h6>Nhập thông tin loại biến thể để tạo mới</h6>
-      </div>
+        <x-header.breadcrumb
+            title="Thêm Loại Biến Thể Mới"
+            :links="[
+                ['label' => 'Tổng quan', 'route' => 'trang-chu'],
+                ['label' => 'Danh sách loại biến thể', 'route' => 'loaibienthe.index']
+            ]"
+            active="Thêm mới"
+        />
     </div>
 
     <div class="card">
@@ -86,7 +90,6 @@
 
           <div class="col-12">
             <button type="submit" class="btn btn-primary">Thêm Loại Biến Thể</button>
-            <a href="{{ route('loaibienthe.index') }}" class="btn btn-secondary ms-2">Hủy</a>
           </div>
         </form>
       </div>
