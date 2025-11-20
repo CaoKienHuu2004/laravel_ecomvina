@@ -12,7 +12,8 @@ use Illuminate\Validation\Rule;
 
 class NguoidungController extends Controller
 {
-    protected $uploadDir = "assets/client/images/profiles"; // thư mục lưu file, relative so với storage/app/public
+    protected $uploadDir = "assets/client/images/thumbs";// thư mục lưu file, relative so với public
+    protected $uploadDirBaoMat = "assets/client/images/profiles"; // thư mục lưu file, relative so với storage/app/public
     protected $domain;
     protected $provinces;
 
@@ -112,12 +113,12 @@ class NguoidungController extends Controller
             $nguoidung->vaitro = $request->vaitro;
             $nguoidung->trangthai = $request->trangthai;
 
-            $link_hinh_anh = $this->domain . 'storage/' . $this->uploadDir . '/';
+            $link_hinh_anh = $this->domain . 'storage/' . $this->uploadDirBaoMat . '/';
             if ($request->hasFile('avatar')) {
                 $file = $request->file('avatar');
                 // $filename = $file->getClientOriginalName(); // time() . '_' .
                 $filename = time() . '_' .$file->getClientOriginalName(); // thêm này đi cho chắc mắc công nhằm người dùng là toang
-                $file->storeAs($this->uploadDir, $filename, 'public');
+                $file->storeAs($this->uploadDirBaoMat, $filename, 'public');
 
                 $nguoidung->avatar = $link_hinh_anh.$filename;
             } else {
@@ -178,18 +179,18 @@ class NguoidungController extends Controller
             'username' => 'required|string|max:15|regex:/^[A-Za-z0-9_]+$/',
             'email' => 'required|string|email',
             'hoten' => 'required|string|max:30|regex:/^[\pL\s]+$/u',
-            'password'    => 'required|string|max:15|min:6|confirmed|regex:/^[A-Za-z0-9_]+$/',
-            'sodienthoai' => 'nullable|string|max:10',
-            'gioitinh'    => 'nullable|in:Nam,Nữ',
-            'ngaysinh'    => 'nullable|date',
+            'password'    => 'nullable|string|max:15|min:6|confirmed|regex:/^[A-Za-z0-9_]+$/',
+            'sodienthoai' => 'required|string|max:10|unique:nguoidung,sodienthoai,' . $nguoidung->id,
+            'gioitinh'    => 'required|in:Nam,Nữ',
+            'ngaysinh'    => 'required|date',
             'vaitro'      => 'required|in:admin,seller,client',
             'trangthai'   => 'required|in:Hoạt động,Tạm khóa,Dừng hoạt động',
             'avatar'      => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
 
             // Validate địa chỉ giao hàng
 
-            'diachi_diachi'    => 'required|string',
-            'diachi_tinhthanh' => ['required', 'string', Rule::in($provinceNames)], // list tỉnh thành bạn định nghĩa
+            'diachi_diachi'    => 'nullable|string',
+            'diachi_tinhthanh' => ['nullable', 'string', Rule::in($provinceNames)], // list tỉnh thành bạn định nghĩa
             'diachi_trangthai' => 'nullable|in:Mặc định,Khác,Tạm ẩn',
         ]);
         $onlyUsername = $request->username;
@@ -201,7 +202,7 @@ class NguoidungController extends Controller
             ->exists();
 
         if ($existsUsername) {
-            return redirect()->route('nguoidung.index')->with('error', 'Username đã tồn tại!');
+            return back()->withInput()->with('error', 'Username đã tồn tại!');
         }
 
         $existsEmail = DB::table('nguoidung')
@@ -210,7 +211,7 @@ class NguoidungController extends Controller
             ->exists();
 
         if ($existsEmail) {
-            return redirect()->route('nguoidung.index')->with('error', 'Email đã tồn tại!');
+            return back()->withInput()->with('error', 'Email đã tồn tại!');
         }
         DB::beginTransaction();
         try {
@@ -230,17 +231,27 @@ class NguoidungController extends Controller
 
 
             if ($request->hasFile('avatar')) {
-                // if ($nguoidung->avatar) {
-                //     $oldPath = public_path(parse_url($nguoidung->avatar, PHP_URL_PATH));
-                //     if (file_exists($oldPath) && $nguoidung->avatar != 'khachhang.jpg') {
-                //         unlink($oldPath);
-                //     }
-                // }
+                if($nguoidung->avatar)
+                {
+                    $partAvatarOriginUser = parse_url($nguoidung->avatar, PHP_URL_PATH);
+                    $defaultAvatars = [
+                        '/' . $this->uploadDir . '/khachhang.jpg',
+                        '/' . $this->uploadDir . '/khachhang.png'
+                    ];
+                    if(!in_array($partAvatarOriginUser, $defaultAvatars))
+                    {
+                        $relativePath = ltrim(str_replace('/storage/', '', $partAvatarOriginUser), '/');
+                        $filePath = storage_path('app/public/' . $relativePath);
+                        if (file_exists($filePath)) {
+                            unlink($filePath);
+                        }
+                    }
+                }
                 $file = $request->file('avatar');
                 $filename = time() . '_' .$file->getClientOriginalName(); // thêm này đi cho chắc mắc công nhằm người dùng là toang
                 // $filename = $file->getClientOriginalName(); //time() . '_' .
-                $file->storeAs($this->uploadDir, $filename, 'public');
-                $link_hinh_anh = $this->domain . 'storage/' . $this->uploadDir . '/';
+                $file->storeAs($this->uploadDirBaoMat, $filename, 'public');
+                $link_hinh_anh = $this->domain . 'storage/' . $this->uploadDirBaoMat . '/';
                 $nguoidung->avatar = $link_hinh_anh.$filename;
             }
 
@@ -253,14 +264,24 @@ class NguoidungController extends Controller
                 $diachi = new DiaChiGiaoHangModel();
                 $diachi->id_nguoidung = $nguoidung->id;
             }
+            $hasAddressInput = $request->filled('diachi')
+                                && $request->filled('tinhthanh')
+                                && $request->filled('trangthai_diachi');
+            if ($hasAddressInput) {
+            // sử dụng lại hoten và sodienthoai từ nguoidung
+                $diachi->hoten = $request->hoten;
+                $diachi->sodienthoai = $request->sodienthoai;
+                $diachi->diachi = $request->diachi_diachi;
+                $diachi->tinhthanh = $request->diachi_tinhthanh;
+                $diachi->trangthai = $request->diachi_trangthai;
+                $diachi->save();
+                if ($request->trangthai_diachi === 'Mặc định') {
+                    $nguoidung->diachi()
+                        ->where('id', '!=', $diachi->id)
+                        ->update(['trangthai' => 'Khác']);
+                }
+            }
 
-            // sử dụng lại hoten và sodienthoai từ nguoidung, bắt buộc form phải thêm 3 trường diachi tinhthanh và trangthai
-            $diachi->hoten = $request->hoten;
-            $diachi->sodienthoai = $request->sodienthoai;
-            $diachi->diachi = $request->diachi_diachi;
-            $diachi->tinhthanh = $request->diachi_tinhthanh;
-            $diachi->trangthai = $request->diachi_trangthai;
-            $diachi->save();
 
             DB::commit();
             return redirect()->route('nguoidung.index')->with('success', 'Cập nhật người dùng và địa chỉ giao hàng thành công!');

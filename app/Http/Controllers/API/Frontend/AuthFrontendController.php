@@ -113,7 +113,7 @@ class AuthFrontendController extends BaseFrontendController
         if ($req->has('email')) {
             $req->validate([
                 'email' => 'required|email',
-                'password'    => 'required|string|max:15|min:6|confirmed|regex:/^[A-Za-z0-9_]+$/',
+                'password'    => 'required|string|max:15|min:6|regex:/^[A-Za-z0-9_]+$/',
             ]);
 
             $input = $req->email;
@@ -134,7 +134,7 @@ class AuthFrontendController extends BaseFrontendController
                     'max:15',
                     'regex:/^[A-Za-z0-9_]+$/',   // chỉ cho chữ, số và dấu _
                 ],
-                'password'    => 'required|string|max:15|min:6|confirmed|regex:/^[A-Za-z0-9_]+$/',
+                'password'    => 'required|string|max:15|min:6|regex:/^[A-Za-z0-9_]+$/',
             ]);
 
             $input = $req->username;
@@ -157,6 +157,7 @@ class AuthFrontendController extends BaseFrontendController
         // Tạo token
         $token = Str::random(60);
         Redis::setex("api_token:$token", 86400, $user->id);
+
 
         return $this->jsonResponse([
             'success' => true,
@@ -205,14 +206,25 @@ class AuthFrontendController extends BaseFrontendController
      */
     public function register(Request $req)
     {
+
         // Validate trước
-        $req->validate([
-            'hoten' => 'required|string|max:30|regex:/^[\pL\s]+$/u',
-            'username' => 'required|string|max:15|regex:/^[A-Za-z0-9_]+$/',
-            'email' => 'required|string|email',
-            'password'    => 'required|string|max:15|min:6|confirmed|regex:/^[A-Za-z0-9_]+$/',
-            'sodienthoai' => 'nullable|string|unique:nguoidung,sodienthoai|max:10',
-        ]);
+        try {
+            $req->validate([
+                'hoten' => 'required|string|max:30|regex:/^[\pL\s]+$/u',
+                'username' => 'required|string|max:15|regex:/^[A-Za-z0-9_]+$/',
+                'email' => 'required|string|email',
+                'password' => 'required|string|max:15|min:6|confirmed|regex:/^[A-Za-z0-9_]+$/',
+                'sodienthoai' => 'required|string|unique:nguoidung,sodienthoai|max:10',
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+
+            return $this->jsonResponse([
+                'error' => true,
+                'message' => 'Dữ liệu đầu vào không hợp lệ',
+                'errors' => $e->errors()
+            ], 422);
+        }
 
         $onlyUsername = $req->username;
         $onlyEmail    = $req->email;
@@ -225,7 +237,7 @@ class AuthFrontendController extends BaseFrontendController
             return $this->jsonResponse([
                 'success' => false,
                 'message' => 'Username đã tồn tại',
-            ], 422);
+            ], 422); // 409 Conflict // 422 Unprocessable Entity
         }
 
         $existsEmail = DB::table('nguoidung')
@@ -238,6 +250,7 @@ class AuthFrontendController extends BaseFrontendController
                 'message' => 'Email đã tồn tại',
             ], 422);
         }
+
 
         // Lưu username dạng username,email
         $fullUsername = $onlyUsername . ',' . $onlyEmail;
@@ -255,6 +268,8 @@ class AuthFrontendController extends BaseFrontendController
             'gioitinh' => 'Nam',
             'trangthai' => 'Hoạt động',
         ]);
+
+
 
         // Tạo thông báo
         ThongbaoModel::create([
@@ -451,21 +466,46 @@ class AuthFrontendController extends BaseFrontendController
         }
 
         // Validate input
-        $req->validate([
-            'email' => 'sometimes|email', // là 1 phần tử[1] của username khi bị explode
-            'hoten' => 'required|string|max:30|regex:/^[\pL\s]+$/u',
-            'sodienthoai' => 'required|string|max:10',
-            'ngaysinh' => 'required|date',
-            'gioitinh' => 'required|in:Nam,Nữ',
-            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-            // Chuyển lại logic edit profile không bắt buộc nhập trường của địa chỉ
-            // 'diachi' => 'required|string',
-            // 'tinhthanh' => ['required', 'string', Rule::in($provinceNames)],
-            // 'trangthai_diachi' => 'required|in:Mặc định,Khác,Tạm ẩn',
-            'diachi' => 'nullable|string',
-            'tinhthanh' => ['nullable', 'string', Rule::in($provinceNames)],
-            'trangthai_diachi' => 'nullable|in:Mặc định,Khác,Tạm ẩn',
-        ]);
+        try {
+            $req->validate([
+                'email' => 'sometimes|email', // là 1 phần tử[1] của username khi bị explode
+                'hoten' => 'required|string|max:30|regex:/^[\pL\s]+$/u',
+                'sodienthoai' => 'required|string|max:10|unique:nguoidung,sodienthoai,' . $userId,
+                'ngaysinh' => 'required|date',
+                'gioitinh' => 'required|in:Nam,Nữ',
+                'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+                // Chuyển lại logic edit profile không bắt buộc nhập trường của địa chỉ
+                // 'diachi' => 'required|string',
+                // 'tinhthanh' => ['required', 'string', Rule::in($provinceNames)],
+                // 'trangthai_diachi' => 'required|in:Mặc định,Khác,Tạm ẩn',
+                'diachi' => 'nullable|string',
+                'tinhthanh' => ['nullable', 'string', Rule::in($provinceNames)],
+                'trangthai_diachi' => 'nullable|in:Mặc định,Khác,Tạm ẩn',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+
+            return $this->jsonResponse([
+                'error' => true,
+                'message' => 'Dữ liệu đầu vào không hợp lệ',
+                'errors' => $e->errors()
+            ], 422);
+        }
+
+        if ($req->filled('email')) {
+            $newEmail = $req->input('email');
+
+            $existsEmail = DB::table('nguoidung')
+                ->whereRaw("SUBSTRING_INDEX(username, ',', -1) = ?", [$newEmail])
+                ->where('id', '!=', $userId)
+                ->exists();
+
+            if ($existsEmail) {
+                return $this->jsonResponse([
+                    'success' => false,
+                    'message' => 'Email đã tồn tại'
+                ], 422);
+            }
+        }
 
         DB::beginTransaction(); // ================= BEGIN TRANSACTION =================
 
@@ -494,6 +534,24 @@ class AuthFrontendController extends BaseFrontendController
 
             // Avatar
             if ($req->hasFile('avatar')) {
+                // ---- Xóa ảnh cũ nếu không phải ảnh mặc định ----
+                if($user->avatar)
+                {
+                    $partAvatarOriginUser = parse_url($user->avatar, PHP_URL_PATH);
+                    $defaultAvatars = [
+                        '/' . $this->uploadDir . '/khachhang.jpg',
+                        '/' . $this->uploadDir . '/khachhang.png'
+                    ];
+                    if(!in_array($partAvatarOriginUser, $defaultAvatars))
+                    {
+                        $relativePath = ltrim(str_replace('/storage/', '', $partAvatarOriginUser), '/');
+                        $filePath = storage_path('app/public/' . $relativePath);
+                        if (file_exists($filePath)) {
+                            unlink($filePath);
+                        }
+                    }
+                }
+                // ---- updaload file ----
                 $file = $req->file('avatar');
                 $filename = time() . '_' . $file->getClientOriginalName();
                 $file->storeAs($this->uploadDirBaoMat, $filename, 'public');

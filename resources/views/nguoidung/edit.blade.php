@@ -19,14 +19,17 @@
             />
         </div>
 
-        @if ($errors->any())
-            <div class="alert alert-danger mb-3">
-                <ul class="mb-0">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
+        @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        @endif
+        @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
         @endif
 
         <form action="{{ route('nguoidung.update', $nguoidung->id) }}" method="POST" enctype="multipart/form-data">
@@ -235,14 +238,15 @@
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="form-group mb-3">
-                                <label for="diachi_diachi">Địa chỉ <span class="text-danger">*</span></label>
+                                <label for="diachi_diachi">Địa chỉ</label>
+                                {{-- <label for="diachi_diachi">Địa chỉ <span class="text-danger">*</span></label> --}}
                                 <input
                                     type="text"
                                     class="form-control @error('diachi_diachi') is-invalid @enderror"
                                     id="diachi_diachi"
                                     name="diachi_diachi"
                                     value="{{ old('diachi_diachi', $nguoidung->diachi->where('trangthai', 'Mặc định')->first()->diachi ?? '') }}"
-                                    required
+                                    {{-- required --}}
                                 >
                                 @error('diachi_diachi')
                                     <div class="invalid-feedback">{{ $message }}</div>
@@ -252,12 +256,13 @@
 
                         <div class="col-lg-6">
                             <div class="form-group mb-3">
-                                <label for="diachi_tinhthanh">Tỉnh/Thành phố <span class="text-danger">*</span></label>
+                                <label for="diachi_tinhthanh">Tỉnh/Thành phố</label>
+                                {{-- <label for="diachi_tinhthanh">Tỉnh/Thành phố <span class="text-danger">*</span></label> --}}
                                 <select
                                     class="form-control @error('diachi_tinhthanh') is-invalid @enderror"
                                     id="diachi_tinhthanh"
                                     name="diachi_tinhthanh"
-                                    required
+                                    {{-- required --}}
                                 >
                                     @php
                                         $tinhthanh = old('diachi_tinhthanh', $nguoidung->diachi->where('trangthai', 'Mặc định')->first()->tinhthanh ?? '');
@@ -278,10 +283,12 @@
                         <div class="col-lg-6">
                             <div class="form-group mb-3">
                                 <label for="diachi_trangthai">Trạng thái địa chỉ</label>
+                                {{-- <label for="diachi_trangthai">Trạng thái địa chỉ <span class="text-danger">*</span></label> --}}
                                 <select
                                     class="form-control"
                                     id="diachi_trangthai"
                                     name="diachi_trangthai"
+                                    {{-- required --}}
                                 >
                                     @php
                                         $dcTrangthai = old('diachi_trangthai', $nguoidung->diachi->where('trangthai', 'Mặc định')->first()->trangthai ?? '');
