@@ -190,4 +190,19 @@ return [
         // 'Example' => App\Facades\Example::class,
     ])->toArray(),
 
+    /**
+     * |--------------------------------------------------------------------------
+     * | URL của Client
+     * |--------------------------------------------------------------------------
+     * |
+     * | Cấu hình này lưu trữ địa chỉ URL của ứng dụng phía client (ví dụ:
+     * | một ứng dụng React, Vue, hoặc Angular). Nó được sử dụng cho các
+     * | tác vụ như cấu hình CORS hoặc tạo các đường dẫn tuyệt đối
+     * | trong email để trỏ về ứng dụng frontend của bạn.
+     * |
+     * | Giá trị này được lấy từ biến môi trường `CLIENT_URL`.
+     * |
+     */
+    'client_url' => env('CLIENT_URL', 'http://localhost:3000'),
+
 ];

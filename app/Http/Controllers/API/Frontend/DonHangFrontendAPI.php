@@ -625,6 +625,13 @@ class DonHangFrontendAPI extends BaseFrontendController
             $donhang->trangthai = 'Chờ xử lý';
             $donhang->save();
             return response('OK', 200);
+            // // return response()->json([ // ko dùng 3xx được, vì nhiều trình duyệt ko hiểu json trong 3xx, ko tự động chuyểnt hướng
+            // //     'message' => 'Thanh toán thành công, chuyển hướng...',
+            // //     'redirect_url' => config('app.client_url') . '/payment-success'
+            // // ], 302)->header('http://148.230.100.215:3000', url('/payment-success'));
+            // return response()->noContent(302)
+            // ->header('Location', config('app.client_url') . '/payment-success');
+
         } else {
             $donhang->trangthaithanhtoan = 'Thanh toán thất bại';
             $donhang->trangthai = 'Đã hủy';

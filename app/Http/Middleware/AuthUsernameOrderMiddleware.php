@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use App\Models\NguoidungModel;
-use App\Models\DonHangModel;
+use App\Models\DonhangModel;
 use App\Traits\ApiResponse;
 
 class AuthUsernameOrderMiddleware
@@ -45,7 +45,7 @@ class AuthUsernameOrderMiddleware
         }
 
         // ----- TÌM ĐƠN HÀNG -----
-        $donhang = DonHangModel::where('madon', $madonhang)
+        $donhang = DonhangModel::where('madon', $madonhang)
             ->where('id_nguoidung', $user->id)
             ->first();
 
