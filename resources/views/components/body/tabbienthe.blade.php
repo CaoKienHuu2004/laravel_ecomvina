@@ -36,7 +36,7 @@
 
 <div class="row">
     <div class="table-responsive">
-        <table class="table">
+        <table class="table data-table">
             <thead>
                 <tr>
                     <td>Chọn Biến Thể</td>

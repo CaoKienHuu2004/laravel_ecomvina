@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AuthUsernameOrderRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\DonhangModel;
@@ -93,9 +94,12 @@ class TheoDoiDonHangWebApi extends Controller
      *     )
      * )
      */
-    public function index(Request $request)
+    public function index(AuthUsernameOrderRequest  $request)
+    // public function index(Request $request)
     {
         $user = $request->get('auth_user');
+        $donhang = $request->get('auth_donhang');
+
 
         if (!$user) {
             return $this->jsonResponse([
@@ -225,7 +229,7 @@ class TheoDoiDonHangWebApi extends Controller
      *     )
      * )
      */
-    public function update(Request $request, $id)
+    public function update(AuthUsernameOrderRequest $request, $id)
     {
         $user = $request->get('auth_user');
         if (!$user) {
