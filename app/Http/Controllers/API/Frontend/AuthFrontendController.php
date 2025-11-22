@@ -77,13 +77,13 @@ class AuthFrontendController extends BaseFrontendController
      *             oneOf={
      *                 @OA\Schema(
      *                     required={"email","password"},
-     *                     @OA\Property(property="email", type="string", format="email", example="user@example.com", description="Email đăng nhập"),
-     *                     @OA\Property(property="password", type="string", example="123456", description="Mật khẩu (chỉ chữ, số, dấu _ tối đa 15 ký tự)")
+     *                     @OA\Property(property="email", type="string", format="email", example="user@example.com", description="Email đăng nhập, tối đa 15 ký tự, là email hợp lệ, không ký tự đặc biệt"),
+     *                     @OA\Property(property="password", type="string", example="123456", description="Mật khẩu (chỉ chữ, số, dấu _ tối đa 15 ký tự, tối thiểu 6 ký tự)")
      *                 ),
      *                 @OA\Schema(
      *                     required={"username","password"},
-     *                     @OA\Property(property="username", type="string", example="khacduy", description="Tên đăng nhập (chỉ chữ, số, dấu _ tối đa 15 ký tự)"),
-     *                     @OA\Property(property="password", type="string", example="123456", description="Mật khẩu (chỉ chữ, số, dấu _ tối đa 15 ký tự)")
+     *                     @OA\Property(property="username", type="string", example="duylong", description="Tên đăng nhập (chỉ chữ, số, dấu _ @ . tối đa 15 ký tự, tối thiểu 6 ký tự)"),
+     *                     @OA\Property(property="password", type="string", example="123456", description="Mật khẩu (chỉ chữ, số, dấu _ tối đa 15 ký tự, tối thiểu 6 ký tự)")
      *                 )
      *             }
      *         )
@@ -112,17 +112,20 @@ class AuthFrontendController extends BaseFrontendController
         // Nếu gửi email → validate theo email
         if ($req->has('email')) {
             $req->validate([
-                'email' => 'required|email',
+                'email' => [
+                    'required',
+                    'string',
+                    'email:rfc,dns,filter',   // kiểm tra format + DNS MX
+                    'max:255',
+                    'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',   // không khoảng trắng + phải có domain
+                ],
                 'password'    => 'required|string|max:15|min:6|regex:/^[A-Za-z0-9_]+$/',
             ]);
 
             $input = $req->email;
 
-            // tìm theo email (phần sau dấu phẩy)
-            $user = NguoidungModel::whereRaw(
-                "SUBSTRING_INDEX(username, ',', -1) = ?",
-                [$input]
-            )->first();
+            // tìm theo email
+            $user = NguoidungModel::where('email', $input)->first();
 
         }
         // Nếu gửi username → validate theo username
@@ -131,19 +134,17 @@ class AuthFrontendController extends BaseFrontendController
                 'username' => [
                     'required',
                     'string',
+                    'min:6',
                     'max:15',
-                    'regex:/^[A-Za-z0-9_]+$/',   // chỉ cho chữ, số và dấu _
+                    'regex:/^[A-Za-z0-9_@.]+$/',   // chỉ cho chữ, số và dấu _ @ .
                 ],
                 'password'    => 'required|string|max:15|min:6|regex:/^[A-Za-z0-9_]+$/',
             ]);
 
             $input = $req->username;
 
-            // tìm theo username (phần trước dấu phẩy)
-            $user = NguoidungModel::whereRaw(
-                "SUBSTRING_INDEX(username, ',', 1) = ?",
-                [$input]
-            )->first();
+            // tìm theo username
+            $user = NguoidungModel::where('username', $input)->first();
         }
 
         // Kiểm tra user + mật khẩu
@@ -210,11 +211,18 @@ class AuthFrontendController extends BaseFrontendController
         // Validate trước
         try {
             $req->validate([
-                'hoten' => 'required|string|max:30|regex:/^[\pL\s]+$/u',
-                'username' => 'required|string|max:15|regex:/^[A-Za-z0-9_]+$/',
-                'email' => 'required|string|email',
+                'hoten' => 'required|string|min:1|max:30|regex:/^[\pL\s]+$/u',
+                'username' => 'required|string|min:6|max:15|regex:/^[A-Za-z0-9_@.]+$/|unique:nguoidung,username',
+                'email' => [
+                    'required',
+                    'string',
+                    'email:rfc,dns,filter',   // kiểm tra format + DNS MX
+                    'max:255',
+                    'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',   // không khoảng trắng + phải có domain
+                    'unique:nguoidung,email'
+                ],
                 'password' => 'required|string|max:15|min:6|confirmed|regex:/^[A-Za-z0-9_]+$/',
-                'sodienthoai' => 'required|string|unique:nguoidung,sodienthoai|max:10',
+                'sodienthoai' => 'required|string|regex:/^[0-9]+$/|max:10|unique:nguoidung,sodienthoai',
             ]);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -226,40 +234,12 @@ class AuthFrontendController extends BaseFrontendController
             ], 422);
         }
 
-        $onlyUsername = $req->username;
-        $onlyEmail    = $req->email;
-
-        $existsUsername = DB::table('nguoidung')
-            ->whereRaw("SUBSTRING_INDEX(username, ',', 1) = ?", [$onlyUsername])
-            ->exists();
-
-        if ($existsUsername) {
-            return $this->jsonResponse([
-                'success' => false,
-                'message' => 'Username đã tồn tại',
-            ], 422); // 409 Conflict // 422 Unprocessable Entity
-        }
-
-        $existsEmail = DB::table('nguoidung')
-            ->whereRaw("SUBSTRING_INDEX(username, ',', -1) = ?", [$onlyEmail])
-            ->exists();
-
-        if ($existsEmail) {
-            return $this->jsonResponse([
-                'success' => false,
-                'message' => 'Email đã tồn tại',
-            ], 422);
-        }
-
-
-        // Lưu username dạng username,email
-        $fullUsername = $onlyUsername . ',' . $onlyEmail;
-
         $link_hinh_anh = $this->domain . $this->uploadDir . '/';
 
         $user = NguoidungModel::create([
             'hoten' => $req->hoten,
-            'username' => $fullUsername,
+            'username' => $req->username,
+            'email' => $req->email,
             'password' => bcrypt($req->password),
             'sodienthoai' => $req->sodienthoai,
             'avatar' => $link_hinh_anh . 'khachhang.jpg',
@@ -468,12 +448,25 @@ class AuthFrontendController extends BaseFrontendController
         // Validate input
         try {
             $req->validate([
-                'email' => 'sometimes|email', // là 1 phần tử[1] của username khi bị explode
-                'hoten' => 'required|string|max:30|regex:/^[\pL\s]+$/u',
-                'sodienthoai' => 'required|string|max:10|unique:nguoidung,sodienthoai,' . $userId,
+                'email' => [
+                    'sometimes',
+                    'string',
+                    'email:rfc,dns,filter',   // kiểm tra format + DNS MX
+                    'max:255',
+                    'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',   // không khoảng trắng + phải có domain
+                    'unique:nguoidung,email,' . $userId,
+                ],
+                'hoten' => 'required|string|min:1|max:30|regex:/^[\pL\s]+$/u',
+                'sodienthoai' => [
+                    'required',
+                    'string',
+                    'max:10',
+                    'unique:nguoidung,sodienthoai,' . $userId,
+                    'regex:/^[0-9]+$/',
+                ],
                 'ngaysinh' => 'required|date',
                 'gioitinh' => 'required|in:Nam,Nữ',
-                'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+                'avatar' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
                 // Chuyển lại logic edit profile không bắt buộc nhập trường của địa chỉ
                 // 'diachi' => 'required|string',
                 // 'tinhthanh' => ['required', 'string', Rule::in($provinceNames)],
@@ -491,21 +484,7 @@ class AuthFrontendController extends BaseFrontendController
             ], 422);
         }
 
-        if ($req->filled('email')) {
-            $newEmail = $req->input('email');
 
-            $existsEmail = DB::table('nguoidung')
-                ->whereRaw("SUBSTRING_INDEX(username, ',', -1) = ?", [$newEmail])
-                ->where('id', '!=', $userId)
-                ->exists();
-
-            if ($existsEmail) {
-                return $this->jsonResponse([
-                    'success' => false,
-                    'message' => 'Email đã tồn tại'
-                ], 422);
-            }
-        }
 
         DB::beginTransaction(); // ================= BEGIN TRANSACTION =================
 
@@ -515,17 +494,7 @@ class AuthFrontendController extends BaseFrontendController
 
             $userData = $req->only(['hoten', 'sodienthoai', 'ngaysinh', 'gioitinh']);
             if ($req->has('email')) {
-                $oldUsernameEmail = $user->username; // dạng: "username,email"
-                $arrayFiledUsername = explode(',', $oldUsernameEmail);
-                $oldUsername = $arrayFiledUsername[0];
-                if (!isset($arrayFiledUsername[1])) {
-                    return $this->jsonResponse([
-                        'success' => false,
-                        'message' => 'Tài khoản chưa có email, không thể cập nhật email mới',
-                    ], 422);
-                }
-                $newEmail = $req->input('email', $arrayFiledUsername[1]);
-                $userData['username'] = $oldUsername . ',' . $newEmail;
+                $userData['email'] = $req->email;
             }
 
             // var_dump($userData);

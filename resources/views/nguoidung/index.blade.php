@@ -64,26 +64,20 @@
                     <img src="{{ $nguoidung->avatar ?? asset('img/default-avatar.png') }}" alt="{{ $nguoidung->hoten }}" style="width:50px; height:50px; object-fit:cover; border-radius:50%;">
                   </a>
                   <a href="javascript:void(0);" style="white-space: normal; display: block;">
-                    {!! wordwrap(e($nguoidung->hoten), 10, '<br>') !!}
+                    {!! wordwrap(($nguoidung->hoten), 10, '<br>') !!}
                   </a>
                 </td>
                 <td>
-                  @php
-                    $usernameValue = explode(',', $nguoidung->username)[0] ?? 'Chưa có username';
-                  @endphp
-                  {!! wordwrap(e($usernameValue), 10, '<br>') !!}
+                  {!! wordwrap(($nguoidung->username), 10, '<br>') !!}
                 </td>
                 <td>
-                  @php
-                    $emailValue = explode(',', $nguoidung->username)[1] ?? 'Chưa có email';
-                  @endphp
-                  {!! wordwrap(e($emailValue), 10, '<br>') !!}
+                  {!! wordwrap(($nguoidung->email), 10, '<br>') !!}
                 </td>
                 <td>{{ $nguoidung->sodienthoai ?? '-' }}</td>
                 <td>
                   @php $diachi = $nguoidung->diachi->first(); @endphp
                   @if($diachi)
-                    {!! wordwrap(e($diachi->diachi . ' (' . $diachi->tinhthanh . ')'), 30, '<br>') !!}
+                    {!! wordwrap(($diachi->diachi . ' (' . $diachi->tinhthanh . ')'), 30, '<br>') !!}
                   @else
                     <i>Chưa có địa chỉ</i>
                   @endif

@@ -40,10 +40,14 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-        'api' => [
-            'driver' => 'sanctum', //token nếu dung auth:api
-            'provider' => 'users',
-        ],
+        // 'api' => [
+        //     'driver' => 'sanctum', //token nếu dung auth:api
+        //     'provider' => 'users',
+        // ],
+        // 'cus' => [
+        //     'driver' => 'session',
+        //     'provider' => 'customers',
+        // ],
     ],
 
     /*
@@ -73,6 +77,11 @@ return [
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',
+        // ],
+        // 'customers' => [
+        //     'driver' => 'eloquent',
+        //     'model' => App\Models\KhachhangModel::class,
+        //     // 'table' => 'khachhang', // không bắt buộc nếu đã khai báo $table trong model
         // ],
     ],
 

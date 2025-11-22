@@ -66,50 +66,45 @@ class NguoidungController extends Controller
     {
         $provinceNames = collect($this->provinces)->pluck('ten')->toArray();
         // Validate dữ liệu người dùng + địa chỉ giao hàng
+
         $request->validate([
-            'username' => 'required|string|max:15|regex:/^[A-Za-z0-9_]+$/',
-            'email' => 'required|string|email',
+            'username' => 'required|string|min:6|max:15|regex:/^[A-Za-z0-9_@.]+$/|unique:nguoidung,username',
+            'email' => [
+                    'required',
+                    'string',
+                    'email:rfc,dns,filter',   // kiểm tra format + DNS MX
+                    'max:255',
+                    'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',   // không khoảng trắng + phải có domain
+                    'unique:nguoidung,email'
+                ],
             'password'    => 'required|string|max:15|min:6|confirmed|regex:/^[A-Za-z0-9_]+$/',
-            'hoten' => 'required|string|max:30|regex:/^[\pL\s]+$/u',
-            'sodienthoai' => 'nullable|string|unique:nguoidung,sodienthoai|max:10',
+            'hoten' => 'required|string|min:1|max:30|regex:/^[\pL\s]+$/u',
+            'sodienthoai' => 'required|string|unique:nguoidung,sodienthoai|max:10|regex:/^[0-9]+$/',
             'gioitinh'    => 'nullable|in:Nam,Nữ',
             'ngaysinh'    => 'nullable|date',
-            'vaitro'      => 'required|in:admin,seller,client',
+            'vaitro'      => 'required|in:seller,client',
             'trangthai'   => 'required|in:Hoạt động,Tạm khóa,Dừng hoạt động',
             'avatar'      => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
 
             // Validate địa chỉ giao hàng
-            'diachi_diachi'    => 'required|string',
-            'diachi_tinhthanh' => ['required', 'string', Rule::in($provinceNames)], // list tỉnh thành bạn định nghĩa
+            'diachi_diachi'    => 'nullable|string',
+            'diachi_tinhthanh' => ['nullable', 'string', Rule::in($provinceNames)], // list tỉnh thành bạn định nghĩa
             'diachi_trangthai' => 'nullable|in:Mặc định,Khác,Tạm ẩn',
         ]);
-        $onlyUsername = $request->username;
-        $onlyEmail    = $request->email;
 
-        $existsUsername = DB::table('nguoidung')
-            ->whereRaw("SUBSTRING_INDEX(username, ',', 1) = ?", [$onlyUsername])
-            ->exists();
-        if($existsUsername)
-            return redirect()->route('nguoidung.index')->with('error', 'Username đã tồn tại!');
 
-        $existsEmail = DB::table('nguoidung')
-            ->whereRaw("SUBSTRING_INDEX(username, ',', -1) = ?", [$onlyEmail])
-            ->exists();
-
-        if($existsEmail)
-            return redirect()->route('nguoidung.index')->with('error', 'Email đã tồn tại!');
 
         DB::beginTransaction();
         try {
-            $fullUsername = $onlyUsername . ',' . $onlyEmail;
             // Tạo người dùng
             $nguoidung = new NguoidungModel();
-            $nguoidung->username = $fullUsername;
+            $nguoidung->username = $request->username;
+            $nguoidung->email = $request->email;
             $nguoidung->password = Hash::make($request->password);
             $nguoidung->hoten = $request->hoten;
             $nguoidung->sodienthoai = $request->sodienthoai;
-            $nguoidung->gioitinh = $request->gioitinh;
-            $nguoidung->ngaysinh = $request->ngaysinh;
+            $nguoidung->gioitinh = $request->filled('gioitinh') ? $request->gioitinh : 'Nam';
+            $nguoidung->ngaysinh = $request->filled('ngaysinh') ? $request->ngaysinh : '2000-01-01';
             $nguoidung->vaitro = $request->vaitro;
             $nguoidung->trangthai = $request->trangthai;
 
@@ -176,16 +171,23 @@ class NguoidungController extends Controller
         $nguoidung = NguoidungModel::findOrFail($id);
 
         $request->validate([
-            'username' => 'required|string|max:15|regex:/^[A-Za-z0-9_]+$/',
-            'email' => 'required|string|email',
-            'hoten' => 'required|string|max:30|regex:/^[\pL\s]+$/u',
+            'username' => 'required|string|min:6|max:15|regex:/^[A-Za-z0-9_@.]+$/|unique:nguoidung,username,' . $nguoidung->id,
+            'email' => [
+                        'required',
+                        'string',
+                        'email:rfc,dns,filter',   // kiểm tra format + DNS MX
+                        'max:255',
+                        'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',   // không khoảng trắng + phải có domain
+                        'unique:nguoidung,email,' . $nguoidung->id
+                    ],
+            'hoten' => 'required|string|min:1|max:30|regex:/^[\pL\s]+$/u',
             'password'    => 'nullable|string|max:15|min:6|confirmed|regex:/^[A-Za-z0-9_]+$/',
-            'sodienthoai' => 'required|string|max:10|unique:nguoidung,sodienthoai,' . $nguoidung->id,
+            'sodienthoai' => 'required|regex:/^[0-9]{10}$/|unique:nguoidung,sodienthoai,' . $nguoidung->id,
             'gioitinh'    => 'required|in:Nam,Nữ',
             'ngaysinh'    => 'required|date',
-            'vaitro'      => 'required|in:admin,seller,client',
+            'vaitro'      => 'required|in:seller,client',
             'trangthai'   => 'required|in:Hoạt động,Tạm khóa,Dừng hoạt động',
-            'avatar'      => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'avatar'      => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
 
             // Validate địa chỉ giao hàng
 
@@ -193,31 +195,12 @@ class NguoidungController extends Controller
             'diachi_tinhthanh' => ['nullable', 'string', Rule::in($provinceNames)], // list tỉnh thành bạn định nghĩa
             'diachi_trangthai' => 'nullable|in:Mặc định,Khác,Tạm ẩn',
         ]);
-        $onlyUsername = $request->username;
-        $onlyEmail    = $request->email;
 
-        $existsUsername = DB::table('nguoidung')
-            ->whereRaw("SUBSTRING_INDEX(username, ',', 1) = ?", [$onlyUsername])
-            ->where('id', '<>', $id)  // loại trừ bản ghi đang update
-            ->exists();
-
-        if ($existsUsername) {
-            return back()->withInput()->with('error', 'Username đã tồn tại!');
-        }
-
-        $existsEmail = DB::table('nguoidung')
-            ->whereRaw("SUBSTRING_INDEX(username, ',', -1) = ?", [$onlyEmail])
-            ->where('id', '<>', $id)  // loại trừ bản ghi đang update
-            ->exists();
-
-        if ($existsEmail) {
-            return back()->withInput()->with('error', 'Email đã tồn tại!');
-        }
         DB::beginTransaction();
         try {
-            $fullUsername = $onlyUsername . ',' . $onlyEmail;
             // Cập nhật người dùng
-            $nguoidung->username = $fullUsername;
+            $nguoidung->username = $request->username;
+            $nguoidung->email = $request->email;
             $nguoidung->hoten = $request->hoten;
             $nguoidung->sodienthoai = $request->sodienthoai;
             $nguoidung->gioitinh = $request->gioitinh;

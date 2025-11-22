@@ -47,8 +47,10 @@
                         <tr>
                             <th>Tài khoản <br> (Username / Email)</th>
                             @php
-                                $usernameValue = explode(',', $diachi->nguoidung->username ?? '')[0] ?? 'Chưa cập nhật';
-                                $emailValue = explode(',', $diachi->nguoidung->username ?? '')[1] ?? 'Chưa cập nhật';
+                                // $usernameValue = explode(',', $diachi->nguoidung->username ?? '')[0] ?? 'Chưa cập nhật';
+                                // $emailValue = explode(',', $diachi->nguoidung->username ?? '')[1] ?? 'Chưa cập nhật';
+                                $usernameValue = $diachi->nguoidung->username ?? 'Chưa cập nhật';
+                                $emailValue = $diachi->nguoidung->email ?? 'Chưa cập nhật';
                             @endphp
                             <td>{{ $usernameValue }} / {{ $emailValue }}</td>
                         </tr>

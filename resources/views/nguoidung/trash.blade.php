@@ -48,8 +48,10 @@
                                     <a href="javascript:void(0);">{{ $nguoidung->hoten }}</a>
                                 </td>
                                 @php
-                                    $usernameValue = explode(',', $nguoidung->username)[0] ?? 'Chưa cập nhật';
-                                    $emailValue = explode(',', $nguoidung->username)[1] ?? 'Chưa cập nhật';
+                                    $usernameValue = $nguoidung->username ?? 'Chưa cập nhật';
+                                    $emailValue = $nguoidung->email ?? 'Chưa cập nhật';
+                                    // $usernameValue = explode(',', $nguoidung->username)[0] ?? 'Chưa cập nhật';
+                                    // $emailValue = explode(',', $nguoidung->username)[1] ?? 'Chưa cập nhật';
                                 @endphp
                                 <td>{{ $usernameValue }}</td>
                                 <td>{{ $emailValue }}</td>

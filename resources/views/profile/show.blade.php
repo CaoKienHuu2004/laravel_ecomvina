@@ -81,14 +81,10 @@
                                 <input type="text" name="hoten" value="{{ $user->hoten}}" required>
                             </div>
                         </div>
-                        @php
-                            $usernameValue = explode(',',$user->username)[0] ??"";
-                            $emailValue = explode(',',$user->username)[1] ??"";
-                        @endphp
                         <div class="col-lg-6 col-sm-12">
                             <div class="form-group">
                                 <label>Tên Đăng Nhập *</label>
-                                <input type="text" name="username" value="{{ $usernameValue }}" required>
+                                <input type="text" name="username" value="{{ $user->username }}" required>
                             </div>
                         </div>
                         <div class="col-lg-6 col-sm-12">
@@ -96,7 +92,7 @@
                                 <label>Email *</label>
                                 <div class="input-group">
                                     <span class="input-group-text" id="basic-addon1">@</span>
-                                    <input type="email" class="form-control" name="email" value="{{ $emailValue }}" required>
+                                    <input type="email" class="form-control" name="email" value="{{ $user->email }}" required>
                                 </div>
                             </div>
                         </div>

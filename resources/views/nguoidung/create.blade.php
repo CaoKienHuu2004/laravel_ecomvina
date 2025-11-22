@@ -70,7 +70,7 @@
                     </div>
 
                     <div class="col-lg-6 mb-3">
-                        <label for="sodienthoai" class="form-label">Số điện thoại</label>
+                        <label for="sodienthoai" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
                         <input type="text" name="sodienthoai" id="sodienthoai" class="form-control" value="{{ old('sodienthoai') }}">
                     </div>
 
@@ -92,7 +92,6 @@
                         <label for="vaitro" class="form-label">Vai trò <span class="text-danger">*</span></label>
                         <select name="vaitro" id="vaitro" class="form-select" required>
                             <option value="">-- Chọn vai trò --</option>
-                            <option value="admin" {{ old('vaitro') == 'admin' ? 'selected' : '' }}>Admin</option>
                             <option value="seller" {{ old('vaitro') == 'seller' ? 'selected' : '' }}>Seller</option>
                             <option value="client" {{ old('vaitro') == 'client' ? 'selected' : '' }}>Client</option>
                         </select>
@@ -124,12 +123,12 @@
                 <div class="card-body row">
 
                     <div class="col-lg-12 mb-3">
-                        <label for="diachi_diachi" class="form-label">Địa chỉ <span class="text-danger">*</span></label>
+                        <label for="diachi_diachi" class="form-label">Địa chỉ</label>
                         <textarea name="diachi_diachi" id="diachi_diachi" class="form-control" required>{{ old('diachi_diachi') }}</textarea>
                     </div>
 
                     <div class="col-lg-6 mb-3">
-                        <label for="diachi_tinhthanh" class="form-label">Tỉnh/Thành phố <span class="text-danger">*</span></label>
+                        <label for="diachi_tinhthanh" class="form-label">Tỉnh/Thành phố</label>
                         <select name="diachi_tinhthanh" id="diachi_tinhthanh" class="form-select" required>
                             <option value="">-- Chọn tỉnh/thành --</option>
                             @foreach ($tinhthanhs as $tinhthanh)

@@ -28,13 +28,17 @@ class AuthUsernameOrderMiddleware
         // ----- TÌM USER THEO USERNAME HOẶC EMAIL -----
         $query = NguoidungModel::query();
 
-        $query->when($onlyEmail, function($q) use ($onlyEmail) {
-            $q->whereRaw("SUBSTRING_INDEX(username, ',', -1) = ?", [$onlyEmail]);
-        });
+        if ($onlyEmail && $onlyUsername) {
+            $query->where(function ($q) use ($onlyEmail, $onlyUsername) {
+                $q->where('email', $onlyEmail)
+                ->orWhere('username', $onlyUsername);
+            });
+        } elseif ($onlyEmail) {
+            $query->where('email', $onlyEmail);
+        } elseif ($onlyUsername) {
+            $query->where('username', $onlyUsername);
+        }
 
-        $query->when($onlyUsername, function($q) use ($onlyUsername) {
-            $q->orWhereRaw("SUBSTRING_INDEX(username, ',', 1) = ?", [$onlyUsername]);
-        });
         $user = $query->first();
 
         if (!$user) {

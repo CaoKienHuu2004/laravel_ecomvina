@@ -17,8 +17,8 @@ class ThongTinNguoiDungResource extends JsonResource
         return [
             'id' => $this->id,
             // 'username' => $this->username,
-            'username' => explode(',', $this->username)[0] ?? null,
-            'email' => explode(',', $this->username)[1] ?? null,
+            'username' => $this->username,
+            'email' => $this->email,
             'sodienthoai' => $this->sodienthoai,
             'hoten' => $this->hoten,
             'gioitinh' => $this->gioitinh,

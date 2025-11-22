@@ -40,13 +40,6 @@
                 <div class="card-body">
                     <h5 class="mb-3">Thông tin người dùng</h5>
 
-
-                    @php
-                        $parts = explode(',', $nguoidung->username);
-                        $usernameValue = old('username', $parts[0] ?? '');
-                        $emailValue = old('email', $parts[1] ?? '');
-                    @endphp
-
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="form-group mb-3">
@@ -56,7 +49,7 @@
                                     class="form-control @error('username') is-invalid @enderror"
                                     id="username"
                                     name="username"
-                                    value="{{ $usernameValue }}"
+                                    value="{{ old('username', isset($nguoidung) ? $nguoidung->username : '') }}"
                                     required
                                 >
                                 @error('username')
@@ -73,7 +66,7 @@
                                     class="form-control @error('email') is-invalid @enderror"
                                     id="email"
                                     name="email"
-                                    value="{{ $emailValue }}"
+                                    value="{{ old('email', isset($nguoidung) ? $nguoidung->email : '') }}"
                                     required
                                 >
                                 @error('email')
@@ -130,7 +123,7 @@
 
                         <div class="col-lg-6">
                             <div class="form-group mb-3">
-                                <label for="sodienthoai">Số điện thoại</label>
+                                <label for="sodienthoai">Số điện thoại <span class="text-danger">*</span></label>
                                 <input
                                     type="text"
                                     class="form-control @error('sodienthoai') is-invalid @enderror"
@@ -146,7 +139,7 @@
                         </div>
 
                         <div class="col-lg-6">
-                            <label>Giới tính</label><br>
+                            <label>Giới tính</label> <span class="text-danger">*</span><br>
                             @php
                                 $gioitinh = old('gioitinh', $nguoidung->gioitinh);
                             @endphp
@@ -162,7 +155,7 @@
 
                         <div class="col-lg-6">
                             <div class="form-group mb-3">
-                                <label for="ngaysinh">Ngày sinh</label>
+                                <label for="ngaysinh">Ngày sinh <span class="text-danger">*</span></label>
                                 <input
                                     type="date"
                                     class="form-control"
@@ -179,7 +172,6 @@
                                 <select class="form-control @error('vaitro') is-invalid @enderror" id="vaitro" name="vaitro" required>
                                     @php $vaitro = old('vaitro', $nguoidung->vaitro); @endphp
                                     <option value="">-- Chọn vai trò --</option>
-                                    <option value="admin" {{ $vaitro === 'admin' ? 'selected' : '' }}>Admin</option>
                                     <option value="seller" {{ $vaitro === 'seller' ? 'selected' : '' }}>Seller</option>
                                     <option value="client" {{ $vaitro === 'client' ? 'selected' : '' }}>Client</option>
                                 </select>

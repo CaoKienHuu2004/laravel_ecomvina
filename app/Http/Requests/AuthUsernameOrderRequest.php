@@ -30,12 +30,14 @@ class AuthUsernameOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'username' => ['nullable','string','max:15','regex:/^[A-Za-z0-9_]+$/'],
+            'username' => ['nullable','string','min:6','max:15','regex:/^[A-Za-z0-9_@.]+$/'],
 
             'email' => [
-                'nullable',
+                'required',
                 'string',
-                'email'
+                'email:rfc,dns,filter',   // kiểm tra format + DNS MX
+                'max:255',
+                'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',   // không khoảng trắng + phải có domain
             ],
 
             'madon' => [

@@ -35,11 +35,6 @@
                         </div>
                     </div>
 
-                    @php
-                        $usernameValue = explode(',', $nguoidung->username)[0] ?? 'Chưa cập nhật';
-                        $emailValue = explode(',', $nguoidung->username)[1] ?? 'Chưa cập nhật';
-                    @endphp
-
                     <form>
                         <div class="row">
                             <div class="col-lg-6 col-sm-12 mb-3">
@@ -49,12 +44,12 @@
 
                             <div class="col-lg-6 col-sm-12 mb-3">
                                 <label for="username" class="form-label"><strong>Username</strong></label>
-                                <input type="text" id="username" class="form-control" value="{{ $usernameValue }}" disabled>
+                                <input type="text" id="username" class="form-control" value="{{ $nguoidung->username }}" disabled>
                             </div>
 
                             <div class="col-lg-6 col-sm-12 mb-3">
                                 <label for="email" class="form-label"><strong>Email</strong></label>
-                                <input type="email" id="email" class="form-control" value="{{ $emailValue }}" disabled>
+                                <input type="email" id="email" class="form-control" value="{{ $nguoidung->email }}" disabled>
                             </div>
 
                             <div class="col-lg-6 col-sm-12 mb-3">

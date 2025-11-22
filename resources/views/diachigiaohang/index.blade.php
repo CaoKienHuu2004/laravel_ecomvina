@@ -78,11 +78,7 @@
                                     </td>
                                     <td>
                                         {{-- Hiển thị tên người dùng liên kết nếu có --}}
-                                        @php
-                                            $usernameValue = explode(',',$diachi->nguoidung->username)[0] ?? '';
-                                            // $emailValue = explode(',',$diachi->nguoidung->username)[1] ?? '';
-                                        @endphp
-                                        {{ $usernameValue ?? '-' }} <br>
+                                        {{ ($diachi->nguoidung->username) ?? '-' }} <br>
                                         {{-- {{ $emailValue ?? '-' }} --}}
                                     </td>
                                     <td>

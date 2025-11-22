@@ -33,13 +33,13 @@
                                         ],
                                         "properties": {
                                             "email": {
-                                                "description": "Email đăng nhập",
+                                                "description": "Email đăng nhập, tối đa 15 ký tự, là email hợp lệ, không ký tự đặc biệt",
                                                 "type": "string",
                                                 "format": "email",
                                                 "example": "user@example.com"
                                             },
                                             "password": {
-                                                "description": "Mật khẩu (chỉ chữ, số, dấu _ tối đa 15 ký tự)",
+                                                "description": "Mật khẩu (chỉ chữ, số, dấu _ tối đa 15 ký tự, tối thiểu 6 ký tự)",
                                                 "type": "string",
                                                 "example": "123456"
                                             }
@@ -53,12 +53,12 @@
                                         ],
                                         "properties": {
                                             "username": {
-                                                "description": "Tên đăng nhập (chỉ chữ, số, dấu _ tối đa 15 ký tự)",
+                                                "description": "Tên đăng nhập (chỉ chữ, số, dấu _ @ . tối đa 15 ký tự, tối thiểu 6 ký tự)",
                                                 "type": "string",
-                                                "example": "khacduy"
+                                                "example": "duylong"
                                             },
                                             "password": {
-                                                "description": "Mật khẩu (chỉ chữ, số, dấu _ tối đa 15 ký tự)",
+                                                "description": "Mật khẩu (chỉ chữ, số, dấu _ tối đa 15 ký tự, tối thiểu 6 ký tự)",
                                                 "type": "string",
                                                 "example": "123456"
                                             }

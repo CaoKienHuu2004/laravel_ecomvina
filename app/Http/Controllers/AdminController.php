@@ -45,27 +45,28 @@ class AdminController extends Controller
         $query = null;
         if ($req->has('email')) {
             $req->validate([
-                'email' => 'required|email',
+                'email' => [
+                    'required',
+                    'string',
+                    'email:rfc,dns,filter',   // kiểm tra format + DNS MX
+                    'max:255',
+                    'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',   // không khoảng trắng + phải có domain
+                ],
             ]);
 
-            $query = NguoidungModel::whereRaw(
-                "SUBSTRING_INDEX(username, ',', -1) = ?",
-                [$req->email]
-            );
+            NguoidungModel::where('email', $req->email);
         }
         else {
             $req->validate([
                 'username' => [
                     'required',
                     'string',
+                    'min:6',
                     'max:15',
-                    'regex:/^[A-Za-z0-9_]+$/',
+                    'regex:/^[A-Za-z0-9_@.]+$/',
                 ]
             ]);
-            $query = NguoidungModel::whereRaw(
-                "SUBSTRING_INDEX(username, ',', 1) = ?",
-                [$req->username]
-            );
+            $query = NguoidungModel::where('username', $req->username);
         }
         $user = $query->first();
 
@@ -105,44 +106,37 @@ class AdminController extends Controller
 
         // hoten,username,sodienthoai,gioitinh,pawwword
 
+        try {
+            $request->validate([
+                'hoten' => 'required|string|min:1|max:30|regex:/^[\pL\s]+$/u',
+                'email' => [
+                        'required',
+                        'string',
+                        'email:rfc,dns,filter',   // kiểm tra format + DNS MX
+                        'max:255',
+                        'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',   // không khoảng trắng + phải có domain
+                        'unique:nguoidung,email,' . $user->id,
+                    ],
+                'username' => 'required|string|min:6|max:15|regex:/^[A-Za-z0-9_@.]+$/|unique:nguoidung,username,' . $user->id,
+                'sodienthoai' => 'required|string|max:10|unique:nguoidung,sodienthoai,' . $user->id. '|regex:/^[0-9]+$/',
+                'gioitinh' => 'nullable|in:Nam,Nữ',
+                'password' => 'nullable|string|max:15|min:6|confirmed|regex:/^[A-Za-z0-9_]+$/',
+                'ngaysinh' => 'nullable|date',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
 
-        $request->validate([
-            'hoten' => 'required|string|max:30|regex:/^[\pL\s]+$/u',
-            'email' => 'required|email',
-            'username' => 'required|string|min:6|max:15|regex:/^[A-Za-z0-9_]+$/',
-            'sodienthoai' => 'nullable|string|max:20',
-            'gioitinh' => 'nullable|in:Nam,Nữ',
-            'password' => 'nullable|string|max:15|min:6|confirmed|regex:/^[A-Za-z0-9_]+$/',
-            'ngaysinh' => 'nullable|date',
-        ]);
-
-        $onlyUsername = $request->username;
-        $onlyEmail    = $request->email;
-
-        $existsUsername = DB::table('nguoidung')
-            ->whereRaw("SUBSTRING_INDEX(username, ',', 1) = ?", [$onlyUsername])
-            ->where('id', '!=', $user->id) // tránh check trùng chính user hiện tại
-            ->exists();
-
-        if ($existsUsername) {
-            return back()->withErrors(['username' => 'Username đã tồn tại'])
-                        ->withInput();
+            return back()->withErrors([
+                'error' => "Lỗi validate form".$e->getMessage(),
+            ])->withInput();
         }
 
-        $existsEmail = DB::table('nguoidung')
-            ->whereRaw("SUBSTRING_INDEX(username, ',', -1) = ?", [$onlyEmail])
-            ->where('id', '!=', $user->id) // tránh check trùng chính user hiện tại
-            ->exists();
 
-        if ($existsEmail) {
-            return back()->withErrors(['email' => 'Email đã tồn tại'])
-                        ->withInput();
-        }
 
-        $fullUsername = $onlyUsername . ',' . $onlyEmail;
+
 
         $user->hoten = $request->input('hoten');
-        $user->username = $fullUsername;
+        $user->username = $request->input('username');
+        $user->email = $request->input('email');
         $user->sodienthoai = $request->input('sodienthoai');
         $user->gioitinh = $request->input('gioitinh');
         $user->ngaysinh = $request->input('ngaysinh');

@@ -497,6 +497,17 @@ class DonHangFrontendAPI extends BaseFrontendController
     {
         $user = $request->get('auth_user');
         $donhang = DonhangModel::where('id', $id)->where('id_nguoidung', $user->id)->first();
+        $allowedBankCodes = [
+            'VNPAYQR', 'NCB', 'AGRIBANK', 'VIETCOMBANK', 'VIETINBANK',
+            'VISA', 'MASTERCARD', 'JCB'
+        ];
+        $bankCode = $request->input('bankcode');
+        if ($bankCode && !in_array($bankCode, $allowedBankCodes)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Mã ngân hàng không hợp lệ.',
+            ], 422);
+        }
 
         if (!$donhang || $donhang->trangthaithanhtoan !== 'Chưa thanh toán') {
             return response()->json(['status' => false, 'message' => 'Đơn hàng không hợp lệ hoặc đã thanh toán.'], 400);
@@ -506,6 +517,7 @@ class DonHangFrontendAPI extends BaseFrontendController
         $vnp_TmnCode = config('vnpay.tmn_code');
         $vnp_HashSecret = config('vnpay.hash_secret');
         $vnp_Returnurl = route('api.toi.donhangs.payment-callback');
+
 
         $inputData = [
             'vnp_Version' => '2.1.0',
@@ -521,6 +533,9 @@ class DonHangFrontendAPI extends BaseFrontendController
             'vnp_ReturnUrl' => $vnp_Returnurl,
             'vnp_TxnRef' => $donhang->madon,
         ];
+        if($bankCode){
+            $inputData['vnp_BankCode'] = $bankCode;
+        }
 
         ksort($inputData);
         $query = http_build_query($inputData, '', '&');
