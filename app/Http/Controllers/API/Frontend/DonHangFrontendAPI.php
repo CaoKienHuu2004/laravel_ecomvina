@@ -9,6 +9,7 @@ use Illuminate\Http\Response;
 use App\Models\DonhangModel;
 use App\Models\ChitietdonhangModel;
 use App\Models\GiohangModel;
+use App\Models\MagiamgiaModel;
 use App\Models\PhuongthucModel;
 use Illuminate\Support\Str;
 use App\Traits\ApiResponse;
@@ -92,38 +93,26 @@ class DonHangFrontendAPI extends BaseFrontendController
     /**
      * @OA\Post(
      *     path="/api/toi/donhangs",
-     *     summary="Tạo đơn hàng mới (tự động xử lý kho và lượt mua qua Observer)",
-     *     description="API cho phép người dùng tạo đơn hàng mới từ giỏ hàng của họ.
-     *     Khi đơn hàng được cập nhật sang trạng thái **'Thành công'**, hệ thống sẽ tự động:
-     *     - Giảm số lượng tồn kho (`bienthe.soluong`)
-     *     - Tăng số lượt mua (`bienthe.luotmua`)
-     *     - Giảm số lượt tặng (`bienthe.luottang`)
-     *     Cơ chế này được thực hiện **tự động qua Laravel Observer**, không cần gọi thêm API phụ.
-     *  *     🧩 Quy trình xử lý khi tạo đơn hàng mới:
-    *     - Bước 1: Kiểm tra và xác thực dữ liệu đầu vào.
-    *     - Bước 2: Tạo bản ghi đơn hàng (bảng `donhang`).
-    *     - Bước 3: Lấy danh sách sản phẩm trong giỏ hàng (`giohang`) của người dùng.
-    *     - Bước 4: Tự động tạo chi tiết đơn hàng (`chitietdonhang`) cho từng sản phẩm:
-    *         + Liên kết `id_donhang` và `id_bienthe`.
-    *         + Lưu số lượng, đơn giá, và trạng thái ban đầu là `Đã đặt`.
-    *     - Bước 5: Khi trạng thái đơn hàng chuyển sang **thành công**, hệ thống sẽ:
-    *         + Giảm tồn kho (`bienthe.soluong -= 1`).
-    *         + Tăng lượt mua (`bienthe.luotban += 1`).
-    *         + (Tùy chọn) Đồng bộ sang bảng `chitiethoadon`.
-    *     ",
+     *     summary="Tạo đơn hàng mới từ giỏ hàng của người dùng",
+     *     description="
+     *         API cho phép người dùng tạo đơn hàng mới từ giỏ hàng hiện tại.
+     *         Khi đơn hàng được tạo, hệ thống sẽ:
+     *         - Tạo đơn hàng với trạng thái và phương thức thanh toán tương ứng.
+     *         - Tạo chi tiết đơn hàng cho từng sản phẩm trong giỏ.
+     *         - Xóa giỏ hàng của người dùng sau khi tạo đơn.
+     *         - Trạng thái thanh toán mặc định là 'Chưa thanh toán' hoặc 'Đã thanh toán' tùy phương thức.
+     *
+     *         **Lưu ý**:
+     *         - Các xử lý giảm tồn kho, tăng lượt mua được thực hiện tự động qua Observer khi đơn hàng chuyển sang trạng thái 'Thành công'.
+     *     ",
      *     tags={"Đơn hàng (tôi)"},
      *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
-     *             required={"id_phuongthuc", "id_phivanchuyen", "id_diachigiaohang", "tongsoluong", "tamtinh", "thanhtien"},
-     *             @OA\Property(property="id_phuongthuc", type="integer", example=1, description="ID phương thức thanh toán"),
-     *             @OA\Property(property="id_phivanchuyen", type="integer", example=2, description="ID phí vận chuyển"),
-     *             @OA\Property(property="id_diachigiaohang", type="integer", example=3, description="ID địa chỉ giao hàng"),
-     *             @OA\Property(property="id_magiamgia", type="integer", nullable=true, example=null, description="ID mã giảm giá (nếu có)"),
-     *             @OA\Property(property="tongsoluong", type="integer", example=3, description="Tổng số lượng sản phẩm trong đơn"),
-     *             @OA\Property(property="tamtinh", type="integer", example=250000, description="Tổng tạm tính của đơn hàng (chưa trừ mã giảm giá)"),
-     *             @OA\Property(property="thanhtien", type="integer", example=230000, description="Tổng tiền sau khi áp dụng giảm giá và phí vận chuyển")
+     *             required={"ma_phuongthuc"},
+     *             @OA\Property(property="ma_phuongthuc", type="string", example="cod", description="Mã phương thức thanh toán, ví dụ 'cod', 'paypal', ..."),
+     *             @OA\Property(property="ma_magiamgia", type="string", nullable=true, example=null, description="Mã giảm giá (nếu có)")
      *         )
      *     ),
      *     @OA\Response(
@@ -135,33 +124,95 @@ class DonHangFrontendAPI extends BaseFrontendController
      *             @OA\Property(
      *                 property="data",
      *                 type="object",
-     *                 description="Thông tin đơn hàng và chi tiết đơn hàng đi kèm"
+     *                 description="Thông tin đơn hàng vừa tạo, bao gồm chi tiết đơn hàng và sản phẩm",
+     *                 @OA\Property(property="id", type="integer", example=123),
+     *                 @OA\Property(property="madon", type="string", example="DH20251122001"),
+     *                 @OA\Property(property="tongsoluong", type="integer", example=3),
+     *                 @OA\Property(property="tamtinh", type="integer", example=250000),
+     *                 @OA\Property(property="thanhtien", type="integer", example=230000),
+     *                 @OA\Property(property="trangthaithanhtoan", type="string", example="Chưa thanh toán"),
+     *                 @OA\Property(property="trangthai", type="string", example="Chờ xử lý"),
+     *                 @OA\Property(property="created_at", type="string", format="date-time", example="2025-11-22T07:45:00Z"),
+     *                 @OA\Property(
+     *                     property="chitietdonhang",
+     *                     type="array",
+     *                     description="Danh sách chi tiết đơn hàng",
+     *                     @OA\Items(
+     *                         type="object",
+     *                         @OA\Property(property="id_bienthe", type="integer", example=10),
+     *                         @OA\Property(property="soluong", type="integer", example=2),
+     *                         @OA\Property(property="dongia", type="integer", example=120000),
+     *                         @OA\Property(property="trangthai", type="string", example="Đã đặt"),
+     *                         @OA\Property(
+     *                             property="bienthe",
+     *                             type="object",
+     *                             description="Thông tin biến thể sản phẩm",
+     *                             @OA\Property(property="giagoc", type="integer", example=120000),
+     *                             @OA\Property(
+     *                                 property="sanpham",
+     *                                 type="object",
+     *                                 description="Thông tin sản phẩm",
+     *                                 @OA\Property(property="ten", type="string", example="Áo thun nam"),
+     *                                 @OA\Property(property="ma_sp", type="string", example="SP001")
+     *                             )
+     *                         )
+     *                     )
+     *                 )
      *             )
      *         )
      *     ),
      *     @OA\Response(
      *         response=400,
-     *         description="Giỏ hàng trống hoặc dữ liệu không hợp lệ"
+     *         description="Giỏ hàng trống hoặc dữ liệu không hợp lệ",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Giỏ hàng trống, không thể tạo đơn hàng!")
+     *         )
      *     ),
      *     @OA\Response(
-     *         response=401,
-     *         description="Token không hợp lệ hoặc chưa đăng nhập"
+     *         response=422,
+     *         description="Dữ liệu đầu vào không hợp lệ",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="object", description="Các lỗi validate, key là tên trường, value là mảng lỗi"),
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Lỗi server khi tạo đơn hàng",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Lỗi khi tạo đơn hàng: ...")
+     *         )
      *     )
      * )
      */
     public function store(Request $request)
     {
         // 🧩 Bước 1: Validate dữ liệu đầu vào
-        $validator = Validator::make($request->all(), [
-            'id_phuongthuc'      => 'required|integer|exists:phuongthuc,id',
-            'id_nguoidung'       => 'required|integer|exists:nguoidung,id',
-            'id_phivanchuyen'    => 'required|integer|exists:phivanchuyen,id',
-            'id_diachigiaohang'  => 'required|integer|exists:diachi_giaohang,id',
-            'id_magiamgia'       => 'nullable|integer|exists:magiamgia,id',
-            'tongsoluong'        => 'required|integer|min:1',
-            'tamtinh'            => 'required|integer|min:0',
-            'thanhtien'          => 'required|integer|min:0',
-        ]);
+        try {
+            // $validator = Validator::make($request->all(), [
+            //     'id_phuongthuc'      => 'required|integer|exists:phuongthuc,id',
+            //     'id_nguoidung'       => 'required|integer|exists:nguoidung,id',
+            //     'id_phivanchuyen'    => 'required|integer|exists:phivanchuyen,id',
+            //     'id_diachigiaohang'  => 'required|integer|exists:diachi_giaohang,id',
+            //     'id_magiamgia'       => 'nullable|integer|exists:magiamgia,id',
+            //     'tongsoluong'        => 'required|integer|min:1',
+            //     'tamtinh'            => 'required|integer|min:4000',
+            //     'thanhtien'          => 'required|integer|min:4000|lte:tamtinh',
+            // ]);
+            $validator = Validator::make($request->all(), [
+                'ma_phuongthuc'      => 'required|string|exists:phuongthuc,maphuongthuc',
+                'ma_magiamgia'       => 'nullable|string|exists:magiamgia,magiamgia',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+
+            return $this->jsonResponse([
+                'error' => true,
+                'message' => 'Dữ liệu đầu vào không hợp lệ',
+                'errors' => $e->errors()
+            ], 422);
+        }
 
         if ($validator->fails()) {
             return response()->json([
@@ -189,16 +240,16 @@ class DonHangFrontendAPI extends BaseFrontendController
         DB::beginTransaction();
 
         try {
-            $idPhuongthuc = $validated['id_phuongthuc'];
+            $ma_phuongthuc = $validated['ma_phuongthuc'];
 
             // Lấy trạng thái đơn hàng theo id_phuongthuc
-            $phuongthuc = PhuongthucModel::find($idPhuongthuc);
+            $phuongthuc = PhuongthucModel::where('maphuongthuc', $ma_phuongthuc)->first();
 
             $trangthaiDonhang = 'Chờ xử lý'; // default
             $trangthaiThanhtoan = 'Chưa thanh toán';
 
             if ($phuongthuc) {
-                if ($idPhuongthuc != 3) {
+                if ($ma_phuongthuc != 'cod') {
                     $mapTrangthai = [
                         'Hoạt động' => 'Chờ xử lý',
                         'Tạm khóa' => 'Đã hủy', // 2 cái này ko cần lắm liên quan đến trangthai bẳng phương thức
@@ -208,18 +259,53 @@ class DonHangFrontendAPI extends BaseFrontendController
                     $trangthaiThanhtoan = 'Đã thanh toán';
                 }
             }
+            $freeship = MagiamgiaModel::where('magiamgia', $request->input('ma_magiamgia'))
+                ->where('giatri', 0)
+                ->where('ngaybatdau', '<=', now())
+                ->where('ngayketthuc', '>=', now())
+                ->where('trangthai', 'Hoạt động')
+                ->exists();
+            $diachiMacDinh = $user->diachi()
+                ->where('trangthai', 'Mặc định')
+                ->first();
+
+            if (!$diachiMacDinh) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Vui lòng thiết lập địa chỉ giao hàng mặc định trước khi đặt hàng!',
+                ], Response::HTTP_BAD_REQUEST);
+            }
+            if ($freeship) {
+                $id_phivanchuyen = 3;
+            } elseif ($diachiMacDinh && $diachiMacDinh->tinhthanh === "Thành phố Hồ Chí Minh") {
+                $id_phivanchuyen = 1; // ngoại thành TP.hcm = 25000
+            } else {
+                $id_phivanchuyen = 2; // ngoại thành TP.hcm = 35000
+            }
+            $id_diachigiaohang = $diachiMacDinh->id;
+            $id_magiamgia = MagiamgiaModel::where('magiamgia', $request->input('ma_magiamgia'))
+            ->where('ngaybatdau', '<=', now())
+            ->where('ngayketthuc', '>=', now())
+            ->where('trangthai', 'Hoạt động')
+            ->value('id');
+
+            $tongsoluong = $giohang->sum('soluong');
+
+            $tamtinh = $giohang->sum('thanhtien') + ($id_phivanchuyen == 1 ? 25000 : ($id_phivanchuyen == 2 ? 35000 : 0));
+
+            $thanhtien = $tamtinh - ($id_magiamgia ? MagiamgiaModel::where('id', $id_magiamgia)->value('giatri') : 0);
 
             // 🧩 Bước 3: Tạo đơn hàng
             $donhang = DonhangModel::create([
-                'id_phuongthuc'       => $idPhuongthuc,
+                'id_phuongthuc'       => $phuongthuc->id,
                 'id_nguoidung'        => $user->id,
-                'id_phivanchuyen'     => $validated['id_phivanchuyen'],
-                'id_diachigiaohang'   => $validated['id_diachigiaohang'],
-                'id_magiamgia'        => $validated['id_magiamgia'] ?? null,
+                'id_phivanchuyen'     => $id_phivanchuyen,
+                'id_diachigiaohang'   => $id_diachigiaohang,
+                'id_magiamgia'        => $id_magiamgia ?? null,
                 'madon'               => DonhangModel::generateOrderCode(),
-                'tongsoluong'         => $giohang->sum('soluong'),
-                'tamtinh'             => $validated['tamtinh'],
-                'thanhtien'           => $validated['thanhtien'],
+                'tongsoluong'         => $tongsoluong,
+                'tamtinh'             => $tamtinh,
+                'thanhtien'           => $thanhtien,
                 'trangthaithanhtoan'  => $trangthaiThanhtoan,
                 'trangthai'           => $trangthaiDonhang,
             ]);
@@ -304,8 +390,8 @@ class DonHangFrontendAPI extends BaseFrontendController
 
         // Validate input, các trường có thể không bắt buộc nếu người dùng không update
         $validated = $request->validate([
-            'id_phuongthuc' => ['sometimes', 'exists:phuongthuc,id'],
-            'id_magiamgia'  => ['nullable', 'exists:magiamgia,id'],
+            'ma_phuongthuc'      => 'sometimes|string|exists:phuongthuc,maphuongthuc',
+            'ma_magiamgia'       => 'nullable|string|exists:magiamgia,magiamgia',
             'trangthai'     => ['sometimes', Rule::in($enumTrangthai)],
         ]);
 
@@ -497,11 +583,13 @@ class DonHangFrontendAPI extends BaseFrontendController
     {
         $user = $request->get('auth_user');
         $donhang = DonhangModel::where('id', $id)->where('id_nguoidung', $user->id)->first();
+
         $allowedBankCodes = [
-            'VNPAYQR', 'NCB', 'AGRIBANK', 'VIETCOMBANK', 'VIETINBANK',
+            'NCB', 'AGRIBANK', 'VIETCOMBANK', 'VIETINBANK',
             'VISA', 'MASTERCARD', 'JCB'
         ];
         $bankCode = $request->input('bankcode');
+
         if ($bankCode && !in_array($bankCode, $allowedBankCodes)) {
             return response()->json([
                 'status' => false,
@@ -513,11 +601,19 @@ class DonHangFrontendAPI extends BaseFrontendController
             return response()->json(['status' => false, 'message' => 'Đơn hàng không hợp lệ hoặc đã thanh toán.'], 400);
         }
 
+
+        // Kiểm tra chỉ tạo URL thanh toán cho phương thức thanh toán online (id_phuongthuc = 1) dbt Chuyển khoản ngân hàng trực tiếp
+        if ((int)$donhang->id_phuongthuc !== 1) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Phương thức thanh toán không hỗ trợ tạo URL thanh toán online.'
+            ], 400);
+        }
+
         $vnp_Url = config('vnpay.payment_url');
         $vnp_TmnCode = config('vnpay.tmn_code');
         $vnp_HashSecret = config('vnpay.hash_secret');
         $vnp_Returnurl = route('api.toi.donhangs.payment-callback');
-
 
         $inputData = [
             'vnp_Version' => '2.1.0',
@@ -533,7 +629,7 @@ class DonHangFrontendAPI extends BaseFrontendController
             'vnp_ReturnUrl' => $vnp_Returnurl,
             'vnp_TxnRef' => $donhang->madon,
         ];
-        if($bankCode){
+        if ($bankCode) {
             $inputData['vnp_BankCode'] = $bankCode;
         }
 
@@ -543,7 +639,6 @@ class DonHangFrontendAPI extends BaseFrontendController
         $paymentUrl = $vnp_Url . '?' . $query . '&vnp_SecureHash=' . $vnp_SecureHash;
 
         return response()->json(['status' => true, 'payment_url' => $paymentUrl]);
-        // return redirect($paymentUrl); có thể dùng redirect nếu muốn chuyển hướng ngay
     }
 
 

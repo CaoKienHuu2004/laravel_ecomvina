@@ -77,19 +77,19 @@
                     @csrf
                         <div class="col-lg-6 col-sm-12">
                             <div class="form-group">
-                                <label>Họ Tên *</label>
+                                <label>Họ Tên <span class="text-danger">*</span></label>
                                 <input type="text" name="hoten" value="{{ $user->hoten}}" required>
                             </div>
                         </div>
                         <div class="col-lg-6 col-sm-12">
                             <div class="form-group">
-                                <label>Tên Đăng Nhập *</label>
+                                <label>Tên Đăng Nhập <span class="text-danger">*</span></label>
                                 <input type="text" name="username" value="{{ $user->username }}" required>
                             </div>
                         </div>
                         <div class="col-lg-6 col-sm-12">
                             <div class="form-group">
-                                <label>Email *</label>
+                                <label>Email <span class="text-danger">*</span></label>
                                 <div class="input-group">
                                     <span class="input-group-text" id="basic-addon1">@</span>
                                     <input type="email" class="form-control" name="email" value="{{ $user->email }}" required>
@@ -98,13 +98,13 @@
                         </div>
                         <div class="col-lg-6 col-sm-12">
                             <div class="form-group">
-                                <label>Số Điện Thoại *</label>
+                                <label>Số Điện Thoại <span class="text-danger">*</span></label>
                                 <input type="text" name="sodienthoai" maxlength="10" value="{{ $user->sodienthoai}}" required>
                             </div>
                         </div>
                         <div class="col-lg-6 col-sm-12">
                             <div class="form-group">
-                                <label>Password *</label>
+                                <label>Password</label>
                                 <div class="pass-group">
                                     <input name="password" type="password" class=" pass-input"  placeholder="***********">
                                     <span class="fas toggle-password fa-eye-slash"></span>
@@ -113,7 +113,7 @@
                         </div>
                         <div class="col-lg-6 col-sm-12">
                             <div class="form-group">
-                                <label>Confirm Password *</label>  <!-- Thay đổi label -->
+                                <label>Confirm Password</label>  <!-- Thay đổi label -->
                                 <div class="pass-group">
                                     <input name="password_confirmation" type="password" class="pass-input" placeholder="***********"> <!-- name phải là password_confirmation -->
                                     <span class="fas toggle-password fa-eye-slash"></span>
@@ -122,7 +122,7 @@
                         </div>
                         <div class="col-lg-6 col-sm-12">
                             <div class="form-group">
-                                <label>Giới Tính *</label>
+                                <label>Giới Tính</label>
                                 <select name="gioitinh" class="form-select" id="gioitinh" required>
                                     <option value="Nam" {{ $user->gioitinh == 'Nam' ? 'selected' : '' }}>Nam</option>
                                     <option value="Nữ" {{ $user->gioitinh == 'Nữ' ? 'selected' : '' }}>Nữ</option>
@@ -131,7 +131,7 @@
                         </div>
                         <div class="col-lg-6 col-sm-12">
                             <div class="form-group">
-                                <label>Ngày Sinh *</label>
+                                <label>Ngày Sinh</label>
                                 <input type="date" name="ngaysinh" class="form-control" value="{{ $user->ngaysinh ? $user->ngaysinh->format('Y-m-d') : '' }}" required>
                             </div>
                         </div>

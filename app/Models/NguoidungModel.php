@@ -23,6 +23,7 @@ class NguoidungModel extends Authenticatable
 
     protected $fillable = [
         'username',
+        'email',
         'password',
         'sodienthoai',
         'hoten',

@@ -1018,8 +1018,8 @@
                 "tags": [
                     "Đơn hàng (tôi)"
                 ],
-                "summary": "Tạo đơn hàng mới (tự động xử lý kho và lượt mua qua Observer)",
-                "description": "API cho phép người dùng tạo đơn hàng mới từ giỏ hàng của họ.\n     *     Khi đơn hàng được cập nhật sang trạng thái **'Thành công'**, hệ thống sẽ tự động:\n     *     - Giảm số lượng tồn kho (`bienthe.soluong`)\n     *     - Tăng số lượt mua (`bienthe.luotmua`)\n     *     - Giảm số lượt tặng (`bienthe.luottang`)\n     *     Cơ chế này được thực hiện **tự động qua Laravel Observer**, không cần gọi thêm API phụ.\n     *  *     🧩 Quy trình xử lý khi tạo đơn hàng mới:\n    *     - Bước 1: Kiểm tra và xác thực dữ liệu đầu vào.\n    *     - Bước 2: Tạo bản ghi đơn hàng (bảng `donhang`).\n    *     - Bước 3: Lấy danh sách sản phẩm trong giỏ hàng (`giohang`) của người dùng.\n    *     - Bước 4: Tự động tạo chi tiết đơn hàng (`chitietdonhang`) cho từng sản phẩm:\n    *         + Liên kết `id_donhang` và `id_bienthe`.\n    *         + Lưu số lượng, đơn giá, và trạng thái ban đầu là `Đã đặt`.\n    *     - Bước 5: Khi trạng thái đơn hàng chuyển sang **thành công**, hệ thống sẽ:\n    *         + Giảm tồn kho (`bienthe.soluong -= 1`).\n    *         + Tăng lượt mua (`bienthe.luotban += 1`).\n    *         + (Tùy chọn) Đồng bộ sang bảng `chitiethoadon`.\n    *     ",
+                "summary": "Tạo đơn hàng mới từ giỏ hàng của người dùng",
+                "description": "\n     *         API cho phép người dùng tạo đơn hàng mới từ giỏ hàng hiện tại.\n     *         Khi đơn hàng được tạo, hệ thống sẽ:\n     *         - Tạo đơn hàng với trạng thái và phương thức thanh toán tương ứng.\n     *         - Tạo chi tiết đơn hàng cho từng sản phẩm trong giỏ.\n     *         - Xóa giỏ hàng của người dùng sau khi tạo đơn.\n     *         - Trạng thái thanh toán mặc định là 'Chưa thanh toán' hoặc 'Đã thanh toán' tùy phương thức.\n     *\n     *         **Lưu ý**:\n     *         - Các xử lý giảm tồn kho, tăng lượt mua được thực hiện tự động qua Observer khi đơn hàng chuyển sang trạng thái 'Thành công'.\n     *     ",
                 "operationId": "e126c6326573fc567815a7b139587eeb",
                 "requestBody": {
                     "required": true,
@@ -1027,49 +1027,19 @@
                         "application/json": {
                             "schema": {
                                 "required": [
-                                    "id_phuongthuc",
-                                    "id_phivanchuyen",
-                                    "id_diachigiaohang",
-                                    "tongsoluong",
-                                    "tamtinh",
-                                    "thanhtien"
+                                    "ma_phuongthuc"
                                 ],
                                 "properties": {
-                                    "id_phuongthuc": {
-                                        "description": "ID phương thức thanh toán",
-                                        "type": "integer",
-                                        "example": 1
+                                    "ma_phuongthuc": {
+                                        "description": "Mã phương thức thanh toán, ví dụ 'cod', 'paypal', ...",
+                                        "type": "string",
+                                        "example": "cod"
                                     },
-                                    "id_phivanchuyen": {
-                                        "description": "ID phí vận chuyển",
-                                        "type": "integer",
-                                        "example": 2
-                                    },
-                                    "id_diachigiaohang": {
-                                        "description": "ID địa chỉ giao hàng",
-                                        "type": "integer",
-                                        "example": 3
-                                    },
-                                    "id_magiamgia": {
-                                        "description": "ID mã giảm giá (nếu có)",
-                                        "type": "integer",
+                                    "ma_magiamgia": {
+                                        "description": "Mã giảm giá (nếu có)",
+                                        "type": "string",
                                         "example": null,
                                         "nullable": true
-                                    },
-                                    "tongsoluong": {
-                                        "description": "Tổng số lượng sản phẩm trong đơn",
-                                        "type": "integer",
-                                        "example": 3
-                                    },
-                                    "tamtinh": {
-                                        "description": "Tổng tạm tính của đơn hàng (chưa trừ mã giảm giá)",
-                                        "type": "integer",
-                                        "example": 250000
-                                    },
-                                    "thanhtien": {
-                                        "description": "Tổng tiền sau khi áp dụng giảm giá và phí vận chuyển",
-                                        "type": "integer",
-                                        "example": 230000
                                     }
                                 },
                                 "type": "object"
@@ -1093,7 +1063,91 @@
                                             "example": "Tạo đơn hàng thành công!"
                                         },
                                         "data": {
-                                            "description": "Thông tin đơn hàng và chi tiết đơn hàng đi kèm",
+                                            "description": "Thông tin đơn hàng vừa tạo, bao gồm chi tiết đơn hàng và sản phẩm",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 123
+                                                },
+                                                "madon": {
+                                                    "type": "string",
+                                                    "example": "DH20251122001"
+                                                },
+                                                "tongsoluong": {
+                                                    "type": "integer",
+                                                    "example": 3
+                                                },
+                                                "tamtinh": {
+                                                    "type": "integer",
+                                                    "example": 250000
+                                                },
+                                                "thanhtien": {
+                                                    "type": "integer",
+                                                    "example": 230000
+                                                },
+                                                "trangthaithanhtoan": {
+                                                    "type": "string",
+                                                    "example": "Chưa thanh toán"
+                                                },
+                                                "trangthai": {
+                                                    "type": "string",
+                                                    "example": "Chờ xử lý"
+                                                },
+                                                "created_at": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2025-11-22T07:45:00Z"
+                                                },
+                                                "chitietdonhang": {
+                                                    "description": "Danh sách chi tiết đơn hàng",
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id_bienthe": {
+                                                                "type": "integer",
+                                                                "example": 10
+                                                            },
+                                                            "soluong": {
+                                                                "type": "integer",
+                                                                "example": 2
+                                                            },
+                                                            "dongia": {
+                                                                "type": "integer",
+                                                                "example": 120000
+                                                            },
+                                                            "trangthai": {
+                                                                "type": "string",
+                                                                "example": "Đã đặt"
+                                                            },
+                                                            "bienthe": {
+                                                                "description": "Thông tin biến thể sản phẩm",
+                                                                "properties": {
+                                                                    "giagoc": {
+                                                                        "type": "integer",
+                                                                        "example": 120000
+                                                                    },
+                                                                    "sanpham": {
+                                                                        "description": "Thông tin sản phẩm",
+                                                                        "properties": {
+                                                                            "ten": {
+                                                                                "type": "string",
+                                                                                "example": "Áo thun nam"
+                                                                            },
+                                                                            "ma_sp": {
+                                                                                "type": "string",
+                                                                                "example": "SP001"
+                                                                            }
+                                                                        },
+                                                                        "type": "object"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
                                             "type": "object"
                                         }
                                     },
@@ -1103,10 +1157,64 @@
                         }
                     },
                     "400": {
-                        "description": "Giỏ hàng trống hoặc dữ liệu không hợp lệ"
+                        "description": "Giỏ hàng trống hoặc dữ liệu không hợp lệ",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Giỏ hàng trống, không thể tạo đơn hàng!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
-                    "401": {
-                        "description": "Token không hợp lệ hoặc chưa đăng nhập"
+                    "422": {
+                        "description": "Dữ liệu đầu vào không hợp lệ",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "description": "Các lỗi validate, key là tên trường, value là mảng lỗi",
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Lỗi server khi tạo đơn hàng",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Lỗi khi tạo đơn hàng: ..."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [

@@ -11,6 +11,8 @@ use Illuminate\Http\Response;
 use App\Models\DonhangModel;
 use App\Models\ChitietdonhangModel;
 use App\Models\GiohangModel;
+use App\Models\MagiamgiaModel;
+use App\Models\PhuongthucModel;
 use Illuminate\Support\Str;
 use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\Validator;
@@ -59,16 +61,29 @@ class DonHangWebApi extends BaseFrontendController
     public function store(Request $request)
     {
         // 🧩 Bước 1: Validate dữ liệu đầu vào
-        $validator = Validator::make($request->all(), [
-            'id_phuongthuc'      => 'required|integer|exists:phuongthuc,id',
-            'id_nguoidung'       => 'required|integer|exists:nguoidung,id',
-            'id_phivanchuyen'    => 'required|integer|exists:phivanchuyen,id',
-            'id_diachigiaohang'  => 'required|integer|exists:diachi_giaohang,id',
-            'id_magiamgia'       => 'nullable|integer|exists:magiamgia,id',
-            'tongsoluong'        => 'required|integer|min:1',
-            'tamtinh'            => 'required|integer|min:0',
-            'thanhtien'          => 'required|integer|min:0',
-        ]);
+        try {
+            // $validator = Validator::make($request->all(), [
+            //     'id_phuongthuc'      => 'required|integer|exists:phuongthuc,id',
+            //     'id_nguoidung'       => 'required|integer|exists:nguoidung,id',
+            //     'id_phivanchuyen'    => 'required|integer|exists:phivanchuyen,id',
+            //     'id_diachigiaohang'  => 'required|integer|exists:diachi_giaohang,id',
+            //     'id_magiamgia'       => 'nullable|integer|exists:magiamgia,id',
+            //     'tongsoluong'        => 'required|integer|min:1',
+            //     'tamtinh'            => 'required|integer|min:4000',
+            //     'thanhtien'          => 'required|integer|min:4000|lte:tamtinh',
+            // ]);
+            $validator = Validator::make($request->all(), [
+                'ma_phuongthuc'      => 'required|string|exists:phuongthuc,maphuongthuc',
+                'ma_magiamgia'       => 'nullable|string|exists:magiamgia,magiamgia',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+
+            return $this->jsonResponse([
+                'error' => true,
+                'message' => 'Dữ liệu đầu vào không hợp lệ',
+                'errors' => $e->errors()
+            ], 422);
+        }
 
         if ($validator->fails()) {
             return response()->json([
@@ -96,19 +111,71 @@ class DonHangWebApi extends BaseFrontendController
         DB::beginTransaction();
 
         try {
+            $ma_phuongthuc = $validated['ma_phuongthuc'];
+
+            // Lấy trạng thái đơn hàng theo id_phuongthuc
+            $phuongthuc = PhuongthucModel::where('maphuongthuc', $ma_phuongthuc)->first();
+
+            $trangthaiDonhang = 'Chờ xử lý'; // default
+            $trangthaiThanhtoan = 'Chưa thanh toán';
+
+            if ($phuongthuc) {
+                if ($ma_phuongthuc != 'cod') {
+                    $mapTrangthai = [
+                        'Hoạt động' => 'Chờ xử lý',
+                        'Tạm khóa' => 'Đã hủy', // 2 cái này ko cần lắm liên quan đến trangthai bẳng phương thức
+                        'Dừng hoạt động' => 'Đã hủy', // 2 cái này ko cần lắm liên quan đến trangthai bẳng phương thức
+                    ];
+                    $trangthaiDonhang = $mapTrangthai[$phuongthuc->trangthai] ?? 'Chờ xử lý';
+                    $trangthaiThanhtoan = 'Đã thanh toán';
+                }
+            }
+            $freeship = MagiamgiaModel::where('magiamgia', $request->input('ma_magiamgia'))
+                ->where('giatri', 0)
+                ->where('ngaybatdau', '<=', now())
+                ->where('ngayketthuc', '>=', now())
+                ->where('trangthai', 'Hoạt động')
+                ->exists();
+            $diachiMacDinh = $user->diachi()
+                ->where('trangthai', 'Mặc định')
+                ->first();
+            if(!$diachiMacDinh)
+            {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Vui lòng thiết lập địa chỉ giao hàng mặc định trước khi đặt hàng!',
+                ], Response::HTTP_BAD_REQUEST);
+            }
+            if ($freeship) {
+                $id_phivanchuyen = 3;
+            } elseif ($diachiMacDinh && $diachiMacDinh->tinhthanh === "Thành phố Hồ Chí Minh") {
+                $id_phivanchuyen = 1; // ngoại thành TP.hcm = 25000
+            } else {
+                $id_phivanchuyen = 2; // ngoại thành TP.hcm = 35000
+            }
+            $id_diachigiaohang = $diachiMacDinh->id;
+            $id_magiamgia = MagiamgiaModel::where('magiamgia', $request->input('ma_magiamgia'))
+            ->where('ngaybatdau', '<=', now())
+            ->where('ngayketthuc', '>=', now())
+            ->where('trangthai', 'Hoạt động')
+            ->value('id');
+            $tongsoluong = $giohang->sum('soluong');
+
+            $tamtinh = $giohang->sum('thanhtien') + ($id_phivanchuyen == 1 ? 25000 : ($id_phivanchuyen == 2 ? 35000 : 0));
+            $thanhtien = $tamtinh - ($id_magiamgia ? MagiamgiaModel::where('id', $id_magiamgia)->value('giatri') : 0);
             // 🧩 Bước 3: Tạo đơn hàng
             $donhang = DonhangModel::create([
-                'id_phuongthuc'     => $validated['id_phuongthuc'],
-                'id_nguoidung'      => $user->id,
-                'id_phivanchuyen'   => $validated['id_phivanchuyen'],
-                'id_diachigiaohang' => $validated['id_diachigiaohang'],
-                'id_magiamgia'      => $validated['id_magiamgia'] ?? null,
-                'madon'             => DonhangModel::generateOrderCode(),
-                'tongsoluong'       => $giohang->sum('soluong'),
-                'tamtinh'           => $validated['tamtinh'],
-                'thanhtien'         => $validated['thanhtien'],
-                'trangthaithanhtoan'=> 'Chưa thanh toán',
-                'trangthai'         => 'Chờ xử lý',
+                'id_phuongthuc'       => $phuongthuc->id,
+                'id_nguoidung'        => $user->id,
+                'id_phivanchuyen'     => $id_phivanchuyen,
+                'id_diachigiaohang'   => $id_diachigiaohang,
+                'id_magiamgia'        => $id_magiamgia ?? null,
+                'madon'               => DonhangModel::generateOrderCode(),
+                'tongsoluong'         => $tongsoluong,
+                'tamtinh'             => $tamtinh,
+                'thanhtien'           => $thanhtien,
+                'trangthaithanhtoan'  => $trangthaiThanhtoan,
+                'trangthai'           => $trangthaiDonhang,
             ]);
 
             // 🧩 Bước 4: Tạo chi tiết đơn hàng
@@ -247,8 +314,28 @@ class DonHangWebApi extends BaseFrontendController
         $user = $request->get('auth_user');
         $donhang = DonhangModel::where('id', $id)->where('id_nguoidung', $user->id)->first();
 
+        $allowedBankCodes = [
+            'NCB', 'AGRIBANK', 'VIETCOMBANK', 'VIETINBANK',
+            'VISA', 'MASTERCARD', 'JCB'
+        ];
+        $bankCode = $request->input('bankcode');
+
+        if ($bankCode && !in_array($bankCode, $allowedBankCodes)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Mã ngân hàng không hợp lệ.',
+            ], 422);
+        }
+
         if (!$donhang || $donhang->trangthaithanhtoan !== 'Chưa thanh toán') {
             return response()->json(['status' => false, 'message' => 'Đơn hàng không hợp lệ hoặc đã thanh toán.'], 400);
+        }
+        // Kiểm tra chỉ tạo URL thanh toán cho phương thức thanh toán online (id_phuongthuc = 1) dbt Chuyển khoản ngân hàng trực tiếp
+        if ((int)$donhang->id_phuongthuc !== 1) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Phương thức thanh toán không hỗ trợ tạo URL thanh toán online.'
+            ], 400);
         }
 
         $vnp_Url = config('vnpay.payment_url');
@@ -270,6 +357,9 @@ class DonHangWebApi extends BaseFrontendController
             'vnp_ReturnUrl' => $vnp_Returnurl,
             'vnp_TxnRef' => $donhang->madon,
         ];
+        if ($bankCode) {
+            $inputData['vnp_BankCode'] = $bankCode;
+        }
 
         ksort($inputData);
         $query = http_build_query($inputData, '', '&');
