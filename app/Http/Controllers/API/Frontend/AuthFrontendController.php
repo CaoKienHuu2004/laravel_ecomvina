@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\Frontend;
 
 use App\Http\Resources\Toi\ThongTinNguoiDungResource;
+use App\Models\GiohangModel;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -60,17 +61,21 @@ class AuthFrontendController extends BaseFrontendController
     protected $domain;
     protected $provinces;
 
+    protected $cart_session;
+
     public function __construct()
     {
         $this->domain = env('DOMAIN', 'http://148.230.100.215/');
         $this->provinces = config('tinhthanh');
+
+        $this->cart_session = config('cart_session.session_key_cart', 'cart_session');
     }
     /**
      * @OA\Post(
      *     path="/api/auth/dang-nhap",
      *     tags={"Xác thực người dùng (Auth)"},
      *     summary="Đăng nhập người dùng",
-     *     description="Đăng nhập bằng username hoặc email cùng mật khẩu, trả về token phiên làm việc hợp lệ.",
+     *     description="Đăng nhập bằng username hoặc email cùng mật khẩu, trả về token phiên làm việc hợp lệ. Nếu có giỏ hàng trong session trước khi đăng nhập, sẽ được hợp nhất vào giỏ hàng của người dùng sau khi đăng nhập thành công.",
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -154,6 +159,10 @@ class AuthFrontendController extends BaseFrontendController
                 'message' => "Tên đăng nhập hoặc mật khẩu không chính xác 😓"
             ], 401);
         }
+
+        // ko khi xác thực đăng nhập thành công nếu cart_session có sp thì merge vào giỏ hàng của user
+        $this->merge_cart_from_session_after_login($user->id);
+        // trả về voil á nên khá khó debug
 
         // Tạo token
         $token = Str::random(60);
@@ -321,6 +330,7 @@ class AuthFrontendController extends BaseFrontendController
         $token = $req->bearerToken();
         $key = "api_token:$token";
         $userId = Redis::get($key);
+        // midleware auth đã check token rồi, nhưng vẫn check lại cho chắc
 
         if (!$userId) {
             return $this->jsonResponse([
@@ -429,6 +439,7 @@ class AuthFrontendController extends BaseFrontendController
         $token = $req->bearerToken();
         $key = "api_token:$token";
         $userId = Redis::get($key);
+        // midleware auth đã check token rồi, nhưng vẫn check lại cho chắc
 
         if (!$userId) {
             return $this->jsonResponse([
@@ -613,10 +624,75 @@ class AuthFrontendController extends BaseFrontendController
         $token = $req->bearerToken();
         $key = "api_token:$token";
         Redis::del($key);
+        // midleware auth đã check token rồi, nhưng vẫn check lại cho chắc
+
+        //
+        //4. Xử lý khi đăng xuất Thường bạn không cần xóa giỏ hàng trên DB khi đăng xuất. Nhưng nếu bạn muốn, có thể xóa session giỏ hàng để tránh nhầm lẫn. Giỏ hàng user lưu trên DB nên giữ nguyên để lần đăng nhập sau lấy lại.
+        session()->forget($this->cart_session);
 
         return $this->jsonResponse([
             'success' => true,
             'message' => "Đăng Xuất Thành Công"
         ]);
     }
+
+
+    /**
+     * Gộp giỏ hàng từ session vào giỏ hàng trong cơ sở dữ liệu sau khi người dùng đăng nhập.
+     *
+     * Hàm này thực hiện việc chuyển các sản phẩm từ giỏ hàng của khách (lưu trong session)
+     * vào giỏ hàng của người dùng đã đăng nhập (lưu trong cơ sở dữ liệu).
+     * - Nếu sản phẩm trong session đã tồn tại trong giỏ hàng của người dùng, số lượng sẽ được cộng dồn.
+     * - Nếu sản phẩm chưa có, nó sẽ được thêm mới vào giỏ hàng của người dùng.
+     * Sau khi gộp thành công, giỏ hàng trong session sẽ bị xóa.
+     *
+     * @param int $userId ID của người dùng vừa đăng nhập.
+     * @return void
+     */
+    private function merge_cart_from_session_after_login($userId)
+    {
+        // Lấy session cart (giỏ hàng chưa đăng nhập)
+        $sessionCart = session($this->cart_session, []);
+        //Lấy giỏ hàng của client hiện tại đang gửi request, đoạn này tự biết session(cart_session) đó là của ai rồi
+
+
+        if (empty($sessionCart)) {
+            return; // Không có gì để merge
+        }
+
+        // Lấy giỏ hàng DB hiện tại của user
+        $dbCartItems = GiohangModel::where('id_nguoidung', $userId)
+            ->where('trangthai', 'Hiển thị')
+            ->get()
+            ->keyBy('id_bienthe');
+
+        // Duyệt session cart, add/update vào DB
+        foreach ($sessionCart as $sessionItem) {
+            $id_bienthe = $sessionItem['id_bienthe'];
+            $soluong = $sessionItem['soluong'];
+            $thanhtien = $sessionItem['thanhtien'];
+
+            if (isset($dbCartItems[$id_bienthe])) {
+                // Cộng dồn số lượng sản phẩm
+                $dbItem = $dbCartItems[$id_bienthe];
+                $dbItem->soluong += $soluong;
+                $dbItem->thanhtien += $thanhtien; // Hoặc tính lại nếu cần
+                $dbItem->save();
+            } else {
+                // Tạo mới bản ghi giỏ hàng
+                GiohangModel::create([
+                    'id_nguoidung' => $userId,
+                    'id_bienthe' => $id_bienthe,
+                    'soluong' => $soluong,
+                    'thanhtien' => $thanhtien,
+                    'trangthai' => 'Hiển thị',
+                ]);
+            }
+        }
+
+        // Xóa session giỏ hàng đi (đã nhập vào DB rồi)
+        session()->forget($this->cart_session);
+    }
+
+
 }

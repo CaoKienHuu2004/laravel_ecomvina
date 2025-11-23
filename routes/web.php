@@ -340,6 +340,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
 // //-------------------------------------------------- Guest User --------------------------------//
 // // Nếu guest (chưa đăng nhập) → vẫn có giỏ hàng, nhưng dựa trên session_id (Laravel session) hoặc cookie.
 // // Route::get('/giohang/guest', [GioHangFrontendAPI::class, 'guestCart']);
+
+Route::get('/toi/giohang/init', [GioHangWebApi::class, 'init']); // giống session init của php ở đâu file index.php
 Route::get('/toi/giohang', [GioHangWebApi::class, 'index']);
 Route::post('/toi/giohang', [GioHangWebApi::class, 'store']);
 Route::put('/toi/giohang/{id}', [GioHangWebApi::class, 'update']);

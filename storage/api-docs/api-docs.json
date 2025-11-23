@@ -18,7 +18,7 @@
                     "Xác thực người dùng (Auth)"
                 ],
                 "summary": "Đăng nhập người dùng",
-                "description": "Đăng nhập bằng username hoặc email cùng mật khẩu, trả về token phiên làm việc hợp lệ.",
+                "description": "Đăng nhập bằng username hoặc email cùng mật khẩu, trả về token phiên làm việc hợp lệ. Nếu có giỏ hàng trong session trước khi đăng nhập, sẽ được hợp nhất vào giỏ hàng của người dùng sau khi đăng nhập thành công.",
                 "operationId": "da33544cc75f245d50b4b75744e622f5",
                 "requestBody": {
                     "required": true,
@@ -3445,6 +3445,52 @@
                 ]
             }
         },
+        "/toi/giohang/init": {
+            "get": {
+                "tags": [
+                    "Giỏ Hàng (web)"
+                ],
+                "summary": "Khởi tạo giỏ hàng",
+                "description": "WebApi này luôn được gọi fetchapi ở trang page.tsx(tương tự index.php của php)  dùng để khởi tạo session cho giỏ hàng. Khi gọi, nó sẽ tạo một session mới (nếu chưa có), đặt một biến cờ 'khoitao_giohang' vào session, và trả về session ID. Đồng thời, nó cũng gửi về một cookie XSRF-TOKEN để client sử dụng cho các request tiếp theo nhằm chống lại tấn công CSRF.",
+                "operationId": "24e01e3390527df006a84df154807a00",
+                "responses": {
+                    "200": {
+                        "description": "Khởi tạo thành công. Trả về status và session_id.",
+                        "headers": {
+                            "Set-Cookie": {
+                                "description": "Cookie XSRF-TOKEN được gửi về để chống CSRF.",
+                                "schema": {
+                                    "type": "string",
+                                    "example": "XSRF-TOKEN=eyJpdiI6...; expires=...; path=/; samesite=lax"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "description": "Trạng thái khởi tạo, luôn là true nếu thành công.",
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "session_id": {
+                                            "description": "ID của session đã được khởi tạo.",
+                                            "type": "string",
+                                            "example": "eyJpdiI6Im..."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Lỗi máy chủ nội bộ."
+                    }
+                }
+            }
+        },
         "/toi/theodoi-donhang": {
             "get": {
                 "tags": [
@@ -5341,6 +5387,10 @@
         {
             "name": "Yêu thích (tôi)",
             "description": "Yêu thích (tôi)"
+        },
+        {
+            "name": "Giỏ Hàng (web)",
+            "description": "Giỏ Hàng (web)"
         }
     ]
 }
