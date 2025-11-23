@@ -13,11 +13,12 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         //
-        '/login',
-        '/register',
-        '/reset-password',
+        // '/login', // này có fortify CSRF rồi
+        // '/register',  // này có fortify CSRF rồi
+        // '/reset-password',  // này có fortify CSRF rồi
         'api/*', // dung cho API token của santum
-        'toi/*',
+        'toi/*', // mai mốt FE cùng domain thì xóa đi
+        'auth/*', // mai mốt FE cùng domain thì xóa đi
         // 'toi/giohang',
     ];
 }

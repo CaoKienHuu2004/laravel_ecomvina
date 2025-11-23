@@ -25,6 +25,7 @@ use App\Http\Controllers\PhuongThucController;
 use App\Http\Controllers\QuangCaoController;
 use App\Http\Controllers\QuatangSukienController;
 use App\Http\Controllers\ThongBaoController;
+use App\Http\Controllers\Web\AuthWebController;
 use App\Http\Controllers\Web\MaGiamGiaWebApi;
 use App\Http\Controllers\Web\TimKiemWebApi;
 use App\Http\Controllers\Web\TinhThanhVietNamWebApi;
@@ -50,7 +51,15 @@ use App\Http\Controllers\Web\TukhoaWebApi;
 Route::get('/dang-nhap', [AdminController::class, 'showLoginForm'])->name('dang-nhap');
 Route::post('/dang-nhap', [AdminController::class, 'login'])->name('xu-ly-dang-nhap');
 
-
+Route::prefix('auth')->group(function () {
+        Route::post('dang-nhap', [AuthWebController::class, 'login']);
+        Route::post('dang-ky', [AuthWebController::class, 'register']);
+        Route::middleware('auth.api')->group(function () {
+            Route::get('thong-tin-nguoi-dung', [AuthWebController::class, 'profile']);
+            Route::post('cap-nhat-thong-tin', [AuthWebController::class, 'updateProfile']);
+            Route::post('dang-xuat', [AuthWebController::class, 'logout']);
+        });
+    });
 
 
 // ----------------- REDIRECT '/' -----------------
