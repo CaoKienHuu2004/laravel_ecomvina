@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\AuthUsernameOrderRequest;
+
+use App\Http\Requests\AuthOrderCodeRequesty;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\DonhangModel;
@@ -34,13 +35,6 @@ class TheoDoiDonHangWebApi extends Controller
      *     },
      *     tags={"Theo dõi đơn hàng (tôi) (web)"},
      *
-     *     @OA\Parameter(
-     *         name="username",
-     *         in="query",
-     *         description="Tên tài khoản người dùng, bắt buộc để xác thực",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
      *     @OA\Parameter(
      *         name="madon",
      *         in="query",
@@ -94,7 +88,7 @@ class TheoDoiDonHangWebApi extends Controller
      *     )
      * )
      */
-    public function index(AuthUsernameOrderRequest  $request)
+    public function index(AuthOrderCodeRequesty  $request)
     // public function index(Request $request)
     {
         $user = $request->get('auth_user');
@@ -229,7 +223,7 @@ class TheoDoiDonHangWebApi extends Controller
      *     )
      * )
      */
-    public function update(AuthUsernameOrderRequest $request, $id)
+    public function update(AuthOrderCodeRequesty $request, $id)
     {
         $user = $request->get('auth_user');
         if (!$user) {

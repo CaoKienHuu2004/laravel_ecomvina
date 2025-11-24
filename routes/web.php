@@ -389,7 +389,7 @@ Route::middleware(['auth.api'])->group(function () {
     ->name('toi.donhang.payment-callback');;
     // ko cần auth vì là hook từ VNPAY gửi về, nếu auth có thể dẫn đến lỗi 401 Unauthorized
 
-    Route::middleware(['auth.username_order'])->group(function () {
+    Route::middleware(['auth.order_code'])->group(function () {
         Route::get('/toi/theodoi-donhang', [TheoDoiDonHangWebApi::class, 'index']);
         Route::put('/toi/theodoi-donhang/{id}', [TheoDoiDonHangWebApi::class, 'update']);
     });

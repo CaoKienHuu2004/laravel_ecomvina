@@ -72,11 +72,13 @@ class Kernel extends HttpKernel
 
         'auth.api' => \App\Http\Middleware\ApiAuthMiddleware::class,
         'auth.username_order' => \App\Http\Middleware\AuthUsernameOrderMiddleware::class,
+        'auth.order_code' => \App\Http\Middleware\AuthOrderCodeMiddleware::class,
 
     ];
     protected $routeMiddleware = [
         'role' => \App\Http\Middleware\RoleMiddleware::class,
         'admin' => \App\Http\Middleware\CheckAdmin::class,
         'auth.username_order' => \App\Http\Middleware\AuthUsernameOrderMiddleware::class,
+        'auth.order_code' => \App\Http\Middleware\AuthOrderCodeMiddleware::class,
     ];
 }
