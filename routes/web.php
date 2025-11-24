@@ -26,6 +26,7 @@ use App\Http\Controllers\QuangCaoController;
 use App\Http\Controllers\QuatangSukienController;
 use App\Http\Controllers\ThongBaoController;
 use App\Http\Controllers\Web\AuthWebController;
+use App\Http\Controllers\Web\DiaChiWebApi;
 use App\Http\Controllers\Web\MaGiamGiaWebApi;
 use App\Http\Controllers\Web\TimKiemWebApi;
 use App\Http\Controllers\Web\TinhThanhVietNamWebApi;
@@ -322,6 +323,8 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('/edit/{id}', [ThongBaoController::class, 'edit'])->name('thongbao.edit');
         Route::put('/update/{id}', [ThongBaoController::class, 'update'])->name('thongbao.update');
         Route::delete('/delete/{id}', [ThongBaoController::class, 'destroy'])->name('thongbao.destroy');
+        //câp nhât trạng thái đã đọc
+        Route::patch('/update-status/{id}', [ThongBaoController::class, 'updateStatus'])->name('thongbao.update-status');
     });
 });
 // Route::get('/dashboard', function () {
@@ -394,6 +397,15 @@ Route::middleware(['auth.api'])->group(function () {
     Route::get('/toi/yeuthich', [YeuThichWebApi::class, 'index']); // Xem danh sách yêu thích
     Route::post('/toi/yeuthich', [YeuThichWebApi::class, 'store']); // Thêm sản phẩm vào yêu thích
     Route::put('/toi/yeuthich/{id_sanpham}', [YeuThichWebApi::class, 'update']); // Bỏ yêu thích (chuyển trạng thái)
+});
+
+Route::middleware(['auth.api'])->prefix('toi')->group(function () {
+    Route::get('/diachi', [DiaChiWebApi::class, 'index']);
+    Route::post('/diachi', [DiaChiWebApi::class, 'store']);
+    Route::put('/diachi/{id}', [DiaChiWebApi::class, 'update']);
+    Route::delete('/diachi/{id}', [DiaChiWebApi::class, 'destroy']);
+    Route::patch('/diachi/{id}/macdinh', [DiaChiWebApi::class, 'setDefault']);
+    Route::patch('/diachi/{id}/trangthai', [DiaChiWebApi::class, 'toggleStatus']);
 });
 
 //-------------------------------------------------- Admin --------------------------------//

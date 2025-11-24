@@ -640,4 +640,5 @@ class AuthFrontendController extends BaseFrontendController
             'message' => "Đăng Xuất Thành Công"
         ]);
     }
+
 }

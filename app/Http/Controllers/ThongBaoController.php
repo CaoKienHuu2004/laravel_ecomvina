@@ -36,6 +36,7 @@ class ThongBaoController extends Controller
     public function create()
     {
         $nguoidungs = NguoidungModel::where('vaitro', '!=', 'admin')->get();
+        $nguoidungs = NguoidungModel::orderBy('id', 'asc')->get();
         $trangthais = ThongbaoModel::getEnumValues('trangthai');
 
         return view('thongbao.create', compact('nguoidungs', 'trangthais'));
@@ -78,7 +79,8 @@ class ThongBaoController extends Controller
     public function edit($id)
     {
         $thongbao = ThongbaoModel::findOrFail($id);
-        $nguoidungs = NguoidungModel::where('vaitro', '!=', 'admin')->get();
+        // $nguoidungs = NguoidungModel::where('vaitro', '!=', 'admin')->get();
+        $nguoidungs = NguoidungModel::orderBy('id', 'asc')->get();
         $trangthais = ThongbaoModel::getEnumValues('trangthai');
 
         return view('thongbao.edit', compact('thongbao', 'nguoidungs', 'trangthais'));
@@ -116,5 +118,28 @@ class ThongBaoController extends Controller
 
         return redirect()->route('thongbao.index')
             ->with('success', 'Xóa thông báo thành công');
+    }
+
+    /**
+     * Cập nhật trang thái thông báo
+     */
+    public function updateStatus(Request $request, $id)
+    {
+        $thongbao = ThongbaoModel::findOrFail($id);
+        $enumTrangthai = ThongbaoModel::getEnumValues('trangthai');
+
+        $validated = $request->validate([
+            'trangthai' => ['required', 'in:' . implode(',', $enumTrangthai)],
+        ]);
+
+        $thongbao->update([
+            'trangthai' => $validated['trangthai'],
+        ]);
+
+        return response()->json([
+            'success'  => true,
+            'message'  => 'Cập nhật trạng thái thành công',
+            'data'     => $thongbao
+        ]);
     }
 }
