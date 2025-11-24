@@ -19,8 +19,8 @@ class AuthUsernameOrderRequest extends FormRequest
      * Lấy các quy tắc xác thực áp dụng cho yêu cầu.
      *
      * Phương thức này định nghĩa các quy tắc để xác thực dữ liệu khi người dùng tra cứu đơn hàng.
-     * - 'username': Tên đăng nhập, không bắt buộc, tối đa 15 ký tự, chỉ chứa chữ cái, số và dấu gạch dưới.
-     * - 'email': Địa chỉ email, không bắt buộc, phải là định dạng email hợp lệ.
+     * - 'username': Tên đăng nhập, không bắt buộc, tối thiểu 6 ký tự , tối đa 20 ký tự, chỉ chứa chữ cái, số và dấu gạch dưới.
+     * - 'email': Địa chỉ email, không bắt buộc, tối đa 50 ký tự, phải là định dạng email hợp lệ.
      * - 'madon': Mã đơn hàng, bắt buộc, phải có định dạng bắt đầu bằng "VNA" và theo sau là 7 chữ số.
      *
      * Lưu ý: Yêu cầu phải cung cấp ít nhất một trong hai trường 'username' hoặc 'email'.
@@ -30,13 +30,13 @@ class AuthUsernameOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'username' => ['nullable','string','min:6','max:15','regex:/^[A-Za-z0-9_@.]+$/'],
+            'username' => ['nullable','string','min:6','max:20','regex:/^[A-Za-z0-9_]+$/'],
 
             'email' => [
                 'required',
                 'string',
                 'email:rfc,dns,filter',   // kiểm tra format + DNS MX
-                'max:255',
+                'max:50',
                 'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',   // không khoảng trắng + phải có domain
             ],
 

@@ -68,16 +68,16 @@ class NguoidungController extends Controller
         // Validate dữ liệu người dùng + địa chỉ giao hàng
 
         $request->validate([
-            'username' => 'required|string|min:6|max:15|regex:/^[A-Za-z0-9_@.]+$/|unique:nguoidung,username',
+            'username' => 'required|string|min:6|max:20|regex:/^[A-Za-z0-9_]+$/|unique:nguoidung,username',
             'email' => [
                     'required',
                     'string',
                     'email:rfc,dns,filter',   // kiểm tra format + DNS MX
-                    'max:255',
+                    'max:50',
                     'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',   // không khoảng trắng + phải có domain
                     'unique:nguoidung,email'
                 ],
-            'password'    => 'required|string|max:15|min:6|confirmed|regex:/^[A-Za-z0-9_]+$/',
+            'password'    => 'required|string|max:20|min:6|confirmed|regex:/^[A-Za-z0-9_]+$/',
             'hoten' => 'required|string|min:1|max:30|regex:/^[\pL\s]+$/u',
             'sodienthoai' => 'required|string|unique:nguoidung,sodienthoai|max:10|regex:/^[0-9]+$/',
             'gioitinh'    => 'nullable|in:Nam,Nữ',
@@ -171,17 +171,17 @@ class NguoidungController extends Controller
         $nguoidung = NguoidungModel::findOrFail($id);
 
         $request->validate([
-            'username' => 'required|string|min:6|max:15|regex:/^[A-Za-z0-9_@.]+$/|unique:nguoidung,username,' . $nguoidung->id,
+            'username' => 'required|string|min:6|max:20|regex:/^[A-Za-z0-9_]+$/|unique:nguoidung,username,' . $nguoidung->id,
             'email' => [
                         'required',
                         'string',
                         'email:rfc,dns,filter',   // kiểm tra format + DNS MX
-                        'max:255',
+                        'max:50',
                         'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',   // không khoảng trắng + phải có domain
                         'unique:nguoidung,email,' . $nguoidung->id
                     ],
             'hoten' => 'required|string|min:1|max:30|regex:/^[\pL\s]+$/u',
-            'password'    => 'nullable|string|max:15|min:6|confirmed|regex:/^[A-Za-z0-9_]+$/',
+            'password'    => 'nullable|string|max:20|min:6|confirmed|regex:/^[A-Za-z0-9_]+$/',
             'sodienthoai' => 'required|regex:/^[0-9]{10}$/|unique:nguoidung,sodienthoai,' . $nguoidung->id,
             'gioitinh'    => 'required|in:Nam,Nữ',
             'ngaysinh'    => 'required|date',

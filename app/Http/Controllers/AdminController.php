@@ -39,49 +39,82 @@ class AdminController extends Controller
     }
     public function login(Request $req)
     {
+        // Validate password dùng chung
         $req->validate([
-            'password' => 'required|string|max:15|min:6|regex:/^[A-Za-z0-9_]+$/',
+            'password' => 'required|string|max:20|min:6|regex:/^[A-Za-z0-9_]+$/',
         ]);
-        $query = null;
+        $user = null;
+        // Trường hợp gửi field email
         if ($req->has('email')) {
+
             $req->validate([
                 'email' => [
                     'required',
                     'string',
-                    'email:rfc,dns,filter',   // kiểm tra format + DNS MX
-                    'max:255',
-                    'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',   // không khoảng trắng + phải có domain
+                    'email:rfc,dns,filter',
+                    'max:50',
+                    'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',
                 ],
             ]);
 
-            NguoidungModel::where('email', $req->email);
+            $user = NguoidungModel::where('email', $req->email)->first();
         }
-        else {
-            $req->validate([
-                'username' => [
-                    'required',
-                    'string',
-                    'min:6',
-                    'max:15',
-                    'regex:/^[A-Za-z0-9_@.]+$/',
-                ]
-            ]);
-            $query = NguoidungModel::where('username', $req->username);
-        }
-        $user = $query->first();
 
+        // Trường hợp gửi username (có thể là email hoặc username thật)
+        elseif ($req->has('username')) {
+            $usernameInput = $req->username;
+            $isEmail = filter_var($usernameInput, FILTER_VALIDATE_EMAIL);
+
+            // Username là email
+            if ($isEmail) {
+
+                $req->validate([
+                    'username' => [
+                        'required',
+                        'string',
+                        'email:rfc,dns,filter',
+                        'max:50',
+                        'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',
+                    ],
+                ]);
+
+                $user = NguoidungModel::where('email', $usernameInput)->first();
+            }
+            // Username là username thực
+            else {
+
+                $req->validate([
+                    'username' => [
+                        'required',
+                        'string',
+                        'min:6',
+                        'max:20',
+                        'regex:/^[A-Za-z0-9_]+$/',
+                    ],
+                ]);
+                $user = NguoidungModel::where('username', $usernameInput)->first();
+            }
+        }else {
+            return back()->withErrors([
+                'login' => 'Bạn phải nhập email hoặc username!',
+            ])->withInput();
+        }
+        // Check user + password
         if (!$user || !Hash::check($req->password, $user->password)) {
             return back()->withErrors([
                 'login' => 'Tên đăng nhập hoặc mật khẩu không chính xác.',
             ])->withInput();
         }
 
+        // Check role
         if ($user->vaitro !== 'admin') {
             return back()->withErrors([
                 'login' => 'Tài khoản này không có quyền truy cập admin.',
             ]);
         }
-        Auth::login($user); //Đăng nhập session bình thường
+
+        // Login session Laravel
+        Auth::login($user);
 
         return redirect()->route('trang-chu')->with('success', 'Đăng nhập thành công!');
     }
@@ -113,14 +146,14 @@ class AdminController extends Controller
                         'required',
                         'string',
                         'email:rfc,dns,filter',   // kiểm tra format + DNS MX
-                        'max:255',
+                        'max:50',
                         'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',   // không khoảng trắng + phải có domain
                         'unique:nguoidung,email,' . $user->id,
                     ],
-                'username' => 'required|string|min:6|max:15|regex:/^[A-Za-z0-9_@.]+$/|unique:nguoidung,username,' . $user->id,
+                'username' => 'required|string|min:6|max:20|regex:/^[A-Za-z0-9_]+$/|unique:nguoidung,username,' . $user->id,
                 'sodienthoai' => 'required|string|max:10|unique:nguoidung,sodienthoai,' . $user->id. '|regex:/^[0-9]+$/',
                 'gioitinh' => 'nullable|in:Nam,Nữ',
-                'password' => 'nullable|string|max:15|min:6|confirmed|regex:/^[A-Za-z0-9_]+$/',
+                'password' => 'nullable|string|max:20|min:6|confirmed|regex:/^[A-Za-z0-9_]+$/',
                 'ngaysinh' => 'nullable|date',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {

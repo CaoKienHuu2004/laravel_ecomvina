@@ -44,16 +44,16 @@ class SanphamController extends Controller
         }
                 // Filter giá (dựa trên bảng bienThe_sp)
                 if ($request->filled('gia_min') && $request->filled('gia_max')) {
-                    $query->whereHas('bienThe', function ($q) use ($request) {
-                        $q->whereBetween('gia', [$request->gia_min, $request->gia_max]);
+                    $query->whereHas('bienthe', function ($q) use ($request) {
+                        $q->whereBetween('giagoc', [$request->gia_min, $request->gia_max]);
                     });
                 } elseif ($request->filled('gia_min')) {
-                    $query->whereHas('bienThe', function ($q) use ($request) {
-                        $q->where('gia', '>=', $request->gia_min);
+                    $query->whereHas('bienthe', function ($q) use ($request) {
+                        $q->where('giagoc', '>=', $request->gia_min);
                     });
                 } elseif ($request->filled('gia_max')) {
-                    $query->whereHas('bienThe', function ($q) use ($request) {
-                        $q->where('gia', '<=', $request->gia_max);
+                    $query->whereHas('bienthe', function ($q) use ($request) {
+                        $q->where('giagoc', '<=', $request->gia_max);
                     });
                 }
 

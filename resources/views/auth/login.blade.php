@@ -40,7 +40,7 @@
                         <div class="form-login">
                            <label>Tên Đăng Nhập</label>
                            <div class="form-addons">
-                              <input type="text" name="username" placeholder="Điền Tên Đăng Nhập">
+                              <input type="text" name="username" placeholder="Điền Tên Đăng Nhập hoặc Email">
                               <img src="{{ asset('img/icons/mail.svg') }}" alt="img">
                            </div>
                         </div>
@@ -99,3 +99,52 @@
 
    </body>
 </html>
+
+<script>
+document.querySelector(".login-form").addEventListener("submit", function (e) {
+    const input = document.querySelector("input[name='username']");
+    const value = input.value.trim();
+
+    // Kiểm tra trống
+    if (!value) {
+        alert("Bạn phải nhập tài khoản (username hoặc email).");
+        e.preventDefault();
+        return;
+    }
+
+    const isEmail = value.includes("@");
+
+    // Regex email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    // Regex username
+    const usernameRegex = /^[A-Za-z0-9_]{6,20}$/;
+
+    // Nếu là email
+    if (isEmail) {
+        if (value.length > 50) {
+            alert("Email tối đa 50 ký tự.");
+            e.preventDefault();
+            return;
+        }
+        if (!emailRegex.test(value)) {
+            alert("Email không hợp lệ!");
+            e.preventDefault();
+            return;
+        }
+    }
+    // Nếu là username
+    else {
+        if (value.length > 20) {
+            alert("Username tối đa 20 ký tự.");
+            e.preventDefault();
+            return;
+        }
+        if (!usernameRegex.test(value)) {
+            alert("Username phải 6–20 ký tự và chỉ gồm chữ, số, dấu gạch dưới.");
+            e.preventDefault();
+            return;
+        }
+    }
+});
+</script>

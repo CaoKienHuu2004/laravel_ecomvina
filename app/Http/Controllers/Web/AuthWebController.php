@@ -36,6 +36,12 @@ class AuthWebController extends Controller
 
     public function login(Request $req)
     {
+        if (!$req->has('email') && !$req->has('username')) {
+            return $this->jsonResponse([
+                'success' => false,
+                'message' => "Bạn phải nhập email hoặc username!"
+            ], 422);
+        }
         // Nếu gửi email → validate theo email
         if ($req->has('email')) {
             $req->validate([
@@ -43,35 +49,46 @@ class AuthWebController extends Controller
                     'required',
                     'string',
                     'email:rfc,dns,filter',   // kiểm tra format + DNS MX
-                    'max:255',
+                    'max:50',
                     'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',   // không khoảng trắng + phải có domain
                 ],
-                'password'    => 'required|string|max:15|min:6|regex:/^[A-Za-z0-9_]+$/',
+                'password'    => 'required|string|max:20|min:6|regex:/^[A-Za-z0-9_]+$/',
             ]);
 
             $input = $req->email;
-
-            // tìm theo email
             $user = NguoidungModel::where('email', $input)->first();
 
         }
         // Nếu gửi username → validate theo username
         else {
-            $req->validate([
-                'username' => [
-                    'required',
-                    'string',
-                    'min:6',
-                    'max:15',
-                    'regex:/^[A-Za-z0-9_@.]+$/',   // chỉ cho chữ, số và dấu _ @ .
-                ],
-                'password'    => 'required|string|max:15|min:6|regex:/^[A-Za-z0-9_]+$/',
-            ]);
-
-            $input = $req->username;
-
-            // tìm theo username
-            $user = NguoidungModel::where('username', $input)->first();
+            $usernameInput = $req->username;
+            $isEmail = filter_var($usernameInput, FILTER_VALIDATE_EMAIL);
+            if ($isEmail) {
+                $req->validate([
+                    'username' => [
+                        'required',
+                        'string',
+                        'email:rfc,dns,filter',
+                        'max:50',
+                        'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',
+                    ],
+                    'password' => 'required|string|max:20|min:6|regex:/^[A-Za-z0-9_]+$/',
+                ]);
+                $user = NguoidungModel::where('email', $usernameInput)->first();
+            }
+            else {
+                $req->validate([
+                    'username' => [
+                        'required',
+                        'string',
+                        'min:6',
+                        'max:20',
+                        'regex:/^[A-Za-z0-9_]+$/',
+                    ],
+                    'password' => 'required|string|max:20|min:6|regex:/^[A-Za-z0-9_]+$/',
+                ]);
+                $user = NguoidungModel::where('username', $usernameInput)->first();
+            }
         }
 
         // Kiểm tra user + mật khẩu
@@ -107,16 +124,16 @@ class AuthWebController extends Controller
         try {
             $req->validate([
                 'hoten' => 'required|string|min:1|max:30|regex:/^[\pL\s]+$/u',
-                'username' => 'required|string|min:6|max:15|regex:/^[A-Za-z0-9_@.]+$/|unique:nguoidung,username',
+                'username' => 'required|string|min:6|max:20|regex:/^[A-Za-z0-9_]+$/|unique:nguoidung,username',
                 'email' => [
                     'required',
                     'string',
                     'email:rfc,dns,filter',   // kiểm tra format + DNS MX
-                    'max:255',
+                    'max:50',
                     'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',   // không khoảng trắng + phải có domain
                     'unique:nguoidung,email'
                 ],
-                'password' => 'required|string|max:15|min:6|confirmed|regex:/^[A-Za-z0-9_]+$/',
+                'password' => 'required|string|max:20|min:6|confirmed|regex:/^[A-Za-z0-9_]+$/',
                 'sodienthoai' => 'required|string|regex:/^[0-9]+$/|max:10|unique:nguoidung,sodienthoai',
             ]);
 
@@ -223,7 +240,7 @@ class AuthWebController extends Controller
                     'sometimes',
                     'string',
                     'email:rfc,dns,filter',   // kiểm tra format + DNS MX
-                    'max:255',
+                    'max:50',
                     'regex:/^[^\s@]+@[^\s@]+\.[^\s@]+$/',   // không khoảng trắng + phải có domain
                     'unique:nguoidung,email,' . $userId,
                 ],
