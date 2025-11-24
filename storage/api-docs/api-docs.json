@@ -2453,7 +2453,7 @@
                     "Theo dõi đơn hàng (tôi)"
                 ],
                 "summary": "Cập nhật trạng thái đơn hàng",
-                "description": "API này cho phép người dùng cập nhật trạng thái đơn hàng (VD: Hủy, Xác nhận, Giao hàng, ...).",
+                "description": "API này cho phép người dùng cập nhật trạng thái đơn hàng (VD: Đã giao hàng, Đã hủy). Và ko cho chạy ngược trạng thái.",
                 "operationId": "2552bf4c5c0859796ce68c36eea4c32a",
                 "parameters": [
                     {
@@ -2479,10 +2479,6 @@
                                     "trangthai": {
                                         "type": "string",
                                         "enum": [
-                                            "Chờ xử lý",
-                                            "Đã xác nhận",
-                                            "Đang chuẩn bị hàng",
-                                            "Đang giao hàng",
                                             "Đã giao hàng",
                                             "Đã hủy"
                                         ],
@@ -3501,15 +3497,6 @@
                 "operationId": "9394a7059381dbb345ecaffa3d1a1fc3",
                 "parameters": [
                     {
-                        "name": "username",
-                        "in": "query",
-                        "description": "Tên tài khoản người dùng, bắt buộc để xác thực",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
                         "name": "madon",
                         "in": "query",
                         "description": "Mã đơn hàng của người dùng, bắt buộc để xác thực quyền truy cập",
@@ -3629,7 +3616,7 @@
                     "Theo dõi đơn hàng (tôi) (web)"
                 ],
                 "summary": "Cập nhật trạng thái đơn hàng",
-                "description": "API cho phép người dùng cập nhật trạng thái đơn hàng của họ theo ID đơn hàng. Yêu cầu phải có `username` và `madon` để xác thực.",
+                "description": "API cho phép người dùng cập nhật trạng thái đơn hàng của họ theo ID đơn hàng. Yêu cầu phải có `username` và `madon` để xác thực. Và cho phép cập nhật trang thái ngược lại, và chỉ có trạng thái Đã giao hàng và Đã hủy, Đã giao hàng nếu khác đã nhận hàng thành công, Đã hủy nếu khách muốn hủy đơn hàng vì sự cố.",
                 "operationId": "eea6a5662b390ee28fddc43fc69c400e",
                 "parameters": [
                     {
@@ -3673,10 +3660,6 @@
                                         "description": "Trạng thái mới của đơn hàng",
                                         "type": "string",
                                         "enum": [
-                                            "Chờ xử lý",
-                                            "Đã xác nhận",
-                                            "Đang chuẩn bị hàng",
-                                            "Đang giao hàng",
                                             "Đã giao hàng",
                                             "Đã hủy"
                                         ]

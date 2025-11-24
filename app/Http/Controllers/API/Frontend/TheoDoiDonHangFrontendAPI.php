@@ -10,6 +10,8 @@ use App\Traits\ApiResponse;
 use App\Http\Resources\Toi\TheoDoiDonHang\TheoDoiDonHangResource;
 use Illuminate\Support\Facades\DB;
 
+use App\Traits\SentMessToAdmin;
+
 
 /**
  * @OA\Tag(
@@ -21,6 +23,14 @@ class TheoDoiDonHangFrontendAPI extends Controller
 {
     use ApiResponse;
 
+    use SentMessToAdmin;
+
+    protected $domain;
+
+    public function __construct()
+    {
+        $this->domain = env('DOMAIN', 'http://148.230.100.215/');
+    }
 
     /**
      * @OA\Get(
@@ -150,7 +160,7 @@ class TheoDoiDonHangFrontendAPI extends Controller
      * @OA\Put(
      *     path="/api/toi/theodoi-donhang/{id}",
      *     summary="Cập nhật trạng thái đơn hàng",
-     *     description="API này cho phép người dùng cập nhật trạng thái đơn hàng (VD: Hủy, Xác nhận, Giao hàng, ...).",
+     *     description="API này cho phép người dùng cập nhật trạng thái đơn hàng (VD: Đã giao hàng, Đã hủy). Và ko cho chạy ngược trạng thái.",
      *     tags={"Theo dõi đơn hàng (tôi)"},
      *     security={{"bearerAuth": {}}},
      *     @OA\Parameter(
@@ -167,7 +177,7 @@ class TheoDoiDonHangFrontendAPI extends Controller
      *             @OA\Property(
      *                 property="trangthai",
      *                 type="string",
-     *                 enum={"Chờ xử lý","Đã xác nhận","Đang chuẩn bị hàng","Đang giao hàng","Đã giao hàng","Đã hủy"},
+     *                 enum={"Đã giao hàng","Đã hủy"},
      *                 example="Đã hủy"
      *             )
      *         )
@@ -209,15 +219,46 @@ class TheoDoiDonHangFrontendAPI extends Controller
                 'message' => 'Không tìm thấy đơn hàng hoặc bạn không có quyền.',
             ], Response::HTTP_NOT_FOUND);
         }
+        try {
+            $validated = $request->validate([
+                'trangthai' => 'required|string|in:Đã giao hàng,Đã hủy',
+            ]);
+        }  catch (\Illuminate\Validation\ValidationException $e) {
 
-        $validated = $request->validate([
-            'trangthai' => 'required|string|in:Chờ xử lý,Đã xác nhận,Đang chuẩn bị hàng,Đang giao hàng,Đã giao hàng,Đã hủy',
-        ]);
+            return $this->jsonResponse([
+                'error' => true,
+                'message' => 'Dữ liệu đầu vào không hợp lệ',
+                'errors' => $e->errors()
+            ], 422);
+        }
 
-        $chiTietTrangThai = ($validated['trangthai'] === 'Đã hủy') ? 'Đã hủy' : 'Đã đặt';
 
-        DB::transaction(function () use ($donhang, $validated, $chiTietTrangThai) {
-            $donhang->trangthai = $validated['trangthai'];
+
+        // Định nghĩa thứ tự trạng thái hợp lệ
+        $orderStates = [
+            'Chờ xử lý' => 1,
+            'Đã xác nhận' => 2,
+            'Đang chuẩn bị hàng' => 3,
+            'Đang giao hàng' => 4,
+            'Đã giao hàng' => 5,
+            'Đã hủy' => 6,
+        ];
+
+        $currentStatus = $donhang->trangthai;
+        $newStatus = $validated['trangthai'];
+
+        // Kiểm tra trạng thái mới có hợp lệ không (không được lùi lại, trừ trường hợp là "Đã hủy")
+        if ($newStatus !== 'Đã hủy' && $orderStates[$newStatus] < $orderStates[$currentStatus]) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Không thể chuyển trạng thái ngược lại.',
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        $chiTietTrangThai = ($newStatus === 'Đã hủy') ? 'Đã hủy' : 'Đã đặt';
+
+        DB::transaction(function () use ($donhang, $newStatus, $chiTietTrangThai) {
+            $donhang->trangthai = $newStatus;
             $donhang->save();
 
             foreach ($donhang->chitietdonhang as $chitiet) {
@@ -226,14 +267,44 @@ class TheoDoiDonHangFrontendAPI extends Controller
             }
         });
 
+        $message = "Vui lòng kiểm tra và gọi điện cho khách hàng để xác nhận và xử lý đơn hàng kịp thời.";
+        // Nếu trạng thái là "Đã giao hàng", gửi thông báo cho admin
+        if ($newStatus === 'Đã giao hàng') {
+
+            // Thông báo khách nhận hàng thành công
+            $tieude = "Thông báo khách hàng đã nhân hàng thành công {$donhang->madon}";
+            $noidung = "Đơn hàng #{$donhang->id} - {$donhang->madon} của người dùng #{$user->hoten} đã cập nhật nhân hàng thành công.".$message;
+            $lienket = $this->domain . "donhang/edit/{$donhang->id}";
+            $this->sentMessToAdmin($tieude,$noidung,$lienket);
+
+            // Nếu phương thức thanh toán là COD (3), nhắc admin gọi đơn vị vận chuyển nhận tiề
+            if ($donhang->id_phuongthuc == 3) {
+                $tieudeCod = "Nhắc nhận tiền từ đơn vị vận chuyển cho đơn hàng {$donhang->madon}";
+                $noidungCod = "Đơn hàng #{$donhang->id} - {$donhang->madon} đã được khách nhận. Vui lòng liên hệ đơn vị vận chuyển để nhận tiền thanh toán COD.";
+                $lienket = $this->domain . "donhang/edit/{$donhang->id}";
+                $this->sentMessToAdmin($tieudeCod, $noidungCod, $lienket);
+            }
+        }
+
+        // Nếu trạng thái là "Đã hủy", gửi thông báo cho admin
+        if ($newStatus === 'Đã hủy') {
+            $tieude = "Thông báo hủy đơn hàng {$donhang->madon}";
+            $noidung = "Đơn hàng #{$donhang->id} - {$donhang->madon} của người dùng #{$user->hoten} đã cập nhật hủy đơn hàng.".$message;
+
+            $lienket = $this->domain . "donhang/edit/{$donhang->id}";
+
+            $this->sentMessToAdmin($tieude,$noidung,$lienket);
+        }
+
         $donhang->load(['chitietdonhang.bienthe.loaibienthe', 'chitietdonhang.bienthe.sanpham','chitietdonhang.bienthe.sanpham.hinhanhsanpham']);
 
-        // TheoDoiDonHangResource::withoutWrapping();
-        // return response()->json(new TheoDoiDonHangResource($donhang), Response::HTTP_OK);
         return $this->jsonResponse([
-                'status' => true,
-                'message' => "Cập Nhật Trang Thái Đơn Hàng Thành Công Của Danh Sách Đơn Hàng Theo Trạng Thái Đơn Hàng Của Khách Hàng ".$user->id.":".$user->hoten,
-                'data' => TheoDoiDonHangResource::collection($donhang)
+            'status' => true,
+            'message' => "Cập Nhật Trang Thái Đơn Hàng Thành Công Của Danh Sách Đơn Hàng Theo Trạng Thái Đơn Hàng Của Khách Hàng ".$user->id.":".$user->hoten,
+            'data' => new TheoDoiDonHangResource($donhang)
         ], Response::HTTP_OK);
     }
 }
+
+
+
