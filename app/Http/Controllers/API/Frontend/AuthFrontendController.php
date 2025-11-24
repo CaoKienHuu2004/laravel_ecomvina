@@ -297,7 +297,7 @@ class AuthFrontendController extends BaseFrontendController
      *     path="/api/auth/thong-tin-nguoi-dung",
      *     tags={"Xác thực người dùng (Auth)"},
      *     summary="Lấy thông tin người dùng hiện tại và địa chỉ giao hàng của người dùng",
-     *     description="Trả về thông tin chi tiết người dùng bao gồm username, email (được tách ra từ trường username theo định dạng 'username,email'), số điện thoại, họ tên, giới tính, ngày sinh, avatar, vai trò, trạng thái tài khoản, cùng danh sách các địa chỉ giao hàng.
+     *     description="Trả về thông tin chi tiết người dùng bao gồm username, email, số điện thoại, họ tên, giới tính, ngày sinh, avatar, vai trò, trạng thái tài khoản, cùng danh sách các địa chỉ giao hàng.
      *                  Yêu cầu header Authorization: Bearer {token}",
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
@@ -364,7 +364,6 @@ class AuthFrontendController extends BaseFrontendController
      *     tags={"Xác thực người dùng (Auth)"},
      *     summary="Cập nhật thông tin người dùng hiện tại",
      *     description="Cập nhật thông tin cá nhân, avatar và (nếu cung cấp đầy đủ 3 trường) cập nhật hoặc thêm địa chỉ giao hàng mặc định.
-     *                  Email được cập nhật nằm trong trường 'username' theo định dạng 'username,email' (phần email nằm sau dấu phẩy).
      *                  Yêu cầu header Authorization: Bearer {token}",
      *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
@@ -410,7 +409,7 @@ class AuthFrontendController extends BaseFrontendController
      *                     format="email",
      *                     nullable=true,
      *                     example="email@example.com",
-     *                     description="Email sẽ được cập nhật bên trong trường 'username' theo định dạng 'username,email', và ko bắt buộc phải gửi"
+     *                     description="không bắt buộc phải gửi 50 ký tự, là email hợp lệ, không ký tự đặc biệt)"
      *                 ),
      *                 @OA\Property(
      *                     property="diachi",

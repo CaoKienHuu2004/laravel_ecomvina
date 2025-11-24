@@ -20,7 +20,14 @@ class ThongBaoController extends Controller
             ->orderByDesc('id')
             ->get();
 
-        return view('thongbao.index', compact('thongbaos'));
+        $thongbaos_admin = ThongbaoModel::with('nguoidung')
+            ->whereHas('nguoidung', function($query) {
+                $query->where('vaitro', 'admin');
+            })
+            ->orderByDesc('id')
+            ->get();
+
+        return view('thongbao.index', compact('thongbaos','thongbaos_admin'));
     }
 
     /**

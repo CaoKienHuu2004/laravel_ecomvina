@@ -234,7 +234,7 @@
                     "Xác thực người dùng (Auth)"
                 ],
                 "summary": "Lấy thông tin người dùng hiện tại và địa chỉ giao hàng của người dùng",
-                "description": "Trả về thông tin chi tiết người dùng bao gồm username, email (được tách ra từ trường username theo định dạng 'username,email'), số điện thoại, họ tên, giới tính, ngày sinh, avatar, vai trò, trạng thái tài khoản, cùng danh sách các địa chỉ giao hàng.\n     *                  Yêu cầu header Authorization: Bearer {token}",
+                "description": "Trả về thông tin chi tiết người dùng bao gồm username, email, số điện thoại, họ tên, giới tính, ngày sinh, avatar, vai trò, trạng thái tài khoản, cùng danh sách các địa chỉ giao hàng.\n     *                  Yêu cầu header Authorization: Bearer {token}",
                 "operationId": "92ccc4ff78f280c05c71d0d06fc45afa",
                 "responses": {
                     "200": {
@@ -344,7 +344,7 @@
                     "Xác thực người dùng (Auth)"
                 ],
                 "summary": "Cập nhật thông tin người dùng hiện tại",
-                "description": "Cập nhật thông tin cá nhân, avatar và (nếu cung cấp đầy đủ 3 trường) cập nhật hoặc thêm địa chỉ giao hàng mặc định.\n     *                  Email được cập nhật nằm trong trường 'username' theo định dạng 'username,email' (phần email nằm sau dấu phẩy).\n     *                  Yêu cầu header Authorization: Bearer {token}",
+                "description": "Cập nhật thông tin cá nhân, avatar và (nếu cung cấp đầy đủ 3 trường) cập nhật hoặc thêm địa chỉ giao hàng mặc định.\n     *                  Yêu cầu header Authorization: Bearer {token}",
                 "operationId": "911557ea3285127e2221d53a082fb6fd",
                 "requestBody": {
                     "required": true,
@@ -383,7 +383,7 @@
                                         "format": "binary"
                                     },
                                     "email": {
-                                        "description": "Email sẽ được cập nhật bên trong trường 'username' theo định dạng 'username,email', và ko bắt buộc phải gửi",
+                                        "description": "không bắt buộc phải gửi 50 ký tự, là email hợp lệ, không ký tự đặc biệt)",
                                         "type": "string",
                                         "format": "email",
                                         "example": "email@example.com",

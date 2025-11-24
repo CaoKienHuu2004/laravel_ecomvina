@@ -15,6 +15,7 @@ use App\Models\MagiamgiaModel;
 use App\Models\PhuongthucModel;
 use Illuminate\Support\Str;
 use App\Traits\ApiResponse;
+use App\Traits\SentMessToAdmin;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -22,9 +23,15 @@ use Illuminate\Validation\Rule;
 class DonHangWebApi extends BaseFrontendController
 {
     use ApiResponse;
+    use SentMessToAdmin;
 
 
+    protected $domain;
 
+    public function __construct()
+    {
+        $this->domain = env('DOMAIN', 'http://148.230.100.215/');
+    }
 
 
     // database : 'Chờ xử lý','Đã xác nhận','Đang chuẩn bị hàng','Đang giao hàng','Đã giao hàng','Đã hủy'
@@ -191,6 +198,13 @@ class DonHangWebApi extends BaseFrontendController
 
             // 🧩 Bước 5: Xóa giỏ hàng sau khi đặt
             GiohangModel::where('id_nguoidung', $user->id)->delete();
+
+            //Bước 6: Gửi thông báo đến admin về đơn hàng mới
+            $this->sentMessToAdmin(
+                'Đơn hàng mới từ ' . $user->hoten .'-'. $user->sodienthoai,
+                'Người dùng ' . $user->hoten .'-'. $user->sodienthoai.'-'. $user->username.'-'. $user->email. ' vừa tạo đơn hàng mới mã ' . $donhang->madon . '. Vui lòng kiểm tra và gọi điện cho khách hàng để truyển trạng thái đơn hàng từ Chờ xử lý -> Đã xác nhận và xử lý đơn hàng kịp thời.',
+                $this->domain.'donhang/show/' . $donhang->id
+            );
 
             DB::commit();
 

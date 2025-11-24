@@ -2,7 +2,7 @@
 
 @section('title', 'Danh sách Thông Báo | Quản trị hệ thống Siêu Thị Vina')
 
-{{-- // controller truyền xuống $thongbaos  --}}
+{{-- // controller truyền xuống $thongbaos, $thongbaos_admin --}}
 {{-- // các route sư dụng thongbao.create  thongbao.show thongbao.edit thongbao.destroy   --}}
 {{-- Đối với image default  $thongbao->nguoidung->avatar: Link http://148.230.100.215/assets/client/images/thumbs/khachhang.jpg --}}
 {{-- Đối với image được upload qua profile  $thongbao->nguoidung->avatar: Link http://148.230.100.215/storage/assets/client/images/profiles/avatar.jpg --}}
@@ -15,12 +15,20 @@
         <div class="page-header">
             <div class="page-title">
                 <h4>DANH SÁCH THÔNG BÁO</h4>
-                <h6>
+                <div class="d-flex justify-content-center align-items-center" style="gap: 2rem;">
+                    <h6>
                     Tổng thông báo: {{ $thongbaos->count() }} <br>
                     Chưa đọc: {{ $thongbaos->where('trangthai', 'Chưa đọc')->count() }} <br>
                     Đã đọc: {{ $thongbaos->where('trangthai', 'Đã đọc')->count() }} <br>
                     Tạm ẩn: {{ $thongbaos->where('trangthai', 'Tạm ẩn')->count() }}
-                </h6>
+                    </h6>
+                    <h6>
+                        Tổng thông báo Admin: {{ $thongbaos_admin->count() }} <br>
+                        Chưa đọc: {{ $thongbaos_admin->where('trangthai', 'Chưa đọc')->count() }} <br>
+                        Đã đọc: {{ $thongbaos_admin->where('trangthai', 'Đã đọc')->count() }} <br>
+                        Tạm ẩn: {{ $thongbaos_admin->where('trangthai', 'Tạm ẩn')->count() }}
+                    </h6>
+                </div>
             </div>
             <div class="page-btn">
                 <a href="{{ route('thongbao.create') }}" class="btn btn-added">
@@ -38,118 +46,34 @@
             </div>
         @endif
 
-        {{-- TABLE --}}
-        <div class="card">
-            <div class="card-body">
+        {{-- Tab navigation --}}
+        <ul class="nav nav-tabs" id="thongbaoTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="user-tab" data-bs-toggle="tab" data-bs-target="#user" type="button" role="tab" aria-controls="user" aria-selected="true">
+                    Thông báo User ({{ $thongbaos->count() }})
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="admin-tab" data-bs-toggle="tab" data-bs-target="#admin" type="button" role="tab" aria-controls="admin" aria-selected="false">
+                    Thông báo Admin ({{ $thongbaos_admin->count() }})
+                </button>
+            </li>
+        </ul>
 
-                <div class="table-responsive">
-                    <table class="table datanew">
-                        <thead>
-                            <tr>
-                                <th>Người nhận</th>
-                                <th>Avatar</th>
-                                <th>Tiêu đề</th>
-                                <th>Nội dung</th>
-                                <th>Liên kết</th>
-                                <th>Trạng thái</th>
-                                <th class="text-center">Hành động</th>
-                            </tr>
-                        </thead>
+        {{-- Tab content --}}
+        <div class="tab-content" id="thongbaoTabContent" style="margin-top:20px;">
+            {{-- Tab User --}}
+            <div class="tab-pane fade show active" id="user" role="tabpanel" aria-labelledby="user-tab">
+                @include('thongbao.partials.table', ['thongbaos' => $thongbaos])
+            </div>
 
-                        <tbody>
-                            @foreach($thongbaos as $tb)
-                            <tr>
-                                {{-- Người dùng --}}
-                                <td>
-                                    <strong>{{ $tb->nguoidung->hoten ?? 'Không xác định' }}</strong><br>
-                                    <small>SĐT: {{ $tb->nguoidung->sodienthoai ?? 'N/A' }}</small>
-                                </td>
-
-                                {{-- Avatar --}}
-                                <td class="text-center">
-                                    @if($tb->nguoidung && $tb->nguoidung->avatar)
-                                        <img src="{{ $tb->nguoidung->avatar }}"
-                                             style="width:45px;height:45px;border-radius:50%;object-fit:cover;">
-                                    @else
-                                        <img src="{{ asset('img/default_user.png') }}"
-                                             style="width:45px;height:45px;border-radius:50%;object-fit:cover;">
-                                    @endif
-                                </td>
-
-                                {{-- Tiêu đề --}}
-                                <td>
-                                    {!! wordwrap(e($tb->tieude), 25, "<br>") !!}
-                                </td>
-
-                                {{-- Nội dung --}}
-                                <td>
-                                    <small>{!! wordwrap(e($tb->noidung), 40, "<br>") !!}</small>
-                                </td>
-
-                                {{-- Liên kết --}}
-                                <td>
-                                    @if($tb->lienket)
-                                        <a href="{{ $tb->lienket }}" target="_blank" class="text-primary">
-                                            Mở liên kết
-                                        </a>
-                                    @else
-                                        <span class="text-muted">Không có</span>
-                                    @endif
-                                </td>
-
-                                {{-- Trạng thái --}}
-                                <td>
-                                    @if($tb->trangthai == 'Chưa đọc')
-                                        <span class="badge bg-danger">Chưa đọc</span>
-                                    @elseif($tb->trangthai == 'Đã đọc')
-                                        <span class="badge bg-success">Đã đọc</span>
-                                    @elseif($tb->trangthai == 'Tạm ẩn')
-                                        <span class="badge bg-secondary">Tạm ẩn</span>
-                                    @endif
-                                </td>
-
-                                {{-- Hành động --}}
-                                <td class="text-center">
-
-                                    <a href="{{ route('thongbao.show', $tb->id) }}"
-                                       class="me-2"
-                                       title="Xem chi tiết">
-                                        <img src="{{ asset('img/icons/eye.svg') }}">
-                                    </a>
-
-                                    <a href="{{ route('thongbao.edit', $tb->id) }}"
-                                       class="me-2"
-                                       title="Chỉnh sửa">
-                                        <img src="{{ asset('img/icons/edit.svg') }}">
-                                    </a>
-
-                                    <a href="#"
-                                       title="Xóa"
-                                       onclick="event.preventDefault();
-                                       if(confirm('Bạn có chắc muốn xóa thông báo này?')){
-                                           document.getElementById('delete-form-{{ $tb->id }}').submit();
-                                       }">
-                                        <img src="{{ asset('img/icons/delete.svg') }}">
-                                    </a>
-
-                                    <form id="delete-form-{{ $tb->id }}"
-                                          action="{{ route('thongbao.destroy', $tb->id) }}"
-                                          method="POST"
-                                          style="display:none;">
-                                        @csrf
-                                        @method('DELETE')
-                                    </form>
-                                </td>
-
-                            </tr>
-                            @endforeach
-                        </tbody>
-
-                    </table>
-                </div>
-
+            {{-- Tab Admin --}}
+            <div class="tab-pane fade" id="admin" role="tabpanel" aria-labelledby="admin-tab">
+                @include('thongbao.partials.table', ['thongbaos' => $thongbaos_admin])
             </div>
         </div>
+
+
 
     </div>
 </div>

@@ -50,6 +50,10 @@
 
     <link rel="stylesheet" href="{{asset('css/style.css')}}" />
   </head>
+  @php
+
+      $domain = env('DOMAIN', 'http://148.230.100.215/');
+  @endphp
   <body>
     <!-- <div id="global-loader">
       <div class="whirly-loader"></div>
@@ -77,6 +81,7 @@
 
         <ul class="nav user-menu">
 
+        {{-- // -- Thông báo của Admin --// --}}
           <li class="nav-item dropdown">
             <a
               href="javascript:void(0);"
@@ -84,38 +89,68 @@
               data-bs-toggle="dropdown"
             >
               <img src="{{asset('img/icons/notification-bing.svg')}}" alt="img" />
-              <span class="badge rounded-pill">4</span>
+              <span class="badge rounded-pill">{{ auth()->user()->thongbao()->count() }}</span>
             </a>
             <div class="dropdown-menu notifications">
               <div class="topnav-dropdown-header">
                 <span class="notification-title"><b>Thông báo</b></span>
               </div>
               <div class="noti-content">
+                @php
+                // Các trạng thái thông báo bạn muốn hiển thị
+                    $trangthais = [
+                        'Chưa đọc' => ['badge' => 'bg-secondary', 'tab' => 'admin-tab'],   // bạn có thể đổi tab theo ý
+                        'Đã đọc' => ['badge' => 'bg-secondary', 'tab' => 'admin-tab'],
+                        'Tạm ẩn' => ['badge' => 'bg-secondary', 'tab' => 'admin-tab'],
+                    ];
+                @endphp
+
                 <ul class="notification-list">
 
-                  <li class="notification-message">
-                    <a href="activities.html">
-                      <div class="media d-flex">
+                    @foreach ($trangthais as $trangthai => $props)
+                        @php
+                            $count = auth()->user()->thongbao()->where('trangthai', $trangthai)->count();
+                        @endphp
+                        <li class="notification-message">
+                            <a href="{{ $domain }}thongbao#{{ $props['tab'] }}">
+                                <div class="media d-flex">
+                                    <div class="media-body flex-grow-1">
+                                        <p class="noti-details">
+                                            Hiện có <span class="noti-title">{{ $count }}</span> thông báo {{ $trangthai }}!
+                                        </p>
 
-                        <div class="media-body flex-grow-1">
-                          <p class="noti-details">
-                            Hiện có <span class="noti-title">3</span> sản phẩm đã hết hạn !
-                          </p>
-                          <p class="noti-time">
-                            <span class="notification-time"><u>nhấn để xem chi tiết</u></span>
-                          </p>
-                        </div>
-                      </div>
-                    </a>
-                  </li>
+                                        {{-- Nếu bạn muốn hiển thị chi tiết tiêu đề cho tất cả trạng thái hoặc có thể thêm điều kiện --}}
+                                        @if($count > 0)
+                                            @php
+                                                $notis = auth()->user()->thongbao()->where('trangthai', $trangthai)->get();
+                                            @endphp
+                                            <div>
+                                                @foreach($notis as $noti)
+                                                    <div style="margin-bottom: 5px;">
+                                                        <span class="badge {{ $props['badge'] }}">{{ $noti->trangthai }}</span>
+                                                        <p>{{ $noti->tieude }}</p>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @endif
+
+                                        <p class="noti-time">
+                                            <span class="notification-time"><u>nhấn để xem chi tiết</u></span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </a>
+                        </li>
+                    @endforeach
 
                 </ul>
               </div>
               <div class="topnav-dropdown-footer">
-                <a href="activities.html">Xem tất cả thông báo </a>
+                <a href="{{$domain}}thongbao#admin-tab">Xem tất cả thông báo </a>
               </div>
             </div>
           </li>
+         {{-- // -- Thông báo của Admin --// --}}
 
           <li class="nav-item dropdown has-arrow main-drop">
             <a
