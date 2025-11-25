@@ -265,7 +265,7 @@ class DonHangFrontendAPI extends BaseFrontendController
                         'Dừng hoạt động' => 'Đã hủy', // 2 cái này ko cần lắm liên quan đến trangthai bẳng phương thức
                     ];
                     $trangthaiDonhang = $mapTrangthai[$phuongthuc->trangthai] ?? 'Chờ xử lý';
-                    $trangthaiThanhtoan = 'Đã thanh toán';
+                    // $trangthaiThanhtoan = 'Đã thanh toán';
                 }
             }
             $freeship = MagiamgiaModel::where('magiamgia', $request->input('ma_magiamgia'))
