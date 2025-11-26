@@ -166,6 +166,7 @@ use App\Http\Controllers\API\Frontend\DiaChiFrontendAPI;
 use App\Http\Controllers\API\Frontend\DonHangFrontendAPI;
 use App\Http\Controllers\API\Frontend\GioHangFrontendAPI;
 use App\Http\Controllers\API\Frontend\MaGiamGiaFrontendAPI;
+use App\Http\Controllers\API\Frontend\QuatangAllFrontendAPI;
 use App\Http\Controllers\API\Frontend\SanPhamAllFrontendAPI;
 use App\Http\Controllers\API\Frontend\SanPhamFrontendAPI;
 use App\Http\Controllers\API\Frontend\TheoDoiDonHangFrontendAPI;
@@ -238,8 +239,8 @@ use App\Http\Controllers\API\ThongBaoAPI;
     Route::get('/baiviets-all/{id}', [BaiVietAllFrontendAPI::class, 'show']);
 
 
-    Route::get('/baiviets-all', [BaiVietAllFrontendAPI::class, 'index']);
-    Route::get('/baiviets-all/{id}', [BaiVietAllFrontendAPI::class, 'show']);
+    Route::get('/quatangs-all', [QuatangAllFrontendAPI::class, 'index']);
+    Route::get('/quatangs-all/{id}', [QuatangAllFrontendAPI::class, 'show']);
     //begin: Api frontend // User + anonymous + admin
 
 

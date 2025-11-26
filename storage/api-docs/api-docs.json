@@ -2205,6 +2205,269 @@
                 }
             }
         },
+        "/api/quatangs-all": {
+            "get": {
+                "tags": [
+                    "Quà Tặng"
+                ],
+                "summary": "Lấy danh sách quà tặng với bộ lọc phổ biến, mới nhất, sắp hết hạn, nhà cung cấp",
+                "operationId": "65864687967e84140339c079eafbf47a",
+                "parameters": [
+                    {
+                        "name": "popular",
+                        "in": "query",
+                        "description": "Lọc theo quà tặng phổ biến. Giá trị: 'popular'",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "newest",
+                        "in": "query",
+                        "description": "Lọc theo quà tặng mới nhất. Giá trị: 'newest'",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "expiring",
+                        "in": "query",
+                        "description": "Lọc theo quà tặng sắp hết hạn. Giá trị: 'expiring'",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "provider",
+                        "in": "query",
+                        "description": "Lọc theo ID nhà cung cấp (provider)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Danh sách quà tặng trả về kèm bộ lọc và phân trang",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 7
+                                                    },
+                                                    "id_bienthe": {
+                                                        "type": "integer",
+                                                        "example": 16
+                                                    },
+                                                    "id_chuongtrinh": {
+                                                        "type": "integer",
+                                                        "example": 22
+                                                    },
+                                                    "dieukien": {
+                                                        "type": "string",
+                                                        "example": "2"
+                                                    },
+                                                    "tieude": {
+                                                        "type": "string",
+                                                        "example": "Siêu thị Vina đón trung thu 6/10"
+                                                    },
+                                                    "slug": {
+                                                        "type": "string",
+                                                        "example": "sieu-thi-vina-don-trung-thu-610"
+                                                    },
+                                                    "thongtin": {
+                                                        "type": "string",
+                                                        "example": "Siêu thị Vina đón trung thu 6/10 với không khí rộn ràng, ngập tràn sắc màu v..."
+                                                    },
+                                                    "hinhanh": {
+                                                        "type": "string",
+                                                        "format": "url",
+                                                        "example": "http://148.230.100.215/assets/client/images/thumbs/sieu-thi-vina-don-trung-thu-6-10.jpg"
+                                                    },
+                                                    "luotxem": {
+                                                        "type": "integer",
+                                                        "example": 0
+                                                    },
+                                                    "ngaybatdau": {
+                                                        "type": "string",
+                                                        "format": "date",
+                                                        "example": "2025-10-01"
+                                                    },
+                                                    "thoigian_conlai": {
+                                                        "type": "integer",
+                                                        "example": 3
+                                                    },
+                                                    "ngayketthuc": {
+                                                        "type": "string",
+                                                        "format": "date",
+                                                        "example": "2025-11-30"
+                                                    },
+                                                    "trangthai": {
+                                                        "type": "string",
+                                                        "example": "Hiển thị"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "filters": {
+                                            "properties": {
+                                                "popular": {
+                                                    "properties": {
+                                                        "label": {
+                                                            "type": "string",
+                                                            "example": "Phổ biến"
+                                                        },
+                                                        "param": {
+                                                            "type": "string",
+                                                            "example": "popular"
+                                                        },
+                                                        "value": {
+                                                            "type": "string",
+                                                            "example": "popular"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "newest": {
+                                                    "properties": {
+                                                        "label": {
+                                                            "type": "string",
+                                                            "example": "Mới nhất"
+                                                        },
+                                                        "param": {
+                                                            "type": "string",
+                                                            "example": "newest"
+                                                        },
+                                                        "value": {
+                                                            "type": "string",
+                                                            "example": "newest"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "expiring": {
+                                                    "properties": {
+                                                        "label": {
+                                                            "type": "string",
+                                                            "example": "Sắp hết hạn"
+                                                        },
+                                                        "param": {
+                                                            "type": "string",
+                                                            "example": "expiring"
+                                                        },
+                                                        "value": {
+                                                            "type": "string",
+                                                            "example": "expiring"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "thuonghieus": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "ten": {
+                                                                "type": "string",
+                                                                "example": "Trung Tâm Bán Hàng Siêu Thị Vina"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "pagination": {
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "last_page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "per_page": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 2
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/quatangs-all/{id}": {
+            "get": {
+                "tags": [
+                    "Quà Tặng"
+                ],
+                "summary": "Lấy chi tiết một quà tặng theo ID hoặc slug",
+                "operationId": "b1b9e13976db33c141b20d08aaf57d9a",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID số hoặc slug dạng chuỗi của quà tặng",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Chi tiết quà tặng cùng danh sách sản phẩm có quà",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/QuatangResource"
+                                        },
+                                        "sanpham_coqua": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/SanphamCoQuatangCoBientheDeThemVaoGioResource"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Không tìm thấy quà tặng"
+                    }
+                }
+            }
+        },
         "/api/sanphams-all": {
             "get": {
                 "tags": [
@@ -4860,6 +5123,120 @@
                 },
                 "type": "object"
             },
+            "QuatangAllResource": {
+                "title": "QuatangAllResource",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "id_bienthe": {
+                        "type": "integer"
+                    },
+                    "id_chuongtrinh": {
+                        "type": "integer"
+                    },
+                    "dieukien": {
+                        "type": "string"
+                    },
+                    "tieude": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "thongtin": {
+                        "type": "string"
+                    },
+                    "hinhanh": {
+                        "type": "string"
+                    },
+                    "luotxem": {
+                        "type": "integer"
+                    },
+                    "ngaybatdau": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "thoigian_conlai": {
+                        "description": "Số ngày còn lại",
+                        "type": "integer"
+                    },
+                    "ngayketthuc": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "trangthai": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "QuatangResource": {
+                "title": "QuatangResource",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "id_bienthe": {
+                        "type": "integer"
+                    },
+                    "id_chuongtrinh": {
+                        "type": "integer"
+                    },
+                    "dieukien": {
+                        "type": "string"
+                    },
+                    "tieude": {
+                        "type": "string"
+                    },
+                    "thongtin": {
+                        "type": "string"
+                    },
+                    "hinhanh": {
+                        "type": "string"
+                    },
+                    "luotxem": {
+                        "type": "integer"
+                    },
+                    "ngaybatdau": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "thoigian_conlai": {
+                        "description": "Số ngày còn lại",
+                        "type": "integer"
+                    },
+                    "ngayketthuc": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "trangthai": {
+                        "type": "string"
+                    },
+                    "bienthe_quatang": {
+                        "properties": {
+                            "ten_bienthe_quatang": {
+                                "type": "string"
+                            },
+                            "ten_loaibienthe_quatang": {
+                                "type": "string"
+                            },
+                            "slug_bienthe_quatang_sanpham": {
+                                "type": "string"
+                            },
+                            "hinhanh": {
+                                "type": "string",
+                                "nullable": true
+                            },
+                            "soluong": {
+                                "type": "integer"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "type": "object"
+            },
             "SanPhamAllDetailResources": {
                 "title": "Chi tiết sản phẩm",
                 "description": "Thông tin chi tiết của sản phẩm bao gồm giá, biến thể, hình ảnh và đánh giá",
@@ -5137,6 +5514,83 @@
                             }
                         },
                         "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "SanphamCoQuatangCoBientheDeThemVaoGioResource": {
+                "title": "SanphamCoQuatangCoBientheDeThemVaoGioResource",
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "ten": {
+                        "type": "string"
+                    },
+                    "slug": {
+                        "type": "string"
+                    },
+                    "have_gift": {
+                        "type": "boolean"
+                    },
+                    "hinh_anh": {
+                        "type": "string"
+                    },
+                    "rating": {
+                        "properties": {
+                            "average": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "count": {
+                                "type": "integer"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "luotxem": {
+                        "type": "integer"
+                    },
+                    "sold": {
+                        "properties": {
+                            "total_sold": {
+                                "type": "integer"
+                            },
+                            "total_quantity": {
+                                "type": "integer"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "gia": {
+                        "properties": {
+                            "current": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "before_discount": {
+                                "type": "number",
+                                "format": "float"
+                            },
+                            "discount_percent": {
+                                "type": "integer"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "trangthai": {
+                        "properties": {
+                            "active": {
+                                "type": "string"
+                            },
+                            "in_stock": {
+                                "type": "boolean"
+                            }
+                        },
+                        "type": "object"
+                    },
+                    "id_bienthe_de_them_vao_gio": {
+                        "type": "integer"
                     }
                 },
                 "type": "object"
@@ -5563,6 +6017,10 @@
         {
             "name": "Thanh toán VNPAY",
             "description": "Thanh toán VNPAY"
+        },
+        {
+            "name": "Quà Tặng",
+            "description": "Quà Tặng"
         },
         {
             "name": "Tất Cả Sản phẩm (Trang Tất Cả Sản Phẩm)",
