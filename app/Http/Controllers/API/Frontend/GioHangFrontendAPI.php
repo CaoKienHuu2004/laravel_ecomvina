@@ -180,7 +180,8 @@ class GioHangFrontendAPI extends BaseFrontendController
 
             if ($promotion) {
                 $promotionCount = floor($totalQuantity / $promotion->discount_multiplier);
-                $numFree = min($promotionCount, $promotion->current_luottang);
+                // $numFree = min($promotionCount, $promotion->current_luottang);
+                $numFree = $promotionCount;
                 $numToPay = $totalQuantity - $numFree;
                 $thanhtien = $numToPay * $promotion->giagoc;
 
@@ -194,8 +195,8 @@ class GioHangFrontendAPI extends BaseFrontendController
                 // $currentFreeQty = $existingFreeItem ? $existingFreeItem->soluong : 0;
                 // $deltaFree = $numFree - $currentFreeQty;
 
-                // Chỉ trừ hoặc cộng lại phần chênh lệch quà tặng, bỏ vì thay đổi logic luottang là Tăng theo table Donhang chứ ko phải là quản lý số quà tặng
-                // Bỏ vì luottang sẽ liên quan đế thông kế chưa ko còn là quản lý số quà tặng
+                // // Chỉ trừ hoặc cộng lại phần chênh lệch quà tặng, bỏ vì thay đổi logic luottang là Tăng theo table Donhang chứ ko phải là quản lý số quà tặng
+                // // Bỏ vì luottang sẽ liên quan đế thông kế chưa ko còn là quản lý số quà tặng
                 // if ($deltaFree > 0) {
                 //     DB::table('bienthe')
                 //         ->where('id', $id_bienthe)
@@ -402,7 +403,8 @@ class GioHangFrontendAPI extends BaseFrontendController
 
             if ($promotion) {
                 $promotionCount = floor($soluongNew / $promotion->discount_multiplier);
-                $numFreeNew = min($promotionCount, $promotion->current_luottang);
+                // $numFreeNew = min($promotionCount, $promotion->current_luottang);
+                $numFreeNew = $promotionCount;
                 $numToPay = $soluongNew - $numFreeNew;
                 $thanhtien = $numToPay * $promotion->giagoc;
             }

@@ -26,6 +26,7 @@ use App\Http\Controllers\QuangCaoController;
 use App\Http\Controllers\QuatangSukienController;
 use App\Http\Controllers\ThongBaoController;
 use App\Http\Controllers\Web\AuthWebController;
+use App\Http\Controllers\Web\BaivietWebApi;
 use App\Http\Controllers\Web\DiaChiWebApi;
 use App\Http\Controllers\Web\MaGiamGiaWebApi;
 use App\Http\Controllers\Web\TimKiemWebApi;
@@ -361,6 +362,9 @@ Route::delete('/toi/giohang/{id}', [GioHangWebApi::class, 'destroy']);
 
 Route::get('/api-san-pham', [SanphamAllWebAPI::class, 'index']);
 Route::get('/api-san-pham/{id}', [SanphamAllWebAPI::class, 'show']);
+
+Route::get('/api-bai-viet', [BaivietWebApi::class, 'index']);
+Route::get('/api-bai-viet/{id}', [BaivietWebApi::class, 'show']);
 
 Route::get('/api-trang-chu', [TrangChuWebAPI::class, 'index']);
     Route::apiResource('api-tim-kiem', TimKiemWebApi::class)->only(['index']);

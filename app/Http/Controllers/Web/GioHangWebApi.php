@@ -316,7 +316,8 @@ class GioHangWebApi extends Controller
 
                 if ($promotion) {
                     $promotionCount = floor($totalQuantity / $promotion->discount_multiplier);
-                    $numFree = min($promotionCount, $promotion->current_luottang);
+                    // $numFree = min($promotionCount, $promotion->current_luottang);
+                    $numFree = $promotionCount;
                     $numToPay = $totalQuantity - $numFree;
                     $thanhtien = $numToPay * $promotion->giagoc;
 
@@ -418,7 +419,8 @@ class GioHangWebApi extends Controller
 
             if ($promotion) {
                 $promotionCount = floor($totalQty / $promotion->discount_multiplier);
-                $numFree = min($promotionCount, $promotion->current_luottang);
+                // $numFree = min($promotionCount, $promotion->current_luottang);
+                $numFree = $promotionCount;
                 $numToPay = $totalQty - $numFree;
                 $thanhtien = $numToPay * $promotion->giagoc;
             }
@@ -547,7 +549,8 @@ class GioHangWebApi extends Controller
 
                 if ($promotion) {
                     $promotionCount = floor($soluongNew / $promotion->discount_multiplier);
-                    $numFreeNew = min($promotionCount, $promotion->current_luottang);
+                    // $numFreeNew = min($promotionCount, $promotion->current_luottang);
+                    $numFreeNew = $promotionCount;
                     $numToPay = $soluongNew - $numFreeNew;
                     $thanhtien = $numToPay * $promotion->giagoc;
                 }
@@ -658,7 +661,8 @@ class GioHangWebApi extends Controller
 
                 if ($promotion) {
                     $promotionCount = floor($soluongNew / $promotion->discount_multiplier);
-                    $numFreeNew = min($promotionCount, $promotion->current_luottang);
+                    // $numFreeNew = min($promotionCount, $promotion->current_luottang);
+                    $numFreeNew = $promotionCount;
                     $numToPay = $soluongNew - $numFreeNew;
                     $thanhtien = $numToPay * $promotion->giagoc;
                 }

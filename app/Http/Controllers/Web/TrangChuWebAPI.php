@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\API\Frontend\BaseFrontendController;
 use App\Http\Controllers\Controller;
+use App\Models\BaivietModel;
+use App\Http\Resources\Web\BaiVietTrangChuResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\DanhmucModel;
@@ -38,6 +40,7 @@ class TrangChuWebAPI extends BaseFrontendController
             // 'default'        => $this->getDefaultProducts($request),
             'new_launch'  => $this->getNewLaunch($request),
             'most_watched'  => $this->getMostWatChed($request),
+            'posts_to_explore' => $this->getPostsToExplore($request),
         ];
         // return ($data); // nếu muốn { "ten_selection" : [ {} {} ... ] }
         $flatData = collect($data)->flatten(1)->values();
@@ -508,6 +511,20 @@ class TrangChuWebAPI extends BaseFrontendController
         $coupon = $query->limit($perPage)->get();
 
         return $coupon;
+    }
+
+    public function getPostsToExplore(Request $request)
+    {
+        // limt 4 theo bài viết mới nhất
+        $perPage = $request->get('per_page', 4);
+
+        $query = BaivietModel::where('trangthai', 'Hiển thị')
+                ->orderBy('id', 'desc');
+
+        $posts = $query->limit($perPage)->get();
+
+        BaiVietTrangChuResource::withoutWrapping();
+        return BaiVietTrangChuResource::collection($posts);
     }
 
 
