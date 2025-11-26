@@ -19,6 +19,7 @@ class VerifyCsrfToken extends Middleware
         'api/*', // dung cho API token của santum
         'toi/*', // mai mốt FE cùng domain thì xóa đi
         'auth/*', // mai mốt FE cùng domain thì xóa đi
+        'api-*', // mai mốt FE cùng domain thì xóa đi
         // '*', // nguy hiểm, tắt CSRF hoàn toàn
         // 'toi/giohang',
     ];

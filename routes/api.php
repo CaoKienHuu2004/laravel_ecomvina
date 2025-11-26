@@ -157,6 +157,7 @@ use App\Http\Controllers\API\YeuThichAPI;
 
 
 use App\Http\Controllers\API\Frontend\AuthFrontendController;
+use App\Http\Controllers\API\Frontend\BaiVietAllFrontendAPI;
 use App\Http\Controllers\API\Frontend\BannerQuangCaoFrontendAPI;
 use App\Http\Controllers\API\Frontend\DanhGiaFrontendAPI;
 use App\Http\Controllers\API\Frontend\DanhmucAllFrontendAPI;
@@ -233,6 +234,8 @@ use App\Http\Controllers\API\ThongBaoAPI;
     // Route::apiResource('danhgias', DanhGiaAPI::class)->only(['index','show']);
     // guest
 
+    Route::get('/baiviets-all', [BaiVietAllFrontendAPI::class, 'index']);
+    Route::get('/baiviets-all/{id}', [BaiVietAllFrontendAPI::class, 'show']);
     //begin: Api frontend // User + anonymous + admin
 
 

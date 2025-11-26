@@ -3060,6 +3060,12 @@
                                                     "items": {
                                                         "$ref": "#/components/schemas/SanphamItem"
                                                     }
+                                                },
+                                                "posts_to_explore": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/BaivietItem"
+                                                    }
                                                 }
                                             },
                                             "type": "object"
@@ -4472,6 +4478,45 @@
                     "lienket": {
                         "type": "string",
                         "example": "https://localhost:8000/api/tim-kiem/?query=iphone"
+                    }
+                },
+                "type": "object"
+            },
+            "BaivietItem": {
+                "title": "Bài Viết",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "tieude": {
+                        "type": "text",
+                        "example": "Chương trình Siêu Sale Tháng 11 - Mua Sắm Thả Ga, Giảm Giá Tận Tay!"
+                    },
+                    "slug": {
+                        "type": "text",
+                        "example": "chuong-trinh-sieu-sale-thang-11-mua-sam-tha-ga-giam-gia-tan-tay"
+                    },
+                    "noidung": {
+                        "type": "longtext",
+                        "example": "<p>Siêu Thị Vina mang đến chương trình <strong>Siêu Sale Tháng 11</strong> với hàng ngàn sản phẩm giảm giá đến <strong>70%</strong>. Từ thực phẩm chức năng, mỹ phẩm, đồ gia dụng cho đến sản phẩm chăm sóc sức khỏe – tất cả đều có mặt!</p>"
+                    },
+                    "luotxem": {
+                        "type": "integer",
+                        "default": 0,
+                        "example": 532
+                    },
+                    "hinhanh": {
+                        "type": "string",
+                        "example": "http://148.230.100.215//assets/client/images/posts/ca-phe-bao-tu-linh-chi-pha-vach-giup-tinh-tao-1.webp"
+                    },
+                    "trangthai": {
+                        "type": "string",
+                        "enum": [
+                            "Hiển thị",
+                            "Tạm ẩn"
+                        ],
+                        "example": "Hiển thị"
                     }
                 },
                 "type": "object"

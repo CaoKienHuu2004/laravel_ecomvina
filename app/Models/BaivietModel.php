@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class BaivietModel extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     // Tên bảng tương ứng trong database
     protected $table = 'baiviet';
@@ -28,14 +28,15 @@ class BaivietModel extends Model
     ];
 
     // Cho phép Laravel tự động xử lý created_at, updated_at, deleted_at
-    public $timestamps = true;
+    public $timestamps = false;
+    // public $timestamps = true;
 
     // Kiểu dữ liệu cho từng cột (tùy chọn, giúp cast dữ liệu chính xác hơn)
     protected $casts = [
         'luotxem' => 'integer',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
-        'deleted_at' => 'datetime',
+        // 'created_at' => 'datetime',
+        // 'updated_at' => 'datetime',
+        // 'deleted_at' => 'datetime',
     ];
 
     // Mặc định giá trị khi tạo mới bài viết

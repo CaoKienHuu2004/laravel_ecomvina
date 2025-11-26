@@ -6,6 +6,7 @@ namespace App\Http\Controllers\API\Frontend;
 
 use App\Http\Controllers\API\QuaTangSuKienAPI;
 use App\Http\Controllers\API\SanphamAPI;
+use App\Http\Resources\Frontend\BaiVietTrangChuResource;
 use App\Http\Resources\Frontend\BestProductResource;
 use App\Http\Resources\Frontend\BrandsHotResource;
 use Illuminate\Http\Request;
@@ -18,6 +19,7 @@ use App\Http\Resources\Frontend\CategoriesHotResource;
 use App\Http\Resources\Frontend\GiftHotResource;
 use App\Http\Resources\Frontend\HotSaleResource;
 use App\Http\Resources\Frontend\RecommentResource;
+use App\Models\BaivietModel;
 use App\Models\DanhgiaModel;
 use App\Models\DanhmucModel;
 use App\Models\MagiamgiaModel;
@@ -128,6 +130,11 @@ class TrangChuAPI extends BaseFrontendController
      *                     property="most_watched",
      *                     type="array",
      *                     @OA\Items(ref="#/components/schemas/SanphamItem")
+     *                 ),
+     *                  @OA\Property(
+     *                     property="posts_to_explore",
+     *                     type="array",
+     *                     @OA\Items(ref="#/components/schemas/BaivietItem")
      *                 )
      *             )
      *         )
@@ -247,6 +254,19 @@ class TrangChuAPI extends BaseFrontendController
     *     @OA\Property(property="luottruycap", type="integer", example=1520),
     *     @OA\Property(property="lienket", type="string", example="https://localhost:8000/api/tim-kiem/?query=iphone")
     * )
+    * @OA\Schema(
+     *     schema="BaivietItem",
+     *     type="object",
+     *     title="Bài Viết",
+     *     @OA\Property(property="id", type="integer", example=1),
+     *     @OA\Property(property="tieude", type="text", example="Chương trình Siêu Sale Tháng 11 - Mua Sắm Thả Ga, Giảm Giá Tận Tay!"),
+     *     @OA\Property(property="slug", type="text", example="chuong-trinh-sieu-sale-thang-11-mua-sam-tha-ga-giam-gia-tan-tay"),
+     *     @OA\Property(property="noidung", type="longtext", example="tùy chỉnh về 160 ký tự, và bỏ các thẻ html, Siêu Thị Vina mang đến chương trìnhSiêu Sale Tháng 11 với hàng ngàn sản phẩm giảm giá đến 70%. Từ thực phẩm chức năng, mỹ phẩm, đồ gia dụng cho đến sản phẩm chăm sóc sức khỏe – tất cả đều có mặt!"),
+     *     @OA\Property(property="luotxem", type="integer", example=532, default=0),
+     *     @OA\Property(property="hinhanh", type="string", example="http://148.230.100.215//assets/client/images/posts/ca-phe-bao-tu-linh-chi-pha-vach-giup-tinh-tao-1.webp"),
+     *     @OA\Property(property="trangthai", type="string", enum={"Hiển thị", "Tạm ẩn"}, example="Hiển thị")
+     *
+     * )
      */
     public function index(Request $request)
     {
@@ -268,6 +288,7 @@ class TrangChuAPI extends BaseFrontendController
             // 'default'        => $this->getDefaultProducts($request),
             'new_launch'  => $this->getNewLaunch($request),
             'most_watched'  => $this->getMostWatChed($request),
+            'posts_to_explore' => $this->getPostsToExplore($request),
         ];
 
 
@@ -671,6 +692,19 @@ class TrangChuAPI extends BaseFrontendController
         $coupon = $query->limit($perPage)->get();
 
         return $coupon;
+    }
+
+    public function getPostsToExplore(Request $request)
+    {
+        // limt 4 theo bài viết mới nhất
+        $perPage = $request->get('per_page', 4);
+
+        $query = BaivietModel::where('trangthai', 'Hiển thị')
+                ->orderBy('id', 'desc');
+
+        $posts = $query->paginate($perPage);
+
+        return BaiVietTrangChuResource::collection($posts);
     }
 
 }
