@@ -17,6 +17,8 @@ use App\Models\ThuongHieuModel;
 use App\Models\TukhoaModel;
 use Illuminate\Support\Facades\DB;
 
+use Illuminate\Support\Str;
+
 class TrangChuWebAPI extends BaseFrontendController
 {
     //
@@ -90,6 +92,7 @@ class TrangChuWebAPI extends BaseFrontendController
             return [
                 'id' => $item->id,
                 'title' => $item->tieude,
+                'slug'  => Str::slug($item->tieude),
                 'condition' => $item->dieukien,
                 'information' => $item->thongtin,
                 'image' => $item->hinhanh,

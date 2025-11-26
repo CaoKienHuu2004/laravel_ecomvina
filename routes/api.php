@@ -236,6 +236,10 @@ use App\Http\Controllers\API\ThongBaoAPI;
 
     Route::get('/baiviets-all', [BaiVietAllFrontendAPI::class, 'index']);
     Route::get('/baiviets-all/{id}', [BaiVietAllFrontendAPI::class, 'show']);
+
+
+    Route::get('/baiviets-all', [BaiVietAllFrontendAPI::class, 'index']);
+    Route::get('/baiviets-all/{id}', [BaiVietAllFrontendAPI::class, 'show']);
     //begin: Api frontend // User + anonymous + admin
 
 

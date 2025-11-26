@@ -10,6 +10,49 @@ use Illuminate\Http\Request;
 
 class BaiVietAllFrontendAPI extends BaseFrontendController
 {
+
+    /**
+     * @OA\Get(
+     *     path="/baiviets-all",
+     *     tags={"Bài Viết"},
+     *     summary="Lấy danh sách bài viết với phân trang và lọc tiêu đề, nội dung",
+     *     description="Trả về danh sách bài viết đang 'Hiển thị', hỗ trợ lọc theo từ khóa trên tiêu đề hoặc nội dung, có phân trang.",
+     *     @OA\Parameter(
+     *         name="filter",
+     *         in="query",
+     *         required=false,
+     *         description="Từ khóa lọc bài viết theo tiêu đề hoặc nội dung",
+     *         @OA\Schema(type="string", example="khuyến mãi")
+     *     ),
+     *     @OA\Parameter(
+     *         name="page",
+     *         in="query",
+     *         required=false,
+     *         description="Số trang phân trang",
+     *         @OA\Schema(type="integer", example=1)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Danh sách bài viết phân trang",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/BaiVietResource")
+     *             ),
+     *             @OA\Property(
+     *                 property="pagination",
+     *                 type="object",
+     *                 @OA\Property(property="current_page", type="integer", example=1),
+     *                 @OA\Property(property="last_page", type="integer", example=10),
+     *                 @OA\Property(property="per_page", type="integer", example=10),
+     *                 @OA\Property(property="total", type="integer", example=100)
+     *             )
+     *         )
+     *     )
+     * )
+     */
     public function index(Request $request)
     {
         $filter = $request->get('filter', null);
@@ -33,6 +76,42 @@ class BaiVietAllFrontendAPI extends BaseFrontendController
         ]);
     }
 
+    /**
+     * @OA\Get(
+     *     path="/baiviets-all/{id}",
+     *     tags={"Bài Viết"},
+     *     summary="Lấy chi tiết bài viết theo ID hoặc slug, tự động tăng lượt xem",
+     *     description="Trả về thông tin chi tiết bài viết dựa trên ID hoặc slug. Tăng lượt xem bài viết lên 1. Kèm danh sách 2 bài viết tương tự dựa trên tiêu đề.",
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID hoặc slug của bài viết cần lấy chi tiết",
+     *         @OA\Schema(type="string", example="5 hoặc 'bai-viet-mau'")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Chi tiết bài viết và danh sách bài viết tương tự",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(
+     *                 property="data",
+     *                 ref="#/components/schemas/BaiVietResource"
+     *             ),
+     *             @OA\Property(
+     *                 property="baiviet_tuongtu",
+     *                 type="array",
+     *                 description="Danh sách bài viết tương tự",
+     *                 @OA\Items(ref="#/components/schemas/BaiVietResource")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Không tìm thấy bài viết"
+     *     )
+     * )
+     */
     public function show(string $id)
     {
         if (is_numeric($id)) {

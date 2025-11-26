@@ -462,6 +462,128 @@
                 ]
             }
         },
+        "/baiviets-all": {
+            "get": {
+                "tags": [
+                    "Bài Viết"
+                ],
+                "summary": "Lấy danh sách bài viết với phân trang và lọc tiêu đề, nội dung",
+                "description": "Trả về danh sách bài viết đang 'Hiển thị', hỗ trợ lọc theo từ khóa trên tiêu đề hoặc nội dung, có phân trang.",
+                "operationId": "8f9b5723ad16ec19887c0c744afb499b",
+                "parameters": [
+                    {
+                        "name": "filter",
+                        "in": "query",
+                        "description": "Từ khóa lọc bài viết theo tiêu đề hoặc nội dung",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "khuyến mãi"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Số trang phân trang",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Danh sách bài viết phân trang",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/BaiVietResource"
+                                            }
+                                        },
+                                        "pagination": {
+                                            "properties": {
+                                                "current_page": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "last_page": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "per_page": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 100
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/baiviets-all/{id}": {
+            "get": {
+                "tags": [
+                    "Bài Viết"
+                ],
+                "summary": "Lấy chi tiết bài viết theo ID hoặc slug, tự động tăng lượt xem",
+                "description": "Trả về thông tin chi tiết bài viết dựa trên ID hoặc slug. Tăng lượt xem bài viết lên 1. Kèm danh sách 2 bài viết tương tự dựa trên tiêu đề.",
+                "operationId": "d1dbb44c7ef53a18047d753a3748fee2",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID hoặc slug của bài viết cần lấy chi tiết",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "5 hoặc 'bai-viet-mau'"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Chi tiết bài viết và danh sách bài viết tương tự",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/components/schemas/BaiVietResource"
+                                        },
+                                        "baiviet_tuongtu": {
+                                            "description": "Danh sách bài viết tương tự",
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/BaiVietResource"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Không tìm thấy bài viết"
+                    }
+                }
+            }
+        },
         "/api/bannerquangcaos": {
             "get": {
                 "tags": [
@@ -4499,7 +4621,7 @@
                     },
                     "noidung": {
                         "type": "longtext",
-                        "example": "<p>Siêu Thị Vina mang đến chương trình <strong>Siêu Sale Tháng 11</strong> với hàng ngàn sản phẩm giảm giá đến <strong>70%</strong>. Từ thực phẩm chức năng, mỹ phẩm, đồ gia dụng cho đến sản phẩm chăm sóc sức khỏe – tất cả đều có mặt!</p>"
+                        "example": "tùy chỉnh về 160 ký tự, và bỏ các thẻ html, Siêu Thị Vina mang đến chương trìnhSiêu Sale Tháng 11 với hàng ngàn sản phẩm giảm giá đến 70%. Từ thực phẩm chức năng, mỹ phẩm, đồ gia dụng cho đến sản phẩm chăm sóc sức khỏe – tất cả đều có mặt!"
                     },
                     "luotxem": {
                         "type": "integer",
@@ -4654,6 +4776,48 @@
                             }
                         },
                         "type": "object"
+                    }
+                },
+                "type": "object"
+            },
+            "BaiVietResource": {
+                "title": "Bài viết",
+                "required": [
+                    "id",
+                    "tieude",
+                    "slug",
+                    "noidung",
+                    "luotxem",
+                    "trangthai"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "tieude": {
+                        "type": "string",
+                        "example": "Tiêu đề bài viết"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "tieu-de-bai-viet"
+                    },
+                    "noidung": {
+                        "type": "string",
+                        "example": "Nội dung chi tiết bài viết..."
+                    },
+                    "luotxem": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "hinhanh": {
+                        "type": "string",
+                        "example": "http://148.230.100.215/assets/client/images/posts/abc.jpg"
+                    },
+                    "trangthai": {
+                        "type": "string",
+                        "example": "Hiển thị"
                     }
                 },
                 "type": "object"
@@ -5371,6 +5535,10 @@
         {
             "name": "Xác thực người dùng (Auth)",
             "description": "Xác thực người dùng (Auth)"
+        },
+        {
+            "name": "Bài Viết",
+            "description": "Bài Viết"
         },
         {
             "name": "Banner Quảng Cáo",

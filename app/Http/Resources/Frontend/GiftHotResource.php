@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Frontend;
 
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Carbon\Carbon;
@@ -19,6 +20,7 @@ class GiftHotResource extends JsonResource
         return [
             'id' => $this->id,
             'tieude' => $this->tieude,
+            'slug'   => Str::slug($this->tieude),
             'dieukien' => $this->dieukien,
             'thongtin' => $this->thongtin,
             'hinhanh' => $this->hinhanh,
