@@ -21,6 +21,7 @@ class QuatangAllFrontendAPI extends BaseFrontendController
      *     path="/api/quatangs-all",
      *     summary="Lấy danh sách quà tặng với bộ lọc phổ biến, mới nhất, sắp hết hạn, nhà cung cấp",
      *     tags={"Quà Tặng"},
+     *
      *     @OA\Parameter(
      *         name="popular",
      *         in="query",
@@ -49,6 +50,7 @@ class QuatangAllFrontendAPI extends BaseFrontendController
      *         required=false,
      *         @OA\Schema(type="integer")
      *     ),
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Danh sách quà tặng trả về kèm bộ lọc và phân trang",
@@ -61,6 +63,16 @@ class QuatangAllFrontendAPI extends BaseFrontendController
      *                     @OA\Property(property="id", type="integer", example=7),
      *                     @OA\Property(property="id_bienthe", type="integer", example=16),
      *                     @OA\Property(property="id_chuongtrinh", type="integer", example=22),
+     *
+     *                     @OA\Property(
+     *                         property="thongtin_thuonghieu",
+     *                         type="object",
+     *                         @OA\Property(property="id_thuonghieu", type="integer", example=1),
+     *                         @OA\Property(property="ten_thuonghieu", type="string", example="Trung Tâm Bán Hàng Siêu Thị Vina"),
+     *                         @OA\Property(property="slug_thuonghieu", type="string", example="trung-tam-ban-hang-sieu-thi-vina"),
+     *                         @OA\Property(property="logo_thuonghieu", type="string", format="url", example="http://148.230.100.215/assets/client/images/brands/trung-tam-ban-hang-sieu-thi-vina.png")
+     *                     ),
+     *
      *                     @OA\Property(property="dieukien", type="string", example="2"),
      *                     @OA\Property(property="tieude", type="string", example="Siêu thị Vina đón trung thu 6/10"),
      *                     @OA\Property(property="slug", type="string", example="sieu-thi-vina-don-trung-thu-610"),
@@ -68,11 +80,12 @@ class QuatangAllFrontendAPI extends BaseFrontendController
      *                     @OA\Property(property="hinhanh", type="string", format="url", example="http://148.230.100.215/assets/client/images/thumbs/sieu-thi-vina-don-trung-thu-6-10.jpg"),
      *                     @OA\Property(property="luotxem", type="integer", example=0),
      *                     @OA\Property(property="ngaybatdau", type="string", format="date", example="2025-10-01"),
-     *                     @OA\Property(property="thoigian_conlai", type="integer", example=3),
+     *                     @OA\Property(property="thoigian_conlai", type="integer", example=2),
      *                     @OA\Property(property="ngayketthuc", type="string", format="date", example="2025-11-30"),
      *                     @OA\Property(property="trangthai", type="string", example="Hiển thị")
      *                 )
      *             ),
+     *
      *             @OA\Property(
      *                 property="filters",
      *                 type="object",
@@ -107,6 +120,7 @@ class QuatangAllFrontendAPI extends BaseFrontendController
      *                     )
      *                 )
      *             ),
+     *
      *             @OA\Property(
      *                 property="pagination",
      *                 type="object",
@@ -127,7 +141,13 @@ class QuatangAllFrontendAPI extends BaseFrontendController
         $provider = $request->get('provider', null);
         $limit = 5; // đang theo Khải
 
-        $quatangs = QuatangsukienModel::query();
+
+        $quatangs = QuatangsukienModel::query()
+                ->with([
+                'bienthe',
+                'bienthe.sanpham',
+                'bienthe.sanpham.thuonghieu'
+            ]);
         $hasFilter = false;
         if ($popular) {
             if($popular === "popular"){
@@ -214,28 +234,40 @@ class QuatangAllFrontendAPI extends BaseFrontendController
      *             @OA\Property(
      *                 property="data",
      *                 type="object",
-     *                 @OA\Property(property="id", type="integer", example=9),
-     *                 @OA\Property(property="id_bienthe", type="integer", example=18),
-     *                 @OA\Property(property="id_chuongtrinh", type="integer", example=24),
-     *                 @OA\Property(property="dieukien", type="string", example="2"),
-     *                 @OA\Property(property="tieude", type="string", example="Siêu Thị Mừng Ngày Nhà giáo Việt Nam 20/11"),
-     *                 @OA\Property(property="thongtin", type="string", example="1. Ưu đãi tri ân – Giảm giá đến 50%..."),
-     *                 @OA\Property(property="hinhanh", type="string", format="url", example="http://148.230.100.215/assets/client/images/thumbs/sieu-thi-mung-ngay-nha-giao-viet-nam-20-11.jpg"),
-     *                 @OA\Property(property="luotxem", type="integer", example=11),
-     *                 @OA\Property(property="ngaybatdau", type="string", format="date", example="2025-11-01"),
-     *                 @OA\Property(property="thoigian_conlai", type="integer", example=3),
-     *                 @OA\Property(property="ngayketthuc", type="string", format="date", example="2025-11-30"),
+     *                 @OA\Property(property="id", type="integer", example=5),
+     *                 @OA\Property(property="id_bienthe", type="integer", example=17),
+     *                 @OA\Property(property="id_chuongtrinh", type="integer", example=1),
+     *
+     *                 @OA\Property(
+     *                     property="thongtin_thuonghieu",
+     *                     type="object",
+     *                     @OA\Property(property="id_thuonghieu", type="integer", example=1),
+     *                     @OA\Property(property="ten_thuonghieu", type="string", example="Trung Tâm Bán Hàng Siêu Thị Vina"),
+     *                     @OA\Property(property="slug_thuonghieu", type="string", example="trung-tam-ban-hang-sieu-thi-vina"),
+     *                     @OA\Property(property="logo_thuonghieu", type="string", format="url", example="http://148.230.100.215/assets/client/images/brands/trung-tam-ban-hang-sieu-thi-vina.png")
+     *                 ),
+     *
+     *                 @OA\Property(property="dieukien", type="string", example="3"),
+     *                 @OA\Property(property="tieude", type="string", example="Tặng 1 sản phẩm bách hóa khi mua 3 sản phẩm bất kỳ từ Trung Tâm Bán Hàng nhân ngày sinh nhật 13/10"),
+     *                 @OA\Property(property="thongtin", type="string", example="Không có thông tin"),
+     *                 @OA\Property(property="hinhanh", type="string", format="url", example="http://148.230.100.215/assets/client/images/thumbs/nuoc-rua-bat-bio-formula-bo-va-lo-hoi-tui-500ml-1.webp"),
+     *                 @OA\Property(property="luotxem", type="integer", example=1206),
+     *                 @OA\Property(property="ngaybatdau", type="string", format="date", example="2025-10-13"),
+     *                 @OA\Property(property="thoigian_conlai", type="integer", example=33),
+     *                 @OA\Property(property="ngayketthuc", type="string", format="date", example="2025-12-31"),
      *                 @OA\Property(property="trangthai", type="string", example="Hiển thị"),
+     *
      *                 @OA\Property(
      *                     property="bienthe_quatang",
      *                     type="object",
      *                     @OA\Property(property="ten_bienthe_quatang", type="string", example="Hạt điều rang muối loại 1 (còn vỏ lụa) Happy Nuts 500g"),
-     *                     @OA\Property(property="ten_loaibienthe_quatang", type="string", example="Hộp (đã lột vỏ) 500g"),
+     *                     @OA\Property(property="ten_loaibienthe_quatang", type="string", example="Hộp (Vỏ lụa) 500g"),
      *                     @OA\Property(property="slug_bienthe_quatang_sanpham", type="string", example="hat-dieu-rang-muoi-loai-1-con-vo-lua-happy-nuts-500g"),
-     *                     @OA\Property(property="hinhanh", type="string", format="url", example="http://148.230.100.215/assets/client/images/thumbs/hat-dieu-rang-muoi-loai-1-con-vo-lua-happy-nuts-500g-3.webp"),
+     *                     @OA\Property(property="hinhanh", type="string", example="http://148.230.100.215/assets/client/images/thumbs/hat-dieu-rang-muoi-loai-1-con-vo-lua-happy-nuts-500g-3.webp"),
      *                     @OA\Property(property="soluong", type="integer", example=1)
      *                 )
      *             ),
+     *
      *             @OA\Property(
      *                 property="sanpham_coqua",
      *                 type="array",
@@ -246,32 +278,38 @@ class QuatangAllFrontendAPI extends BaseFrontendController
      *                     @OA\Property(property="slug", type="string", example="sam-ngoc-linh-truong-sinh-do-thung-24lon"),
      *                     @OA\Property(property="have_gift", type="boolean", example=true),
      *                     @OA\Property(property="hinh_anh", type="string", format="url", example="http://148.230.100.215/assets/client/images/thumbs/sam-ngoc-linh-truong-sinh-do-thung-24lon-5.webp"),
+     *
      *                     @OA\Property(
      *                         property="rating",
      *                         type="object",
-     *                         @OA\Property(property="average", type="number", format="float", example=0),
+     *                         @OA\Property(property="average", type="number", example=0),
      *                         @OA\Property(property="count", type="integer", example=0)
      *                     ),
+     *
      *                     @OA\Property(property="luotxem", type="integer", example=2),
+     *
      *                     @OA\Property(
      *                         property="sold",
      *                         type="object",
      *                         @OA\Property(property="total_sold", type="integer", example=23),
      *                         @OA\Property(property="total_quantity", type="integer", example=10)
      *                     ),
+     *
      *                     @OA\Property(
      *                         property="gia",
      *                         type="object",
-     *                         @OA\Property(property="current", type="number", format="float", example=466560),
-     *                         @OA\Property(property="before_discount", type="number", format="float", example=466560),
+     *                         @OA\Property(property="current", type="number", example=466560),
+     *                         @OA\Property(property="before_discount", type="number", example=466560),
      *                         @OA\Property(property="discount_percent", type="integer", example=0)
      *                     ),
+     *
      *                     @OA\Property(
      *                         property="trangthai",
      *                         type="object",
      *                         @OA\Property(property="active", type="string", example="Công khai"),
      *                         @OA\Property(property="in_stock", type="boolean", example=true)
      *                     ),
+     *
      *                     @OA\Property(property="id_bienthe_de_them_vao_gio", type="integer", example=3)
      *                 )
      *             )
@@ -317,7 +355,8 @@ class QuatangAllFrontendAPI extends BaseFrontendController
                 'bienthe',
                 'bienthe.sanpham',
                 'bienthe.loaibienthe',
-                'bienthe.sanpham.hinhanhsanpham'
+                'bienthe.sanpham.hinhanhsanpham',
+                'bienthe.sanpham.thuonghieu'
             ])->where('id', $id)->first();
         } else {
             // Nếu $id không phải số → xem nó là slug
@@ -331,7 +370,8 @@ class QuatangAllFrontendAPI extends BaseFrontendController
                 'bienthe',
                 'bienthe.sanpham',
                 'bienthe.loaibienthe',
-                'bienthe.sanpham.hinhanhsanpham'
+                'bienthe.sanpham.hinhanhsanpham',
+                'bienthe.sanpham.thuonghieu'
             ])->get()->first(function ($item) use ($slug) {
                 return Str::slug($item->tieude) === $slug;
             });

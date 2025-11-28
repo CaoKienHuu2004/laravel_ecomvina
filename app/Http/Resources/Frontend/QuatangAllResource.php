@@ -14,19 +14,31 @@ use Illuminate\Support\Carbon;
  *     schema="QuatangAllResource",
  *     type="object",
  *     title="QuatangAllResource",
+ *
  *     @OA\Property(property="id", type="integer"),
  *     @OA\Property(property="id_bienthe", type="integer"),
  *     @OA\Property(property="id_chuongtrinh", type="integer"),
+ *
+ *     @OA\Property(
+ *         property="thongtin_thuonghieu",
+ *         type="object",
+ *         @OA\Property(property="id_thuonghieu", type="integer"),
+ *         @OA\Property(property="ten_thuonghieu", type="string"),
+ *         @OA\Property(property="slug_thuonghieu", type="string"),
+ *         @OA\Property(property="logo_thuonghieu", type="string", format="url")
+ *     ),
+ *
  *     @OA\Property(property="dieukien", type="string"),
  *     @OA\Property(property="tieude", type="string"),
  *     @OA\Property(property="slug", type="string"),
  *     @OA\Property(property="thongtin", type="string"),
  *     @OA\Property(property="hinhanh", type="string"),
  *     @OA\Property(property="luotxem", type="integer"),
+ *
  *     @OA\Property(property="ngaybatdau", type="string", format="date"),
  *     @OA\Property(property="thoigian_conlai", type="integer", description="Số ngày còn lại"),
  *     @OA\Property(property="ngayketthuc", type="string", format="date"),
- *     @OA\Property(property="trangthai", type="string"),
+ *     @OA\Property(property="trangthai", type="string")
  * )
  */
 class QuatangAllResource extends JsonResource
@@ -49,6 +61,12 @@ class QuatangAllResource extends JsonResource
             'id' => $this->id,
             'id_bienthe' => $this->id_bienthe,
             'id_chuongtrinh' => $this->id_chuongtrinh,
+            'thongtin_thuonghieu' => [
+                'id_thuonghieu' => $this->bienthe->sanpham->thuonghieu->id,
+                'ten_thuonghieu' => $this->bienthe->sanpham->thuonghieu->ten,
+                'slug_thuonghieu' => $this->bienthe->sanpham->thuonghieu->slug,
+                'logo_thuonghieu' => $this->bienthe->sanpham->thuonghieu->logo,
+            ],
             'dieukien' => $this->dieukien,
             'tieude' => $this->tieude,
             'slug' => $slug,

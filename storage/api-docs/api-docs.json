@@ -2273,6 +2273,28 @@
                                                         "type": "integer",
                                                         "example": 22
                                                     },
+                                                    "thongtin_thuonghieu": {
+                                                        "properties": {
+                                                            "id_thuonghieu": {
+                                                                "type": "integer",
+                                                                "example": 1
+                                                            },
+                                                            "ten_thuonghieu": {
+                                                                "type": "string",
+                                                                "example": "Trung Tâm Bán Hàng Siêu Thị Vina"
+                                                            },
+                                                            "slug_thuonghieu": {
+                                                                "type": "string",
+                                                                "example": "trung-tam-ban-hang-sieu-thi-vina"
+                                                            },
+                                                            "logo_thuonghieu": {
+                                                                "type": "string",
+                                                                "format": "url",
+                                                                "example": "http://148.230.100.215/assets/client/images/brands/trung-tam-ban-hang-sieu-thi-vina.png"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
                                                     "dieukien": {
                                                         "type": "string",
                                                         "example": "2"
@@ -2305,7 +2327,7 @@
                                                     },
                                                     "thoigian_conlai": {
                                                         "type": "integer",
-                                                        "example": 3
+                                                        "example": 2
                                                     },
                                                     "ngayketthuc": {
                                                         "type": "string",
@@ -2448,12 +2470,199 @@
                                 "schema": {
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/components/schemas/QuatangResource"
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                },
+                                                "id_bienthe": {
+                                                    "type": "integer",
+                                                    "example": 17
+                                                },
+                                                "id_chuongtrinh": {
+                                                    "type": "integer",
+                                                    "example": 1
+                                                },
+                                                "thongtin_thuonghieu": {
+                                                    "properties": {
+                                                        "id_thuonghieu": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        },
+                                                        "ten_thuonghieu": {
+                                                            "type": "string",
+                                                            "example": "Trung Tâm Bán Hàng Siêu Thị Vina"
+                                                        },
+                                                        "slug_thuonghieu": {
+                                                            "type": "string",
+                                                            "example": "trung-tam-ban-hang-sieu-thi-vina"
+                                                        },
+                                                        "logo_thuonghieu": {
+                                                            "type": "string",
+                                                            "format": "url",
+                                                            "example": "http://148.230.100.215/assets/client/images/brands/trung-tam-ban-hang-sieu-thi-vina.png"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                },
+                                                "dieukien": {
+                                                    "type": "string",
+                                                    "example": "3"
+                                                },
+                                                "tieude": {
+                                                    "type": "string",
+                                                    "example": "Tặng 1 sản phẩm bách hóa khi mua 3 sản phẩm bất kỳ từ Trung Tâm Bán Hàng nhân ngày sinh nhật 13/10"
+                                                },
+                                                "thongtin": {
+                                                    "type": "string",
+                                                    "example": "Không có thông tin"
+                                                },
+                                                "hinhanh": {
+                                                    "type": "string",
+                                                    "format": "url",
+                                                    "example": "http://148.230.100.215/assets/client/images/thumbs/nuoc-rua-bat-bio-formula-bo-va-lo-hoi-tui-500ml-1.webp"
+                                                },
+                                                "luotxem": {
+                                                    "type": "integer",
+                                                    "example": 1206
+                                                },
+                                                "ngaybatdau": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "example": "2025-10-13"
+                                                },
+                                                "thoigian_conlai": {
+                                                    "type": "integer",
+                                                    "example": 33
+                                                },
+                                                "ngayketthuc": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "example": "2025-12-31"
+                                                },
+                                                "trangthai": {
+                                                    "type": "string",
+                                                    "example": "Hiển thị"
+                                                },
+                                                "bienthe_quatang": {
+                                                    "properties": {
+                                                        "ten_bienthe_quatang": {
+                                                            "type": "string",
+                                                            "example": "Hạt điều rang muối loại 1 (còn vỏ lụa) Happy Nuts 500g"
+                                                        },
+                                                        "ten_loaibienthe_quatang": {
+                                                            "type": "string",
+                                                            "example": "Hộp (Vỏ lụa) 500g"
+                                                        },
+                                                        "slug_bienthe_quatang_sanpham": {
+                                                            "type": "string",
+                                                            "example": "hat-dieu-rang-muoi-loai-1-con-vo-lua-happy-nuts-500g"
+                                                        },
+                                                        "hinhanh": {
+                                                            "type": "string",
+                                                            "example": "http://148.230.100.215/assets/client/images/thumbs/hat-dieu-rang-muoi-loai-1-con-vo-lua-happy-nuts-500g-3.webp"
+                                                        },
+                                                        "soluong": {
+                                                            "type": "integer",
+                                                            "example": 1
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
                                         },
                                         "sanpham_coqua": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/components/schemas/SanphamCoQuatangCoBientheDeThemVaoGioResource"
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 3
+                                                    },
+                                                    "ten": {
+                                                        "type": "string",
+                                                        "example": "Sâm Ngọc Linh trường sinh đỏ (Thùng 24lon)"
+                                                    },
+                                                    "slug": {
+                                                        "type": "string",
+                                                        "example": "sam-ngoc-linh-truong-sinh-do-thung-24lon"
+                                                    },
+                                                    "have_gift": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    },
+                                                    "hinh_anh": {
+                                                        "type": "string",
+                                                        "format": "url",
+                                                        "example": "http://148.230.100.215/assets/client/images/thumbs/sam-ngoc-linh-truong-sinh-do-thung-24lon-5.webp"
+                                                    },
+                                                    "rating": {
+                                                        "properties": {
+                                                            "average": {
+                                                                "type": "number",
+                                                                "example": 0
+                                                            },
+                                                            "count": {
+                                                                "type": "integer",
+                                                                "example": 0
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "luotxem": {
+                                                        "type": "integer",
+                                                        "example": 2
+                                                    },
+                                                    "sold": {
+                                                        "properties": {
+                                                            "total_sold": {
+                                                                "type": "integer",
+                                                                "example": 23
+                                                            },
+                                                            "total_quantity": {
+                                                                "type": "integer",
+                                                                "example": 10
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "gia": {
+                                                        "properties": {
+                                                            "current": {
+                                                                "type": "number",
+                                                                "example": 466560
+                                                            },
+                                                            "before_discount": {
+                                                                "type": "number",
+                                                                "example": 466560
+                                                            },
+                                                            "discount_percent": {
+                                                                "type": "integer",
+                                                                "example": 0
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "trangthai": {
+                                                        "properties": {
+                                                            "active": {
+                                                                "type": "string",
+                                                                "example": "Công khai"
+                                                            },
+                                                            "in_stock": {
+                                                                "type": "boolean",
+                                                                "example": true
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "id_bienthe_de_them_vao_gio": {
+                                                        "type": "integer",
+                                                        "example": 3
+                                                    }
+                                                },
+                                                "type": "object"
                                             }
                                         }
                                     },
@@ -5135,6 +5344,24 @@
                     "id_chuongtrinh": {
                         "type": "integer"
                     },
+                    "thongtin_thuonghieu": {
+                        "properties": {
+                            "id_thuonghieu": {
+                                "type": "integer"
+                            },
+                            "ten_thuonghieu": {
+                                "type": "string"
+                            },
+                            "slug_thuonghieu": {
+                                "type": "string"
+                            },
+                            "logo_thuonghieu": {
+                                "type": "string",
+                                "format": "url"
+                            }
+                        },
+                        "type": "object"
+                    },
                     "dieukien": {
                         "type": "string"
                     },
@@ -5182,6 +5409,24 @@
                     },
                     "id_chuongtrinh": {
                         "type": "integer"
+                    },
+                    "thongtin_thuonghieu": {
+                        "properties": {
+                            "id_thuonghieu": {
+                                "type": "integer"
+                            },
+                            "ten_thuonghieu": {
+                                "type": "string"
+                            },
+                            "slug_thuonghieu": {
+                                "type": "string"
+                            },
+                            "logo_thuonghieu": {
+                                "type": "string",
+                                "format": "url"
+                            }
+                        },
+                        "type": "object"
                     },
                     "dieukien": {
                         "type": "string"
