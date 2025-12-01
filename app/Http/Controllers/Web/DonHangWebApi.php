@@ -207,7 +207,7 @@ class DonHangWebApi extends BaseFrontendController
             );
 
             DB::commit();
-
+            $donhang->created_at = $donhang->created_at ? $donhang->created_at->toIso8601String() : null;
             // 🧩 Bước 6: Trả về JSON đơn hàng vừa tạo
             return response()->json([
                 'status'  => true,

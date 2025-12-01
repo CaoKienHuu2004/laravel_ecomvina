@@ -75,9 +75,9 @@ class SanphamResources extends JsonResource
         ];
 
         if ($isAdmin) {
-            $data['created_at'] = $this->created_at?->format('d-m-Y H:i:s');
-            $data['updated_at'] = $this->updated_at?->format('d-m-Y H:i:s');
-            $data['deleted_at'] = $this->deleted_at?->format('d-m-Y H:i:s');
+            $data['created_at'] = $this->created_at ? $this->created_at->toIso8601String() : null;
+            $data['updated_at'] = $this->updated_at ? $this->updated_at->toIso8601String() : null;
+            $data['deleted_at'] = $this->deleted_at ? $this->deleted_at->toIso8601String() : null;
         }
 
         return $data;

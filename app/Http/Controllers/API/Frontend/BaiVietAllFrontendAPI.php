@@ -10,7 +10,6 @@ use Illuminate\Http\Request;
 
 class BaiVietAllFrontendAPI extends BaseFrontendController
 {
-
     /**
      * @OA\Get(
      *     path="/baiviets-all",

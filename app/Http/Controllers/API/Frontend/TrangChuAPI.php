@@ -213,25 +213,28 @@ class TrangChuAPI extends BaseFrontendController
      * )
      *
      * @OA\Schema(
-     *     schema="HotGiftItem",
-     *     type="object",
-     *     title="Quà tặng hot",
-     *     description="Thông tin quà tặng sự kiện nổi bật",
-     *     @OA\Property(property="id", type="integer", example=10),
-     *     @OA\Property(property="ten", type="string", example="Tặng Tai Nghe Bluetooth khi mua iPhone 15"),
-     *     @OA\Property(property="slug", type="string", example="tang-tai-nghe-iphone-15"),
-     *     @OA\Property(property="hinh_anh", type="string", example="gift_iphone15.png"),
-     *     @OA\Property(property="mota", type="string", example="Áp dụng cho đơn hàng trên 20 triệu, đến hết ngày 30/11/2025."),
-     *     @OA\Property(property="ngaybatdau", type="string", format="date", example="2025-11-01"),
-     *     @OA\Property(property="ngayketthuc", type="string", format="date", example="2025-11-30"),
-     *     @OA\Property(property="luotxem", type="integer", example=1450),
-     *     @OA\Property(
-     *         property="chuongtrinh",
-     *         type="object",
-     *         @OA\Property(property="tenchuongtrinh", type="string", example="Tháng tri ân khách hàng"),
-     *         @OA\Property(property="slug", type="string", example="tri-an-khach-hang")
-     *     )
-     * )
+    *     schema="HotGiftItem",
+    *     type="object",
+    *     title="Quà tặng hot",
+    *     description="Thông tin quà tặng sự kiện nổi bật",
+    *     @OA\Property(property="id", type="integer", example=5),
+    *     @OA\Property(property="tieude", type="string", example="Tặng 1 sản phẩm bách hóa khi mua 3 sản phẩm bất kỳ từ Trung Tâm Bán Hàng nhân ngày sinh nhật 13/10"),
+    *     @OA\Property(property="slug", type="string", example="tang-1-san-pham-bach-hoa-khi-mua-3-san-pham-bat-ky-tu-trung-tam-ban-hang-nhan-ngay-sinh-nhat-1310"),
+    *     @OA\Property(property="dieukien", type="string", example="3"),
+    *     @OA\Property(property="thongtin", type="string", example="Không có thông tin"),
+    *     @OA\Property(property="hinhanh", type="string", example="http://148.230.100.215/assets/client/images/thumbs/nuoc-rua-bat-bio-formula-bo-va-lo-hoi-tui-500ml-1.webp"),
+    *     @OA\Property(property="luotxem", type="integer", example=1206),
+    *     @OA\Property(property="ngaybatdau", type="string", format="date", example="2025-10-13"),
+    *     @OA\Property(property="ngayketthuc", type="string", format="date", example="2025-12-31"),
+    *     @OA\Property(property="thoigian_conlai", type="string", example="Còn lại 32 ngày 5 giờ"),
+    *     @OA\Property(
+    *         property="chuongtrinh",
+    *         type="object",
+    *         @OA\Property(property="id", type="integer", example=1),
+    *         @OA\Property(property="tieude", type="string", example="Sinh Nhật 13/10"),
+    *         @OA\Property(property="hinhanh", type="string", example="http://148.230.100.215/assets/client/images/thumbs/sinh-nhat-13-10.jpg")
+    *     )
+    * )
      * * @OA\Schema(
     *     schema="NewBannerItem",
     *     type="object",
@@ -523,18 +526,21 @@ class TrangChuAPI extends BaseFrontendController
         // limit 8 // nhiều lượt xem + sắp hết hạn
         $perPage = $request->get('per_page', 8);
 
+        $today = now()->toDateString();
+
         $query = QuatangsukienModel::with('chuongtrinh')
             ->where('trangthai', 'Hiển thị')
-            ->where(function ($q) {
-                $today = now()->toDateString();
+            ->where(function ($q) use ($today) {
                 $q->whereNull('ngaybatdau')
                 ->orWhere('ngaybatdau', '<=', $today);
             })
-            ->where(function ($q) {
-                $today = now()->toDateString();
+            ->where(function ($q) use ($today) {
                 $q->whereNull('ngayketthuc')
                 ->orWhere('ngayketthuc', '>=', $today);
             })
+            // THÊM ĐIỀU KIỆN PHẢI Ở TRONG THỜI GIAN HIỆN TẠI (KHÔNG CHO QUÀ HẾT HẠN HOẶC CHƯA BẮT ĐẦU)
+            ->whereDate('ngaybatdau', '<=', $today)
+            ->whereDate('ngayketthuc', '>=', $today)
             ->orderByDesc('luotxem')
             ->orderBy('ngayketthuc');
 

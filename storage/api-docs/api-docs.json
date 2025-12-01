@@ -1119,15 +1119,86 @@
                 "tags": [
                     "Đơn hàng (tôi)"
                 ],
-                "summary": "Lấy danh sách đơn hàng của người dùng",
-                "description": "Trả về danh sách tất cả các đơn hàng của người dùng hiện tại (theo token).",
+                "summary": "Lấy danh sách đơn hàng của người dùng (theo trạng thái)",
+                "description": "API này trả về danh sách các đơn hàng của người dùng hiện tại, được phân loại theo trạng thái (VD: Chờ thanh toán, Đang xác nhận,...).",
                 "operationId": "8750be511c570a9e9736cf05fa2f2c6b",
+                "parameters": [
+                    {
+                        "name": "trangthai",
+                        "in": "query",
+                        "description": "Lọc đơn hàng theo trạng thái",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "Chờ xử lý",
+                                "Đã xác nhận",
+                                "Đang chuẩn bị hàng",
+                                "Đang giao hàng",
+                                "Đã giao hàng",
+                                "Đã hủy"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "madon",
+                        "in": "query",
+                        "description": "Tìm kiếm đơn hàng theo mã đơn (VD: DH000123)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
-                        "description": "Danh sách đơn hàng được trả về thành công"
+                        "description": "Danh sách đơn hàng được nhóm theo trạng thái",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Danh Sách Đơn Hàng Theo Trạng Thái Đơn Hàng Của Khách Hàng #5: Nguyễn Văn A"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "label": {
+                                                        "type": "string",
+                                                        "example": "Đang xác nhận"
+                                                    },
+                                                    "trangthai": {
+                                                        "type": "string",
+                                                        "example": "Đã xác nhận"
+                                                    },
+                                                    "soluong": {
+                                                        "type": "integer",
+                                                        "example": 3
+                                                    },
+                                                    "donhang": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "$ref": "#/components/schemas/TheoDoiDonHangResource"
+                                                        }
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
-                        "description": "Token không hợp lệ hoặc chưa đăng nhập"
+                        "description": "Không xác thực được người dùng"
                     }
                 },
                 "security": [
@@ -1162,6 +1233,11 @@
                                         "type": "string",
                                         "example": null,
                                         "nullable": true
+                                    },
+                                    "id_diachigiaohang": {
+                                        "description": "id dia chỉ ngươi dùng FE lấy được trước đó rồi truyền vào component donhang (nếu có)",
+                                        "type": "integer",
+                                        "example": 19
                                     }
                                 },
                                 "type": "object"
@@ -4974,47 +5050,59 @@
                 "properties": {
                     "id": {
                         "type": "integer",
-                        "example": 10
+                        "example": 5
                     },
-                    "ten": {
+                    "tieude": {
                         "type": "string",
-                        "example": "Tặng Tai Nghe Bluetooth khi mua iPhone 15"
+                        "example": "Tặng 1 sản phẩm bách hóa khi mua 3 sản phẩm bất kỳ từ Trung Tâm Bán Hàng nhân ngày sinh nhật 13/10"
                     },
                     "slug": {
                         "type": "string",
-                        "example": "tang-tai-nghe-iphone-15"
+                        "example": "tang-1-san-pham-bach-hoa-khi-mua-3-san-pham-bat-ky-tu-trung-tam-ban-hang-nhan-ngay-sinh-nhat-1310"
                     },
-                    "hinh_anh": {
+                    "dieukien": {
                         "type": "string",
-                        "example": "gift_iphone15.png"
+                        "example": "3"
                     },
-                    "mota": {
+                    "thongtin": {
                         "type": "string",
-                        "example": "Áp dụng cho đơn hàng trên 20 triệu, đến hết ngày 30/11/2025."
+                        "example": "Không có thông tin"
+                    },
+                    "hinhanh": {
+                        "type": "string",
+                        "example": "http://148.230.100.215/assets/client/images/thumbs/nuoc-rua-bat-bio-formula-bo-va-lo-hoi-tui-500ml-1.webp"
+                    },
+                    "luotxem": {
+                        "type": "integer",
+                        "example": 1206
                     },
                     "ngaybatdau": {
                         "type": "string",
                         "format": "date",
-                        "example": "2025-11-01"
+                        "example": "2025-10-13"
                     },
                     "ngayketthuc": {
                         "type": "string",
                         "format": "date",
-                        "example": "2025-11-30"
+                        "example": "2025-12-31"
                     },
-                    "luotxem": {
-                        "type": "integer",
-                        "example": 1450
+                    "thoigian_conlai": {
+                        "type": "string",
+                        "example": "Còn lại 32 ngày 5 giờ"
                     },
                     "chuongtrinh": {
                         "properties": {
-                            "tenchuongtrinh": {
-                                "type": "string",
-                                "example": "Tháng tri ân khách hàng"
+                            "id": {
+                                "type": "integer",
+                                "example": 1
                             },
-                            "slug": {
+                            "tieude": {
                                 "type": "string",
-                                "example": "tri-an-khach-hang"
+                                "example": "Sinh Nhật 13/10"
+                            },
+                            "hinhanh": {
+                                "type": "string",
+                                "example": "http://148.230.100.215/assets/client/images/thumbs/sinh-nhat-13-10.jpg"
                             }
                         },
                         "type": "object"
@@ -6175,13 +6263,13 @@
                     "tamtinh": {
                         "description": "Tạm tính đơn hàng",
                         "type": "number",
-                        "format": "float",
+                        "format": "integer",
                         "example": 450000
                     },
                     "thanhtien": {
                         "description": "Tổng tiền sau khi tính phí và giảm giá",
                         "type": "number",
-                        "format": "float",
+                        "format": "integer",
                         "example": 480000
                     },
                     "trangthaithanhtoan": {
@@ -6193,6 +6281,11 @@
                         "description": "Trạng thái hiện tại của đơn hàng",
                         "type": "string",
                         "example": "Đang giao hàng"
+                    },
+                    "created_at": {
+                        "description": "Đặt hàng vào ngày giờ phút, convert về string",
+                        "type": "string",
+                        "example": "dd/mm/yyyy hh:mm"
                     },
                     "chitietdonhang": {
                         "description": "Danh sách chi tiết đơn hàng",

@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use OpenApi\Annotations as OA;
 
+use App\Http\Resources\Toi\TheoDoiDonHang\TheoDoiDonHangResource;
+
 /**
  * @OA\Schema(
  *     schema="Donhang",
@@ -56,22 +58,57 @@ class DonHangFrontendAPI extends BaseFrontendController
         $this->domain = env('DOMAIN', 'http://148.230.100.215/');
     }
 
-
-
     /**
      * @OA\Get(
      *     path="/api/toi/donhangs",
-     *     summary="Lấy danh sách đơn hàng của người dùng",
-     *     description="Trả về danh sách tất cả các đơn hàng của người dùng hiện tại (theo token).",
+     *     summary="Lấy danh sách đơn hàng của người dùng (theo trạng thái)",
+     *     description="API này trả về danh sách các đơn hàng của người dùng hiện tại, được phân loại theo trạng thái (VD: Chờ thanh toán, Đang xác nhận,...).",
      *     tags={"Đơn hàng (tôi)"},
-     *     security={{"bearerAuth":{}}},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="trangthai",
+     *         in="query",
+     *         required=false,
+     *         description="Lọc đơn hàng theo trạng thái",
+     *         @OA\Schema(
+     *             type="string",
+     *             enum={"Chờ xử lý","Đã xác nhận","Đang chuẩn bị hàng","Đang giao hàng","Đã giao hàng","Đã hủy"}
+     *         )
+     *     ),
+     *     @OA\Parameter(
+     *         name="madon",
+     *         in="query",
+     *         required=false,
+     *         description="Tìm kiếm đơn hàng theo mã đơn (VD: DH000123)",
+     *         @OA\Schema(type="string")
+     *     ),
      *     @OA\Response(
      *         response=200,
-     *         description="Danh sách đơn hàng được trả về thành công"
+     *         description="Danh sách đơn hàng được nhóm theo trạng thái",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Danh Sách Đơn Hàng Theo Trạng Thái Đơn Hàng Của Khách Hàng #5: Nguyễn Văn A"),
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(property="label", type="string", example="Đang xác nhận"),
+     *                     @OA\Property(property="trangthai", type="string", example="Đã xác nhận"),
+     *                     @OA\Property(property="soluong", type="integer", example=3),
+     *                     @OA\Property(
+     *                         property="donhang",
+     *                         type="array",
+     *                         @OA\Items(ref="#/components/schemas/TheoDoiDonHangResource")
+     *                     )
+     *                 )
+     *             )
+     *         )
      *     ),
      *     @OA\Response(
      *         response=401,
-     *         description="Token không hợp lệ hoặc chưa đăng nhập"
+     *         description="Không xác thực được người dùng"
      *     )
      * )
      */
@@ -79,23 +116,67 @@ class DonHangFrontendAPI extends BaseFrontendController
     {
         $user = $request->get('auth_user');
 
-        $donhang = DonhangModel::with([
-            'phuongthuc',
-            'magiamgia',
-            'nguoidung',
-            'phivanchuyen',
-            'diachigiaohang',
+        if (!$user) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Không xác thực được user.',
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        // Danh sách trạng thái thực tế trong DB
+        $validTrangThai = [
+            'Chờ xử lý',
+            'Đã xác nhận',
+            'Đang chuẩn bị hàng',
+            'Đang giao hàng',
+            'Đã giao hàng',
+            'Đã hủy',
+        ];
+
+        // Label hiển thị tương ứng
+        $labels = [
+            'Chờ xử lý' => 'Chờ thanh toán',
+            'Đã xác nhận' => 'Đang xác nhận',
+            'Đang chuẩn bị hàng' => 'Đang đóng gói',
+            'Đang giao hàng' => 'Đang giao hàng',
+            'Đã giao hàng' => 'Đã giao',
+            'Đã hủy' => 'Đã hủy',
+        ];
+
+        $query = DonhangModel::with([
             'chitietdonhang.bienthe.sanpham',
             'chitietdonhang.bienthe.loaibienthe',
-        ])
-            ->where('id_nguoidung', $user->id)
-            ->latest('id')
-            ->get();
+            'chitietdonhang.bienthe.sanpham.hinhanhsanpham'
+        ])->where('id_nguoidung', $user->id);
 
+        // Lọc theo trạng thái (nếu có)
+        if ($request->filled('trangthai') && in_array($request->trangthai, $validTrangThai)) {
+            $query->where('trangthai', $request->trangthai);
+        }
+
+        // Lọc theo mã đơn hàng (nếu có)
+        if ($request->filled('madon')) {
+            $query->where('madon', $request->madon);
+        }
+        $donhangs = $query->latest()->get();
+
+        // Gom nhóm theo trạng thái và đếm số lượng
+        $grouped = [];
+        foreach ($validTrangThai as $status) {
+            $donTheoTrangThai = $donhangs->where('trangthai', $status);
+            $grouped[] = [
+                'label' => $labels[$status] ?? $status,
+                'trangthai' => $status,
+                'soluong' => $donTheoTrangThai->count(),
+                'donhang' => TheoDoiDonHangResource::collection($donTheoTrangThai),
+            ];
+        }
+
+        // ✅ Trả về theo định dạng chuẩn { status, message, data }
         return $this->jsonResponse([
             'status' => true,
-            'message' => 'Danh sách đơn hàng của bạn',
-            'data' => $donhang,
+            'message' => "Danh Sách Đơn Hàng Theo Trạng Thái Đơn Hàng Của Khách Hàng #{$user->id}: {$user->hoten}",
+            'data' => $grouped
         ], Response::HTTP_OK);
     }
 
@@ -121,7 +202,8 @@ class DonHangFrontendAPI extends BaseFrontendController
      *         @OA\JsonContent(
      *             required={"ma_phuongthuc"},
      *             @OA\Property(property="ma_phuongthuc", type="string", example="cod", description="Mã phương thức thanh toán, ví dụ 'cod', 'paypal', ..."),
-     *             @OA\Property(property="ma_magiamgia", type="string", nullable=true, example=null, description="Mã giảm giá (nếu có)")
+     *             @OA\Property(property="ma_magiamgia", type="string", nullable=true, example=null, description="Mã giảm giá (nếu có)"),
+     *             @OA\Property(property="id_diachigiaohang", type="int", example=19, description="id dia chỉ ngươi dùng FE lấy được trước đó rồi truyền vào component donhang (nếu có)")
      *         )
      *     ),
      *     @OA\Response(
@@ -198,30 +280,12 @@ class DonHangFrontendAPI extends BaseFrontendController
      */
     public function store(Request $request)
     {
-        // 🧩 Bước 1: Validate dữ liệu đầu vào
-        try {
-            // $validator = Validator::make($request->all(), [
-            //     'id_phuongthuc'      => 'required|integer|exists:phuongthuc,id',
-            //     'id_nguoidung'       => 'required|integer|exists:nguoidung,id',
-            //     'id_phivanchuyen'    => 'required|integer|exists:phivanchuyen,id',
-            //     'id_diachigiaohang'  => 'required|integer|exists:diachi_giaohang,id',
-            //     'id_magiamgia'       => 'nullable|integer|exists:magiamgia,id',
-            //     'tongsoluong'        => 'required|integer|min:1',
-            //     'tamtinh'            => 'required|integer|min:4000',
-            //     'thanhtien'          => 'required|integer|min:4000|lte:tamtinh',
-            // ]);
-            $validator = Validator::make($request->all(), [
-                'ma_phuongthuc'      => 'required|string|exists:phuongthuc,maphuongthuc',
-                'ma_magiamgia'       => 'nullable|string|exists:magiamgia,magiamgia',
-            ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-
-            return $this->jsonResponse([
-                'error' => true,
-                'message' => 'Dữ liệu đầu vào không hợp lệ',
-                'errors' => $e->errors()
-            ], 422);
-        }
+        // Bước 1: Validate dữ liệu đầu vào
+        $validator = Validator::make($request->only('ma_phuongthuc', 'ma_magiamgia', 'id_diachigiaohang'), [
+            'ma_phuongthuc'      => 'required|string|exists:phuongthuc,maphuongthuc',
+            'ma_magiamgia'       => 'nullable|string|exists:magiamgia,magiamgia',
+            'id_diachigiaohang'  => 'required|integer|exists:diachi_giaohang,id',
+        ]);
 
         if ($validator->fails()) {
             return response()->json([
@@ -232,7 +296,7 @@ class DonHangFrontendAPI extends BaseFrontendController
 
         $validated = $validator->validated();
 
-        // 🧩 Bước 2: Lấy giỏ hàng người dùng
+        // Bước 2: Lấy giỏ hàng người dùng
         $user = $request->get('auth_user');
         $giohang = GiohangModel::with('bienthe')
             ->where('id_nguoidung', $user->id)
@@ -251,60 +315,67 @@ class DonHangFrontendAPI extends BaseFrontendController
         try {
             $ma_phuongthuc = $validated['ma_phuongthuc'];
 
-            // Lấy trạng thái đơn hàng theo id_phuongthuc
             $phuongthuc = PhuongthucModel::where('maphuongthuc', $ma_phuongthuc)->first();
+            if (!$phuongthuc) {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Phương thức thanh toán không hợp lệ',
+                ], Response::HTTP_BAD_REQUEST);
+            }
 
-            $trangthaiDonhang = 'Chờ xử lý'; // default
+            $trangthaiDonhang = 'Chờ xử lý';
             $trangthaiThanhtoan = 'Chưa thanh toán';
 
-            if ($phuongthuc) {
-                if ($ma_phuongthuc != 'cod') {
-                    $mapTrangthai = [
-                        'Hoạt động' => 'Chờ xử lý',
-                        'Tạm khóa' => 'Đã hủy', // 2 cái này ko cần lắm liên quan đến trangthai bẳng phương thức
-                        'Dừng hoạt động' => 'Đã hủy', // 2 cái này ko cần lắm liên quan đến trangthai bẳng phương thức
-                    ];
-                    $trangthaiDonhang = $mapTrangthai[$phuongthuc->trangthai] ?? 'Chờ xử lý';
-                    // $trangthaiThanhtoan = 'Đã thanh toán';
-                }
+            if ($ma_phuongthuc != 'cod') {
+                $mapTrangthai = [
+                    'Hoạt động' => 'Chờ xử lý',
+                    'Tạm khóa' => 'Đã hủy',
+                    'Dừng hoạt động' => 'Đã hủy',
+                ];
+                $trangthaiDonhang = $mapTrangthai[$phuongthuc->trangthai] ?? 'Chờ xử lý';
             }
+
             $freeship = MagiamgiaModel::where('magiamgia', $request->input('ma_magiamgia'))
                 ->where('giatri', 0)
                 ->where('ngaybatdau', '<=', now())
                 ->where('ngayketthuc', '>=', now())
                 ->where('trangthai', 'Hoạt động')
                 ->exists();
-            $diachiMacDinh = $user->diachi()
-                ->where('trangthai', 'Mặc định')
-                ->first();
 
-            if (!$diachiMacDinh) {
+            $id_diachigiaohang = $validated['id_diachigiaohang'];
+
+            $diachiGiaoHang = $user->diachi()->where('id', $id_diachigiaohang)->first();
+            if (!$diachiGiaoHang) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Vui lòng thiết lập địa chỉ giao hàng mặc định trước khi đặt hàng!',
+                    'message' => 'Địa chỉ giao hàng không thuộc tài khoản của bạn!',
                 ], Response::HTTP_BAD_REQUEST);
             }
+
             if ($freeship) {
                 $id_phivanchuyen = 3;
-            } elseif ($diachiMacDinh && $diachiMacDinh->tinhthanh === "Thành phố Hồ Chí Minh") {
-                $id_phivanchuyen = 1; // ngoại thành TP.hcm = 25000
+            } elseif ($diachiGiaoHang->tinhthanh === "Thành phố Hồ Chí Minh") {
+                $id_phivanchuyen = 1;
             } else {
-                $id_phivanchuyen = 2; // ngoại thành TP.hcm = 35000
+                $id_phivanchuyen = 2;
             }
-            $id_diachigiaohang = $diachiMacDinh->id;
+
             $id_magiamgia = MagiamgiaModel::where('magiamgia', $request->input('ma_magiamgia'))
-            ->where('ngaybatdau', '<=', now())
-            ->where('ngayketthuc', '>=', now())
-            ->where('trangthai', 'Hoạt động')
-            ->value('id');
+                ->where('ngaybatdau', '<=', now())
+                ->where('ngayketthuc', '>=', now())
+                ->where('trangthai', 'Hoạt động')
+                ->value('id');
 
             $tongsoluong = $giohang->sum('soluong');
 
             $tamtinh = $giohang->sum('thanhtien') + ($id_phivanchuyen == 1 ? 25000 : ($id_phivanchuyen == 2 ? 35000 : 0));
 
-            $thanhtien = $tamtinh - ($id_magiamgia ? MagiamgiaModel::where('id', $id_magiamgia)->value('giatri') : 0);
+            $giatriMagiamgia = $id_magiamgia ? MagiamgiaModel::where('id', $id_magiamgia)->value('giatri') : 0;
 
-            // 🧩 Bước 3: Tạo đơn hàng
+            $thanhtien = $tamtinh - $giatriMagiamgia;
+
+            if ($thanhtien < 0) $thanhtien = 0; // tránh âm
+
             $donhang = DonhangModel::create([
                 'id_phuongthuc'       => $phuongthuc->id,
                 'id_nguoidung'        => $user->id,
@@ -319,7 +390,6 @@ class DonHangFrontendAPI extends BaseFrontendController
                 'trangthai'           => $trangthaiDonhang,
             ]);
 
-            // 🧩 Bước 4: Tạo chi tiết đơn hàng
             foreach ($giohang as $item) {
                 ChitietdonhangModel::create([
                     'id_bienthe' => $item->id_bienthe,
@@ -330,19 +400,17 @@ class DonHangFrontendAPI extends BaseFrontendController
                 ]);
             }
 
-            // 🧩 Bước 5: Xóa giỏ hàng sau khi đặt
             GiohangModel::where('id_nguoidung', $user->id)->delete();
 
-            //Bước 6: Gửi thông báo đến admin về đơn hàng mới
             $this->sentMessToAdmin(
-                'Đơn hàng mới từ ' . $user->hoten .'-'. $user->sodienthoai,
-                'Người dùng ' . $user->hoten .'-'. $user->sodienthoai.'-'. $user->username.'-'. $user->email. ' vừa tạo đơn hàng mới mã ' . $donhang->madon . '. Vui lòng kiểm tra và gọi điện cho khách hàng để truyển trạng thái đơn hàng từ Chờ xử lý -> Đã xác nhận và xử lý đơn hàng kịp thời.',
-                $this->domain.'donhang/show/' . $donhang->id
+                'Đơn hàng mới từ ' . $user->hoten . '-' . $user->sodienthoai,
+                'Người dùng ' . $user->hoten . '-' . $user->sodienthoai . '-' . $user->username . '-' . $user->email . ' vừa tạo đơn hàng mới mã ' . $donhang->madon . '. Vui lòng kiểm tra và gọi điện cho khách hàng để truyển trạng thái đơn hàng từ Chờ xử lý -> Đã xác nhận và xử lý đơn hàng kịp thời.',
+                $this->domain . 'donhang/show/' . $donhang->id
             );
 
             DB::commit();
 
-            // 🧩 Bước 6: Trả về JSON đơn hàng vừa tạo
+            $donhang->created_at = $donhang->created_at ? $donhang->created_at->toIso8601String() : null;
             return response()->json([
                 'status'  => true,
                 'message' => 'Tạo đơn hàng thành công!',

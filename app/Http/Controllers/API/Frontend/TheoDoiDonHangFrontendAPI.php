@@ -132,7 +132,6 @@ class TheoDoiDonHangFrontendAPI extends Controller
         if ($request->filled('madon')) {
             $query->where('madon', $request->madon);
         }
-
         $donhangs = $query->latest()->get();
 
         // Gom nhóm theo trạng thái và đếm số lượng

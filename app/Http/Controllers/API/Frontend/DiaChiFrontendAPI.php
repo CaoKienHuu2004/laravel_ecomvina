@@ -112,9 +112,8 @@ class DiaChiFrontendAPI extends BaseFrontendController
         $user = $request->get('auth_user');
 
         $validated = $request->validate([
-            'hoten' => 'required|string|max:255',
+            'hoten' => 'required|string|max:30',
             'sodienthoai' => 'required|string|size:10',
-            'diachi' => 'required|string',
             'diachi' => 'required|string',
             'tinhthanh' => ['required', 'string', Rule::in($provinceNames)],
             'trangthai' => 'required|in:' . implode(',', $trangthaiEnum),

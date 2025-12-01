@@ -57,8 +57,9 @@ class ChiTietDonHangAPI extends BaseController
                 'dongia' => $item->dongia,
                 'donhang' => $item->donhang,
                 'bienthe' => $item->bienthe,
-                'created_at' => $item->created_at,
-                'updated_at' => $item->updated_at,
+                // $this->created_at ? $this->created_at->toIso8601String() : null,
+                'created_at' => $item->created_at ? $item->created_at->toIso8601String() : null,
+                'updated_at' => $item->updated_at ? $item->updated_at->toIso8601String() : null,
             ]),
             'meta'    => [
                 'current_page' => $items->currentPage(),
@@ -89,8 +90,9 @@ class ChiTietDonHangAPI extends BaseController
                 'dongia' => $item->dongia,
                 'donhang' => $item->donhang,
                 'bienthe' => $item->bienthe,
-                'created_at' => $item->created_at,
-                'updated_at' => $item->updated_at,
+
+                'created_at' => $item->created_at ? $item->created_at->toIso8601String() : null,
+                'updated_at' => $item->updated_at ? $item->updated_at->toIso8601String() : null,
             ]
         ], Response::HTTP_OK);
     }

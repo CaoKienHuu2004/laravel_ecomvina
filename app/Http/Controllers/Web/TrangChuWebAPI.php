@@ -15,12 +15,16 @@ use App\Models\QuatangsukienModel;
 use App\Models\SanphamModel;
 use App\Models\ThuongHieuModel;
 use App\Models\TukhoaModel;
+
 use Illuminate\Support\Facades\DB;
+
+use App\Traits\CleanAndLimitText;
 
 use Illuminate\Support\Str;
 
 class TrangChuWebAPI extends BaseFrontendController
 {
+    use CleanAndLimitText;
     //
     public function index(Request $request)
     {
@@ -88,13 +92,13 @@ class TrangChuWebAPI extends BaseFrontendController
                 $diff = \Carbon\Carbon::parse($item->ngayketthuc)->diff(\Carbon\Carbon::now());
                 $remainingDays = "Remaining {$diff->days} days {$diff->h} hours";
             }
-
+            $convertThongtin = $this->cleanAndLimitText($item->thongtin);
             return [
                 'id' => $item->id,
                 'title' => $item->tieude,
                 'slug'  => Str::slug($item->tieude),
                 'condition' => $item->dieukien,
-                'information' => $item->thongtin,
+                'information' => $convertThongtin,
                 'image' => $item->hinhanh,
                 'views' => (int) $item->luotxem,
                 'start_date' => $item->ngaybatdau,
@@ -217,23 +221,26 @@ class TrangChuWebAPI extends BaseFrontendController
         // limit 8 // nhiều lượt xem + sắp hết hạn
         $perPage = $request->get('per_page', 8);
 
+        $today = now()->toDateString();
+
         $query = QuatangsukienModel::with('chuongtrinh')
             ->where('trangthai', 'Hiển thị')
-            ->where(function ($q) {
-                $today = now()->toDateString();
+            ->where(function ($q) use ($today) {
                 $q->whereNull('ngaybatdau')
                 ->orWhere('ngaybatdau', '<=', $today);
             })
-            ->where(function ($q) {
-                $today = now()->toDateString();
+            ->where(function ($q) use ($today) {
                 $q->whereNull('ngayketthuc')
                 ->orWhere('ngayketthuc', '>=', $today);
             })
+            // THÊM ĐIỀU KIỆN PHẢI Ở TRONG THỜI GIAN HIỆN TẠI (KHÔNG CHO QUÀ HẾT HẠN HOẶC CHƯA BẮT ĐẦU)
+            ->whereDate('ngaybatdau', '<=', $today)
+            ->whereDate('ngayketthuc', '>=', $today)
             ->orderByDesc('luotxem')
             ->orderBy('ngayketthuc');
 
         $gifts = $query->paginate($perPage);
-        $gifts=  $this->transformGifts($gifts);
+        $gifts = $this->transformGifts($gifts);
 
         return $gifts;
     }

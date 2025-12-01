@@ -266,6 +266,7 @@ class DonhangController extends Controller
             $donhang->tongsoluong   = $donhang->chitiet->sum('soluong');
             $donhang->tong_tien     = $donhang->chitiet->sum('tongtien');
 
+            // $item->created_at ? $item->created_at->toIso8601String() : null,
             $donhang->ngay_tao      = $donhang->created_at
                 ? $donhang->created_at->format('d/m/Y H:i')
                 : null;
