@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class DanhMucSeeder extends Seeder
 {
@@ -13,81 +13,86 @@ class DanhMucSeeder extends Seeder
      */
     public function run(): void
     {
-        $now = Carbon::now('Asia/Ho_Chi_Minh');
-
         $data = [
             [
                 'ten' => 'Sức khỏe',
-                'media' => 'suc_khoe.png',
-                'trangthai' => 'hoat_dong',
-                'created_at' => $now,
-                'updated_at' => $now
+                'slug' => 'suc-khoe',
+                'logo' => 'suc-khoe.svg',
+                'parent' => 'Cha',
+                'trangthai' => 'Hiển thị',
+            ],
+            [
+                'ten' => 'Thực phẩm chức năng',
+                'slug' => 'thuc-pham-chuc-nang',
+                'logo' => 'thuc-pham-chuc-nang.svg',
+                'parent' => 'Cha',
+                'trangthai' => 'Hiển thị',
             ],
             [
                 'ten' => 'Chăm sóc cá nhân',
-                'media' => 'cham_soc_ca_nhan.png',
-                'trangthai' => 'hoat_dong',
-                'created_at' => $now,
-                'updated_at' => $now
-            ],
-            [
-                'ten' => 'Điện máy',
-                'media' => 'dien_may.png',
-                'trangthai' => 'hoat_dong',
-                'created_at' => $now,
-                'updated_at' => $now
-            ],
-            [
-                'ten' => 'Thiết bị y tế',
-                'media' => 'thiet_bi_y_te.png',
-                'trangthai' => 'hoat_dong',
-                'created_at' => $now,
-                'updated_at' => $now
-            ],
-            [
-                'ten' => 'Bách hóa',
-                'media' => 'bach_hoa.png',
-                'trangthai' => 'hoat_dong',
-                'created_at' => $now,
-                'updated_at' => $now
-            ],
-            [
-                'ten' => 'Nhà cửa - Đời sống',
-                'media' => 'nha_cua.png',
-                'trangthai' => 'hoat_dong',
-                'created_at' => $now,
-                'updated_at' => $now
-            ],
-            [
-                'ten' => 'Mẹ và bé',
-                'media' => 'me_va_be.png',
-                'trangthai' => 'hoat_dong',
-                'created_at' => $now,
-                'updated_at' => $now
-            ],
-            [
-                'ten' => 'Thời trang',
-                'media' => 'thoi_trang.png',
-                'trangthai' => 'hoat_dong',
-                'created_at' => $now,
-                'updated_at' => $now
-            ],
-            [
-                'ten' => 'Sản phẩm khác',
-                'media' => 'san_pham_khac.png',
-                'trangthai' => 'hoat_dong',
-                'created_at' => $now,
-                'updated_at' => $now
+                'slug' => 'cham-soc-ca-nhan',
+                'logo' => 'cham-soc-ca-nhan.svg',
+                'parent' => 'Cha',
+                'trangthai' => 'Hiển thị',
             ],
             [
                 'ten' => 'Làm đẹp',
-                'media' => 'lam_dep.png',
-                'trangthai' => 'hoat_dong',
-                'created_at' => $now,
-                'updated_at' => $now
+                'slug' => 'lam-dep',
+                'logo' => 'lam-dep.svg',
+                'parent' => 'Cha',
+                'trangthai' => 'Hiển thị',
+            ],
+            [
+                'ten' => 'Điện máy',
+                'slug' => 'dien-may',
+                'logo' => 'dien-may.svg',
+                'parent' => 'Cha',
+                'trangthai' => 'Hiển thị',
+            ],
+            [
+                'ten' => 'Thiết bị y tế',
+                'slug' => 'thiet-bi-y-te',
+                'logo' => 'thiet-bi-y-te.svg',
+                'parent' => 'Cha',
+                'trangthai' => 'Hiển thị',
+            ],
+            [
+                'ten' => 'Bách hóa',
+                'slug' => 'bach-hoa',
+                'logo' => 'bach-hoa.svg',
+                'parent' => 'Cha',
+                'trangthai' => 'Hiển thị',
+            ],
+            [
+                'ten' => 'Nội thất - Trang trí',
+                'slug' => 'noi-that-trang-tri',
+                'logo' => 'noi-that-trang-tri.svg',
+                'parent' => 'Cha',
+                'trangthai' => 'Hiển thị',
+            ],
+            [
+                'ten' => 'Mẹ & bé',
+                'slug' => 'me-va-be',
+                'logo' => 'me-va-be.svg',
+                'parent' => 'Cha',
+                'trangthai' => 'Hiển thị',
+            ],
+            [
+                'ten' => 'Thời trang',
+                'slug' => 'thoi-trang',
+                'logo' => 'thoi-trang.svg',
+                'parent' => 'Cha',
+                'trangthai' => 'Hiển thị',
+            ],
+            [
+                'ten' => 'Thực phẩm - đồ ăn',
+                'slug' => 'thuc-pham-do-an',
+                'logo' => 'thuc-pham-do-an.svg',
+                'parent' => 'Con',
+                'trangthai' => 'Hiển thị',
             ],
         ];
 
-        DB::table('danh_muc')->insert($data);
+        DB::table('danhmuc')->insert($data);
     }
 }

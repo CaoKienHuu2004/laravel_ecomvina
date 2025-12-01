@@ -41,12 +41,12 @@ class EnsureUserHasRole
      */
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
-        $user = $request->user();
+        // Get user from auth.api middleware or default auth
+        $user = $request->get('auth_user') ?? $request->user();
 
         if (!$user) {
             return $this->jsonResponse(['message' => 'Unauthorized'], Response::HTTP_UNAUTHORIZED);
         }
-        $user = $request->user();
 
         // Nếu model User (hoặc NguoiDung) có hàm hasRole() thì dùng
         if (method_exists($user, 'hasRole')) {

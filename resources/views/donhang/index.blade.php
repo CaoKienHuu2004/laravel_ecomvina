@@ -43,9 +43,9 @@
             <div class="form-group">
               <select class="select" name="trangthai">
                 <option value="">--Trạng thái--</option>
-                @foreach([0=>'Chờ thanh toán',1=>'Đang giao',2=>'Đã giao',3=>'Đã hủy'] as $k=>$v)
-                  <option value="{{ $k }}" {{ request('trangthai') == (string)$k ? 'selected' : '' }}>{{ $v }}</option>
-                @endforeach
+                @foreach(['cho_xac_nhan'=>'Chờ xác nhận','da_giao'=>'Đã giao','da_huy'=>'Đã hủy'] as $k=>$v)
+                  <option value="{{ $k }}" {{ request('trangthai') == $k ? 'selected' : '' }}>{{ $v }}</option>
+              @endforeach
               </select>
             </div>
           </div>
@@ -67,8 +67,10 @@
           <tr>
             <th>Mã đơn</th>
             <th>Khách hàng</th>
+            <th>Số lượng</th>
             <th>Tổng tiền</th>
             <th>Trạng thái</th>
+            <th>Thanh toán</th>
             <th>Ngày tạo</th>
             <th>Hành động</th>
           </tr>
@@ -77,14 +79,18 @@
           @forelse($donhangs as $dh)
           <tr>
             <td class="text-nowrap">
-              <a href="{{ route('chi-tiet-don-hang', $dh->id) }}" title="Xem chi tiết">{{ $dh->ma_donhang }}</a>
+              <a href="{{ route('chi-tiet-don-hang', $dh->id) }}" title="Xem chi tiết">{{ $dh->madon }}</a>
             </td>
             <td style="max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="{{ $dh->khachhang->name ?? '—' }}">
-              {{ $dh->khachhang->hoten ?? '—' }}
+              {{ $dh->nguoidung->hoten ?? '—' }}
             </td>
-            <td>{{ $dh->tongtien }} đ</td>
-            <td>{{ $dh->trangthai_text }}</td>
-            <td>{{ optional($dh->created_at)->format('H:i - d/m/Y') }}</td>
+            <td>{{ $dh->chitiet->sum('soluong') }} sản phẩm</td>
+            <td>{{ $dh->thanhtien }} VNĐ</td>
+            <td>{{ $dh->trangthai }}</td>
+            <td>{{ $dh->trangthaithanhtoan }}</td>
+            <td>
+              {{ \Carbon\Carbon::parse($dh->created_at)->format('H:i - d/m/Y') }}
+            </td>
             <td>
               <a class="me-3" href="{{ route('chi-tiet-don-hang', $dh->id) }}" title="Xem chi tiết">
                 <img src="{{ asset('img/icons/eye.svg') }}" alt="img">

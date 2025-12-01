@@ -16,39 +16,54 @@ class HotSaleResource extends JsonResource
     public function toArray(Request $request): array
     {
         // $mainImageUrl = optional($this->anhSanPham->first())->media;
-        $priceBeforeDiscount = optional($this->bienThe->first())->gia; // Giá gạch ngang: 400.000 đ
-        $currentPrice = $priceBeforeDiscount - optional($this->bienThe->first())->giagiam;          // Giá hiện tại: 300.000 đ
+        // $firstVariant = $this->bienthe->sortByDesc('giagoc')->first(); // Lấy biến thể có giá gốc cao nhất
+        // $priceBeforeDiscount = optional($firstVariant)->giagoc ?? 0;   // Giá gốc
+        // $currentPrice = $priceBeforeDiscount - ($this->giamgia)?? 0; // Giá sau giảm
+        $firstVariant = $this->bienthe->sortByDesc('giagoc')->first(); // Lấy biến thể có giá gốc cao nhất
+        $priceBeforeDiscount = optional($firstVariant)->giagoc ?? 0;   // Giá gốc
+
+        // Tính giá sau giảm theo % (giamgia là phần trăm)
+        $currentPrice = $priceBeforeDiscount * (1 - (($this->giamgia ?? 0) / 100));
 
         $storeName = optional($this->thuonghieu)->ten ?? 'Không rõ cửa hàng';
 
         // Dữ liệu đánh giá: 'avg_rating' và tổng số lượng đánh giá (17k)
         $averageRating = round($this->avg_rating ?? 0, 1);
-        $reviewCount = $this->danhgia->count(); // Tổng số lượng đánh giá
+        $reviewCount = $this->review_count; // Tổng số lượng đánh giá
+
+        $hinhanhsanpham = optional(
+            $this->hinhanhsanpham->sortByDesc('id')->first()
+        )->hinhanh;
 
         return [
             // 1. Dữ liệu cơ bản
             'id' => $this->id,
             'ten' => $this->ten,
-            'slug'          => str::slug($this->ten),
+            'slug'          => $this->slug,
 
             // 2. Hình ảnh (Image)
-            'mediaurl' => $this->mediaurl, // Ảnh đại diện chính
+
+            'hinh_anh' =>  $hinhanhsanpham,
+            'thuonghieu' => $storeName,
 
             // 3. Giá (Price)
             'gia' => [
                 'current' => $currentPrice,
                 'before_discount' => $priceBeforeDiscount,
                 // Có thể tính % giảm giá nếu cần
+                // 'discount_percent' => ($priceBeforeDiscount > $currentPrice && $priceBeforeDiscount > 0)
+                //                       ? round((($priceBeforeDiscount - $currentPrice) / $priceBeforeDiscount) * 100)
+                //                       : 0,
                 'discount_percent' => ($priceBeforeDiscount > $currentPrice && $priceBeforeDiscount > 0)
-                                      ? round((($priceBeforeDiscount - $currentPrice) / $priceBeforeDiscount) * 100)
-                                      : 0,
+                      ? round((($priceBeforeDiscount - $currentPrice) / $priceBeforeDiscount) * 100)
+                      : 0,
             ],
 
             // 4. Thông tin Cửa hàng/Thương hiệu (Store/Brand)
-            'store' => [
-                'name' => $storeName, // Siêu thị Vina
-                'icon_url' => null, // Thêm đường dẫn icon nếu có (Ví dụ: )
-            ],
+            // 'store' => [
+            //     'name' => $storeName, // Siêu thị Vina
+            //     'icon_url' => null, // Thêm đường dẫn icon nếu có (Ví dụ: )
+            // ],
 
             // 5. Đánh giá (Rating - dựa trên 'danhgia' và withAvg)
             'rating' => [
@@ -56,6 +71,7 @@ class HotSaleResource extends JsonResource
                 'count' => $reviewCount,     // (17k) -> Cần format số lớn ở frontend
                 // 'formatted_count' => $this->formatReviewCount($reviewCount), // Có thể format ở đây hoặc frontend
             ],
+            'sold_count' => $this->total_sold ?? 0, // Thêm trường tổng số đã bán nếu cần
         ];
     }
 }

@@ -18,7 +18,7 @@ class Authenticate extends Middleware
         }
         // Nếu có UI web, bạn vẫn có thể redirect
         // return route('login');
-        return $request->expectsJson() ? null : route('login');
+        return $request->expectsJson() ? null : route('dang-nhap');
 
 
 

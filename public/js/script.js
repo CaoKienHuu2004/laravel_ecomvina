@@ -562,3 +562,209 @@ $(document).ready(function () {
     }
   });
 });
+
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.querySelector('.custom-search-input');
+  const optionsList = document.querySelector('.custom-options-list');
+  const selectedCustomerInput = document.getElementById('selected-customer');
+
+  // Lắng nghe sự kiện nhập văn bản vào ô tìm kiếm
+  searchInput.addEventListener('input', function() {
+    const searchQuery = searchInput.value.toLowerCase();
+    
+    // Lọc các mục trong danh sách khách hàng dựa trên từ khóa tìm kiếm
+    const options = optionsList.querySelectorAll('.custom-option');
+    options.forEach(function(option) {
+      const customerName = option.textContent.toLowerCase();
+      if (customerName.includes(searchQuery)) {
+        option.style.display = 'block';  // Hiển thị các mục khớp với tìm kiếm
+      } else {
+        option.style.display = 'none';  // Ẩn các mục không khớp
+      }
+    });
+  });
+
+  // Lắng nghe sự kiện khi người dùng chọn một khách hàng
+  optionsList.addEventListener('click', function(e) {
+    const selectedOption = e.target;
+    
+    if (selectedOption.classList.contains('custom-option')) {
+      // Cập nhật giá trị ô hiển thị
+      const customerName = selectedOption.textContent;
+      const customerId = selectedOption.getAttribute('data-value');
+      document.querySelector('.custom-select-display').textContent = customerName;
+      
+      // Cập nhật giá trị ẩn
+      selectedCustomerInput.value = customerId;
+      
+      // Đóng dropdown sau khi chọn khách hàng
+      optionsList.style.display = 'none';
+    }
+  });
+
+  // Đóng dropdown khi người dùng click ra ngoài
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.custom-select-wrapper')) {
+      optionsList.style.display = 'none';
+    }
+  });
+
+  // Hiển thị lại danh sách khi người dùng click vào input
+  searchInput.addEventListener('focus', function() {
+    optionsList.style.display = 'block';
+  });
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+  // Toggle dropdown
+  document.addEventListener("click", function(e) {
+    document.querySelectorAll(".custom-select-dropdown").forEach(drop => drop.style.display = "none");
+    if (e.target.classList.contains("custom-select-display")) {
+      const dropdown = e.target.nextElementSibling;
+      dropdown.style.display = "block";
+      dropdown.querySelector(".custom-search-input").focus();
+      e.stopPropagation();
+    }
+  });
+
+  // Lọc tùy chọn
+  document.addEventListener("input", function(e) {
+    if (e.target.classList.contains("custom-search-input")) {
+      const keyword = e.target.value.toLowerCase();
+      e.target.parentElement.querySelectorAll(".custom-option").forEach(opt => {
+        const text = opt.textContent.toLowerCase();
+        opt.style.display = text.includes(keyword) ? "" : "none";
+      });
+    }
+  });
+
+  // Chọn khách hàng hoặc sản phẩm
+  document.addEventListener("click", function(e) {
+    if (e.target.classList.contains("custom-option")) {
+      const wrapper = e.target.closest(".custom-select-wrapper");
+      const display = wrapper.querySelector(".custom-select-display");
+      const dropdown = wrapper.querySelector(".custom-select-dropdown");
+      display.textContent = e.target.textContent;
+      dropdown.style.display = "none";
+
+      // Nếu là khách hàng
+      if (display.dataset.type === "customer") {
+        document.getElementById("selected-customer").value = e.target.dataset.value;
+      }
+
+      // Nếu là sản phẩm (hoặc biến thể)
+      if (display.dataset.type === "product") {
+        const row = display.closest("tr");
+        row.querySelector(".selected-product-id").value = e.target.dataset.id;
+        row.querySelector(".product-price").textContent = parseInt(e.target.dataset.price).toLocaleString();
+        updateTotals();
+      }
+    }
+  });
+
+  // Tính tổng
+  function updateTotals() {
+    let grandTotal = 0;
+    document.querySelectorAll("#product-table tbody tr").forEach(row => {
+      const price = parseFloat(row.querySelector(".product-price").textContent.replace(/\D/g, "")) || 0;
+      const qty = parseInt(row.querySelector(".qty-input").value) || 1;
+      const total = price * qty;
+      row.querySelector(".product-total").textContent = total.toLocaleString();
+      grandTotal += total;
+    });
+    document.getElementById("grand-total").textContent = grandTotal.toLocaleString();
+    document.getElementById("tong-tien-input").value = grandTotal;
+  }
+
+  // Nút cộng trừ
+  document.addEventListener("click", function(e) {
+    if (e.target.classList.contains("btn-plus")) {
+      const input = e.target.closest("tr").querySelector(".qty-input");
+      input.value = parseInt(input.value) + 1;
+      updateTotals();
+    }
+    if (e.target.classList.contains("btn-minus")) {
+      const input = e.target.closest("tr").querySelector(".qty-input");
+      if (parseInt(input.value) > 1) input.value = parseInt(input.value) - 1;
+      updateTotals();
+    }
+    if (e.target.classList.contains("btn-remove")) {
+      e.target.closest("tr").remove();
+      updateTotals();
+    }
+  });
+
+  // Thêm sản phẩm
+  document.getElementById("add-product").addEventListener("click", function() {
+    let index = document.querySelectorAll("#product-table tbody tr").length;
+    let newRow = document.querySelector("#product-table tbody tr").cloneNode(true);
+    newRow.querySelector(".selected-product-id").name = `products[${index}][id]`;
+    newRow.querySelector(".qty-input").name = `products[${index}][qty]`;
+    newRow.querySelector(".custom-select-display").textContent = "-- Chọn sản phẩm --";
+    newRow.querySelector(".product-price").textContent = "0";
+    newRow.querySelector(".product-total").textContent = "0";
+    document.querySelector("#product-table tbody").appendChild(newRow);
+  });
+});
+
+document.addEventListener("DOMContentLoaded", function () {
+  const updateTotals = () => {
+    let grandTotal = 0;
+    document.querySelectorAll("#product-table tbody tr").forEach(row => {
+      const price = parseFloat(row.querySelector(".product-price").textContent.replace(/\D/g, "")) || 0;
+      const qty = parseInt(row.querySelector(".qty-input").value) || 1;
+      const total = price * qty;
+      row.querySelector(".product-total").textContent = total.toLocaleString();
+      grandTotal += total;
+    });
+    document.getElementById("grand-total").textContent = grandTotal.toLocaleString();
+    document.getElementById("tong-tien-input").value = grandTotal;
+  };
+
+  // Cộng / trừ sản phẩm
+  document.addEventListener("click", e => {
+    if (e.target.classList.contains("btn-plus")) {
+      const input = e.target.closest("tr").querySelector(".qty-input");
+      input.value = parseInt(input.value) + 1;
+      updateTotals();
+    }
+    if (e.target.classList.contains("btn-minus")) {
+      const input = e.target.closest("tr").querySelector(".qty-input");
+      if (parseInt(input.value) > 1) input.value = parseInt(input.value) - 1;
+      updateTotals();
+    }
+    if (e.target.classList.contains("btn-remove")) {
+      e.target.closest("tr").remove();
+      updateTotals();
+    }
+  });
+
+  // Áp dụng mã giảm giá
+  document.getElementById("apply-voucher").addEventListener("click", async () => {
+    const code = document.getElementById("voucher-code").value.trim();
+    if (!code) return alert("Nhập mã giảm giá!");
+    try {
+      const res = await fetch(`/api/voucher/check/${code}`);
+      const data = await res.json();
+
+      if (data.status === "success") {
+        const total = parseFloat(document.getElementById("tong-tien-input").value) || 0;
+        let discount = (total * data.voucher.phan_tram / 100);
+        if (discount > data.voucher.giam_toi_da) discount = data.voucher.giam_toi_da;
+
+        const newTotal = total - discount;
+        document.getElementById("grand-total").textContent = newTotal.toLocaleString();
+        document.getElementById("tong-tien-input").value = newTotal;
+        document.getElementById("voucher-id").value = data.voucher.id;
+        document.getElementById("voucher-info").innerHTML = `Giảm ${data.voucher.phan_tram}% (tối đa ${data.voucher.giam_toi_da.toLocaleString()}đ)`;
+      } else {
+        alert("Mã không hợp lệ hoặc đã hết hạn!");
+      }
+    } catch {
+      alert("Lỗi khi kiểm tra mã giảm giá!");
+    }
+  });
+
+  updateTotals();
+  
+});

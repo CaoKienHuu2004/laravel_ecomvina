@@ -8352,3 +8352,67 @@ span.select2-container.select2-container--default.select2-container--open {
     top: 50%;
     right: 10px
 }
+/* Cải thiện dropdown select form */
+.custom-select-wrapper {
+  position: relative;
+  width: 100%;
+  border-radius: 5px;
+}
+
+.custom-select-display {
+  padding: 10px;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #333;
+}
+
+.custom-select-dropdown {
+  display: none;
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ddd;
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+  z-index: 999;
+}
+
+.custom-select-wrapper.open .custom-select-dropdown {
+  display: block;
+}
+
+.custom-option {
+  padding: 10px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+}
+
+.custom-option:hover {
+  background-color: #f0f0f0;
+}
+
+.custom-select-wrapper:hover .custom-select-display {
+  border-color: #007bff;
+}
+
+/* Thêm hiệu ứng cho hover khi chọn */
+.custom-select-wrapper .custom-select-display:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+/* Điều chỉnh kích thước ô input */
+.custom-search-input {
+  padding: 10px;
+  width: 100%;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}

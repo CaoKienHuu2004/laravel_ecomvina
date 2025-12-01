@@ -1,10 +1,11 @@
 <?php
-
 namespace App\Http\Controllers\API;
 
+
+
+use App\Http\Controllers\API\BaseController;
 use Illuminate\Http\Request;
-use App\Models\ChiTietDonHang;
-use App\Http\Resources\ChiTietDonHangResource;
+use App\Models\ChitietdonhangModel;
 use Illuminate\Http\Response;
 
 class ChiTietDonHangAPI extends BaseController
@@ -16,31 +17,26 @@ class ChiTietDonHangAPI extends BaseController
     {
         $perPage     = $request->get('per_page', 10);
         $currentPage = $request->get('page', 1);
-        $q           = $request->get('q', null); // query tìm kiếm
+        $q           = $request->get('q', null);
 
-        $query = ChiTietDonHang::with(['donhang', 'bienthe'])->latest('updated_at');
+        $query = ChitietdonhangModel::with(['donhang', 'bienthe'])->latest('updated_at');
 
-        // Nếu có $q, lọc theo nhiều trường
         if ($q) {
-            $query->where(function($query) use ($q) {
-                $query->whereHas('donhang', fn($q1) =>
+            $query->where(function($sub) use ($q) {
+                $sub->whereHas('donhang', fn($q1) =>
                         $q1->where('id', $q))
                     ->orWhereHas('bienthe', fn($q2) =>
                         $q2->where('ten', 'like', "%$q%")
-                        ->orWhere('ma', 'like', "%$q%"))
-                    ->orWhere('gia', 'like', "%$q%")
-                    ->orWhere('tongtien', 'like', "%$q%");
+                           ->orWhere('ma', 'like', "%$q%"));
             });
         }
 
         $items = $query->paginate($perPage, ['*'], 'page', $currentPage);
 
-        // Kiểm tra nếu page vượt quá tổng số trang
         if ($currentPage > $items->lastPage() && $currentPage > 1) {
             return $this->jsonResponse([
                 'status'  => false,
                 'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $items->lastPage(),
-                'data'    => ChiTietDonHangResource::collection($items),
                 'meta'    => [
                     'current_page' => $currentPage,
                     'last_page'    => $items->lastPage(),
@@ -53,7 +49,17 @@ class ChiTietDonHangAPI extends BaseController
         return $this->jsonResponse([
             'status'  => true,
             'message' => 'Danh sách chi tiết đơn hàng',
-            'data'    => ChiTietDonHangResource::collection($items),
+            'data'    => $items->map(fn($item) => [
+                'id' => $item->id,
+                'id_bienthe' => $item->id_bienthe,
+                'id_donhang' => $item->id_donhang,
+                'soluong' => $item->soluong,
+                'dongia' => $item->dongia,
+                'donhang' => $item->donhang,
+                'bienthe' => $item->bienthe,
+                'created_at' => $item->created_at,
+                'updated_at' => $item->updated_at,
+            ]),
             'meta'    => [
                 'current_page' => $items->currentPage(),
                 'last_page'    => $items->lastPage(),
@@ -65,18 +71,27 @@ class ChiTietDonHangAPI extends BaseController
         ], 200);
     }
 
-
     /**
      * Xem chi tiết 1 bản ghi
      */
     public function show(string $id)
     {
-        $item = ChiTietDonHang::with(['donhang', 'bienthe'])->findOrFail($id);
+        $item = ChitietdonhangModel::with(['donhang', 'bienthe'])->findOrFail($id);
 
         return $this->jsonResponse([
             'status' => true,
             'message' => 'Chi tiết đơn hàng',
-            'data' => new ChiTietDonHangResource($item)
+            'data' => [
+                'id' => $item->id,
+                'id_bienthe' => $item->id_bienthe,
+                'id_donhang' => $item->id_donhang,
+                'soluong' => $item->soluong,
+                'dongia' => $item->dongia,
+                'donhang' => $item->donhang,
+                'bienthe' => $item->bienthe,
+                'created_at' => $item->created_at,
+                'updated_at' => $item->updated_at,
+            ]
         ], Response::HTTP_OK);
     }
 
@@ -86,19 +101,18 @@ class ChiTietDonHangAPI extends BaseController
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'gia'        => 'required|numeric',
-            'soluong'    => 'required|integer',
-            'tongtien'   => 'required|numeric',
-            'id_donhang' => 'required|exists:don_hang,id',
+            'id_donhang' => 'required|exists:donhang,id',
             'id_bienthe' => 'required|exists:bienthe,id',
+            'soluong'    => 'required|integer|min:1',
+            'dongia'     => 'required|numeric|min:0',
         ]);
 
-        $item = ChiTietDonHang::create($validated);
+        $item = ChitietdonhangModel::create($validated);
 
         return $this->jsonResponse([
             'status' => true,
             'message' => 'Tạo chi tiết đơn hàng thành công',
-            'data' => new ChiTietDonHangResource($item)
+            'data' => $item
         ], Response::HTTP_CREATED);
     }
 
@@ -107,14 +121,13 @@ class ChiTietDonHangAPI extends BaseController
      */
     public function update(Request $request, string $id)
     {
-        $item = ChiTietDonHang::findOrFail($id);
+        $item = ChitietdonhangModel::findOrFail($id);
 
         $validated = $request->validate([
-            'gia'        => 'sometimes|numeric',
-            'soluong'    => 'sometimes|integer',
-            'tongtien'   => 'sometimes|numeric',
-            'id_donhang' => 'sometimes|exists:don_hang,id',
+            'id_donhang' => 'sometimes|exists:donhang,id',
             'id_bienthe' => 'sometimes|exists:bienthe,id',
+            'soluong'    => 'sometimes|integer|min:1',
+            'dongia'     => 'sometimes|numeric|min:0',
         ]);
 
         $item->update($validated);
@@ -122,17 +135,17 @@ class ChiTietDonHangAPI extends BaseController
         return $this->jsonResponse([
             'status' => true,
             'message' => 'Cập nhật chi tiết đơn hàng thành công',
-            'data' => new ChiTietDonHangResource($item)
+            'data' => $item
         ], Response::HTTP_OK);
     }
 
     /**
-     * Xóa chi tiết đơn hàng (soft delete)
+     * Xóa chi tiết đơn hàng
      */
     public function destroy(string $id)
     {
-        $item = ChiTietDonHang::findOrFail($id);
-        $item->delete();
+        $item = ChitietdonhangModel::findOrFail($id);
+        $item->delete(); // xóa thật vì không có soft delete
 
         return $this->jsonResponse([
             'status' => true,

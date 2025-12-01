@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\YeuThich;
-use App\Http\Resources\YeuThichResource;
+use App\Models\YeuthichModel;
 use Illuminate\Http\Response;
 
-class YeuThichAPI extends BaseController
+class YeuThichAPI extends Controller
 {
     /**
      * Lấy danh sách yêu thích
@@ -16,62 +16,55 @@ class YeuThichAPI extends BaseController
     {
         $perPage     = $request->get('per_page', 10);
         $currentPage = $request->get('page', 1);
-        $q           = $request->get('q'); // từ khóa tìm kiếm
+        $keyword     = $request->get('q');
 
-        $query = YeuThich::with(['sanpham', 'nguoidung'])
+        $query = YeuthichModel::with(['sanpham', 'nguoidung'])
             ->latest('created_at')
-            ->when($q, function ($query) use ($q) {
-                $query->where(function ($sub) use ($q) {
-                    $sub->where('trangthai', 'like', "%$q%")
-                        ->orWhereHas('sanpham', function ($p) use ($q) {
-                            $p->where('ten', 'like', "%$q%");
-                        })
-                        ->orWhereHas('nguoidung', function ($u) use ($q) {
-                            $u->where('ten', 'like', "%$q%");
-                        });
-                });
+            ->when($keyword, function ($q) use ($keyword) {
+                $q->where('trangthai', 'like', "%$keyword%")
+                    ->orWhereHas('sanpham', function ($sp) use ($keyword) {
+                        $sp->where('ten', 'like', "%$keyword%");
+                    })
+                    ->orWhereHas('nguoidung', function ($nd) use ($keyword) {
+                        $nd->where('ten', 'like', "%$keyword%");
+                    });
             });
 
         $items = $query->paginate($perPage, ['*'], 'page', $currentPage);
 
         if ($currentPage > $items->lastPage() && $currentPage > 1) {
-            return $this->jsonResponse([
-                'status' => false,
+            return response()->json([
+                'status'  => false,
                 'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $items->lastPage(),
-                'meta' => [
-                    'current_page' => $currentPage,
-                    'last_page'    => $items->lastPage(),
-                    'per_page'     => $perPage,
-                    'total'        => $items->total(),
-                ]
             ], 404);
+        }
+        // dd($query);
+        // exit();
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Danh sách yêu thích',
+            'data'    => $items->items(), // không dùng Resource
+            'meta'    => [
+                'current_page' => $items->currentPage(),
+                'last_page'    => $items->lastPage(),
+                'per_page'     => $items->perPage(),
+                'total'        => $items->total(),
+            ]
+        ], Response::HTTP_OK);
     }
-
-    return $this->jsonResponse([
-        'status' => true,
-        'message' => 'Danh sách yêu thích',
-        'data' => YeuThichResource::collection($items),
-        'meta' => [
-            'current_page' => $items->currentPage(),
-            'last_page'    => $items->lastPage(),
-            'per_page'     => $items->perPage(),
-            'total'        => $items->total(),
-        ]
-    ], Response::HTTP_OK);
-}
-
 
     /**
      * Xem chi tiết
      */
     public function show(string $id)
     {
-        $item = YeuThich::with(['sanpham', 'nguoidung'])->findOrFail($id);
+        $item = YeuthichModel::with(['sanpham', 'nguoidung'])->findOrFail($id);
 
-        return $this->jsonResponse([
-            'status' => true,
+        return response()->json([
+            'status'  => true,
             'message' => 'Chi tiết yêu thích',
-            'data' => new YeuThichResource($item)
+            'data'    => $item
         ], Response::HTTP_OK);
     }
 
@@ -81,51 +74,51 @@ class YeuThichAPI extends BaseController
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'id_sanpham'   => 'required|exists:san_pham,id',
-            'id_nguoidung' => 'required|exists:nguoi_dung,id',
-            'trangthai'    => 'required|in:dang_thich,bo_thich',
+            'id_sanpham'   => 'required|exists:sanpham,id',
+            'id_nguoidung' => 'required|exists:nguoidung,id',
+            'trangthai'    => 'nullable|in:Hiển thị,Tạm ẩn',
         ]);
 
-        $item = YeuThich::create($validated);
+        $item = YeuthichModel::create($validated);
 
-        return $this->jsonResponse([
-            'status' => true,
+        return response()->json([
+            'status'  => true,
             'message' => 'Thêm vào danh sách yêu thích thành công',
-            'data' => new YeuThichResource($item->load(['sanpham', 'nguoidung']))
+            'data'    => $item->load(['sanpham', 'nguoidung'])
         ], Response::HTTP_CREATED);
     }
 
     /**
-     * Cập nhật trạng thái yêu thích
+     * Cập nhật yêu thích
      */
     public function update(Request $request, string $id)
     {
-        $item = YeuThich::findOrFail($id);
+        $item = YeuthichModel::findOrFail($id);
 
         $validated = $request->validate([
-            'trangthai' => 'required|in:dang_thich,bo_thich',
+            'trangthai' => 'required|in:Hiển thị,Tạm ẩn',
         ]);
 
         $item->update($validated);
 
-        return $this->jsonResponse([
-            'status' => true,
-            'message' => 'Cập nhật trạng thái yêu thích thành công',
-            'data' => new YeuThichResource($item->load(['sanpham', 'nguoidung']))
+        return response()->json([
+            'status'  => true,
+            'message' => 'Cập nhật yêu thích thành công',
+            'data'    => $item->load(['sanpham', 'nguoidung'])
         ], Response::HTTP_OK);
     }
 
     /**
-     * Xóa yêu thích
+     * Xóa (xóa mềm)
      */
     public function destroy(string $id)
     {
-        $item = YeuThich::findOrFail($id);
-        $item->delete();
+        $item = YeuthichModel::findOrFail($id);
+        $item->delete(); // nhờ use SoftDeletes => xóa mềm
 
-        return $this->jsonResponse([
-            'status' => true,
-            'message' => 'Xóa yêu thích thành công'
-        ], Response::HTTP_NO_CONTENT);
+        return response()->json([
+            'status'  => true,
+            'message' => 'Đã xóa yêu thích thành công (xóa mềm)'
+        ], Response::HTTP_OK);
     }
 }

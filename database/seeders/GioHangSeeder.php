@@ -2,76 +2,30 @@
 
 namespace Database\Seeders;
 
-use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class GioHangSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
-        {
-            $now = Carbon::now('Asia/Ho_Chi_Minh');
+    {
+        $giohangs = [
+            ['id_bienthe' => 1, 'id_nguoidung' => 2, 'soluong' => 2, 'thanhtien' => 540000, 'trangthai' => 'Hiển thị'],
+            ['id_bienthe' => 1, 'id_nguoidung' => 3, 'soluong' => 2, 'thanhtien' => 540000, 'trangthai' => 'Hiển thị'],
+            ['id_bienthe' => 2, 'id_nguoidung' => 4, 'soluong' => 1, 'thanhtien' => 385000, 'trangthai' => 'Hiển thị'],
+            ['id_bienthe' => 3, 'id_nguoidung' => 5, 'soluong' => 3, 'thanhtien' => 1399680, 'trangthai' => 'Hiển thị'],
+            ['id_bienthe' => 4, 'id_nguoidung' => 6, 'soluong' => 1, 'thanhtien' => 260000, 'trangthai' => 'Hiển thị'],
+            ['id_bienthe' => 5, 'id_nguoidung' => 7, 'soluong' => 2, 'thanhtien' => 1024000, 'trangthai' => 'Hiển thị'],
+            ['id_bienthe' => 6, 'id_nguoidung' => 8, 'soluong' => 1, 'thanhtien' => 270000, 'trangthai' => 'Hiển thị'],
+            ['id_bienthe' => 7, 'id_nguoidung' => 3, 'soluong' => 5, 'thanhtien' => 1800000, 'trangthai' => 'Hiển thị'],
+            ['id_bienthe' => 8, 'id_nguoidung' => 4, 'soluong' => 2, 'thanhtien' => 138000, 'trangthai' => 'Hiển thị'],
+            ['id_bienthe' => 9, 'id_nguoidung' => 5, 'soluong' => 1, 'thanhtien' => 260000, 'trangthai' => 'Hiển thị'],
+            ['id_bienthe' => 10, 'id_nguoidung' => 6, 'soluong' => 1, 'thanhtien' => 699000, 'trangthai' => 'Hiển thị'],
+        ];
 
-            // Lấy danh sách user có vai trò "user"
-            $userIds = DB::table('nguoi_dung')
-                ->where('vaitro', 'user')
-                ->pluck('id')
-                ->toArray();
-
-            $gioHangs = [];
-
-            for ($i = 1; $i <= 10; $i++) {
-                $gioHangs[] = [
-                    'id_nguoidung' => collect($userIds)->random(), // chỉ chọn user
-                    'guest_id'     => null, // có thể null vì là user
-                    'tongtien'     => 0, // sẽ cập nhật sau khi thêm chitiet_giohang
-                    'created_at'   => $now,
-                    'updated_at'   => $now,
-                ];
-            }
-            $gioHangs[] = [
-                'id_nguoidung' => 1, // user admin
-                'guest_id' => null,
-                'tongtien' => 0,
-                'created_at' => $now,
-                'updated_at' => $now,
-            ];
-
-            DB::table('gio_hang')->insert($gioHangs);
-        }
+        DB::table('giohang')->insert($giohangs);
+    }
 }
-
-
-// public function run(): void
-//     {
-//         $now = Carbon::now('Asia/Ho_Chi_Minh');
-//         $gioHangs = [
-//             [
-//                 'id' => 1,
-//                 'id_nguoidung' => 1, // user admin
-//                 'guest_id' => null,
-//                 'tongtien' => 0,
-//                 'created_at' => $now,
-//                 'updated_at' => $now,
-//             ],
-//             [
-//                 'id' => 2,
-//                 'id_nguoidung' => 2, // user assistant
-//                 'guest_id' => null,
-//                 'tongtien' => 0,
-//                 'created_at' => $now,
-//                 'updated_at' => $now,
-//             ],
-//             [
-//                 'id' => 3,
-//                 'id_nguoidung' => null,
-//                 'guest_id' => (string) Str::uuid(), // guest user
-//                 'tongtien' => 0,
-//                 'created_at' => $now,
-//                 'updated_at' => $now,
-//             ],
-//         ];
-
-//         DB::table('gio_hang')->insert($gioHangs);
-//     }

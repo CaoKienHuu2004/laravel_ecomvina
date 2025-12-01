@@ -7,12 +7,13 @@
   <div class="content">
     <div class="page-header">
       <div class="page-title">
+
         <h4>TẠO ĐƠN HÀNG</h4>
         <h6>Nhập thông tin đơn hàng mới</h6>
       </div>
       <div class="page-btn">
         <a href="{{ route('danh-sach-don-hang') }}" class="btn btn-added">
-          <img src="{{ asset('img/icons/arrow-left.svg') }}" class="me-1" alt="">Quay lại danh sách
+          <img src="{{ asset('assets/img/icons/arrow-left.svg') }}" class="me-1" alt="">Quay lại danh sách
         </a>
       </div>
     </div>
@@ -27,29 +28,35 @@
       <div class="card-body">
         <form method="POST" action="{{ route('luu-don-hang') }}">
           @csrf
+
+          <!-- ========== KHÁCH HÀNG ========== -->
           <div class="row">
-            <!-- Khách hàng -->
             <div class="col-lg-6 col-sm-12">
-              <div class="form-group">
+              <div class="form-group custom-select-container">
                 <label>Khách hàng <span class="text-danger">*</span></label>
-                <select name="khachhang_id" class="form-select" required>
-                  <option value="">-- Chọn khách hàng --</option>
-                  @foreach($customers as $kh)
-                    <option value="{{ $kh->id }}" {{ old('khachhang_id')==$kh->id?'selected':'' }}>
-                      {{ $kh->hoten ?? $kh->username }} - {{ $kh->sdt }}
-                    </option>
-                  @endforeach
-                </select>
+                <div class="custom-select-wrapper">
+                  <div class="custom-select-display" data-type="customer">-- Chọn khách hàng --</div>
+                  <div class="custom-select-dropdown">
+                    <input type="text" class="custom-search-input" placeholder="Tìm khách hàng...">
+                    <div class="custom-options-list">
+                      @foreach($customers as $kh)
+                        <div class="custom-option" data-value="{{ $kh->id }}">
+                          {{ $kh->hoten ?? $kh->username }} - {{ $kh->sodienthoai }}
+                        </div>
+                      @endforeach
+                    </div>
+                  </div>
+                </div>
+                <input type="hidden" name="id_nguoidung" id="selected-customer">
               </div>
             </div>
           </div>
-
-          <!-- Chọn sản phẩm -->
+          <!-- ========== SẢN PHẨM ========== -->
           <h5 class="mt-4 mb-2">Danh sách sản phẩm</h5>
           <table class="table table-bordered" id="product-table">
             <thead>
               <tr>
-                <th>Sản phẩm</th>
+                <th style="width:40%">Sản phẩm</th>
                 <th>Giá</th>
                 <th>Số lượng</th>
                 <th>Thành tiền</th>
@@ -59,12 +66,28 @@
             <tbody>
               <tr>
                 <td>
-                  <select name="products[0][id]" class="form-select product-select" required>
-                    <option value="">-- Chọn sản phẩm --</option>
-                    @foreach($products as $p)
-                      <option value="{{ $p->id }}" data-price="{{ $p->gia }}">{{ $p->ten }}</option>
-                    @endforeach
-                  </select>
+                  <div class="custom-select-wrapper">
+                    <div class="custom-select-display" data-type="product">-- Chọn sản phẩm --</div>
+                    <div class="custom-select-dropdown">
+                      <input type="text" class="custom-search-input" placeholder="Tìm sản phẩm...">
+                      <div class="custom-options-list">
+                        @foreach($products as $p)
+                          @if($p->bienthe->count() > 0)
+                            @foreach($p->bienthe as $bt)
+                              <div class="custom-option" data-id="{{ $bt->id }}" data-price="{{ $bt->giagoc }}">
+                                {{ $p->ten }}
+                              </div>
+                            @endforeach
+                          @else
+                            <div class="custom-option" data-id="{{ $p->id }}" data-price="0">
+                              {{ $p->ten }} - (Chưa gắn giá sản phẩm)
+                            </div>
+                          @endif
+                        @endforeach
+                      </div>
+                    </div>
+                  </div>
+                  <input type="hidden" name="products[0][id]" class="selected-product-id">
                 </td>
                 <td class="product-price">0</td>
                 <td>
@@ -79,40 +102,72 @@
               </tr>
             </tbody>
           </table>
+
           <button type="button" class="btn btn-primary btn-sm" id="add-product">+ Thêm sản phẩm</button>
 
-          <!-- Tổng tiền -->
           <div class="mt-3 text-end">
-            <h5>Tổng tiền: <span id="grand-total">0</span> đ</h5>
-            <input type="hidden" name="tong_tien" id="tong-tien-input" value="0">
+            <h5>Tạm tính:<span id="grand-total" name="tamtinh">0</span> VNĐ</h5>
+          </div>
+            <input type="hidden" name="tongtien" id="tong-tien-input" value="0">
+          </div>
+              <!-- ========== PHƯƠNG THỨC THANH TOÁN ========== -->
+          <div class="mb-3">
+              <label for="id_phuongthuc" class="form-label">Phương thức thanh toán</label>
+              <select name="id_phuongthuc" id="id_phuongthuc" class="form-select" required>
+                  <option value="">-- Chọn phương thức thanh toán --</option>
+                  @foreach($phuongthuc as $pt)
+                      <option value="{{ $pt->id }}">{{ $pt->ten }}</option>
+                  @endforeach
+              </select>
           </div>
 
-          <!-- Trạng thái + Thanh toán -->
+          <div class="mb-3">
+              <label for="id_phivanchuyen" class="form-label">Phí vận chuyển</label>
+              <select name="id_phivanchuyen" id="id_phivanchuyen" class="form-select" required>
+                  <option value="">-- Chọn phí vận chuyển --</option>
+                  @foreach($phivanchuyen as $pvc)
+                      <option value="{{ $pvc->id }}">{{ $pvc->ten }}</option>
+                  @endforeach
+              </select>
+          </div>
+          <div class="mb-3">
+              <label for="id_diachigiaohang" class="form-label">Địa chỉ giao hàng</label>
+              <select name="id_diachigiaohang" id="id_diachigiaohang" class="form-select" required>
+                  <option value="">-- Chọn địa chỉ giao hàng --</option>
+                  @foreach($diachigiaohang as $dcgh)
+                      <option value="{{ $dcgh->id }}">{{ $dcgh->diachi }}</option>
+                  @endforeach
+              </select>
+          </div>
+          <!-- ========== TRẠNG THÁI ========== -->
           <div class="row mt-4">
             <div class="col-lg-4 col-sm-6 col-12">
               <div class="form-group">
                 <label>Trạng thái <span class="text-danger">*</span></label>
                 <select class="form-select" name="trangthai" required>
-                  <option value="0">0 - Chờ thanh toán</option>
-                  <option value="1">1 - Đang giao</option>
-                  <option value="2">2 - Đã giao</option>
-                  <option value="3">3 - Đã hủy</option>
+                  <option value="Chờ xử lý">Chờ xử lý</option>
+                  <option value="Đã xác nhận">Đã xác nhận</option>
+                  <option value="Đang chuẩn bị hàng">Đang chuẩn bị hàng</option>
+                  <option value="Đang giao hàng">Đang giao hàng</option>
+                  <option value="Đã giao hàng">Đã giao hàng</option>
+                  <option value="Đã hủy">Đã hủy</option>
                 </select>
               </div>
             </div>
-            <div class="col-lg-4 col-sm-6 col-12">
-              <div class="form-group">
-                <label>Thanh toán <span class="text-danger">*</span></label>
-                <select class="form-select" name="thanh_toan" required>
-                  <option value="0">Chưa</option>
-                  <option value="1">Đã thanh toán</option>
-                  <option value="2">Hoàn</option>
-                </select>
-              </div>
-            </div>
+            <div class="mb-3">
+              <label for="id_magiamgia" class="form-label">Địa chỉ mã giảm giá</label>
+              <select name="id_magiamgia" id="id_magiamgia" class="form-select" required>
+                  <option value="">-- Chọn Mã Giảm Giá --</option>
+                  @foreach($magiamgia as $mgg)
+                      <option value="{{ $mgg->id }}">{{ $mgg->mota }}</option>
+                  @endforeach
+              </select>
           </div>
-
-          <div class="text-end mt-3">
+          </div>
+          <div class="mt-3 text-end">
+            <h5>Tổng tiền:<span id="grand-total" name="tongsoluong">0</span> VNĐ</h5>
+          </div>
+          <div class="text-end mt-3"> 
             <button type="submit" class="btn btn-submit me-2">Lưu</button>
             <a href="{{ route('danh-sach-don-hang') }}" class="btn btn-cancel">Hủy</a>
           </div>
@@ -121,55 +176,11 @@
     </div>
   </div>
 </div>
-
-<!-- Script xử lý tính tiền -->
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-  function updateTotals() {
-    let grandTotal = 0;
-    document.querySelectorAll("#product-table tbody tr").forEach(function(row) {
-      let price = parseFloat(row.querySelector(".product-select")?.selectedOptions[0]?.dataset.price || 0);
-      let qty = parseInt(row.querySelector(".qty-input").value) || 1;
-      let total = price * qty;
-      row.querySelector(".product-price").textContent = price.toLocaleString();
-      row.querySelector(".product-total").textContent = total.toLocaleString();
-      grandTotal += total;
-    });
-    document.getElementById("grand-total").textContent = grandTotal.toLocaleString();
-    document.getElementById("tong-tien-input").value = grandTotal;
-  }
-
-  document.getElementById("product-table").addEventListener("change", updateTotals);
-  document.getElementById("product-table").addEventListener("input", updateTotals);
-  document.getElementById("product-table").addEventListener("click", function(e) {
-    if (e.target.classList.contains("btn-plus")) {
-      let input = e.target.closest("tr").querySelector(".qty-input");
-      input.value = parseInt(input.value) + 1;
-      updateTotals();
-    }
-    if (e.target.classList.contains("btn-minus")) {
-      let input = e.target.closest("tr").querySelector(".qty-input");
-      if (parseInt(input.value) > 1) input.value = parseInt(input.value) - 1;
-      updateTotals();
-    }
-    if (e.target.classList.contains("btn-remove")) {
-      e.target.closest("tr").remove();
-      updateTotals();
-    }
-  });
-
-  document.getElementById("add-product").addEventListener("click", function() {
-    let index = document.querySelectorAll("#product-table tbody tr").length;
-    let newRow = document.querySelector("#product-table tbody tr").cloneNode(true);
-    newRow.querySelector(".product-select").name = `products[${index}][id]`;
-    newRow.querySelector(".qty-input").name = `products[${index}][qty]`;
-    newRow.querySelector(".qty-input").value = 1;
-    newRow.querySelector(".product-price").textContent = "0";
-    newRow.querySelector(".product-total").textContent = "0";
-    document.querySelector("#product-table tbody").appendChild(newRow);
-  });
-
-  updateTotals();
-});
-</script>
 @endsection
+@push('styles')
+<link rel="stylesheet" href="{{ asset('assets/css/donhang_create.css') }}">
+@endpush
+
+@push('scripts')
+<script src="{{ asset('assets/js/donhang_create.js') }}"></script>
+@endpush

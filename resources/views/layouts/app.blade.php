@@ -13,6 +13,7 @@
     />
     <meta name="author" content="Quản Trị Viên"/>
     <meta name="robots" content="noindex, nofollow"/>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Quản trị hệ thống Siêu Thị Vina')</title>
 
     <link
@@ -140,20 +141,20 @@
                   </div>
                 </div>
                 <hr class="m-0" />
-                <a class="dropdown-item" href="{{ route('profile.show') }} ">
+                <a class="dropdown-item" href="{{ route('thong-tin-tai-khoan') }} ">
                   <i class="me-2" data-feather="user"></i> Hồ sơ</a
                 >
                 <a class="dropdown-item" href="generalsettings.html"
                   ><i class="me-2" data-feather="settings"></i>Cài đặt</a
                 >
                 <hr class="m-0" />
-                <a class="dropdown-item logout pb-0" href="{{ route('logout') }}"
+                <a class="dropdown-item logout pb-0" href="{{ route('dang-xuat') }}"
                 onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                     <img src="{{ asset('img/icons/log-out.svg') }}" class="me-2" alt="img" />
                     Đăng xuất
                 </a>
 
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                <form id="logout-form" action="{{ route('dang-xuat') }}" method="POST" class="d-none">
                     @csrf
                 </form>
               </div>
@@ -170,9 +171,9 @@
             ><i class="fa fa-ellipsis-v"></i
           ></a>
           <div class="dropdown-menu dropdown-menu-right">
-            <a class="dropdown-item" href="{{ route('profile.show') }}">Hồ sơ</a>
+            <a class="dropdown-item" href="{{ route('thong-tin-tai-khoan') }}">Hồ sơ</a>
             <a class="dropdown-item" href="generalsettings.html">Cài đặt</a>
-            <a class="dropdown-item" href="{{ route('logout') }}">Đăng xuất</a>
+            <a class="dropdown-item" href="{{ route('dang-xuat') }}">Đăng xuất</a>
           </div>
         </div>
       </div>
@@ -182,12 +183,76 @@
           <div id="sidebar-menu" class="sidebar-menu">
             <ul>
               <li class="{{ request()->routeIs('trang-chu') ? 'active' : '' }}">
-                <a href="/"
+                <a href="/trang-chu"
                   ><img src="{{asset('img/icons/dashboard.svg')}}" alt="img" /><span>
                     Tổng quan</span
                   >
                 </a>
               </li>
+                {{-- // -- Nguoidung --// --}}
+                <li class="submenu">
+                    <a href="javascript:void(0);"
+                    ><img src="{{asset('img/icons/users1.svg')}}" alt="img" /><span>
+                        Người dùng</span
+                    >
+                    <span class="menu-arrow"></span
+                    ></a>
+                    <ul>
+                        {{-- /* ===================== NGƯỜI DÙNG ===================== */ --}}
+                        {{-- <li><a class="{{ request()->routeIs('nguoidung.index') || request()->routeIs('nguoidung.edit') || request()->routeIs('nguoidung.create') || request()->routeIs('nguoidung.show') || request()->routeIs('nguoidung.trash') ? 'active' : '' }}" href="{{ route('nguoidung.index') }}">Danh sách tài khoản người dùng</a></li> --}}
+                        <li>
+                            <a class="{{ request()->routeIs('nguoidung.*') ? 'active' : '' }}" href="{{ route('nguoidung.index') }}">
+                                Danh sách tài khoản người dùng
+                            </a>
+                        </li>
+                        {{-- /* ===================== ĐỊA CHỈ GIAO HÀNG ===================== */ --}}
+                        <li><a class="{{ request()->routeIs('diachigiaohang.index') || request()->routeIs('diachigiaohang.edit') || request()->routeIs('diachigiaohang.create') || request()->routeIs('diachigiaohang.show') || request()->routeIs('diachigiaohang.trash') ? 'active' : '' }}" href="{{ route('diachigiaohang.index') }}">Danh sách địa chỉ giao hàng</a></li>
+                        {{--  --}}
+                    </ul>
+                </li>
+                {{-- // -- phuong thuc thanh toan --// --}}
+              <li class="submenu">
+                <a href="javascript:void(0);"
+                  ><img src="{{asset('img/icons/payment-method-cash-svgrepo-com.svg')}}" alt="img" /><span>
+                    Phương thức Thanh toán</span
+                  >
+                  <span class="menu-arrow"></span
+                ></a>
+                <ul>
+                  {{-- <li><a href="expenselist.html">Phương thức thanh toán</a></li>
+                  <li><a href="createexpense.html">Lịch sử thanh toán</a></li> --}}
+                  {{-- //---- Phương Thức Thanh Toán ---// --}}
+                  <li><a class="{{ request()->routeIs('phuongthuc.index') || request()->routeIs('phuongthuc.edit') || request()->routeIs('phuongthuc.create') || request()->routeIs('phuongthuc.show') ? 'active' : '' }}" href="{{ route('phuongthuc.index') }}">Danh sách phương thức thanh toán</a></li>
+                </ul>
+              </li>
+                {{-- // -- quản lý kho --// --}}
+                <li class="submenu">
+                    <a href="javascript:void(0);"
+                    ><img src="{{asset('img/icons/sales1.svg')}}" alt="img" /><span>
+                        Quản lý kho</span
+                    >
+                    <span class="menu-arrow"></span
+                    ></a>
+                    <ul>
+                        <li><a class="{{ request()->routeIs('danh-sach-kho-hang') ? 'active' : '' }}" href="{{ route('danh-sach-kho-hang') }}">Kho hàng</a></li>
+
+                    </ul>
+                </li>
+                {{-- // -- quản lý quà tăng --// --}}
+                <li class="submenu">
+                    <a href="javascript:void(0);"
+                    ><img src="{{asset('img/icons/gitlfs-svgrepo-com.svg')}}" alt="img" /><span>
+                        Quản lý quà tăng</span
+                    >
+                    <span class="menu-arrow"></span
+                    ></a>
+                    <ul>
+                        {{-- //----Quà tăng sự kiện ---// --}}
+                        <li><a class="{{ request()->routeIs('quatangsukien.index') || request()->routeIs('quatangsukien.edit') || request()->routeIs('quatangsukien.create') || request()->routeIs('quatangsukien.show') ||  request()->routeIs('quatangsukien.trash') ? 'active' : '' }}" href="{{ route('quatangsukien.index') }}">Danh sách quà tặng sự kiện</a></li>
+
+                    </ul>
+                </li>
+                {{-- // -- Sanpham --// --}}
               <li class="submenu">
                 <a href="javascript:void(0);"
                   ><img src="{{asset('img/icons/product.svg')}}" alt="img" /><span>
@@ -196,16 +261,23 @@
                   <span class="menu-arrow"></span
                 ></a>
                 <ul>
-                  <li><a class="{{ request()->routeIs('danh-sach') || request()->routeIs('chinh-sua-san-pham') || request()->routeIs('tao-san-pham') || request()->routeIs('chi-tiet-san-pham') ? 'active' : '' }}" href="{{ route('danh-sach') }}">Danh sách sản phẩm</a></li>
-                  <li><a class="{{ request()->routeIs('danh-sach-danh-muc') || request()->routeIs('chinh-sua-danh-muc') || request()->routeIs('tao-danh-muc') ? 'active' : '' }}" href="{{ route('danh-sach-danh-muc') }}">Danh mục sản phẩm</a></li>
-                  <li><a class="{{ request()->routeIs('danh-sach-thuong-hieu') || request()->routeIs('chinh-sua-thuong-hieu') || request()->routeIs('tao-thuong-hieu') ? 'active' : '' }}" href="{{ route('danh-sach-thuong-hieu') }}">Thương hiệu sản phẩm</a></li>
-                  <li><a class="{{ request()->routeIs('danh-sach-kho-hang') ? 'active' : '' }}" href="{{ route('danh-sach-kho-hang') }}">Kho hàng</a></li>
+                    {{-- //----Sản Phẩm ---// --}}
+                  <li><a class="{{ request()->routeIs('sanpham.index') || request()->routeIs('sanpham.edit') || request()->routeIs('sanpham.create') || request()->routeIs('sanpham.show') ||  request()->routeIs('sanpham.trash') ? 'active' : '' }}" href="{{ route('sanpham.index') }}">Danh sách sản phẩm</a></li>
+
+                  {{-- //---- Hình Ảnh Sản Phẩm ---// --}}
+                  <li><a class="{{ request()->routeIs('hinhanhsanpham.index') || request()->routeIs('hinhanhsanpham.edit') || request()->routeIs('hinhanhsanpham.create') ? 'active' : '' }}" href="{{ route('hinhanhsanpham.index') }}">Hình ảnh sản phẩm</a></li>
+                  {{-- //---- Loại Biến Thể ---// --}}
+                  <li><a class="{{ request()->routeIs('loaibienthe.index') || request()->routeIs('loaibienthe.edit') || request()->routeIs('loaibienthe.create') || request()->routeIs('loaibienthe.show') ? 'active' : '' }}" href="{{ route('loaibienthe.index') }}">Danh sách loại biến thể</a></li>
+                  {{-- <li><a class="{{ request()->routeIs('danh-sach-thuong-hieu') || request()->routeIs('chinh-sua-thuong-hieu') || request()->routeIs('tao-thuong-hieu') ? 'active' : '' }}" href="{{ route('danh-sach-thuong-hieu') }}">Thương hiệu sản phẩm</a></li> --}}
+                  {{-- <li><a class="{{ request()->routeIs('danh-sach-kho-hang') ? 'active' : '' }}" href="{{ route('danh-sach-kho-hang') }}">Kho hàng</a></li> --}}
                 </ul>
               </li>
+
+              {{-- // -- Quản lý đơn hàng --// --}}
               <li class="submenu">
                 <a href="javascript:void(0);"
-                  ><img src="{{asset('img/icons/sales1.svg')}}" alt="img" /><span>
-                    Bán hàng</span
+                  ><img src="{{asset('img/icons/expense1.svg')}}" alt="img" /><span>
+                    Quản lý đơn hàng</span
                   >
                   <span class="menu-arrow"></span
                 ></a>
@@ -218,245 +290,116 @@
 
                 </ul>
               </li>
+
+              {{-- // -- Quản lý thương hiệu --// --}}
               <li class="submenu">
                 <a href="javascript:void(0);"
-                  ><img src="{{asset('img/icons/expense1.svg')}}" alt="img" /><span>
-                    Thanh toán</span
+                  ><img src="{{asset('img/icons/brands-svgrepo-com.svg')}}" alt="img" /><span>
+                    Quản lý thương hiệu</span
                   >
                   <span class="menu-arrow"></span
                 ></a>
                 <ul>
-                  <li><a href="expenselist.html">Phương thức thanh toán</a></li>
-                  <li><a href="createexpense.html">Lịch sử thanh toán</a></li>
-                </ul>
-              </li>
-              <li class="submenu">
-                <a href="javascript:void(0);"
-                  ><img src="{{asset('img/icons/users1.svg')}}" alt="img" /><span>
-                    Người dùng</span
-                  >
-                  <span class="menu-arrow"></span
-                ></a>
-                <ul>
-                    {{-- /* ===================== KHÁCH HÀNG ===================== */ --}}
-                  <li><a class="{{ request()->routeIs('danh-sach-khach-hang') || request()->routeIs('chinh-sua-khach-hang') || request()->routeIs('tao-khach-hang') || request()->routeIs('chi-tiet-khach-hang') ? 'active' : '' }}" href="{{ route('danh-sach-khach-hang') }}">Danh sách khách hàng</a></li>
-                  {{-- /* ===================== CỬA HÀNG ===================== */ --}}
-                  <li><a class="{{ request()->routeIs('danh-sach-cua-hang') || request()->routeIs('chinh-sua-cua-hang') || request()->routeIs('tao-cua-hang') || request()->routeIs('chi-tiet-cua-hang') ? 'active' : '' }}" href="{{ route('danh-sach-cua-hang') }}">Danh sách cửa hàng</a></li>
-                  {{-- /* ===================== ĐỘI NGŨ QUẢN TRỊ ===================== */ --}}
-                  <li><a class="{{ request()->routeIs('danh-sach-doi-ngu-quan-tri') || request()->routeIs('chinh-sua-doi-ngu-quan-tri')  || request()->routeIs('chi-tiet-doi-ngu-quan-tri') ? 'active' : '' }}" href="{{ route('danh-sach-doi-ngu-quan-tri') }}">Đội ngũ quản trị</a></li>
-                </ul>
-              </li>
-              <li class="submenu">
-                <a href="javascript:void(0);"
-                  ><img src="{{asset('img/icons/quotation1.svg')}}" alt="img" /><span>
-                    Quotation</span
-                  >
-                  <span class="menu-arrow"></span
-                ></a>
-                <ul>
-                  <li><a href="quotationList.html">Quotation List</a></li>
-                  <li><a href="addquotation.html">Add Quotation</a></li>
-                </ul>
-              </li>
-              <li class="submenu">
-                <a href="javascript:void(0);"
-                  ><img src="{{asset('img/icons/transfer1.svg')}}" alt="img" /><span>
-                    Transfer</span
-                  >
-                  <span class="menu-arrow"></span
-                ></a>
-                <ul>
-                  <li><a href="transferlist.html">Transfer List</a></li>
-                  <li><a href="addtransfer.html">Add Transfer </a></li>
-                  <li><a href="importtransfer.html">Import Transfer </a></li>
-                </ul>
-              </li>
-              <li class="submenu">
-                <a href="javascript:void(0);"
-                  ><img src="{{asset('img/icons/return1.svg')}}" alt="img" /><span>
-                    Return</span
-                  >
-                  <span class="menu-arrow"></span
-                ></a>
-                <ul>
-                  <li><a href="salesreturnlist.html">Sales Return List</a></li>
-                  <li>
-                    <a href="createsalesreturn.html">Add Sales Return </a>
-                  </li>
-                  <li>
-                    <a href="purchasereturnlist.html">Purchase Return List</a>
-                  </li>
-                  <li>
-                    <a href="createpurchasereturn.html">Add Purchase Return </a>
-                  </li>
+                  <li><a class="{{ request()->routeIs('thuonghieu.index') || request()->routeIs('thuonghieu.edit') || request()->routeIs('thuonghieu.create') || request()->routeIs('thuonghieu.show') ? 'active' : '' }}" href="{{ route('thuonghieu.index') }}">Danh sách thương hiệu</a></li>
                 </ul>
               </li>
 
+              {{-- // -- Quản lý danh mục --// --}}
               <li class="submenu">
                 <a href="javascript:void(0);"
-                  ><img src="{{asset('img/icons/places.svg')}}" alt="img" /><span>
-                    Places</span
+                  ><img src="{{asset('img/icons/category-svgrepo-com.svg')}}" alt="img" /><span>
+                    Quản lý danh mục</span
                   >
                   <span class="menu-arrow"></span
                 ></a>
                 <ul>
-                  <li><a href="newcountry.html">New Country</a></li>
-                  <li><a href="countrieslist.html">Countries list</a></li>
-                  <li><a href="newstate.html">New State </a></li>
-                  <li><a href="statelist.html">State list</a></li>
+                    <li><a class="{{ request()->routeIs('danhmuc.index') || request()->routeIs('danhmuc.edit') || request()->routeIs('danhmuc.create') ? 'active' : '' }}" href="{{ route('danhmuc.index') }}">Danh mục sản phẩm</a></li>
                 </ul>
               </li>
-              <li>
-                <a href="components.html"
-                  ><i data-feather="layers"></i><span> Components</span>
-                </a>
-              </li>
-              <li>
-                <a href="blankpage.html"
-                  ><i data-feather="file"></i><span> Blank Page</span>
-                </a>
-              </li>
+
+              {{-- // -- Quản lý bài viết --// --}}
               <li class="submenu">
                 <a href="javascript:void(0);"
-                  ><i data-feather="alert-octagon"></i>
-                  <span> Error Pages </span> <span class="menu-arrow"></span
-                ></a>
-                <ul>
-                  <li><a href="error-404.html">404 Error </a></li>
-                  <li><a href="error-500.html">500 Error </a></li>
-                </ul>
-              </li>
-              <li class="submenu">
-                <a href="javascript:void(0);"
-                  ><i data-feather="box"></i> <span>Elements </span>
-                  <span class="menu-arrow"></span
-                ></a>
-                <ul>
-                  <li><a href="sweetalerts.html">Sweet Alerts</a></li>
-                  <li><a href="tooltip.html">Tooltip</a></li>
-                  <li><a href="popover.html">Popover</a></li>
-                  <li><a href="ribbon.html">Ribbon</a></li>
-                  <li><a href="clipboard.html">Clipboard</a></li>
-                  <li><a href="drag-drop.html">Drag & Drop</a></li>
-                  <li><a href="rangeslider.html">Range Slider</a></li>
-                  <li><a href="rating.html">Rating</a></li>
-                  <li><a href="toastr.html">Toastr</a></li>
-                  <li><a href="text-editor.html">Text Editor</a></li>
-                  <li><a href="counter.html">Counter</a></li>
-                  <li><a href="scrollbar.html">Scrollbar</a></li>
-                  <li><a href="spinner.html">Spinner</a></li>
-                  <li><a href="notification.html">Notification</a></li>
-                  <li><a href="lightbox.html">Lightbox</a></li>
-                  <li><a href="stickynote.html">Sticky Note</a></li>
-                  <li><a href="timeline.html">Timeline</a></li>
-                  <li><a href="form-wizard.html">Form Wizard</a></li>
-                </ul>
-              </li>
-              <li class="submenu">
-                <a href="javascript:void(0);"
-                  ><i data-feather="bar-chart-2"></i> <span> Charts </span>
-                  <span class="menu-arrow"></span
-                ></a>
-                <ul>
-                  <li><a href="chart-apex.html">Apex Charts</a></li>
-                  <li><a href="chart-js.html">Chart Js</a></li>
-                  <li><a href="chart-morris.html">Morris Charts</a></li>
-                  <li><a href="chart-flot.html">Flot Charts</a></li>
-                  <li><a href="chart-peity.html">Peity Charts</a></li>
-                </ul>
-              </li>
-              <li class="submenu">
-                <a href="javascript:void(0);"
-                  ><i data-feather="award"></i><span> Icons </span>
-                  <span class="menu-arrow"></span
-                ></a>
-                <ul>
-                  <li><a href="icon-fontawesome.html">Fontawesome Icons</a></li>
-                  <li><a href="icon-feather.html">Feather Icons</a></li>
-                  <li><a href="icon-ionic.html">Ionic Icons</a></li>
-                  <li><a href="icon-material.html">Material Icons</a></li>
-                  <li><a href="icon-pe7.html">Pe7 Icons</a></li>
-                  <li><a href="icon-simpleline.html">Simpleline Icons</a></li>
-                  <li><a href="icon-themify.html">Themify Icons</a></li>
-                  <li><a href="icon-weather.html">Weather Icons</a></li>
-                  <li><a href="icon-typicon.html">Typicon Icons</a></li>
-                  <li><a href="icon-flag.html">Flag Icons</a></li>
-                </ul>
-              </li>
-              <li class="submenu">
-                <a href="javascript:void(0);"
-                  ><i data-feather="columns"></i> <span> Forms </span>
-                  <span class="menu-arrow"></span
-                ></a>
-                <ul>
-                  <li><a href="form-basic-inputs.html">Basic Inputs </a></li>
-                  <li><a href="form-input-groups.html">Input Groups </a></li>
-                  <li><a href="form-horizontal.html">Horizontal Form </a></li>
-                  <li><a href="form-vertical.html"> Vertical Form </a></li>
-                  <li><a href="form-mask.html">Form Mask </a></li>
-                  <li><a href="form-validation.html">Form Validation </a></li>
-                  <li><a href="form-select2.html">Form Select2 </a></li>
-                  <li><a href="form-fileupload.html">File Upload </a></li>
-                </ul>
-              </li>
-              <li class="submenu">
-                <a href="javascript:void(0);"
-                  ><i data-feather="layout"></i> <span> Table </span>
-                  <span class="menu-arrow"></span
-                ></a>
-                <ul>
-                  <li><a href="tables-basic.html">Basic Tables </a></li>
-                  <li><a href="data-tables.html">Data Table </a></li>
-                </ul>
-              </li>
-              <li class="submenu">
-                <a href="javascript:void(0);"
-                  ><img src="{{asset('img/icons/product.svg')}}" alt="img" /><span>
-                    Application</span
+                  ><img src="{{asset('img/icons/sales1.svg')}}" alt="img" /><span>
+                    Quản lý bài viết</span
                   >
                   <span class="menu-arrow"></span
                 ></a>
                 <ul>
-                  <li><a href="chat.html">Chat</a></li>
-                  <li><a href="calendar.html">Calendar</a></li>
-                  <li><a href="email.html">Email</a></li>
+                  <li><a href="saleslist.html">Voucher</a></li>
+                  <li><a href="pos.html">Ưu đãi sản phẩm</a></li>
+                  <li><a href="pos.html">Sự kiện khuyến mãi</a></li>
+                  <li><a href="/">Đánh giá sản phẩm</a></li>
+                  <li><a href="pos.html">Danh sách đơn hàng</a></li>
+
                 </ul>
               </li>
+
+              {{-- // -- Quản lý thông báo --// --}}
               <li class="submenu">
                 <a href="javascript:void(0);"
-                  ><img src="{{asset('img/icons/time.svg')}}" alt="img" /><span>
-                    Report</span
+                  ><img src="{{asset('img/icons/notification-bing.svg')}}" alt="img" /><span>
+                    Quản lý thông báo</span
                   >
                   <span class="menu-arrow"></span
                 ></a>
                 <ul>
-                  <li>
-                    <a href="purchaseorderreport.html">Purchase order report</a>
-                  </li>
-                  <li><a href="inventoryreport.html">Inventory Report</a></li>
-                  <li><a href="salesreport.html">Sales Report</a></li>
-                  <li><a href="invoicereport.html">Invoice Report</a></li>
-                  <li><a href="purchasereport.html">Purchase Report</a></li>
-                  <li><a href="supplierreport.html">Supplier Report</a></li>
-                  <li><a href="customerreport.html">Customer Report</a></li>
+                  {{-- //----Thông báo ---// --}}
+                  <li><a class="{{ request()->routeIs('thongbao.index') || request()->routeIs('thongbao.edit') || request()->routeIs('thongbao.create') || request()->routeIs('thongbao.show')  ? 'active' : '' }}" href="{{ route('thongbao.index') }}">Danh sách thông báo</a></li>
+
                 </ul>
               </li>
+
+              {{-- // -- Quản lý sự kiện --// --}}
               <li class="submenu">
                 <a href="javascript:void(0);"
-                  ><img src="{{asset('img/icons/users1.svg')}}" alt="img" /><span>
-                    Users</span
+                  ><img src="{{asset('img/icons/event-promotion-sale.svg')}}" alt="img" /><span>
+                    Quản lý sự kiện</span
                   >
                   <span class="menu-arrow"></span
                 ></a>
                 <ul>
-                  <li><a href="newuser.html">New User </a></li>
-                  <li><a href="userlists.html">Users List</a></li>
+                    <li><a class="{{ request()->routeIs('chuongtrinh.index') || request()->routeIs('chuongtrinh.edit') || request()->routeIs('chuongtrinh.create') || request()->routeIs('chuongtrinh.show') ? 'active' : '' }}" href="{{ route('chuongtrinh.index') }}">Danh Sách Chương Trình Sự Kiện</a></li>
+                    <li><a class="{{ request()->routeIs('quangcao.index') || request()->routeIs('quangcao.edit') || request()->routeIs('quangcao.create') || request()->routeIs('quangcao.show') ? 'active' : '' }}" href="{{ route('quangcao.index') }}">Danh sách Banner<br>Quảng Cáo(trang chủ)</a></li>
+
                 </ul>
               </li>
+
+              {{-- // -- Quản lý mã giảm giá --// --}}
+              <li class="submenu">
+                <a href="javascript:void(0);"
+                  ><img src="{{asset('img/icons/sales1.svg')}}" alt="img" /><span>
+                    Quản lý mã giảm giá</span
+                  >
+                  <span class="menu-arrow"></span
+                ></a>
+                <ul>
+                  <li><a href="saleslist.html">Voucher</a></li>
+                  <li><a href="pos.html">Ưu đãi sản phẩm</a></li>
+                  <li><a href="pos.html">Sự kiện khuyến mãi</a></li>
+                  <li><a href="/">Đánh giá sản phẩm</a></li>
+                  <li><a href="pos.html">Danh sách đơn hàng</a></li>
+
+                </ul>
+              </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
               <li class="submenu">
                 <a href="javascript:void(0);"
                   ><img src="{{asset('img/icons/settings.svg')}}" alt="img" /><span>
-                    Settings</span
+                    Cài đặt</span
                   >
                   <span class="menu-arrow"></span
                 ></a>

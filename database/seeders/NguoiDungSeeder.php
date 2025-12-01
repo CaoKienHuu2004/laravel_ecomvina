@@ -14,92 +14,48 @@ class NguoiDungSeeder extends Seeder
      */
     public function run(): void
     {
-        // Thời gian hiện tại GMT+7
-        $now = Carbon::now('Asia/Ho_Chi_Minh');
+        // Xóa dữ liệu cũ (nếu có)
+        DB::table('nguoidung')->delete();
 
-        $users = [
-            [
-                "email" => "admin@example.com",
-                "password" => Hash::make("admin1234"),
-                "avatar" => "https://multiavatar.com/api/admin.png",
-                "hoten" => "Admin",
-                "gioitinh" => "nam",
-                "ngaysinh" => "2000-12-13", // sửa hợp lệ
-                "sodienthoai" => "0997654321",
-                "vaitro" => "admin",
-                "trangthai" => "hoat_dong",
-                "created_at" => $now,
-                "updated_at" => $now,
-            ],
-            [
-                "email" => "assistant@example.com",
-                "password" => Hash::make("assistant1234"),
-                "avatar" => "https://multiavatar.com/api/assistant.png",
-                "hoten" => "Assistant",
-                "gioitinh" => "nam",
-                "ngaysinh" => "2000-11-11", // sửa hợp lệ
-                "sodienthoai" => "0991654321",
-                "vaitro" => "assistant",
-                "trangthai" => "hoat_dong",
-                "created_at" => $now,
-                "updated_at" => $now,
-            ],
-            [
-                "email" => "anonymous@example.com",
-                "password" => Hash::make("anonymous1234"),
-                "avatar" => "https://multiavatar.com/api/anonymous.png",
-                "hoten" => "Anonymous",
-                "gioitinh" => "nam",
-                "ngaysinh" => "2000-10-10", // sửa hợp lệ
-                "sodienthoai" => "0992654321",
-                "vaitro" => "anonymous",
-                "trangthai" => "hoat_dong",
-                "created_at" => $now,
-                "updated_at" => $now,
-            ],
-        ];
+        // 1️⃣ Tài khoản admin
+        DB::table('nguoidung')->insert([
+            'username' => 'lyhuu123',
+            'password' => Hash::make('123@#'),
+            'sodienthoai' => '0845381121',
+            'hoten' => 'Cao Kiến Hựu',
+            'gioitinh' => 'Nam',
+            'ngaysinh' => '2004-10-13',
+            'avatar' => 'khachhang.jpg',
+            'vaitro' => 'seller',
+            'trangthai' => 'Hoạt động',
+        ]);
 
+        // 2️⃣ Tài khoản seller
+        DB::table('nguoidung')->insert([
+            'username' => 'admindemo',
+            'password' => Hash::make('admindemo'),
+            'sodienthoai' => '0900000002',
+            'hoten' => 'Người bán hàng',
+            'gioitinh' => 'Nữ',
+            'ngaysinh' => '1995-05-05',
+            'avatar' => 'khachhang.jpg',
+            'vaitro' => 'admin',
+            'trangthai' => 'Hoạt động',
+        ]);
 
-
-        for ($i = 4; $i <= 20; $i++) {
-            $month = ($i % 12) + 1; // 1 -> 12
-            $day   = ($i % 28) + 1; // 1 -> 28 (tránh ngày sai)
-
-            $users[] = [
-                "email" => "user$i@example.com",
-                "password" => Hash::make("password123"),
-                "avatar" => "https://i.pravatar.cc/150?img=$i",
-                "hoten" => "User $i",
-                "gioitinh" => $i % 2 == 0 ? "nam" : "nữ",
-                "ngaysinh" => sprintf("2000-%02d-%02d", $month, $day),
-                "sodienthoai" => "098765432$i",
-                "vaitro" => "user",
-                "trangthai" => "hoat_dong",
-                "created_at" => $now,
-                "updated_at" => $now,
-            ];
+        // 3️⃣ 8 người dùng (client)
+        for ($i = 1; $i <= 8; $i++) {
+            DB::table('nguoidung')->insert([
+                'username' => 'user' . $i,
+                'password' => Hash::make('123456'),
+                'sodienthoai' => '09000000' . str_pad($i + 2, 2, '0', STR_PAD_LEFT),
+                'hoten' => 'Khách hàng ' . $i,
+                'gioitinh' => $i % 2 == 0 ? 'Nữ' : 'Nam',
+                'ngaysinh' => '2000-01-' . str_pad($i, 2, '0', STR_PAD_LEFT),
+                'avatar' => 'khachhang.jpg',
+                'vaitro' => 'client',
+                'trangthai' => 'Hoạt động',
+            ]);
         }
-
-        for ($i = 21; $i <= 31; $i++) {
-            $month = ($i % 12) + 1; // 1 -> 12
-            $day   = ($i % 28) + 1; // 1 -> 28 (tránh ngày sai)
-
-            $users[] = [
-                "email" => "user$i@example.com",
-                "password" => Hash::make("password123"),
-                "avatar" => "https://i.pravatar.cc/150?img=$i",
-                "hoten" => "User $i",
-                "gioitinh" => $i % 2 == 0 ? "nam" : "nữ",
-                "ngaysinh" => sprintf("2000-%02d-%02d", $month, $day),
-                "sodienthoai" => "098765432$i",
-                "vaitro" => "assistant",
-                "trangthai" => "hoat_dong",
-                "created_at" => $now,
-                "updated_at" => $now,
-            ];
-        }
-
-        // Insert vào DB
-        DB::table('nguoi_dung')->insert($users);
     }
 }

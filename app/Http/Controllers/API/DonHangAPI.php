@@ -2,55 +2,35 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Controllers\API\BaseController;
+use App\Models\DonhangModel;
 use Illuminate\Http\Request;
-use App\Models\DonHang;
-use App\Http\Resources\DonHangResource;
 use Illuminate\Http\Response;
 
 class DonHangAPI extends BaseController
 {
     /**
-     * Lấy danh sách đơn hàng (có phân trang)
+     * Lấy danh sách đơn hàng (có phân trang, không dùng Resource)
      */
     public function index(Request $request)
     {
-        $perPage     = $request->get('per_page', 10);
-        $currentPage = $request->get('page', 1);
-        $q           = $request->get('q'); // từ khóa tìm kiếm
+        $perPage = $request->get('per_page', 10);
+        $q       = $request->get('q');
 
-        $query = DonHang::with(['nguoidung', 'magiamgia'])
+        $query = DonhangModel::with(['nguoidung', 'phuongthuc', 'magiamgia'])
             ->latest('updated_at')
             ->when($q, function ($query) use ($q) {
-                $query->where(function ($sub) use ($q) {
-                    $sub->where('ma_donhang', 'like', "%$q%")
-                        ->orWhere('ghichu', 'like', "%$q%")
-                        ->orWhere('trangthai', 'like', "%$q%")
-                        ->orWhereHas('nguoidung', function ($u) use ($q) {
-                            $u->where('hoten', 'like', "%$q%");
-                        });
-                });
+                $query->where('madon', 'like', "%$q%")
+                    ->orWhere('trangthai', 'like', "%$q%");
             });
 
-        $items = $query->paginate($perPage, ['*'], 'page', $currentPage);
-
-        if ($currentPage > $items->lastPage() && $currentPage > 1) {
-            return $this->jsonResponse([
-                'status' => false,
-                'message' => 'Trang không tồn tại. Trang cuối cùng là ' . $items->lastPage(),
-                'meta' => [
-                    'current_page' => $currentPage,
-                    'last_page' => $items->lastPage(),
-                    'per_page' => $perPage,
-                    'total' => $items->total(),
-                ]
-            ], 404);
-        }
+        $items = $query->paginate($perPage);
 
         return $this->jsonResponse([
-            'status' => true,
+            'status'  => true,
             'message' => 'Danh sách đơn hàng',
-            'data' => DonHangResource::collection($items),
-            'meta' => [
+            'data'    => $items->items(),
+            'meta'    => [
                 'current_page' => $items->currentPage(),
                 'last_page'    => $items->lastPage(),
                 'per_page'     => $items->perPage(),
@@ -60,16 +40,20 @@ class DonHangAPI extends BaseController
     }
 
     /**
-     * Xem chi tiết 1 đơn hàng
+     * Xem chi tiết đơn hàng
      */
-    public function show(string $id)
+    public function show($id)
     {
-        $item = DonHang::with(['nguoidung', 'magiamgia'])->findOrFail($id);
+        $item = DonhangModel::with(['nguoidung', 'phuongthuc', 'magiamgia'])->find($id);
+
+        if (!$item) {
+            return $this->jsonResponse(['status' => false, 'message' => 'Không tìm thấy đơn hàng'], 404);
+        }
 
         return $this->jsonResponse([
-            'status' => true,
+            'status'  => true,
             'message' => 'Chi tiết đơn hàng',
-            'data' => new DonHangResource($item)
+            'data'    => $item
         ], Response::HTTP_OK);
     }
 
@@ -79,63 +63,109 @@ class DonHangAPI extends BaseController
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'ma_donhang'     => 'nullable|string|max:255',
-            'tongtien'       => 'required|numeric',
-            'tongsoluong'    => 'required|integer',
-            'ghichu'         => 'nullable|string',
-            'ngaytao'        => 'required|date',
-            'trangthai'      => 'nullable|in:cho_xac_nhan,da_xac_nhan,dang_giao,da_giao,da_huy',
-            'id_nguoidung'   => 'required|exists:nguoi_dung,id',
-            'id_magiamgia'   => 'required|exists:ma_giamgia,id',
+            'id_nguoidung' => 'required|exists:nguoidung,id',
+            'id_phuongthuc' => 'required|exists:phuongthuc,id',
+            'id_magiamgia' => 'nullable|exists:magiamgia,id',
+            'madon' => 'required|string|max:10|unique:donhang,madon',
+            'tongsoluong' => 'required|integer|min:1',
+            'thanhtien' => 'required|integer|min:0',
+            'trangthai' => 'nullable|in:Chờ xử lý,Đã chấp nhận,Đang giao hàng,Đã giao,Đã hủy',
         ]);
 
-        $item = DonHang::create($validated);
+        $donhang = DonhangModel::create($validated);
 
         return $this->jsonResponse([
-            'status' => true,
+            'status'  => true,
             'message' => 'Tạo đơn hàng thành công',
-            'data' => new DonHangResource($item)
+            'data'    => $donhang
         ], Response::HTTP_CREATED);
     }
 
     /**
      * Cập nhật đơn hàng
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        $item = DonHang::findOrFail($id);
+        $donhang = DonhangModel::find($id);
+
+        if (!$donhang) {
+            return $this->jsonResponse(['status' => false, 'message' => 'Không tìm thấy đơn hàng'], 404);
+        }
 
         $validated = $request->validate([
-            'ma_donhang'     => 'nullable|string|max:255',
-            'tongtien'       => 'sometimes|numeric',
-            'tongsoluong'    => 'sometimes|integer',
-            'ghichu'         => 'nullable|string',
-            'ngaytao'        => 'nullable|date',
-            'trangthai'      => 'nullable|in:cho_xac_nhan,da_xac_nhan,dang_giao,da_giao,da_huy',
-            'id_nguoidung'   => 'sometimes|exists:nguoi_dung,id',
-            'id_magiamgia'   => 'sometimes|exists:ma_giamgia,id',
+            'id_nguoidung' => 'sometimes|exists:nguoidung,id',
+            'id_phuongthuc' => 'sometimes|exists:phuongthuc,id',
+            'id_magiamgia' => 'nullable|exists:magiamgia,id',
+            'madon' => 'sometimes|string|max:10|unique:donhang,madon,' . $id,
+            'tongsoluong' => 'sometimes|integer|min:1',
+            'thanhtien' => 'sometimes|integer|min:0',
+            'trangthai' => 'nullable|in:Chờ xử lý,Đã chấp nhận,Đang giao hàng,Đã giao,Đã hủy',
         ]);
 
-        $item->update($validated);
+        $donhang->update($validated);
 
         return $this->jsonResponse([
-            'status' => true,
+            'status'  => true,
             'message' => 'Cập nhật đơn hàng thành công',
-            'data' => new DonHangResource($item)
+            'data'    => $donhang
         ], Response::HTTP_OK);
     }
 
     /**
-     * Xóa đơn hàng (soft delete)
+     * Xóa mềm đơn hàng (Soft Delete)
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        $item = DonHang::findOrFail($id);
-        $item->delete();
+        $donhang = DonhangModel::find($id);
+
+        if (!$donhang) {
+            return $this->jsonResponse(['status' => false, 'message' => 'Không tìm thấy đơn hàng'], 404);
+        }
+
+        $donhang->delete(); // Soft delete — sẽ gán giá trị vào cột deleted_at
 
         return $this->jsonResponse([
-            'status' => true,
-            'message' => 'Xóa đơn hàng thành công'
-        ], Response::HTTP_NO_CONTENT);
+            'status'  => true,
+            'message' => 'Đơn hàng đã được xóa (soft delete)'
+        ], Response::HTTP_OK);
+    }
+
+    /**
+     * Xóa vĩnh viễn (Force Delete)
+     */
+    public function forceDelete($id)
+    {
+        $donhang = DonhangModel::withTrashed()->find($id);
+
+        if (!$donhang) {
+            return $this->jsonResponse(['status' => false, 'message' => 'Không tìm thấy đơn hàng'], 404);
+        }
+
+        $donhang->forceDelete(); // Xóa thật khỏi DB
+
+        return $this->jsonResponse([
+            'status'  => true,
+            'message' => 'Đã xóa vĩnh viễn đơn hàng'
+        ], Response::HTTP_OK);
+    }
+
+    /**
+     * Khôi phục đơn hàng bị xóa mềm
+     */
+    public function restore($id)
+    {
+        $donhang = DonhangModel::withTrashed()->find($id);
+
+        if (!$donhang || !$donhang->trashed()) {
+            return $this->jsonResponse(['status' => false, 'message' => 'Đơn hàng không tồn tại hoặc chưa bị xóa'], 404);
+        }
+
+        $donhang->restore();
+
+        return $this->jsonResponse([
+            'status'  => true,
+            'message' => 'Khôi phục đơn hàng thành công',
+            'data'    => $donhang
+        ], Response::HTTP_OK);
     }
 }

@@ -43,6 +43,21 @@ return [
             'visibility' => 'public',
             'throw' => false,
         ],
+        'assets' => [
+            'driver' => 'local',
+            'root' => storage_path('app/assets'),
+            'url' => env('APP_URL').'/storage',
+            'visibility' => 'public',
+            'throw' => false,
+        ],
+
+        // nếu có nextjs project làm frontend, tại có fodel kẹp chung laravel_server đổi tên project_đúng là được
+        'nextjs_assets' => [
+            'driver' => 'local',
+            'root' => 'C:/xampp/htdocs/laravel_server/nextjs_ecomvina/public/assets',
+            'url' => env('NEXTJS_URL', 'http://localhost:3000') . '/assets',
+            'visibility' => 'public',
+        ],
 
         's3' => [
             'driver' => 's3',
