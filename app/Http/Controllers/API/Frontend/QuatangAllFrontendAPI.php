@@ -73,9 +73,10 @@ class QuatangAllFrontendAPI extends BaseFrontendController
      *                         @OA\Property(property="logo_thuonghieu", type="string", format="url", example="http://148.230.100.215/assets/client/images/brands/trung-tam-ban-hang-sieu-thi-vina.png")
      *                     ),
      *
-     *                     @OA\Property(property="dieukien", type="string", example="2"),
+     *                     @OA\Property(property="dieukiensoluong", type="integer", example="2"),
+     *                     @OA\Property(property="dieukiengiatri", type="integer", example="2000"),
      *                     @OA\Property(property="tieude", type="string", example="Siêu thị Vina đón trung thu 6/10"),
-     *                     @OA\Property(property="slug", type="string", example="sieu-thi-vina-don-trung-thu-610"),
+     *                     @OA\Property(property="slug", type="string", example="sieu-thi-vina-don-trung-thu-6-10"),
      *                     @OA\Property(property="thongtin", type="string", example="Siêu thị Vina đón trung thu 6/10 với không khí rộn ràng, ngập tràn sắc màu v..."),
      *                     @OA\Property(property="hinhanh", type="string", format="url", example="http://148.230.100.215/assets/client/images/thumbs/sieu-thi-vina-don-trung-thu-6-10.jpg"),
      *                     @OA\Property(property="luotxem", type="integer", example=0),
@@ -175,9 +176,9 @@ class QuatangAllFrontendAPI extends BaseFrontendController
                         ->whereDate('ngayketthuc', '<=', $soon); // sắp tới hạn
                 });
                 // 🔥 Sắp xếp theo ngày kết thúc gần nhất → xa nhất
-                $quatangs->orderBy('ngayketthuc', 'asc'); // đang theo Khải 2 ngày 3 ngày 4 ngày
+                $quatangs->orderBy('ngayketthuc', 'desc'); // đang theo Khải 2 ngày 3 ngày 4 ngày
                 // 🔥 Sắp xếp theo ngày kết thúc xa nhất → gần nhất
-                // $quatangs->orderBy('ngayketthuc', 'desc');
+                // $quatangs->orderBy('ngayketthuc', 'asc');
             }
             $hasFilter = true;
         }
@@ -189,13 +190,15 @@ class QuatangAllFrontendAPI extends BaseFrontendController
             $hasFilter = true;
         }
         if (!$hasFilter) {
-            $today = now()->toDateString();
-            $soon = now()->addDays(4)->toDateString();
-            $quatangs->where(function ($query) use ($today, $soon) {
-                $query->whereDate('ngayketthuc', '>=', $today)
-                    ->whereDate('ngayketthuc', '<=', $soon);
-            });
-            $quatangs->orderBy('ngayketthuc', 'desc'); // đang theo Khải 4 ngày 2 ngày 1 ngày
+            // $today = now()->toDateString();
+            // $soon = now()->addDays(4)->toDateString();
+            // $quatangs->where(function ($query) use ($today, $soon) {
+            //     $query->whereDate('ngayketthuc', '>=', $today)
+            //         ->whereDate('ngayketthuc', '<=', $soon);
+            // });
+            // $quatangs->orderBy('ngayketthuc', 'asc'); // đang theo Khải 4 ngày 2 ngày 1 ngày
+
+            $quatangs->orderBy('id', 'desc');
         }
 
         $result = $quatangs->paginate($limit);
@@ -247,7 +250,8 @@ class QuatangAllFrontendAPI extends BaseFrontendController
      *                     @OA\Property(property="logo_thuonghieu", type="string", format="url", example="http://148.230.100.215/assets/client/images/brands/trung-tam-ban-hang-sieu-thi-vina.png")
      *                 ),
      *
-     *                 @OA\Property(property="dieukien", type="string", example="3"),
+     *                 @OA\Property(property="dieukiensoluong", type="integer", example="3"),
+     *                 @OA\Property(property="dieukiengiatri", type="integer", example="3000"),
      *                 @OA\Property(property="tieude", type="string", example="Tặng 1 sản phẩm bách hóa khi mua 3 sản phẩm bất kỳ từ Trung Tâm Bán Hàng nhân ngày sinh nhật 13/10"),
      *                 @OA\Property(property="thongtin", type="string", example="Không có thông tin"),
      *                 @OA\Property(property="hinhanh", type="string", format="url", example="http://148.230.100.215/assets/client/images/thumbs/nuoc-rua-bat-bio-formula-bo-va-lo-hoi-tui-500ml-1.webp"),
@@ -373,7 +377,7 @@ class QuatangAllFrontendAPI extends BaseFrontendController
                 'bienthe.sanpham.hinhanhsanpham',
                 'bienthe.sanpham.thuonghieu'
             ])->get()->first(function ($item) use ($slug) {
-                return Str::slug($item->tieude) === $slug;
+                return $item->slug === $slug;
             });
         }
 

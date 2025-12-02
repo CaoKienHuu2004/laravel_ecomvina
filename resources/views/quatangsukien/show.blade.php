@@ -21,6 +21,10 @@
         <strong>Tiêu đề:</strong>
         <p>{{ $quatang->tieude }}</p>
       </div>
+      <div class="mb-3">
+        <strong>Slug:</strong>
+        <p>{{ $quatang->slug }}</p>
+      </div>
 
       <div class="mb-3">
         <strong>Biến thể sản phẩm:</strong>
@@ -39,8 +43,13 @@
       </div>
 
       <div class="mb-3">
-        <strong>Điều kiện:</strong>
-        <p>{{ $quatang->dieukien ?: 'Không có' }}</p>
+        <strong>Điều kiện số lượng:</strong>
+        <p>{{ $quatang->dieukiensoluong ?: 'Không có' }}</p>
+      </div>
+
+      <div class="mb-3">
+        <strong>Điều kiện giá trị:</strong>
+        <p>{{ $quatang->dieukiengiatri ?: 'Không có' }}</p>
       </div>
 
       <div class="mb-3">

@@ -28,6 +28,7 @@ class DonhangModel extends Model
         'id_nguoidung',
         'id_phivanchuyen',
         'id_diachigiaohang',
+        // 'id_diachinguoidung',
         'madon',
         'tongsoluong',
         'tamtinh',
@@ -36,9 +37,15 @@ class DonhangModel extends Model
         'trangthai',
         'created_at',
         'updated_at',
-        'deleted_at'
+        'deleted_at',
+        'hoten', //new
+        'diachi_giaohang', //new
+        'sodienthoai', //new
+        'giaohangnoitinh', //new
+        'phivanchuyen', //new
+        'hinhthucthanhtoan', //new
+        'trangthai_hinhthucthanhtoan', //new
     ];
-
     // Ép kiểu dữ liệu
     protected $casts = [
         'tongsoluong' => 'integer',
@@ -54,6 +61,52 @@ class DonhangModel extends Model
         'updated_at',
         'deleted_at',
     ];
+
+    // protected $fillable = [
+    //     'id_nguoidung',
+    //     'id_diachinguoidung',
+    //     'id_phivanchuyen',
+    //     'id_phuongthuc',
+    //     'id_magiamgia',
+    //     'madon',
+    //     'nguoinhan',
+    //     'diachinhan',
+    //     'khuvucgiao',
+    //     'hinhthucvanchuyen',
+    //     'phigiaohang',
+    //     'hinhthucthanhtoan',
+    //     'sodienthoai',
+    //     'mavoucher',
+    //     'giagiam',
+    //     'tamtinh',
+    //     'thanhtien',
+    //     'trangthaithanhtoan',
+    //     'trangthai',
+    // ];
+
+
+    // protected $casts = [
+    //     'id_nguoidung' => 'integer',
+    //     'id_diachinguoidung' => 'integer',
+    //     'id_phivanchuyen' => 'integer',
+    //     'id_phuongthuc' => 'integer',
+    //     'id_magiamgia' => 'integer',
+
+    //     'phigiaohang' => 'integer',
+    //     'giagiam' => 'integer',
+    //     'tamtinh' => 'integer',
+    //     'thanhtien' => 'integer',
+
+    //     'created_at' => 'datetime:Y-m-d H:i:s',
+    //     'updated_at' => 'datetime:Y-m-d H:i:s',
+    //     'deleted_at' => 'datetime:Y-m-d H:i:s',
+    // ];
+
+    // protected $hidden = [
+    //     'created_at',
+    //     'updated_at',
+    //     'deleted_at',
+    // ];
     // Cách lấy dữ liệu bao gồm cả bản ghi đã xóa mềm chỉ riêng admin mới dùng để xem
     // $donhang = DonhangModel::withTrashed()->find($id);
     // $donhang->makeVisible(['created_at', 'updated_at', 'deleted_at']);
@@ -101,6 +154,7 @@ class DonhangModel extends Model
     public function diachigiaohang()
     {
         return $this->belongsTo(DiaChiGiaoHangModel::class, 'id_diachigiaohang');
+        // return $this->belongsTo(DiaChiGiaoHangModel::class, 'id_diachinguoidung');
     }
 
     /**

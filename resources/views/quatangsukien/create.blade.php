@@ -43,7 +43,7 @@
                         <div class="card-body">
 
                             <div class="mb-3">
-                                <label>Thuộc Chương Trình Sự Kiện:</label>
+                                <label>Thuộc Chương Trình Sự Kiện: <span class="text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Bắt buộc">*</span></label>
 
                                 <select class="form-control" name="id_chuongtrinh" id="chuongtrinh_id">
                                     @foreach ($chuongtrinhs as $ct)
@@ -55,28 +55,37 @@
                             </div>
 
                             <div class="mb-3">
-                                <label>Tiêu đề quà tặng:</label>
+                                <label>Tiêu đề quà tặng: <span class="text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Bắt buộc">*</span></label>
                                 <input type="text" name="tieude" class="form-control" value="{{ old('tieude') }}" required>
                             </div>
 
                             <div class="mb-3">
-                                <label>Điều kiện:</label>
-                                <input type="text" name="dieukien" class="form-control" value="{{ old('dieukien') }}">
+                                <label>Slug:</label>
+                                <input type="text" name="slug" class="form-control" value="Tự động tạo theo tiêu đề" placeholder="Tự động tạo theo tiêu đề" readonly required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label>Điều kiện số lượng: <span class="text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Bắt buộc">*</span></label>
+                                <input type="number" min="0" step="1" max="999" name="dieukiensoluong"  class="form-control" value="{{ old('dieukiensoluong') }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label>Điều kiện giá trị(vnđ):</label>
+                                <input type="number" min="0" step="1000" max="99999999999" name="dieukiengiatri" class="form-control" value="{{ old('dieukiengiatri') }}">
                             </div>
 
 
                             <div class="mb-3">
-                                <label>Ngày Bắt Đầu:</label>
+                                <label>Ngày Bắt Đầu: <span class="text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Bắt buộc">*</span></label>
                                 <input type="datetime-local" name="ngaybatdau" class="form-control" value="{{ old('ngaybatdau') }}">
                             </div>
 
                             <div class="mb-3">
-                                <label>Ngày Kết Thúc:</label>
+                                <label>Ngày Kết Thúc: <span class="text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Bắt buộc">*</span></label>
                                 <input type="datetime-local" name="ngayketthuc" class="form-control" value="{{ old('ngayketthuc') }}">
                             </div>
 
                             <div class="mb-3">
-                                <label>Trạng thái:</label>
+                                <label>Trạng thái: <span class="text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Bắt buộc">*</span></label>
                                 <select name="trangthai" class="form-select">
                                     @foreach ($trangthais as $tt)
                                         <option value="{{ $tt }}">{{ $tt }}</option>
@@ -86,7 +95,7 @@
 
                             {{-- Thông tin quà tặng --}}
                             <div class="mb-3">
-                                <label>Thông tin <span class="text-danger">*</span></label>
+                                <label>Thông tin </label>
                                 <textarea name="thongtin" id="thongtin" class="form-control">{{ old('thongtin') }}</textarea>
                             </div>
 
@@ -112,7 +121,7 @@
                 <div class="col-lg-12">
                     <div class="card mb-4">
                         <div class="card-header">
-                            <h4>Chọn Biến Thể Sản Phẩm</h4>
+                            <h4>Chọn Biến Thể Sản Phẩm: <span class="text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Bắt buộc">*</span></h4>
                         </div>
 
                         <div class="card-body">

@@ -23,8 +23,11 @@ class QuatangsukienModel extends Model
     protected $fillable = [
         'id_bienthe',
         'id_chuongtrinh',
-        'dieukien',
+        // 'dieukien', // edit và đã delete
+        'dieukiensoluong', // new
+        'dieukiengiatri', // new
         'tieude',
+        'slug', // new
         'thongtin',
         'hinhanh',
         'luotxem',

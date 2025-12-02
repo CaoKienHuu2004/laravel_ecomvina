@@ -1423,6 +1423,50 @@
             }
         },
         "/api/toi/donhangs/{id}": {
+            "get": {
+                "tags": [
+                    "Đơn hàng (tôi)"
+                ],
+                "summary": "Xem chi tiết một đơn hàng của người dùng hiện tại",
+                "operationId": "30b6129bccc462d99a98360c3559a8a8",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID đơn hàng",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Chi tiết đơn hàng",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/TheoDoiDonHangResource"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Không xác thực được user"
+                    },
+                    "403": {
+                        "description": "Không có quyền xem đơn hàng này"
+                    },
+                    "404": {
+                        "description": "Không tìm thấy đơn hàng"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
             "put": {
                 "tags": [
                     "Đơn hàng (tôi)"
@@ -2371,9 +2415,13 @@
                                                         },
                                                         "type": "object"
                                                     },
-                                                    "dieukien": {
-                                                        "type": "string",
+                                                    "dieukiensoluong": {
+                                                        "type": "integer",
                                                         "example": "2"
+                                                    },
+                                                    "dieukiengiatri": {
+                                                        "type": "integer",
+                                                        "example": "2000"
                                                     },
                                                     "tieude": {
                                                         "type": "string",
@@ -2381,7 +2429,7 @@
                                                     },
                                                     "slug": {
                                                         "type": "string",
-                                                        "example": "sieu-thi-vina-don-trung-thu-610"
+                                                        "example": "sieu-thi-vina-don-trung-thu-6-10"
                                                     },
                                                     "thongtin": {
                                                         "type": "string",
@@ -2581,9 +2629,13 @@
                                                     },
                                                     "type": "object"
                                                 },
-                                                "dieukien": {
-                                                    "type": "string",
+                                                "dieukiensoluong": {
+                                                    "type": "integer",
                                                     "example": "3"
+                                                },
+                                                "dieukiengiatri": {
+                                                    "type": "integer",
+                                                    "example": "3000"
                                                 },
                                                 "tieude": {
                                                     "type": "string",
@@ -5058,11 +5110,15 @@
                     },
                     "slug": {
                         "type": "string",
-                        "example": "tang-1-san-pham-bach-hoa-khi-mua-3-san-pham-bat-ky-tu-trung-tam-ban-hang-nhan-ngay-sinh-nhat-1310"
+                        "example": "tang-1-san-pham-bach-hoa-khi-mua-3-san-pham-bat-ky-tu-trung-tam-ban-hang-nhan-ngay-sinh-nhat-13-10"
                     },
-                    "dieukien": {
-                        "type": "string",
+                    "dieukiensoluong": {
+                        "type": "integer",
                         "example": "3"
+                    },
+                    "dieukiengiatri": {
+                        "type": "integer",
+                        "example": "3000"
                     },
                     "thongtin": {
                         "type": "string",
@@ -6283,9 +6339,9 @@
                         "example": "Đang giao hàng"
                     },
                     "created_at": {
-                        "description": "Đặt hàng vào ngày giờ phút, convert về string",
+                        "description": "Đặt hàng vào ngày format đúng ISO 8601",
                         "type": "string",
-                        "example": "dd/mm/yyyy hh:mm"
+                        "example": "2025-12-01T20:40:11+07:00"
                     },
                     "chitietdonhang": {
                         "description": "Danh sách chi tiết đơn hàng",

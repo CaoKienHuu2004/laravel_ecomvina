@@ -259,6 +259,7 @@ use App\Http\Controllers\API\ThongBaoAPI;
     });
     Route::middleware(['auth.api'])->group(function () {
         Route::get('/toi/donhangs', [DonHangFrontendAPI::class, 'index']);
+        Route::get('/toi/donhangs/{id}', [DonHangFrontendAPI::class, 'show']);
         Route::post('/toi/donhangs', [DonHangFrontendAPI::class, 'store']);
         Route::put('/toi/donhangs/{id}', [DonHangFrontendAPI::class, 'update']);
         Route::patch('/toi/donhangs/{id}/huy', [DonHangFrontendAPI::class, 'cancel']);

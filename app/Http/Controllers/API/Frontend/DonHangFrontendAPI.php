@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Frontend\DonHangDetailResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Response;
@@ -21,6 +22,8 @@ use Illuminate\Validation\Rule;
 use OpenApi\Annotations as OA;
 
 use App\Http\Resources\Toi\TheoDoiDonHang\TheoDoiDonHangResource;
+use App\Http\Resources\Toi\TheoDoiDonHangDetail\TheoDoiDonHangResource as TheoDoiDonHangDetailResource;
+use App\Models\BientheModel;
 
 /**
  * @OA\Schema(
@@ -177,6 +180,74 @@ class DonHangFrontendAPI extends BaseFrontendController
             'status' => true,
             'message' => "Danh Sách Đơn Hàng Theo Trạng Thái Đơn Hàng Của Khách Hàng #{$user->id}: {$user->hoten}",
             'data' => $grouped
+        ], Response::HTTP_OK);
+    }
+
+    /**
+     * @OA\Get(
+     *     path="/api/toi/donhangs/{id}",
+     *     summary="Xem chi tiết một đơn hàng của người dùng hiện tại",
+     *     tags={"Đơn hàng (tôi)"},
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID đơn hàng",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Chi tiết đơn hàng",
+     *         @OA\JsonContent(ref="#/components/schemas/TheoDoiDonHangResource")
+     *     ),
+     *     @OA\Response(response=401, description="Không xác thực được user"),
+     *     @OA\Response(response=403, description="Không có quyền xem đơn hàng này"),
+     *     @OA\Response(response=404, description="Không tìm thấy đơn hàng")
+     * )
+     */
+    public function show(Request $request, $id)
+    {
+        $user = $request->get('auth_user');
+
+        if (!$user) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Không xác thực được user.',
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        // Lấy đơn hàng kèm quan hệ cần thiết
+        $donhang = DonhangModel::with([
+            'chitietdonhang.bienthe.sanpham',
+            'chitietdonhang.bienthe.loaibienthe',
+            'chitietdonhang.bienthe.sanpham.hinhanhsanpham',
+            'phuongthuc',
+            'phivanchuyen',
+            'diachigiaohang',
+            'magiamgia'
+        ])->find($id);
+
+        if (!$donhang) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Không tìm thấy đơn hàng.',
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        // Kiểm tra quyền: đơn hàng phải thuộc về user đang đăng nhập
+        if ($donhang->id_nguoidung !== $user->id) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Bạn không có quyền xem đơn hàng này.',
+            ], Response::HTTP_FORBIDDEN);
+        }
+
+        // Trả về resource theo chuẩn
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => "Chi tiết đơn hàng #{$donhang->madon}",
+            'data' => new TheoDoiDonHangDetailResource($donhang)
         ], Response::HTTP_OK);
     }
 
@@ -391,12 +462,19 @@ class DonHangFrontendAPI extends BaseFrontendController
             ]);
 
             foreach ($giohang as $item) {
+                $bienthe = BientheModel::with(['loaibienthe', 'sanpham'])->find($item->id_bienthe);
+                if (!$bienthe) {
+                    continue; // Nếu biến thể không tồn tại thì bỏ qua
+                }
+                $tenloaibienthe = $bienthe->loaibienthe->ten ?? "Không có";
+                $tensanpham = $bienthe->sanpham->ten ?? "Không có";
                 ChitietdonhangModel::create([
                     'id_bienthe' => $item->id_bienthe,
+                    'tenloaibienthe' => $tenloaibienthe,
+                    'tensanpham' => $tensanpham,
                     'id_donhang' => $donhang->id,
                     'soluong'    => $item->soluong,
                     'dongia'     => $item->bienthe->giagoc ?? 0,
-                    'trangthai'  => 'Đã đặt',
                 ]);
             }
 
@@ -610,7 +688,9 @@ class DonHangFrontendAPI extends BaseFrontendController
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        $donhang->update(['trangthai' => 'Đã hủy đơn']);
+        $donhang->update([
+            'trangthai' => 'Đã hủy'
+        ]);
 
         return $this->jsonResponse([
             'status' => true,

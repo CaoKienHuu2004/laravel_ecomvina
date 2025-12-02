@@ -17,7 +17,8 @@ class ThongbaoModel extends Model
     protected $primaryKey = 'id';
 
     // Bỏ timestamps vì migration không có created_at và updated_at
-    public $timestamps = false;
+    public $timestamps = true;
+    // public $timestamps = false;
 
     // Các cột được phép gán giá trị hàng loạt
     protected $fillable = [
@@ -25,7 +26,10 @@ class ThongbaoModel extends Model
         'tieude',
         'noidung',
         'lienket',
+        'loaithongbao', //new
         'trangthai',
+        'created_at', //new
+        'updated_at', //new
     ];
 
     /**

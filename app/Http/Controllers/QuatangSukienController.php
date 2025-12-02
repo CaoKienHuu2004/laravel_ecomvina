@@ -28,18 +28,23 @@ class QuatangSukienController extends Controller
     {
         $trangthais = QuatangsukienModel::getEnumValues('trangthai');
 
+        // $query = QuatangsukienModel::with(['bienthe', 'chuongtrinh'])
+        //     ->orderBy('id', 'desc');
+
+        // if ($request->filled('trangthai') && in_array($request->trangthai, $trangthais)) {
+        //     $query->where('trangthai', $request->trangthai);
+        // }
+
+        // if ($request->filled('tieude')) {
+        //     $query->where('tieude', 'like', '%' . trim($request->tieude) . '%');
+        // }
+
+        // $quatangs = $query->paginate($request->get('per_page', 10))->appends($request->query());
+
         $query = QuatangsukienModel::with(['bienthe', 'chuongtrinh'])
-            ->orderBy('id', 'desc');
+            ->orderBy('id', 'desc'); // client-paginate
 
-        if ($request->filled('trangthai') && in_array($request->trangthai, $trangthais)) {
-            $query->where('trangthai', $request->trangthai);
-        }
-
-        if ($request->filled('tieude')) {
-            $query->where('tieude', 'like', '%' . trim($request->tieude) . '%');
-        }
-
-        $quatangs = $query->paginate($request->get('per_page', 10))->appends($request->query());
+        $quatangs = $query->get();
 
         return view('quatangsukien.index', compact('quatangs', 'trangthais'));
     }
@@ -78,10 +83,11 @@ class QuatangSukienController extends Controller
             'id_bienthe' => 'required|integer|exists:bienthe,id',
             'id_chuongtrinh' => 'required|integer|exists:chuongtrinh,id',
             'tieude' => 'required|string|max:255',
-            'dieukien' => 'nullable|string|max:255',
+            'dieukiensoluong' => 'required|integer|max:999|min:0',
+            'dieukiengiatri' => 'nullable|integer|max:999999999999|min:0',
             'thongtin' => 'nullable|string',
-            'ngaybatdau' => 'nullable|date',
-            'ngayketthuc' => 'nullable|date',
+            'ngaybatdau' => 'required|date',
+            'ngayketthuc' => 'required|date',
             'hinhanh' => 'nullable|image|mimes:jpg,png,jpeg,gif,webp|max:2048',
             'trangthai' => 'required|in:' . implode(',', $enumTrangThai),
         ]);
@@ -95,12 +101,23 @@ class QuatangSukienController extends Controller
         }
 
         $quatang = new QuatangsukienModel();
+
         $quatang->fill($request->only([
             'id_bienthe', 'id_chuongtrinh', 'tieude',
             'thongtin', 'dieukien', 'trangthai',
             'ngaybatdau', 'ngayketthuc'
         ]));
-
+        // Xử lý tieude có dấu "/"
+        $title = str_replace('/', '-', $request->tieude);
+        // Tạo slug
+        $slug = Str::slug($title);
+        $originalSlug = $slug;
+        $count = 1;
+        // Xử lý tránh trùng slug
+        while (QuatangsukienModel::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $count++;
+        }
+        $quatang->slug = $slug;
         // Upload ảnh
         if ($request->hasFile('hinhanh')) {
             $file = $request->file('hinhanh');
@@ -163,10 +180,11 @@ class QuatangSukienController extends Controller
             'id_bienthe' => 'required|integer|exists:bienthe,id',
             'id_chuongtrinh' => 'required|integer|exists:chuongtrinh,id',
             'tieude' => 'required|string|max:255',
-            'dieukien' => 'nullable|string|max:255',
+            'dieukiensoluong' => 'required|integer|max:999|min:0',
+            'dieukiengiatri' => 'nullable|integer|max:99999999999|min:0',
             'thongtin' => 'nullable|string',
-            'ngaybatdau' => 'nullable|date',
-            'ngayketthuc' => 'nullable|date',
+            'ngaybatdau' => 'required|date',
+            'ngayketthuc' => 'required|date',
             'hinhanh' => 'nullable|image|mimes:jpg,png,jpeg,gif,webp|max:2048',
             'trangthai' => 'required|in:' . implode(',', $enumTrangThai),
         ]);
@@ -185,6 +203,17 @@ class QuatangSukienController extends Controller
             'thongtin', 'dieukien', 'trangthai',
             'ngaybatdau', 'ngayketthuc'
         ]));
+        // Xử lý tieude có dấu "/"
+        $title = str_replace('/', '-', $request->tieude);
+        // Tạo slug
+        $slug = Str::slug($title);
+        $originalSlug = $slug;
+        $count = 1;
+        // Xử lý tránh trùng slug
+        while (QuatangsukienModel::where('slug', $slug)->exists()) {
+            $slug = $originalSlug . '-' . $count++;
+        }
+        $quatang->slug = $slug;
 
         // Upload ảnh
         if ($request->hasFile('hinhanh')) {

@@ -25,8 +25,9 @@ class GiftHotResource extends JsonResource
         return [
             'id' => $this->id,
             'tieude' => $this->tieude,
-            'slug'   => Str::slug($this->tieude),
-            'dieukien' => $this->dieukien,
+            'slug'   => $this->slug,
+            'dieukiensoluong' => $this->dieukiensoluong,
+            'dieukiengiatri' => $this->dieukiengiatri,
             'thongtin' => $covertThongtin,
             'hinhanh' => $this->hinhanh,
             'luotxem' => $this->luotxem,

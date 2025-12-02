@@ -47,6 +47,22 @@
       </div>
 
       <div class="mb-3">
+        <label for="slug" class="form-label">Slug</label>
+        <input
+          type="text"
+          id="slug"
+          name="slug"
+          class="form-control @error('slug') is-invalid @enderror"
+          value="{{ old('slug', $quatang->slug ?? 'chưa cập nhật')}}"
+            readonly
+            disabled
+        >
+        @error('tieude')
+          <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+      </div>
+
+      <div class="mb-3">
         <label for="id_bienthe" class="form-label">Biến thể sản phẩm <span class="text-danger">*</span></label>
         <select
           id="id_bienthe"
@@ -93,16 +109,35 @@
 
 
       <div class="mb-3">
-        <label for="dieukien" class="form-label">Điều kiện</label>
+        <label for="dieukien" class="form-label">Điều kiện số lượng:  <span class="text-danger">*</span></label>
         <input
-          type="text"
-          id="dieukien"
-          name="dieukien"
-          class="form-control @error('dieukien') is-invalid @enderror"
-          value="{{ old('dieukien', $quatang->dieukien) }}"
-          maxlength="255"
+          type="number"
+          id="dieukiensoluong"
+          name="dieukiensoluong"
+          class="form-control @error('dieukiensoluong') is-invalid @enderror"
+          value="{{ old('dieukiensoluong', $quatang->dieukiensoluong) }}"
+          max="999"
+          min="0"
+          step="1"
         >
-        @error('dieukien')
+        @error('dieukiensoluong')
+          <div class="invalid-feedback">{{ $message }}</div>
+        @enderror
+      </div>
+
+      <div class="mb-3">
+        <label for="dieukien" class="form-label">Điều kiện giá trị (vnđ): </label>
+        <input
+          type="number"
+          id="dieukiengiatri"
+          name="dieukiengiatri"
+          class="form-control @error('dieukiengiatri') is-invalid @enderror"
+          value="{{ old('dieukiengiatri', $quatang->dieukiengiatri) }}"
+          max="99999999999"
+          min="0"
+          step="1000"
+        >
+        @error('dieukiengiatri')
           <div class="invalid-feedback">{{ $message }}</div>
         @enderror
       </div>
@@ -122,7 +157,7 @@
 
       <div class="row mb-3">
         <div class="col-md-6">
-          <label for="ngaybatdau" class="form-label">Ngày bắt đầu</label>
+          <label for="ngaybatdau" class="form-label">Ngày bắt đầu:  <span class="text-danger">*</span></label>
           <input
             type="date"
             id="ngaybatdau"
@@ -136,7 +171,7 @@
         </div>
 
         <div class="col-md-6">
-          <label for="ngayketthuc" class="form-label">Ngày kết thúc</label>
+          <label for="ngayketthuc" class="form-label">Ngày kết thúc:  <span class="text-danger">*</span></label>
           <input
             type="date"
             id="ngayketthuc"

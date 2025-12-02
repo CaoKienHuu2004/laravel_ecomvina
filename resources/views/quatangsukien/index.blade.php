@@ -1,7 +1,9 @@
 @extends('layouts.app')
 
 @section('title', 'Danh sách Quà Tặng Sự Kiện | Quản trị hệ thống Siêu Thị Vina')
-
+{{-- // controller truyền xuống $quatangs,$trangthais  --}}
+{{-- // các route sư dụng quatangsukien.create quatangsukien.trash quatangsukien.show quatangsukien.edit quatangsukien.destroy   --}}
+{{--  $quatangs->hihanh: Link http://148.230.100.215/assets/client/images/thumbs/sieu-thi-mung-ngay-di-san-van-hoa-viet-nam-23-11.png --}}
 @section('content')
 <div class="page-wrapper">
   <div class="content">
@@ -10,7 +12,8 @@
         <h4>DANH SÁCH QUÀ TẶNG SỰ KIỆN</h4>
         <h6>
           @php
-            $countAll = $quatangs->total();
+            $countAll = $quatangs->count();
+            // $countAll = $quatangs->total();
             $countTrangThai = [];
             foreach($trangthais as $tt) {
                 $countTrangThai[$tt] = $quatangs->filter(fn($q) => $q->trangthai === $tt)->count();
@@ -46,7 +49,8 @@
     <div class="card">
       <div class="card-body">
         {{-- Filter --}}
-        <form method="GET" action="{{ route('quatangsukien.index') }}" class="row g-3 mb-3" id="filterForm">
+        {{-- bỏ vì dùng client-paginate --}}
+        {{-- <form method="GET" action="{{ route('quatangsukien.index') }}" class="row g-3 mb-3" id="filterForm">
           <div class="col-md-4">
             <input
               type="text"
@@ -74,11 +78,12 @@
           <div class="col-md-2">
             <a href="{{ route('quatangsukien.index') }}" class="btn btn-outline-danger w-100">Xóa filter</a>
           </div>
-        </form>
+        </form> --}}
 
         {{-- Bảng danh sách --}}
         <div class="table-responsive">
-          <table class="table table-bordered align-middle">
+          <table class="table datanew">
+          {{-- <table class="table table-bordered align-middle"> --}}
             <thead>
               <tr>
                 <th>Tiêu đề</th>
@@ -142,9 +147,9 @@
         </div>
 
         {{-- Phân trang --}}
-        <div class="d-flex justify-content-end mt-3">
+        {{-- <div class="d-flex justify-content-end mt-3">
           {{ $quatangs->links() }}
-        </div>
+        </div> --}}
       </div>
     </div>
   </div>

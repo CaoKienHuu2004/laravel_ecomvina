@@ -90,7 +90,7 @@ class GioHangFrontendAPI extends BaseFrontendController
      *     summary="Thêm sản phẩm vào giỏ hàng (tự động áp dụng khuyến mãi/quà tặng nếu có)",
      *     description="
      *      - Thêm sản phẩm vào giỏ hàng của người dùng hiện tại.
-     *      - Tự động kiểm tra và áp dụng chương trình quà tặng/sự kiện nếu thỏa điều kiện (`dieukien <= tổng số lượng sản phẩm`) và trong thời gian hiệu lực.
+     *      - Tự động kiểm tra và áp dụng chương trình quà tặng/sự kiện nếu thỏa điều kiện (`dieukiensoluong <= tổng số lượng sản phẩm`) và trong thời gian hiệu lực.
      *      - Tự động thêm hoặc xóa quà tặng miễn phí tương ứng (`thanhtien = 0`).
      *      - Không còn quản lý số lượng lượt tặng (`luottang`) trong bảng biến thể.
      *     ",
@@ -170,9 +170,9 @@ class GioHangFrontendAPI extends BaseFrontendController
                 ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
                 ->where('qs.id_bienthe', $id_bienthe)
                 // ->where('bt.luottang', '>', 0)
-                ->where('qs.dieukien', '<=', $totalQuantity)
+                ->where('qs.dieukiensoluong', '<=', $totalQuantity)
                 ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
-                ->select('qs.dieukien as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
+                ->select('qs.dieukiensoluong as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
                 ->first();
 
             $numFree = 0;
@@ -275,7 +275,7 @@ class GioHangFrontendAPI extends BaseFrontendController
      *     description="
      *     - Cập nhật số lượng sản phẩm trong giỏ hàng.
      *     - Nếu số lượng mới bằng 0, sản phẩm sẽ bị xóa khỏi giỏ hàng cùng quà tặng liên quan.
-     *     - Áp dụng tự động chương trình quà tặng/sự kiện nếu thỏa điều kiện (`dieukien <= soluong`) và trong thời gian hiệu lực.
+     *     - Áp dụng tự động chương trình quà tặng/sự kiện nếu thỏa điều kiện (`dieukiensoluong <= soluong`) và trong thời gian hiệu lực.
      *     - Tự động thêm hoặc xóa quà tặng miễn phí tương ứng với số lượng sản phẩm.
      *     - Không còn quản lý số lượng lượt tặng (`luottang`) trong bảng biến thể.
      *     ",
@@ -387,11 +387,11 @@ class GioHangFrontendAPI extends BaseFrontendController
                 ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
                 ->where('qs.id_bienthe', $id_bienthe)
                 // ->where('bt.luottang', '>', 0)
-                ->where('qs.dieukien', '<=', $soluongNew)
+                ->where('qs.dieukiensoluong', '<=', $soluongNew)
                 ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
                 ->select(
                     'qs.id',
-                    'qs.dieukien as discount_multiplier',
+                    'qs.dieukiensoluong as discount_multiplier',
                     'bt.luottang as current_luottang',
                     'bt.giagoc'
                 )

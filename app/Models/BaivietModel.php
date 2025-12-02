@@ -25,11 +25,13 @@ class BaivietModel extends Model
         'luotxem',
         'hinhanh',
         'trangthai',
+        'created_at', //new
+        'updated_at', //new
     ];
 
     // Cho phép Laravel tự động xử lý created_at, updated_at, deleted_at
-    public $timestamps = false;
-    // public $timestamps = true;
+    // public $timestamps = false;
+    public $timestamps = true;
 
     // Kiểu dữ liệu cho từng cột (tùy chọn, giúp cast dữ liệu chính xác hơn)
     protected $casts = [

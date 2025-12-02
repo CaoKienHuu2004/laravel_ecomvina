@@ -159,7 +159,7 @@ class SanphamController extends Controller
 
                 // Ảnh
                 // 'anhsanpham.*.image'     => 'Mỗi file tải lên phải là hình ảnh',
-                'anhsanpham.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+                'anhsanpham.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:6120',
 
                 // Biến thể
                 'bienthe.*.gia.required' => 'Vui lòng nhập giá cho biến thể',

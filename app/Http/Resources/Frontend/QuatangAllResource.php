@@ -56,7 +56,7 @@ class QuatangAllResource extends JsonResource
         $today = Carbon::today();
         $endDate = Carbon::parse($this->ngayketthuc);
         $thoigian_conlai = $endDate->gte($today) ? $today->diffInDays($endDate) : 0; // Tính số ngày còn lại, nếu ngày kết thúc đã qua thì trả về 0
-        $slug = Str::slug($this->tieude);
+
         return [
             'id' => $this->id,
             'id_bienthe' => $this->id_bienthe,
@@ -67,9 +67,10 @@ class QuatangAllResource extends JsonResource
                 'slug_thuonghieu' => $this->bienthe->sanpham->thuonghieu->slug,
                 'logo_thuonghieu' => $this->bienthe->sanpham->thuonghieu->logo,
             ],
-            'dieukien' => $this->dieukien,
+            'dieukiensoluong' => $this->dieukiensoluong,
+            'dieukiengiatri' => $this->dieukiengiatri,
             'tieude' => $this->tieude,
-            'slug' => $slug,
+            'slug' => $this->slug,
             'thongtin' => $this->cleanAndLimitText($this->thongtin),
             'hinhanh' => $this->hinhanh,
             'luotxem' => $this->luotxem,
