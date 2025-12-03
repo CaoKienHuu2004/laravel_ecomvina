@@ -25,10 +25,12 @@ use App\Http\Controllers\PhuongThucController;
 use App\Http\Controllers\QuangCaoController;
 use App\Http\Controllers\QuatangSukienController;
 use App\Http\Controllers\ThongBaoController;
+use App\Http\Controllers\Web\TrangDieuKhoanWebAPI;
 use App\Http\Controllers\Web\AuthWebController;
 use App\Http\Controllers\Web\BaivietWebApi;
 use App\Http\Controllers\Web\DiaChiWebApi;
 use App\Http\Controllers\Web\MaGiamGiaWebApi;
+use App\Http\Controllers\Web\QuatangAllWebAPI;
 use App\Http\Controllers\Web\TimKiemWebApi;
 use App\Http\Controllers\Web\TinhThanhVietNamWebApi;
 use App\Http\Controllers\Web\TukhoaWebApi;
@@ -363,6 +365,9 @@ Route::delete('/toi/giohang/{id}', [GioHangWebApi::class, 'destroy']);
 Route::get('/api-san-pham', [SanphamAllWebAPI::class, 'index']);
 Route::get('/api-san-pham/{id}', [SanphamAllWebAPI::class, 'show']);
 
+Route::get('/api-qua-tang', [QuatangAllWebAPI::class, 'index']);
+Route::get('/api-qua-tang/{id}', [QuatangAllWebAPI::class, 'show']);
+
 Route::get('/api-bai-viet', [BaivietWebApi::class, 'index']);
 Route::get('/api-bai-viet/{id}', [BaivietWebApi::class, 'show']);
 
@@ -370,6 +375,9 @@ Route::get('/api-trang-chu', [TrangChuWebAPI::class, 'index']);
     Route::apiResource('api-tim-kiem', TimKiemWebApi::class)->only(['index']);
     Route::apiResource('api-tu-khoa', TukhoaWebApi::class)->only(['index','store','update']);
     Route::get('/api-danh-muc', [DanhMucWebApi::class, 'index']);
+//page tỉnh
+Route::apiResource('api-trang-dieu-khoan', TrangDieuKhoanWebAPI::class)->only(['index']);
+//page tỉnh
 
 // gọi kèm các routes WebApi khác
 Route::get('/api-tinh-thanh', [TinhThanhVietNamWebApi::class, 'index']);
@@ -381,6 +389,7 @@ Route::apiResource('api-ma-giam-gia', MaGiamGiaWebApi::class)->only(['index','sh
 Route::middleware(['auth.api'])->group(function () {
     Route::get('/toi/donhang', [DonHangWebApi::class, 'index']);
     Route::post('/toi/donhang', [DonHangWebApi::class, 'store']);
+    Route::post('/toi/donhang', [DonHangWebApi::class, 'show']);
     Route::put('/toi/donhang/{id}', [DonHangWebApi::class, 'update']);
     Route::patch('/toi/donhang/{id}/huy', [DonHangWebApi::class, 'cancel']);
 

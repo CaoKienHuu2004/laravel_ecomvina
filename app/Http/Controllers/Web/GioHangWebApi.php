@@ -239,9 +239,9 @@ class GioHangWebApi extends Controller
             $promotion = DB::table('quatang_sukien as qs')
                 ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
                 ->where('qs.id_bienthe', $item['id_bienthe'])
-                ->where('qs.dieukien', '<=', $soluong)
+                ->where('qs.dieukiensoluong', '<=', $soluong)
                 ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
-                ->select('qs.dieukien as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
+                ->select('qs.dieukiensoluong as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
                 ->first();
 
             $thanhtien = $soluong * $priceUnit; // mặc định không khuyến mãi
@@ -306,9 +306,9 @@ class GioHangWebApi extends Controller
                 $promotion = DB::table('quatang_sukien as qs')
                     ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
                     ->where('qs.id_bienthe', $id_bienthe)
-                    ->where('qs.dieukien', '<=', $totalQuantity)
+                    ->where('qs.dieukiensoluong', '<=', $totalQuantity)
                     ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
-                    ->select('qs.dieukien as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
+                    ->select('qs.dieukiensoluong as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
                     ->first();
 
                 $numFree = 0;
@@ -409,9 +409,9 @@ class GioHangWebApi extends Controller
             $promotion = DB::table('quatang_sukien as qs')
                 ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
                 ->where('qs.id_bienthe', $id_bienthe)
-                ->where('qs.dieukien', '<=', $totalQty)
+                ->where('qs.dieukiensoluong', '<=', $totalQty)
                 ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
-                ->select('qs.dieukien as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
+                ->select('qs.dieukiensoluong as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
                 ->first();
 
             $numFree = 0;
@@ -539,9 +539,9 @@ class GioHangWebApi extends Controller
                 $promotion = DB::table('quatang_sukien as qs')
                     ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
                     ->where('qs.id_bienthe', $id_bienthe)
-                    ->where('qs.dieukien', '<=', $soluongNew)
+                    ->where('qs.dieukiensoluong', '<=', $soluongNew)
                     ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
-                    ->select('qs.id', 'qs.dieukien as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
+                    ->select('qs.id', 'qs.dieukiensoluong as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
                     ->first();
 
                 $numFreeNew = 0;
@@ -651,9 +651,9 @@ class GioHangWebApi extends Controller
                 $promotion = DB::table('quatang_sukien as qs')
                     ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
                     ->where('qs.id_bienthe', $id)
-                    ->where('qs.dieukien', '<=', $soluongNew)
+                    ->where('qs.dieukiensoluong', '<=', $soluongNew)
                     ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
-                    ->select('qs.dieukien as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
+                    ->select('qs.dieukiensoluong as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
                     ->first();
 
                 $numFreeNew = 0;

@@ -22,12 +22,36 @@ class DonhangModel extends Model
     public $timestamps = true;
 
 
+    // protected $fillable = [
+    //     'id_phuongthuc',
+    //     'id_magiamgia',
+    //     'id_nguoidung',
+    //     'id_phivanchuyen',
+    //     'id_diachigiaohang',
+    //     // 'id_diachinguoidung',
+    //     'madon',
+    //     'tongsoluong',
+    //     'tamtinh',
+    //     'thanhtien',
+    //     'trangthaithanhtoan',
+    //     'trangthai',
+    //     'created_at',
+    //     'updated_at',
+    //     'deleted_at',
+    //     'hoten', //new
+    //     'diachi_giaohang', //new
+    //     'sodienthoai', //new
+    //     'giaohangnoitinh', //new
+    //     'phivanchuyen', //new
+    //     'hinhthucthanhtoan', //new
+    //     'trangthai_hinhthucthanhtoan', //new
+    // ];
     protected $fillable = [
         'id_phuongthuc',
         'id_magiamgia',
         'id_nguoidung',
         'id_phivanchuyen',
-        'id_diachigiaohang',
+        'id_diachigiaohang', //edit
         // 'id_diachinguoidung',
         'madon',
         'tongsoluong',
@@ -38,13 +62,16 @@ class DonhangModel extends Model
         'created_at',
         'updated_at',
         'deleted_at',
-        'hoten', //new
-        'diachi_giaohang', //new
+        'nguoinhan', //new
+        'diachinhan', //new
         'sodienthoai', //new
-        'giaohangnoitinh', //new
-        'phivanchuyen', //new
+
+        'khuvucgiao', //new
+        'hinhthucvanchuyen', //new
+        'phigiaohang', //new
         'hinhthucthanhtoan', //new
-        'trangthai_hinhthucthanhtoan', //new
+        'mavoucher', //new
+        'giagiam', //new
     ];
     // Ép kiểu dữ liệu
     protected $casts = [

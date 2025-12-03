@@ -1860,7 +1860,7 @@
                     "Giỏ hàng (tôi)"
                 ],
                 "summary": "Thêm sản phẩm vào giỏ hàng (tự động áp dụng khuyến mãi/quà tặng nếu có)",
-                "description": "\n     *      - Thêm sản phẩm vào giỏ hàng của người dùng hiện tại.\n     *      - Tự động kiểm tra và áp dụng chương trình quà tặng/sự kiện nếu thỏa điều kiện (`dieukien <= tổng số lượng sản phẩm`) và trong thời gian hiệu lực.\n     *      - Tự động thêm hoặc xóa quà tặng miễn phí tương ứng (`thanhtien = 0`).\n     *      - Không còn quản lý số lượng lượt tặng (`luottang`) trong bảng biến thể.\n     *     ",
+                "description": "\n     *      - Thêm sản phẩm vào giỏ hàng của người dùng hiện tại.\n     *      - Tự động kiểm tra và áp dụng chương trình quà tặng/sự kiện nếu thỏa điều kiện (`dieukiensoluong <= tổng số lượng sản phẩm`) và trong thời gian hiệu lực.\n     *      - Tự động thêm hoặc xóa quà tặng miễn phí tương ứng (`thanhtien = 0`).\n     *      - Không còn quản lý số lượng lượt tặng (`luottang`) trong bảng biến thể.\n     *     ",
                 "operationId": "8ca4a60b35d7fd3b6da07cf9a9169c5c",
                 "requestBody": {
                     "description": "Thông tin sản phẩm cần thêm vào giỏ hàng",
@@ -1975,7 +1975,7 @@
                     "Giỏ hàng (tôi)"
                 ],
                 "summary": "Cập nhật số lượng sản phẩm trong giỏ hàng (tự động áp dụng khuyến mãi/quà tặng nếu có)",
-                "description": "\n     *     - Cập nhật số lượng sản phẩm trong giỏ hàng.\n     *     - Nếu số lượng mới bằng 0, sản phẩm sẽ bị xóa khỏi giỏ hàng cùng quà tặng liên quan.\n     *     - Áp dụng tự động chương trình quà tặng/sự kiện nếu thỏa điều kiện (`dieukien <= soluong`) và trong thời gian hiệu lực.\n     *     - Tự động thêm hoặc xóa quà tặng miễn phí tương ứng với số lượng sản phẩm.\n     *     - Không còn quản lý số lượng lượt tặng (`luottang`) trong bảng biến thể.\n     *     ",
+                "description": "\n     *     - Cập nhật số lượng sản phẩm trong giỏ hàng.\n     *     - Nếu số lượng mới bằng 0, sản phẩm sẽ bị xóa khỏi giỏ hàng cùng quà tặng liên quan.\n     *     - Áp dụng tự động chương trình quà tặng/sự kiện nếu thỏa điều kiện (`dieukiensoluong <= soluong`) và trong thời gian hiệu lực.\n     *     - Tự động thêm hoặc xóa quà tặng miễn phí tương ứng với số lượng sản phẩm.\n     *     - Không còn quản lý số lượng lượt tặng (`luottang`) trong bảng biến thể.\n     *     ",
                 "operationId": "07103609c72dbee47dea2043693ab594",
                 "parameters": [
                     {
@@ -3801,6 +3801,44 @@
                 }
             }
         },
+        "/api/trang-dieu-khoan": {
+            "get": {
+                "tags": [
+                    "Trang Điều Khoản"
+                ],
+                "summary": "Danh sách các selection và HTML của trang điều khoản",
+                "description": "Trả về danh sách các mục điều khoản: tiêu đề, slug, mô tả HTML, hình ảnh và trạng thái hiển thị.",
+                "operationId": "9787003c56b14b8bfd04348eb3d0f74a",
+                "responses": {
+                    "200": {
+                        "description": "Danh sách trang điều khoản",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Danh sách các selection và html của trang điều khoản"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/TrangDieuKhoanItem"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/tukhoas": {
             "get": {
                 "tags": [
@@ -5259,6 +5297,48 @@
                 },
                 "type": "object"
             },
+            "TrangDieuKhoanItem": {
+                "title": "Trang Điều Khoản",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "tieude": {
+                        "type": "string",
+                        "example": "Trang điều khoản sử dụng"
+                    },
+                    "slug": {
+                        "type": "string",
+                        "example": "http://148.230.100.215:3000/dieu-khoan"
+                    },
+                    "mota": {
+                        "description": "Nội dung HTML đầy đủ của trang điều khoản",
+                        "type": "string",
+                        "example": "<div class='page'>...</div>"
+                    },
+                    "hinhanh": {
+                        "type": "string",
+                        "example": "http://148.230.100.215/assets/client/images/page/trang_dieukhoan.jpg",
+                        "nullable": true
+                    },
+                    "trangthai": {
+                        "type": "string",
+                        "example": "Hiển thị"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-12-02T23:41:42.000000Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-12-02T23:41:42.000000Z"
+                    }
+                },
+                "type": "object"
+            },
             "Tukhoa": {
                 "title": "Từ khóa",
                 "description": "Thông tin từ khóa được tìm kiếm hoặc truy cập nhiều",
@@ -6427,6 +6507,10 @@
         {
             "name": "Tìm kiếm sản phẩm",
             "description": "Tìm kiếm sản phẩm"
+        },
+        {
+            "name": "Trang Điều Khoản",
+            "description": "Trang Điều Khoản"
         },
         {
             "name": "Từ khóa",

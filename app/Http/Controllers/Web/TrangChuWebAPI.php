@@ -96,8 +96,9 @@ class TrangChuWebAPI extends BaseFrontendController
             return [
                 'id' => $item->id,
                 'title' => $item->tieude,
-                'slug'  => Str::slug($item->tieude),
-                'condition' => $item->dieukien,
+                'slug'  => $item->slug,
+                'condition_quantity' => $item->dieukiensoluong,
+                'condition_value' => $item->dieukiengiatri,
                 'information' => $convertThongtin,
                 'image' => $item->hinhanh,
                 'views' => (int) $item->luotxem,

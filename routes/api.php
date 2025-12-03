@@ -174,6 +174,7 @@ use App\Http\Controllers\API\Frontend\ThongBaoFrontendAPI;
 use App\Http\Controllers\API\Frontend\TimKiemAPI;
 use App\Http\Controllers\API\Frontend\TinhThanhVietNamFrontendAPI;
 use App\Http\Controllers\API\Frontend\TrangChuAPI;
+use App\Http\Controllers\API\Frontend\TrangDieuKhoan;
 use App\Http\Controllers\API\Frontend\TukhoaFrontendAPI;
 use App\Http\Controllers\API\Frontend\YeuThichFrontendAPI;
 use App\Http\Controllers\API\LoaiBienTheAPI;
@@ -196,7 +197,13 @@ use App\Http\Controllers\API\ThongBaoAPI;
 
     // guest
 
+
+    //page HTML tỉnh
+    Route::apiResource('trang-dieu-khoan', TrangDieuKhoan::class)->only(['index']);
+    //page HTML tỉnh
+
     Route::apiResource('trang-chu', TrangChuAPI::class)->only(['index']);
+
         Route::apiResource('tim-kiem', TimKiemAPI::class)->only(['index']);
         // table tu_khoa srearch từ khóa nhiều nhất cho placehoder
         // limit 5 Lấy danh sách tất cả từ khóa (sắp xếp theo số lượt giảm dần)
