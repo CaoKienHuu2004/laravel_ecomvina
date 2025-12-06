@@ -22,6 +22,34 @@
             />
         </div>
 
+        {{-- HIỆN THÔNG BÁO --}}
+        <div class="error-log">
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                </div>
+            @endif
+        </div>
+
         <div class="card">
             <div class="card-body">
                 <form class="row" action="{{ route('thongbao.update', $thongbao->id) }}" method="POST">
@@ -76,6 +104,24 @@
                             <input type="text" name="lienket" class="form-control"
                                    value="{{ old('lienket', $thongbao->lienket) }}" placeholder="https://...">
                             @error('lienket')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    {{-- LOẠI THÔNG BÁO --}}
+                    <div class="col-lg-6 col-sm-6 col-12">
+                        <div class="form-group">
+                            <label>Loại Thông Báo <span class="text-danger">*</span></label>
+                            <select name="loaithongbao" class="form-select">
+                                @foreach($loaithongbaos as $ltb)
+                                    <option value="{{ $ltb }}"
+                                        {{ old('loaithongbao', $thongbao->loaithongbao) == $ltb ? 'selected' : '' }}>
+                                        {{ $ltb }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('loaithongbao')
                                 <span class="text-danger">{{ $message }}</span>
                             @enderror
                         </div>

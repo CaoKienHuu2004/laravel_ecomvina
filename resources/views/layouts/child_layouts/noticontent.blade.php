@@ -7,6 +7,7 @@
         // Lấy danh sách thông báo chưa đọc của user đang đăng nhập
         $notis = auth()->user()->thongbao()
             ->where('trangthai', 'Chưa đọc')
+            ->orderBy('id','desc')
             ->get();
 
         $count = $notis->count();
@@ -32,6 +33,7 @@
                             <div class="media-body flex-grow-1">
                                 <span class="badge bg-secondary">Chưa đọc</span>
                                 <p>{{ $noti->tieude }}</p>
+                                <p>{{ $noti->created_at->diffForHumans() }}</p>
                             </div>
                         </div>
                     </a>

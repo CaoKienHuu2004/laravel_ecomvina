@@ -304,14 +304,14 @@ class TheoDoiDonHangWebApi extends Controller
             $tieude = "Thông báo khách hàng đã nhân hàng thành công {$donhang->madon}";
             $noidung = "Đơn hàng #{$donhang->id} - {$donhang->madon} của người dùng #{$user->hoten} đã cập nhật nhân hàng thành công.".$message;
             $lienket = $this->domain . "donhang/edit/{$donhang->id}";
-            $this->sentMessToAdmin($tieude,$noidung,$lienket);
+            $this->sentMessToAdmin($tieude,$noidung,$lienket,"Đơn hàng");
 
             // Nếu phương thức thanh toán là COD (3), nhắc admin gọi đơn vị vận chuyển nhận tiề
             if ($donhang->id_phuongthuc == 3) {
                 $tieudeCod = "Nhắc nhận tiền từ đơn vị vận chuyển cho đơn hàng {$donhang->madon}";
                 $noidungCod = "Đơn hàng #{$donhang->id} - {$donhang->madon} đã được khách nhận. Vui lòng liên hệ đơn vị vận chuyển để nhận tiền thanh toán COD.";
                 $lienket = $this->domain . "donhang/edit/{$donhang->id}";
-                $this->sentMessToAdmin($tieudeCod, $noidungCod, $lienket);
+                $this->sentMessToAdmin($tieudeCod, $noidungCod, $lienket,"Đơn hàng");
             }
         }
 
@@ -322,7 +322,7 @@ class TheoDoiDonHangWebApi extends Controller
 
             $lienket = $this->domain . "donhang/edit/{$donhang->id}";
 
-            $this->sentMessToAdmin($tieude,$noidung,$lienket);
+            $this->sentMessToAdmin($tieude,$noidung,$lienket,"Đơn hàng");
         }
 
         $donhang->load(['chitietdonhang.bienthe.loaibienthe', 'chitietdonhang.bienthe.sanpham','chitietdonhang.bienthe.sanpham.hinhanhsanpham']);

@@ -7,102 +7,109 @@
 @section('content')
 <div class="page-wrapper">
     <div class="content">
+
         <div class="page-header">
             <div class="page-title">
-                <h4>Danh sách quảng cáo</h4>
-                <h6>Quản lý và cập nhật quảng cáo</h6>
+                <h4>DANH SÁCH BANNER QUẢNG CÁO</h4>
+                <div class="d-flex align-items-center" style="gap: 2rem;">
+                    {{-- 'Hiển thị','Tạm ẩn' --}}
+                    <h6>
+                    Tổng Banner Quảng Cáo: {{ $quangcaos->count() }} <br>
+                    Hiển thị: {{ $quangcaos->where('trangthai', 'Hiển thị')->count() }} <br>
+                    Tạm ẩn: {{ $quangcaos->where('trangthai', 'Tạm ẩn')->count() }} <br>
+                    </h6>
+                </div>
             </div>
             <div class="page-btn">
-                <a href="{{ route('quangcao.create') }}" class="btn btn-primary">
-                    ➕ Thêm quảng cáo mới
+                <a href="{{ route('quangcao.create') }}" class="btn btn-added">
+                    <img src="{{ asset('img/icons/plus.svg') }}" class="me-1" alt="img">
+                    Tạo Banner Quảng Cáo
                 </a>
             </div>
         </div>
 
-        {{-- Hiển thị thông báo thành công --}}
-        @if (session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
+        {{-- FLASH MESSAGE --}}
+        @if(session('success'))
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        @endif
+        @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
         @endif
 
-        {{-- Form tìm kiếm --}}
-        <form action="{{ route('quangcao.index') }}" method="GET" class="mb-3">
-            <div class="input-group">
-                <input type="text" name="search" class="form-control" placeholder="Tìm kiếm theo vị trí, mô tả, trạng thái..." value="{{ $search ?? '' }}">
-                <button class="btn btn-outline-secondary" type="submit">🔍 Tìm kiếm</button>
-            </div>
-        </form>
-
         <div class="card">
-            <div class="card-body p-0">
+            <div class="card-body">
                 {{-- Bảng dữ liệu --}}
-                <table class="table table-bordered table-striped align-middle mb-0">
-                    <thead class="table-primary">
-                        <tr>
-                            <th>ID</th>
-                            <th>Vị trí</th>
-                            <th>Hình ảnh</th>
-                            <th>Liên kết</th>
-                            <th>Mô tả</th>
-                            <th>Trạng thái</th>
-                            <th class="text-center" width="220px">Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($quangcaos as $qc)
+                <div class="table-responsive">
+                    <table class="table datanew">
+                        <thead>
                             <tr>
-                                <td>{{ $qc->id }}</td>
-                                <td>{{ $qc->vitri }}</td>
-                                <td>
-                                    @if ($qc->hinhanh)
-                                        <img src="{{ $qc->hinhanh }}" alt="Hình ảnh quảng cáo" width="100px" style="object-fit:contain;">
-                                    @else
-                                        <span class="text-muted">Không có hình</span>
-                                    @endif
-                                </td>
-                                <td>
-                                    <a href="{{ $qc->lienket }}" target="_blank" rel="noopener noreferrer">
-                                        {{ $qc->lienket }}
-                                    </a>
-                                </td>
-                                <td style="max-width: 250px; white-space: normal; word-wrap: break-word;">
-                                    {{ $qc->mota }}
-                                </td>
-                                <td>
-                                    <span class="badge bg-{{ $qc->trangthai == 'Hiển thị' ? 'success' : 'warning' }}">
-                                        {{ $qc->trangthai }}
-                                    </span>
-                                </td>
-                                <td class="text-center">
-                                    <a href="{{ route('quangcao.show', $qc->id) }}" class="btn btn-sm btn-primary" title="Xem chi tiết">
-                                        👁️
-                                    </a>
-                                    <a href="{{ route('quangcao.edit', $qc->id) }}" class="btn btn-sm btn-info" title="Sửa">
-                                        ✏️
-                                    </a>
-                                    <form action="{{ route('quangcao.destroy', $qc->id) }}" method="POST" class="d-inline"
-                                        onsubmit="return confirm('Bạn có chắc muốn xóa quảng cáo này không?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-sm btn-danger" title="Xóa">🗑️</button>
-                                    </form>
-                                </td>
+                                <th>ID</th>
+                                <th>Vị trí</th>
+                                <th>Hình ảnh</th>
+                                <th>Liên kết</th>
+                                <th>Mô tả</th>
+                                <th>Trạng thái</th>
+                                <th class="text-center" width="220px">Hành động</th>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="7" class="text-center text-muted">Không có quảng cáo nào.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            @forelse ($quangcaos as $qc)
+                                <tr>
+                                    <td>{{ $qc->id }}</td>
+                                    <td>{{ $qc->vitri }}</td>
+                                    <td>
+                                        @if ($qc->hinhanh)
+                                            <img src="{{ $qc->hinhanh }}" alt="Hình ảnh quảng cáo" width="100px" style="object-fit:contain;">
+                                        @else
+                                            <span class="text-muted">Không có hình</span>
+                                        @endif
+                                    </td>
+                                    <td>
+                                        <a href="{{ $qc->lienket }}" target="_blank" rel="noopener noreferrer">
+                                            {{ $qc->lienket }}
+                                        </a>
+                                    </td>
+                                    <td style="max-width: 250px; white-space: normal; word-wrap: break-word;">
+                                        {{ $qc->mota }}
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ $qc->trangthai == 'Hiển thị' ? 'success' : 'warning' }}">
+                                            {{ $qc->trangthai }}
+                                        </span>
+                                    </td>
+                                    <td class="text-center">
+                                        <a href="{{ route('quangcao.show', $qc->id) }}" title="Xem chi tiết" class="me-2">
+                                            <img src="{{ asset('img/icons/eye.svg') }}" alt="Xem" />
+                                        </a>
+                                        <a href="{{ route('quangcao.edit', $qc->id) }}" title="Chỉnh sửa" class="me-2">
+                                            <img src="{{ asset('img/icons/edit.svg') }}" alt="Sửa" />
+                                        </a>
+                                        <form action="{{ route('quangcao.destroy', $qc->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa banner quảng cáo này không?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-link p-0 m-0 align-baseline" title="Xóa">
+                                            <img src="{{ asset('img/icons/delete.svg') }}" alt="Xóa" />
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="text-center text-muted">Không có quảng cáo nào.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
-        {{-- Phân trang --}}
-        <div class="d-flex justify-content-center mt-3">
-            {{ $quangcaos->links() }}
-        </div>
     </div>
 </div>
 @endsection

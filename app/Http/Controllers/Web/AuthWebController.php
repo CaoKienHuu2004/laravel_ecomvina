@@ -385,6 +385,61 @@ class AuthWebController extends Controller
         }
     }
 
+    public function updatePassword(Request $req)
+    {
+        $token = $req->bearerToken();
+        $key = "api_token:$token";
+        $userId = Redis::get($key);
+        //midleware check rồi check lại cho chắc
+
+        if (!$userId) {
+            return $this->jsonResponse([
+                'success' => false,
+                'message' => 'Token không hợp lệ hoặc đã hết hạn!',
+            ], 401);
+        }
+
+        // Validate dữ liệu đầu vào
+        try {
+            $req->validate([
+                'current_password' => ['required', 'string', 'min:6', 'max:20', 'regex:/^[A-Za-z0-9_]+$/'],
+                'new_password' => ['required', 'string', 'min:6', 'max:20', 'confirmed', 'regex:/^[A-Za-z0-9_]+$/'],
+                // new_password_confirmation sẽ được tự động validate bởi 'confirmed'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return $this->jsonResponse([
+                'success' => false,
+                'message' => 'Dữ liệu không hợp lệ',
+                'errors' => $e->errors(),
+            ], 422);
+        }
+
+        $user = NguoidungModel::find($userId);
+        if (!$user) {
+            return $this->jsonResponse([
+                'success' => false,
+                'message' => 'Người dùng không tồn tại!',
+            ], 404);
+        }
+
+        // Kiểm tra mật khẩu cũ
+        if (!Hash::check($req->current_password, $user->password)) {
+            return $this->jsonResponse([
+                'success' => false,
+                'message' => 'Mật khẩu cũ không đúng!',
+            ], 400);
+        }
+
+        // Cập nhật mật khẩu mới
+        $user->password = bcrypt($req->new_password);
+        $user->save();
+
+        return $this->jsonResponse([
+            'success' => true,
+            'message' => 'Cập nhật mật khẩu thành công',
+        ]);
+    }
+
 
     public function logout(Request $req)
     {

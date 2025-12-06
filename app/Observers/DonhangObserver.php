@@ -33,6 +33,19 @@ class DonhangObserver
         $trangThaiMoi = $donhang->trangthai;
         $trangThaiCu = $donhang->getOriginal('trangthai');
 
+            //logic đơn hàng thành công
+            // Nếu trạng thái thanh toán và trạng thái giao hàng đạt điều kiện
+            if (
+                $donhang->trangthaithanhtoan === 'Đã thanh toán' &&
+                $trangThaiMoi === 'Đã giao hàng'
+            ) {
+                // Cập nhật trạng thái đơn hàng thành "Thành công"
+                $donhang->trangthai = 'Thành công';
+                $donhang->save();
+                $trangThaiMoi = 'Thành công';
+            }
+            //logic đơn hàng thành công
+
         Log::info("🧩 DonhangObserver: Trạng thái thay đổi từ '{$trangThaiCu}' → '{$trangThaiMoi}' (ID đơn: {$donhang->id})");
 
         DB::transaction(function () use ($donhang, $trangThaiMoi) {
@@ -46,16 +59,22 @@ class DonhangObserver
                 }
 
                 // 🟢 Nếu đơn hàng giao thành công → trừ tồn kho, tăng lượt mua, giảm lượt tặng
-                if ($trangThaiMoi === 'Đã Giao Hàng') {
+                if ($trangThaiMoi === 'Thành công') {
                     $bienthe->decrement('soluong', $ct->soluong);
-                    $bienthe->increment('luotmua', $ct->soluong);
-                    // $bienthe->decrement('luottang', $ct->soluong);
+                    $bienthe->increment('luotban', $ct->soluong);
+                    $bienthe->increment('luottang', $ct->soluong);
                 }
+                // if ($trangThaiMoi === 'Đã giao hàng') {
+                //     $bienthe->decrement('soluong', $ct->soluong);
+                //     $bienthe->increment('luotmua', $ct->soluong);
+                //     $bienthe->increment('luottang', $ct->soluong);
+                // }
 
                 // 🔴 Nếu đơn hàng bị hủy → hoàn lại kho, giảm lượt mua (nếu đã từng giao)
-                if ($trangThaiMoi === 'Đã Hủy Đơn') {
+                if ($trangThaiMoi === 'Đã hủy') {
                     $bienthe->increment('soluong', $ct->soluong);
-                    $bienthe->decrement('luotmua', $ct->soluong);
+                    $bienthe->decrement('luotban', $ct->soluong);
+                    $bienthe->decrement('luottang', $ct->soluong);
                 }
 
                 // Cập nhật trạng thái chi tiết đơn hàng để đồng bộ

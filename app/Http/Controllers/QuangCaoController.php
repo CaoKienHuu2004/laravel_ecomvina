@@ -20,19 +20,21 @@ class QuangCaoController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->input('search');
+        // $search = $request->input('search');
 
-        $query = QuangcaoModel::orderByDesc('id');
+        $query = QuangcaoModel::orderBy('id','desc');
 
-        if ($search) {
-            $query->where('vitri', 'like', "%{$search}%")
-                ->orWhere('mota', 'like', "%{$search}%")
-                ->orWhere('trangthai', 'like', "%{$search}%");
-        }
+        // if ($search) {
+        //     $query->where('vitri', 'like', "%{$search}%")
+        //         ->orWhere('mota', 'like', "%{$search}%")
+        //         ->orWhere('trangthai', 'like', "%{$search}%");
+        // }
 
-        $quangcaos = $query->paginate(10)->withQueryString();
+        $quangcaos = $query->get(); // clientside paginate
+        // $quangcaos = $query->paginate(10)->withQueryString();
 
-        return view('quangcao.index', compact('quangcaos', 'search'));
+        return view('quangcao.index', compact('quangcaos'));
+        // return view('quangcao.index', compact('quangcaos', 'search'));
     }
 
     /**

@@ -27,19 +27,24 @@ class ChuongtrinhController extends Controller
     {
         $trangthais = ChuongTrinhModel::getEnumValues('trangthai');
 
+        // $query = ChuongTrinhModel::with(['quatangsukien'])
+        //     ->withCount('quatangsukien')
+        //     ->orderBy('id', 'desc');
+
+        // if ($request->filled('trangthai') && in_array($request->trangthai, $trangthais)) {
+        //     $query->where('trangthai', $request->trangthai);
+        // }
+
+        // if ($request->filled('tieude')) {
+        //     $query->where('tieude', 'like', '%' . trim($request->tieude) . '%');
+        // }
+
+        // $chuongtrinhs = $query->paginate($request->get('per_page', 10))->appends($request->query());
+
         $query = ChuongTrinhModel::with(['quatangsukien'])
             ->withCount('quatangsukien')
             ->orderBy('id', 'desc');
-
-        if ($request->filled('trangthai') && in_array($request->trangthai, $trangthais)) {
-            $query->where('trangthai', $request->trangthai);
-        }
-
-        if ($request->filled('tieude')) {
-            $query->where('tieude', 'like', '%' . trim($request->tieude) . '%');
-        }
-
-        $chuongtrinhs = $query->paginate($request->get('per_page', 10))->appends($request->query());
+        $chuongtrinhs = $query->get(); // client paginate
 
         return view('chuongtrinh.index', compact('chuongtrinhs', 'trangthais'));
     }
@@ -73,7 +78,8 @@ class ChuongtrinhController extends Controller
             'quatangsukien' => 'required|array|min:1',
             'quatangsukien.*.id_bienthe' => 'required|integer|exists:bienthe,id',
             'quatangsukien.*.tieude' => 'required|string|max:255',
-            'quatangsukien.*.dieukien' => 'nullable|string|max:255',
+            'quatangsukien.*.dieukiensoluong' => 'required|integer|max:999',
+            'quatangsukien.*.dieukiengiatri' => 'nullable|integer|max:99999999999',
             'quatangsukien.*.ngaybatdau' => 'nullable|date',
             'quatangsukien.*.ngayketthuc' => 'nullable|date', //after_or_equal:quatangsukien.*.ngaybatdau' nếu có viết rules riêng cho nó
             'quatangsukien.*.trangthai' => 'nullable|in:' . implode(',', $enumTrangThaiQuaTang),
@@ -127,7 +133,8 @@ class ChuongtrinhController extends Controller
                 $quatang->id_bienthe = $item['id_bienthe'] ?? 1; // hoặc bỏ nếu chưa có biến thể
                 $quatang->tieude = $item['tieude'];
                 $quatang->thongtin = $item['thongtin'] ?? '';
-                $quatang->dieukien = $item['dieukien'] ?? '';
+                $quatang->dieukiensoluong = $item['dieukiensoluong'] ?? '';
+                $quatang->dieukiengiatri = $item['dieukiengiatri'] ?? '';
                 $quatang->trangthai = $item['trangthai'] ?? 'Hiển thị';
                 $quatang->ngaybatdau = $item['ngaybatdau'] ?? null;
                 $quatang->ngayketthuc = $item['ngayketthuc'] ?? null;
@@ -202,7 +209,8 @@ class ChuongtrinhController extends Controller
             'quatangsukien' => 'required|array|min:1',
             'quatangsukien.*.id_bienthe' => 'required|integer|exists:bienthe,id',
             'quatangsukien.*.tieude' => 'required|string|max:255',
-            'quatangsukien.*.dieukien' => 'nullable|string|max:255',
+            'quatangsukien.*.dieukiensoluong' => 'required|integer|max:999|min:0',
+            'quatangsukien.*.dieukiengiatri' => 'nullable|integer|max:99999999999|min:0',
             'quatangsukien.*.ngaybatdau' => 'nullable|date',
             'quatangsukien.*.ngayketthuc' => 'nullable|date',
             'quatangsukien.*.trangthai' => 'nullable|in:' . implode(',', $enumTrangThaiQuaTang),
@@ -272,7 +280,8 @@ class ChuongtrinhController extends Controller
                         $quatang->id_bienthe = $item['id_bienthe'];
                         $quatang->tieude = $item['tieude'];
                         $quatang->thongtin = $item['thongtin'] ?? '';
-                        $quatang->dieukien = $item['dieukien'] ?? '';
+                        $quatang->dieukiensoluong = $item['dieukiensoluong'] ?? '';
+                        $quatang->dieukiengiatri = $item['dieukiengiatri'] ?? '';
                         $quatang->trangthai = $item['trangthai'] ?? 'Hiển thị';
                         $quatang->ngaybatdau = $item['ngaybatdau'] ?? null;
                         $quatang->ngayketthuc = $item['ngayketthuc'] ?? null;
@@ -307,7 +316,8 @@ class ChuongtrinhController extends Controller
                     $quatang->id_bienthe = $item['id_bienthe'];
                     $quatang->tieude = $item['tieude'];
                     $quatang->thongtin = $item['thongtin'] ?? '';
-                    $quatang->dieukien = $item['dieukien'] ?? '';
+                    $quatang->dieukiensoluong = $item['dieukiensoluong'] ?? '';
+                    $quatang->dieukiengiatri = $item['dieukiengiatri'] ?? '';
                     $quatang->trangthai = $item['trangthai'] ?? 'Hiển thị';
                     $quatang->ngaybatdau = $item['ngaybatdau'] ?? null;
                     $quatang->ngayketthuc = $item['ngayketthuc'] ?? null;

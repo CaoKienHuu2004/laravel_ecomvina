@@ -66,6 +66,14 @@ Chi tiết Thông Báo | Quản trị hệ thống Siêu Thị Vina
                                 </li>
 
                                 <li>
+                                    <h4><strong>Loại Thông Báo</strong></h4>
+                                    <h6>
+                                        <small class="text-muted">{{ $thongbao->loaithongbao }}</small>
+
+                                    </h6>
+                                </li>
+
+                                <li>
                                     <h4><strong>Trạng thái</strong></h4>
                                     <h6>
                                         @if ($thongbao->trangthai == "Đã đọc")

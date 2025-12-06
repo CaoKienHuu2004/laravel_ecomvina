@@ -1,19 +1,23 @@
 @extends('layouts.app')
 
-@section('title', 'Chi tiết thương hiệu: ' . $thuonghieu->ten)
+@section('title', 'Chi tiết thương hiệu.')
+
+{{-- // controller truyền xuống $thuonghieu  --}}
+{{-- // các route sư dụng ko có --- của breadcrumb thuonghieu.index trang-chu  --}}
 {{-- $thuonghieu->logo: Link http://148.230.100.215/assets/client/images/brands/tenfilehinhanh.jpg --}}
 @section('content')
 <div class="page-wrapper">
     <div class="content">
-        <div class="page-header mb-4">
-            <div class="page-title">
-                <h4>Chi tiết thương hiệu</h4>
-                <h6>{{ $thuonghieu->ten }}</h6>
-            </div>
-            <div class="page-btn">
-                <a href="{{ route('thuonghieu.index') }}" class="btn btn-secondary">← Quay lại danh sách</a>
-                <a href="{{ route('thuonghieu.edit', $thuonghieu->id) }}" class="btn btn-primary">✏️ Chỉnh sửa</a>
-            </div>
+        {{-- === Breadcrumb === --}}
+        <div class="page-header">
+            <x-header.breadcrumb
+                title='Chi Tiết Thương Hiệu'
+                :links="[
+                    ['label' => 'Tổng quan', 'route' => 'trang-chu'],
+                    ['label' => 'Danh sách thương hiệu', 'route' => 'thuonghieu.index']
+                ]"
+                active="Chi tiết"
+            />
         </div>
 
         <div class="card">
@@ -29,16 +33,16 @@
                     <div class="col-sm-9">{{ $thuonghieu->slug }}</div>
                 </div>
 
-                <div class="row mb-3">
-                    <label class="col-sm-3 fw-bold">Tên Hình Ảnh:</label>
-                    <div class="col-sm-9">
-                        @if(!empty($thuonghieu->logo))
-                            <a href="{{ $thuonghieu->logo }}" rel="noopener noreferrer" target="_blank">
-                                <strong>{{ $thuonghieu->logo }}</strong>
+                @if (!empty($thuonghieu->logo))
+                    <div class="row mb-3">
+                        <label class="col-sm-3 fw-bold">Đường dẫn hình ảnh:</label>
+                        <div class="col-sm-9">
+                            <a href="{{ $thuonghieu->logo }}" target="_blank" rel="noopener noreferrer">
+                                <img src="{{ asset('img/icons/eye.svg') }}" alt="Xem" />
                             </a>
-                        @endif
+                        </div>
                     </div>
-                </div>
+                @endif
 
                 <div class="row mb-3">
                     <label class="col-sm-3 fw-bold">Logo:</label>

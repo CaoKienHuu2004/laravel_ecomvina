@@ -33,7 +33,7 @@
             @csrf
 
             <div class="mb-3">
-                <label for="vitri" class="form-label">Vị trí quảng cáo</label>
+                <label for="vitri" class="form-label">Vị trí quảng cáo <span class="text-danger">*</span></label>
                 <select name="vitri" id="vitri" class="form-select" required>
                     <option value="">-- Chọn vị trí --</option>
                     <option value="home_banner_slider" {{ old('vitri') == 'home_banner_slider' ? 'selected' : '' }}>Home Banner Slider</option>
@@ -50,22 +50,22 @@
             </div>
 
             <div class="mb-3">
-                <label for="hinhanh" class="form-label">Hình ảnh quảng cáo</label>
+                <label for="hinhanh" class="form-label">Hình ảnh quảng cáo <span class="text-danger">*</span></label>
                 <input type="file" name="hinhanh" id="hinhanh" class="form-control" accept="image/*" required>
             </div>
 
             <div class="mb-3">
-                <label for="lienket" class="form-label">Liên kết</label>
+                <label for="lienket" class="form-label">Liên kết <span class="text-danger">*</span></label>
                 <input type="url" name="lienket" id="lienket" class="form-control" value="{{ old('lienket') }}" placeholder="https://example.com" required>
             </div>
 
             <div class="mb-3">
-                <label for="mota" class="form-label">Mô tả</label>
+                <label for="mota" class="form-label">Mô tả <span class="text-danger">*</span></label>
                 <textarea name="mota" id="mota" rows="3" class="form-control" required>{{ old('mota') }}</textarea>
             </div>
 
             <div class="mb-3">
-                <label for="trangthai" class="form-label">Trạng thái</label>
+                <label for="trangthai" class="form-label">Trạng thái <span class="text-danger">*</span></label>
                 <select name="trangthai" id="trangthai" class="form-select" required>
                     <option value="">-- Chọn trạng thái --</option>
                     <option value="Hiển thị" {{ old('trangthai') == 'Hiển thị' ? 'selected' : '' }}>Hiển thị</option>

@@ -12,6 +12,7 @@ use App\Models\NguoidungModel;
 use App\Models\ThongbaoModel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use App\Traits\SentMessToClient;
 
 /**
  * @OA\Schema(
@@ -53,18 +54,21 @@ use Illuminate\Validation\Rule;
  */
 class AuthFrontendController extends BaseFrontendController
 {
-
+    use SentMessToClient;
 
 
     protected $uploadDir = "assets/client/images/thumbs";// thư mục lưu file, relative so với public
     protected $uploadDirBaoMat = "assets/client/images/profiles"; // thư mục lưu file, relative so với storage/app/public
     protected $domain;
     protected $provinces;
+    protected $domainClient;
 
     public function __construct()
     {
         $this->domain = env('DOMAIN', 'http://148.230.100.215/');
+        $this->domainClient = env('CLIENT_URL', 'http://148.230.100.215:3000');
         $this->provinces = config('tinhthanh');
+
     }
     /**
      * @OA\Post(
@@ -275,7 +279,8 @@ class AuthFrontendController extends BaseFrontendController
             'id_nguoidung' => $user->id,
             'tieude' => 'Cập nhật thông tin cá nhân',
             'noidung' => 'Bạn vui lòng cập nhật thông tin cá nhân để hoàn thiện hồ sơ.',
-            'lienket' => null,
+            'lienket' => $this->domainClient.'/tai-khoan',
+            'loaithongbao' => 'Hệ thống',
             'trangthai' => 'Chưa đọc',
         ]);
 
@@ -314,8 +319,6 @@ class AuthFrontendController extends BaseFrontendController
      *                 @OA\Property(property="gioitinh", type="string", enum={"Nam","Nữ"}, example="Nam"),
      *                 @OA\Property(property="ngaysinh", type="string", format="date", example="1990-01-01"),
      *                 @OA\Property(property="avatar", type="string", example="https://domain.com/storage/path/avatar.jpg"),
-     *                 @OA\Property(property="vaitro", type="string", example="admin"),
-     *                 @OA\Property(property="trangthai", type="string", example="active"),
      *                 @OA\Property(
      *                     property="diachi",
      *                     type="array",
@@ -615,6 +618,147 @@ class AuthFrontendController extends BaseFrontendController
                 'error' => $e->getMessage(), // Tạm bật debug cho frontend xem
             ], 500);
         }
+    }
+
+
+    /**
+     * @OA\Patch(
+     *     path="/api/auth/cap-nhat-mat-khau",
+     *     tags={"Xác thực người dùng (Auth)"},
+     *     summary="Cập nhật mật khẩu người dùng",
+     *     description="Cập nhật mật khẩu cho người dùng đã đăng nhập. Yêu cầu header Authorization: Bearer {token}.
+     *                  Cần gửi current_password (mật khẩu hiện tại), new_password và new_password_confirmation.",
+     *     security={{"bearerAuth":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"current_password","new_password","new_password_confirmation"},
+     *             @OA\Property(
+     *                 property="current_password",
+     *                 type="string",
+     *                 format="password",
+     *                 example="oldPass123",
+     *                 description="Mật khẩu hiện tại của người dùng"
+     *             ),
+     *             @OA\Property(
+     *                 property="new_password",
+     *                 type="string",
+     *                 format="password",
+     *                 example="newPass456",
+     *                 description="Mật khẩu mới"
+     *             ),
+     *             @OA\Property(
+     *                 property="new_password_confirmation",
+     *                 type="string",
+     *                 format="password",
+     *                 example="newPass456",
+     *                 description="Xác nhận mật khẩu mới (phải giống new_password)"
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Cập nhật mật khẩu thành công",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Cập nhật mật khẩu thành công")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Mật khẩu cũ không đúng",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Mật khẩu cũ không đúng!")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Token không hợp lệ hoặc đã hết hạn",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Token không hợp lệ hoặc đã hết hạn!")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Người dùng không tồn tại",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Người dùng không tồn tại!")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Dữ liệu đầu vào không hợp lệ",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="success", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Dữ liệu không hợp lệ"),
+     *             @OA\Property(
+     *                 property="errors",
+     *                 type="object",
+     *                 example={
+     *                     "current_password": {"The current password field is required."},
+     *                     "new_password": {"The new password confirmation does not match."}
+     *                 }
+     *             )
+     *         )
+     *     )
+     * )
+     */
+    public function updatePassword(Request $req)
+    {
+        $token = $req->bearerToken();
+        $key = "api_token:$token";
+        $userId = Redis::get($key);
+        //midleware check rồi check lại cho chắc
+
+        if (!$userId) {
+            return $this->jsonResponse([
+                'success' => false,
+                'message' => 'Token không hợp lệ hoặc đã hết hạn!',
+            ], 401);
+        }
+
+        // Validate dữ liệu đầu vào
+        try {
+            $req->validate([
+                'current_password' => ['required', 'string', 'min:6', 'max:20', 'regex:/^[A-Za-z0-9_]+$/'],
+                'new_password' => ['required', 'string', 'min:6', 'max:20', 'confirmed', 'regex:/^[A-Za-z0-9_]+$/'],
+                // new_password_confirmation sẽ được tự động validate bởi 'confirmed'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return $this->jsonResponse([
+                'success' => false,
+                'message' => 'Dữ liệu không hợp lệ',
+                'errors' => $e->errors(),
+            ], 422);
+        }
+
+        $user = NguoidungModel::find($userId);
+        if (!$user) {
+            return $this->jsonResponse([
+                'success' => false,
+                'message' => 'Người dùng không tồn tại!',
+            ], 404);
+        }
+
+        // Kiểm tra mật khẩu cũ
+        if (!Hash::check($req->current_password, $user->password)) {
+            return $this->jsonResponse([
+                'success' => false,
+                'message' => 'Mật khẩu cũ không đúng!',
+            ], 400);
+        }
+
+        // Cập nhật mật khẩu mới
+        $user->password = bcrypt($req->new_password);
+        $user->save();
+
+        return $this->jsonResponse([
+            'success' => true,
+            'message' => 'Cập nhật mật khẩu thành công',
+        ]);
     }
 
     /**

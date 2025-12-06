@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
 @section('title', 'Danh sách danh mục | Quản trị hệ thống Siêu Thị Vina')
+{{-- // controller truyền xuống $danhmucs --}}
+{{-- // các route sư dụng danhmuc.create  danhmuc.show danhmuc.edit danhmuc.destroy   --}}
 {{--
     $danhmucs->logo chứa đường dẫn URL đầy đủ, ví dụ:
     http://148.230.100.215/assets/client/images/categories/tenfilehinhanh.web
@@ -8,24 +10,23 @@
 @section('content')
 <div class="page-wrapper">
     <div class="content">
-        <div class="page-header d-flex justify-content-between align-items-center mb-3">
-            <div class="page-title">
-                <h4>Danh mục sản phẩm</h4>
-                <h6>Theo dõi {{ $danhmucs->total() }} danh mục sản phẩm</h6>
-            </div>
 
-            <div class="page-btn d-flex align-items-center">
-                <form action="{{ route('danhmuc.index') }}" method="GET" class="me-2">
-                    <div class="input-group">
-                        <input type="text" name="keyword" value="{{ request('keyword') }}" class="form-control" placeholder="Tìm kiếm danh mục...">
-                        <button class="btn btn-outline-secondary" type="submit">
-                            <i class="fa fa-search"></i>
-                        </button>
-                    </div>
-                </form>
-                <a href="{{ route('danhmuc.create') }}" class="btn btn-primary d-flex align-items-center ms-2">
-                    <img src="{{ asset('img/icons/plus.svg') }}" class="me-1" alt="img" />
-                    Thêm danh mục
+        <div class="page-header">
+            <div class="page-title">
+                <h4>DANH SÁCH DANNH MỤC</h4>
+                <div class="d-flex align-items-center" style="gap: 2rem;">
+                    {{-- 'Hiển thị','Tạm ẩn' --}}
+                    <h6>
+                    Tổng danh mục: {{ $danhmucs->count() }} <br>
+                    Hiển thị: {{ $danhmucs->where('trangthai', 'Hiển thị')->count() }} <br>
+                    Tạm ẩn: {{ $danhmucs->where('trangthai', 'Tạm ẩn')->count() }} <br>
+                    </h6>
+                </div>
+            </div>
+            <div class="page-btn">
+                <a href="{{ route('danhmuc.create') }}" class="btn btn-added">
+                    <img src="{{ asset('img/icons/plus.svg') }}" class="me-1" alt="img">
+                    Tạo Thông Báo
                 </a>
             </div>
         </div>
@@ -45,10 +46,11 @@
         @endif
 
         <div class="card">
-            <div class="card-body p-0">
+            <div class="card-body">
+
                 <div class="table-responsive">
-                    <table class="table table-bordered table-hover align-middle mb-0">
-                        <thead class="table-primary">
+                    <table class="table datanew">
+                        <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Logo</th>
@@ -76,27 +78,32 @@
                                         {{ $dm->trangthai }}
                                     </span>
                                 </td>
-                                <td>
-                                    <a href="{{ route('danhmuc.show', $dm->id) }}" class="btn btn-sm btn-outline-info me-2" title="Xem chi tiết">👁️</a>
-                                    <a href="{{ route('danhmuc.edit', $dm->id) }}" class="btn btn-sm btn-outline-primary me-2" title="Chỉnh sửa">
-                                        <img src="{{ asset('img/icons/edit.svg') }}" alt="Edit" />
-                                    </a>
-                                    <form action="{{ route('danhmuc.destroy', $dm->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn chắc chắn muốn xóa danh mục này?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button class="btn btn-sm btn-outline-danger" title="Xóa">
-                                            <img src="{{ asset('img/icons/delete.svg') }}" alt="Delete" />
-                                        </button>
-                                    </form>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center align-items-center">
+                                        <a href="{{ route('danhmuc.show', $dm->id) }}" title="Xem chi tiết" class="me-2">
+                                            <img src="{{ asset('img/icons/eye.svg') }}" alt="Xem" />
+                                        </a>
+                                        <a href="{{ route('danhmuc.edit', $dm->id) }}" title="Chỉnh sửa" class="me-2">
+                                            <img src="{{ asset('img/icons/edit.svg') }}" alt="Sửa" />
+                                        </a>
+                                        <form action="{{ route('danhmuc.destroy', $dm->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa danh mục này không?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-link p-0 m-0 align-baseline" title="Xóa">
+                                            <img src="{{ asset('img/icons/delete.svg') }}" alt="Xóa" />
+                                            </button>
+                                        </form>
+                                    </div>
                                 </td>
+
                             </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </div>
-                <div class="mt-3 d-flex justify-content-center">
+                {{-- <div class="mt-3 d-flex justify-content-center">
                     {{ $danhmucs->appends(request()->query())->links('pagination::bootstrap-5') }}
-                </div>
+                </div> --}}
             </div>
         </div>
     </div>

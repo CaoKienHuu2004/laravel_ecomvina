@@ -1,27 +1,51 @@
 @extends('layouts.app')
 
 @section('title', 'Chỉnh sửa thương hiệu')
+{{-- // controller truyền xuống $thuonghieu --}}
+{{-- // các route sư dụng thuonghieu.update --- của breadcrumb thuonghieu.index trang-chu  --}}
 {{-- $thuonghieu->logo: Link http://148.230.100.215/assets/client/images/brands/tenfilehinhanh.jpg --}}
 @section('content')
 <div class="page-wrapper">
     <div class="content">
-        <div class="page-header mb-4">
-            <div class="page-title">
-                <h4>Chỉnh sửa thương hiệu</h4>
-                <h6>Sửa thông tin thương hiệu "{{ $thuonghieu->ten }}"</h6>
-            </div>
+
+        <div class="page-header">
+            <x-header.breadcrumb
+                title="Sửa Thương Hiệu"
+                :links="[
+                    ['label' => 'Tổng quan', 'route' => 'trang-chu'],
+                    ['label' => 'Danh sách thương hiệu', 'route' => 'thuonghieu.index']
+                ]"
+                active="Chỉnh sửa"
+            />
         </div>
 
-        {{-- Hiển thị lỗi validation --}}
-        @if ($errors->any())
-            <div class="alert alert-danger">
-                <ul class="mb-0">
-                    @foreach ($errors->all() as $error)
-                        <li>⚠️ {{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+        {{-- HIỆN THÔNG BÁO --}}
+        <div class="error-log">
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                </div>
+            @endif
+        </div>
 
         <form action="{{ route('thuonghieu.update', $thuonghieu->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
@@ -34,8 +58,8 @@
 
             <div class="mb-3">
                 <label for="slug" class="form-label">Slug <span class="text-danger">*</span></label>
-                <input type="text" id="slug" name="slug" class="form-control" value="{{ old('slug', $thuonghieu->slug) }}" required>
-                <div class="form-text">Slug phải là duy nhất, không dấu, viết liền.</div>
+                <input type="text" id="slug" name="slug" class="form-control" value="{{ old('slug', $thuonghieu->slug) }}" readonly disabled>
+                <div class="form-text">Slug phải là duy nhất, tự động sinh theo tên thương hiệu.</div>
             </div>
 
             <div class="mb-3">
@@ -64,8 +88,8 @@
             </div>
 
             <div class="d-flex justify-content-between">
-                <a href="{{ route('thuonghieu.index') }}" class="btn btn-secondary">← Quay lại</a>
-                <button type="submit" class="btn btn-success">💾 Cập nhật thương hiệu</button>
+                {{-- <a href="{{ route('thuonghieu.index') }}" class="btn btn-secondary">← Quay lại</a> --}}
+                <button type="submit" class="btn btn-primary">Cập nhật thương hiệu</button>
             </div>
         </form>
     </div>

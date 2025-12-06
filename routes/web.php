@@ -29,6 +29,7 @@ use App\Http\Controllers\Web\TrangDieuKhoanWebAPI;
 use App\Http\Controllers\Web\AuthWebController;
 use App\Http\Controllers\Web\BaivietWebApi;
 use App\Http\Controllers\Web\DiaChiWebApi;
+use App\Http\Controllers\Web\GuiThongBaoWebApi;
 use App\Http\Controllers\Web\MaGiamGiaWebApi;
 use App\Http\Controllers\Web\QuatangAllWebAPI;
 use App\Http\Controllers\Web\TimKiemWebApi;
@@ -61,6 +62,7 @@ Route::prefix('auth')->group(function () {
         Route::middleware('auth.api')->group(function () {
             Route::get('thong-tin-nguoi-dung', [AuthWebController::class, 'profile']);
             Route::post('cap-nhat-thong-tin', [AuthWebController::class, 'updateProfile']);
+            Route::patch('cap-nhat-mat-khau', [AuthWebController::class, 'updatePassword']);
             Route::post('dang-xuat', [AuthWebController::class, 'logout']);
         });
     });
@@ -375,6 +377,9 @@ Route::get('/api-trang-chu', [TrangChuWebAPI::class, 'index']);
     Route::apiResource('api-tim-kiem', TimKiemWebApi::class)->only(['index']);
     Route::apiResource('api-tu-khoa', TukhoaWebApi::class)->only(['index','store','update']);
     Route::get('/api-danh-muc', [DanhMucWebApi::class, 'index']);
+    //pulic api
+    Route::post('/gui-lien-he', [GuiThongBaoWebApi::class, 'guiLienHe']);
+    //pulic api
 //page tỉnh
 Route::apiResource('api-trang-dieu-khoan', TrangDieuKhoanWebAPI::class)->only(['index']);
 //page tỉnh
@@ -392,6 +397,8 @@ Route::middleware(['auth.api'])->group(function () {
     Route::post('/toi/donhang', [DonHangWebApi::class, 'show']);
     Route::put('/toi/donhang/{id}', [DonHangWebApi::class, 'update']);
     Route::patch('/toi/donhang/{id}/huy', [DonHangWebApi::class, 'cancel']);
+    // Tích hợp vietqr
+        Route::post('/toi/donhang/{id}/vietqr-url', [DonHangWebApi::class, 'createVietqrtUrl']);
 
     // Tích hợp thanh toán VNPAY, cần thêm 3 route
     Route::post('/toi/donhang/{id}/payment-url', [DonHangWebApi::class, 'createPaymentUrl']);

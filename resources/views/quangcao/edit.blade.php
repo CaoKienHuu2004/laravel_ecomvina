@@ -50,7 +50,7 @@
             </div>
 
             <div class="mb-3">
-                <label for="hinhanh" class="form-label">Hình ảnh quảng cáo</label>
+                <label for="hinhanh" class="form-label">Hình ảnh quảng cáo <span class="text-danger">*</span></label>
                 @if ($quangcao->hinhanh)
                     <div class="mb-2">
                         <img src="{{ $quangcao->hinhanh }}" alt="Hình ảnh quảng cáo" width="200">
@@ -61,17 +61,17 @@
             </div>
 
             <div class="mb-3">
-                <label for="lienket" class="form-label">Liên kết</label>
+                <label for="lienket" class="form-label">Liên kết <span class="text-danger">*</span></label>
                 <input type="url" name="lienket" id="lienket" class="form-control" value="{{ old('lienket', $quangcao->lienket) }}" placeholder="https://example.com" required>
             </div>
 
             <div class="mb-3">
-                <label for="mota" class="form-label">Mô tả</label>
+                <label for="mota" class="form-label">Mô tả <span class="text-danger">*</span></label>
                 <textarea name="mota" id="mota" rows="3" class="form-control" required>{{ old('mota', $quangcao->mota) }}</textarea>
             </div>
 
             <div class="mb-3">
-                <label for="trangthai" class="form-label">Trạng thái</label>
+                <label for="trangthai" class="form-label">Trạng thái <span class="text-danger">*</span></label>
                 <select name="trangthai" id="trangthai" class="form-select" required>
                     <option value="">-- Chọn trạng thái --</option>
                     <option value="Hiển thị" {{ old('trangthai', $quangcao->trangthai) === 'Hiển thị' ? 'selected' : '' }}>Hiển thị</option>

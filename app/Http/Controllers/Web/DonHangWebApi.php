@@ -22,19 +22,23 @@ use Illuminate\Validation\Rule;
 use App\Http\Resources\Toi\TheoDoiDonHang\TheoDoiDonHangResource;
 use App\Http\Resources\Toi\TheoDoiDonHangDetail\TheoDoiDonHangResource as TheoDoiDonHangDetailResource;
 use App\Models\BientheModel;
+use App\Traits\SentMessToClient;
 
 
 class DonHangWebApi extends BaseFrontendController
 {
     use ApiResponse;
     use SentMessToAdmin;
+    use SentMessToClient;
 
 
     protected $domain;
+    protected $domainClient;
 
     public function __construct()
     {
         $this->domain = env('DOMAIN', 'http://148.230.100.215/');
+        $this->domainClient = env('CLIENT_URL', 'http://148.230.100.215:3000');
     }
 
 
@@ -294,8 +298,18 @@ class DonHangWebApi extends BaseFrontendController
             $this->sentMessToAdmin(
                 'Đơn hàng mới từ ' . $user->hoten . '-' . $user->sodienthoai,
                 'Người dùng ' . $user->hoten . '-' . $user->sodienthoai . '-' . $user->username . '-' . $user->email . ' vừa tạo đơn hàng mới mã ' . $donhang->madon . '. Vui lòng kiểm tra và gọi điện cho khách hàng để truyển trạng thái đơn hàng từ Chờ xử lý -> Đã xác nhận và xử lý đơn hàng kịp thời.',
-                $this->domain . 'donhang/show/' . $donhang->id
+                $this->domain . 'donhang/show/' . $donhang->id,
+                "Đơn hàng"
             );
+            $this->SentMessToClient(
+                'Xác nhận đơn hàng mới của bạn',
+                'Chào ' . $user->hoten . ', bạn đã tạo thành công đơn hàng mã ' . $donhang->madon .
+                '. Vui lòng chờ nhân viên liên hệ để xác nhận và xử lý đơn hàng. Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!',
+                $this->domainClient.'/' . 'don-hang', // http://14.321321.241342/don-hang/id
+                // $this->domainClient.'/' . 'don-hang/' . $donhang->id, // http://14.321321.241342/don-hang/id
+                "Đơn hàng",
+                $user->id
+            ); // trả về bool $check true/false
 
             DB::commit();
 
@@ -573,7 +587,64 @@ class DonHangWebApi extends BaseFrontendController
     }
     // #End------------------- Tích hợp thanh toán VNPAY, cần thêm 3 route ----------------------//
 
+    // #begin------------------- Tích hợp thanh toán VietQR ----------------------//
 
+    public function createVietqrtUrl(Request $request, $id)
+    {
+        $user = $request->get('auth_user');
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Chưa xác thực user',
+            ], 401);
+        }
+
+        // Tìm đơn hàng theo ID và user hiện tại
+        $donhang = DonhangModel::where('id', $id)
+            ->where('id_nguoidung', $user->id)
+            ->first();
+
+        if (!$donhang) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Đơn hàng không tồn tại hoặc không thuộc về bạn',
+            ], 404);
+        }
+
+        // Kiểm tra id_phuongthuc == 2 mới được tạo QR
+        if ($donhang->id_phuongthuc != 2) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Phương thức thanh toán không hỗ trợ tạo mã QR',
+            ], 403);
+        }
+
+        $payload = config('vietqr'); // tài khoản đã đăng ký vietqr, gắn với chủ website hoặc người có trách nhiệm nhận tiền
+
+        // Tạo URL VietQR động theo đơn hàng
+        $qr = "https://img.vietqr.io/image/{$payload['acqId']}-{$payload['accountNo']}-{$payload['template']}.png"
+            . "?amount={$donhang->thanhtien}"
+            . "&addInfo=" . urlencode('THANH TOAN DON HANG ' . $donhang->madon)
+            . "&accountName=" . urlencode($payload['accountName']);
+
+        $this->sentMessToAdmin(
+            'Thanh toán mới từ ' . $user->hoten . '-' . $user->sodienthoai,
+            'Người dùng ' . $user->hoten . '-' . $user->sodienthoai . '-' . $user->username . '-' . $user->email
+            . ' vừa tạo thanh toán mã cp, đơn hàng mã ' . $donhang->madon . ' với phương thức thanh toán kiểm tra thành toán thủ công. '
+            . 'Vui lòng kiểm tra tài khoản VietQR xem đã nhận tiền chưa. '
+            . 'Nếu đã nhận tiền, vui lòng cập nhật trạng thái đơn hàng thủ công từ "Chờ xử lý" sang "Đã xác nhận" để xử lý kịp thời.',
+            $this->domain . 'donhang/show/' . $donhang->id,
+            "Đơn hàng"
+        );
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Tạo url VietQR thành công',
+            'data'    => $qr,
+        ]);
+    }
+    // #end------------------- Tích hợp thanh toán VietQR ----------------------//
 
 }
 

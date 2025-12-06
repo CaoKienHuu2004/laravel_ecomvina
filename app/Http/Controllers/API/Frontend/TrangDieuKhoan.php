@@ -54,9 +54,7 @@ class TrangDieuKhoan extends BaseFrontendController
      *     ),
      *
      *     @OA\Property(property="hinhanh", type="string", nullable=true, example="http://148.230.100.215/assets/client/images/page/trang_dieukhoan.jpg"),
-     *     @OA\Property(property="trangthai", type="string", example="Hiển thị"),
-     *     @OA\Property(property="created_at", type="string", format="date-time", example="2025-12-02T23:41:42.000000Z"),
-     *     @OA\Property(property="updated_at", type="string", format="date-time", example="2025-12-02T23:41:42.000000Z")
+     *     @OA\Property(property="trangthai", type="string", example="Hiển thị")
      * )
      */
     public function index(Request $request)

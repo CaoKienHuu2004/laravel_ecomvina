@@ -75,7 +75,8 @@
                                 <div class="gift-item mb-4 border rounded p-3">
                                     <h6><strong>{{ $quatang->tieude }}</strong></h6>
                                     <p><strong>Thông tin:</strong> {!! nl2br(e($quatang->thongtin)) ?: 'Không có' !!}</p>
-                                    <p><strong>Điều kiện:</strong> {{ $quatang->dieukien ?: 'Không có' }}</p>
+                                    <p><strong>Điều kiện số lượng:</strong> {{ $quatang->dieukiensoluong ?: 'Không có' }}</p>
+                                    <p><strong>Điều kiện giá trị:</strong> {{ $quatang->dieukiengiatri ?: 'Không có' }}</p>
                                     <p><strong>Ngày bắt đầu:</strong> {{ $quatang->ngaybatdau ? \Carbon\Carbon::parse($quatang->ngaybatdau)->format('d/m/Y') : 'Không xác định' }}</p>
                                     <p><strong>Ngày kết thúc:</strong> {{ $quatang->ngayketthuc ? \Carbon\Carbon::parse($quatang->ngayketthuc)->format('d/m/Y') : 'Không xác định' }}</p>
                                     <p>

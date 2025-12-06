@@ -24,6 +24,7 @@ use OpenApi\Annotations as OA;
 use App\Http\Resources\Toi\TheoDoiDonHang\TheoDoiDonHangResource;
 use App\Http\Resources\Toi\TheoDoiDonHangDetail\TheoDoiDonHangResource as TheoDoiDonHangDetailResource;
 use App\Models\BientheModel;
+use App\Traits\SentMessToClient;
 
 /**
  * @OA\Schema(
@@ -52,13 +53,16 @@ class DonHangFrontendAPI extends BaseFrontendController
 {
     use ApiResponse;
     use SentMessToAdmin;
+    use SentMessToClient;
 
 
     protected $domain;
+    protected $domainClient;
 
     public function __construct()
     {
         $this->domain = env('DOMAIN', 'http://148.230.100.215/');
+        $this->domainClient = env('CLIENT_URL', 'http://148.230.100.215:3000');
     }
 
     /**
@@ -134,6 +138,7 @@ class DonHangFrontendAPI extends BaseFrontendController
             'Đang giao hàng',
             'Đã giao hàng',
             'Đã hủy',
+            'Thành công',
         ];
 
         // Label hiển thị tương ứng
@@ -144,6 +149,7 @@ class DonHangFrontendAPI extends BaseFrontendController
             'Đang giao hàng' => 'Đang giao hàng',
             'Đã giao hàng' => 'Đã giao',
             'Đã hủy' => 'Đã hủy',
+            'Thành công' => 'Đã giao',
         ];
 
         $query = DonhangModel::with([
@@ -483,8 +489,19 @@ class DonHangFrontendAPI extends BaseFrontendController
             $this->sentMessToAdmin(
                 'Đơn hàng mới từ ' . $user->hoten . '-' . $user->sodienthoai,
                 'Người dùng ' . $user->hoten . '-' . $user->sodienthoai . '-' . $user->username . '-' . $user->email . ' vừa tạo đơn hàng mới mã ' . $donhang->madon . '. Vui lòng kiểm tra và gọi điện cho khách hàng để truyển trạng thái đơn hàng từ Chờ xử lý -> Đã xác nhận và xử lý đơn hàng kịp thời.',
-                $this->domain . 'donhang/show/' . $donhang->id
+                $this->domain . 'donhang/show/' . $donhang->id,
+                "Đơn hàng"
             );
+            $this->SentMessToClient(
+                'Xác nhận đơn hàng mới của bạn',
+                'Chào ' . $user->hoten . ', bạn đã tạo thành công đơn hàng mã ' . $donhang->madon .
+                '. Vui lòng chờ nhân viên liên hệ để xác nhận và xử lý đơn hàng. Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!',
+                $this->domainClient.'/' . 'don-hang', // http://14.321321.241342/don-hang/id
+                // $this->domainClient.'/' . 'don-hang/' . $donhang->id, // http://14.321321.241342/don-hang/id
+                "Đơn hàng",
+                $user->id
+            ); // trả về bool $check true/false
+
 
             DB::commit();
 
@@ -973,6 +990,122 @@ class DonHangFrontendAPI extends BaseFrontendController
         ]);
     }
             // #End------------------- Tích hợp thanh toán VNPAY, cần thêm 3 route ----------------------//
+
+    // #begin------------------- Tích hợp thanh toán VietQR ----------------------//
+
+
+    /**
+     * @OA\Post(
+     *     path="/api/toi/donhangs/{id}/vietqr-url",
+     *     summary="Tạo URL mã QR thanh toán VietQR cho đơn hàng",
+     *     description="
+     *         - Kiểm tra user đã xác thực.
+     *         - Kiểm tra đơn hàng tồn tại và thuộc user hiện tại.
+     *         - Chỉ cho phép tạo mã QR nếu phương thức thanh toán có id_phuongthuc = 2 (CP).
+     *         - Trả về URL ảnh QR code động dùng để thanh toán.
+     *         - Gửi thông báo cho admin kiểm tra thanh toán thủ công trên VietQR.
+     *     ",
+     *     tags={"Thanh toán VietQR"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID của đơn hàng cần tạo mã QR",
+     *         required=true,
+     *         @OA\Schema(type="integer", example=123)
+     *     ),
+     *     security={{"bearerAuth": {}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Tạo URL VietQR thành công",
+     *         @OA\JsonContent(
+     *             type="object",
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Tạo url VietQR thành công"),
+     *             @OA\Property(property="data", type="string", format="url", example="https://img.vietqr.io/image/123456789-0123456789-01.png?amount=100000&addInfo=THANH%20TOAN%20DON%20HANG%201234&accountName=Nguyen%20Van%20A")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Chưa xác thực user",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Chưa xác thực user")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=403,
+     *         description="Phương thức thanh toán không hỗ trợ tạo mã QR",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Phương thức thanh toán không hỗ trợ tạo mã QR")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Đơn hàng không tồn tại hoặc không thuộc về bạn",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Đơn hàng không tồn tại hoặc không thuộc về bạn")
+     *         )
+     *     )
+     * )
+     */
+    public function createVietqrtUrl(Request $request, $id)
+    {
+        $user = $request->get('auth_user');
+
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Chưa xác thực user',
+            ], 401);
+        }
+
+        // Tìm đơn hàng theo ID và user hiện tại
+        $donhang = DonhangModel::where('id', $id)
+            ->where('id_nguoidung', $user->id)
+            ->first();
+
+        if (!$donhang) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Đơn hàng không tồn tại hoặc không thuộc về bạn',
+            ], 404);
+        }
+
+        // Kiểm tra id_phuongthuc == 2 mới được tạo QR
+        if ($donhang->id_phuongthuc != 2) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Phương thức thanh toán không hỗ trợ tạo mã QR',
+            ], 403);
+        }
+
+        $payload = config('vietqr'); // tài khoản đã đăng ký vietqr, gắn với chủ website hoặc người có trách nhiệm nhận tiền
+
+        // Tạo URL VietQR động theo đơn hàng
+        $qr = "https://img.vietqr.io/image/{$payload['acqId']}-{$payload['accountNo']}-{$payload['template']}.png"
+            . "?amount={$donhang->thanhtien}"
+            . "&addInfo=" . urlencode('THANH TOAN DON HANG ' . $donhang->madon)
+            . "&accountName=" . urlencode($payload['accountName']);
+
+        $this->sentMessToAdmin(
+            'Thanh toán mới từ ' . $user->hoten . '-' . $user->sodienthoai,
+            'Người dùng ' . $user->hoten . '-' . $user->sodienthoai . '-' . $user->username . '-' . $user->email
+            . ' vừa tạo thanh toán mã cp, đơn hàng mã ' . $donhang->madon . ' với phương thức thanh toán kiểm tra thành toán thủ công. '
+            . 'Vui lòng kiểm tra tài khoản VietQR xem đã nhận tiền chưa. '
+            . 'Nếu đã nhận tiền, vui lòng cập nhật trạng thái đơn hàng thủ công từ "Chờ xử lý" sang "Đã xác nhận" để xử lý kịp thời.',
+            $this->domain . 'donhang/show/' . $donhang->id,
+            "Đơn hàng"
+        );
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Tạo url VietQR thành công',
+            'data'    => $qr,
+        ]);
+    }
+    // #end------------------- Tích hợp thanh toán VietQR ----------------------//
 
 
 

@@ -3,6 +3,10 @@
 @section('title', 'Chỉnh sửa hình ảnh sản phẩm')
 
 {{--
+    // Controller truyền xuống $hinhanh $sanphams
+    // các route sư dụng hinhanhsanpham.update --- của breadcrumb hinhanhsanpham.index trang-chu
+--}}
+{{--
     $hinhanh->hinhanh chứa đường dẫn URL đầy đủ, ví dụ:
     http://148.230.100.215/assets/client/images/thumbs/tenfilehinhanh.jpg
 --}}
@@ -10,12 +14,46 @@
 @section('content')
 <div class="page-wrapper">
     <div class="content">
+        {{-- Breadcrumb --}}
         <div class="page-header">
-            <div class="page-title">
-                <h3 class="text-primary">Chỉnh sửa hình ảnh sản phẩm</h3>
-                <h6>Chỉnh sửa và cập nhật thông tin hình ảnh sản phẩm</h6>
-            </div>
+            <x-header.breadcrumb
+                title="Chỉnh sửa hình ảnh sản phẩm"
+                :links="[
+                    ['label' => 'Tổng quan', 'route' => 'trang-chu'],
+                    ['label' => 'Danh sách hình ảnh sản phẩm', 'route' => 'hinhanhsanpham.index']
+                ]"
+                active="Chỉnh sửa"
+            />
         </div>
+
+        {{-- Thông báo success, error --}}
+        <div class="error-log">
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                </div>
+            @endif
+        </div>
+
 
         <div class="card">
             <div class="card-body">
@@ -52,9 +90,7 @@
 
                     @if(!empty($hinhanh->hinhanh))
                     <div class="mb-3">
-                        <a href="{{ $hinhanh->hinhanh }}" rel="noopener noreferrer" target="_blank">
-                            <strong>Tên Hình Ảnh:</strong> {{ $hinhanh->hinhanh }}
-                        </a>
+                        <strong>Tên Hình Ảnh:</strong> {{ $hinhanh->hinhanh }}
                     </div>
                 @endif
 
@@ -85,14 +121,14 @@
                     </div>
 
                     {{-- Nút gửi form và quay lại --}}
-                    <div class="mt-4">
+                    {{-- <div class="mt-4">
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-save"></i> Cập nhật
                         </button>
                         <a href="{{ route('hinhanhsanpham.index') }}" class="btn btn-secondary ms-2">
                             <i class="bi bi-arrow-left"></i> Quay lại
                         </a>
-                    </div>
+                    </div> --}}
                 </form>
 
             </div>

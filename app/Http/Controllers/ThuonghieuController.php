@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ThuongHieuModel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ThuonghieuController extends Controller
 {
@@ -20,19 +21,21 @@ class ThuonghieuController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->input('search');
+        // $search = $request->input('search');
 
-        $query = ThuongHieuModel::orderByDesc('id');
+        $query = ThuongHieuModel::orderBy('id','desc');
 
-        if ($search) {
-            $query->where('ten', 'like', "%{$search}%")
-                  ->orWhere('slug', 'like', "%{$search}%")
-                  ->orWhere('trangthai', 'like', "%{$search}%");
-        }
+        // if ($search) {
+        //     $query->where('ten', 'like', "%{$search}%")
+        //           ->orWhere('slug', 'like', "%{$search}%")
+        //           ->orWhere('trangthai', 'like', "%{$search}%");
+        // }
 
-        $thuonghieus = $query->paginate(10)->withQueryString();
+        // $thuonghieus = $query->paginate(10)->withQueryString();
+        $thuonghieus = $query->get(); // clientside paginate
 
-        return view('thuonghieu.index', compact('thuonghieus', 'search'));
+        return view('thuonghieu.index', compact('thuonghieus'));
+        // return view('thuonghieu.index', compact('thuonghieus', 'search'));
     }
 
     /**
@@ -49,8 +52,8 @@ class ThuonghieuController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'ten'       => 'required|string',
-            'slug'      => 'required|string|unique:thuonghieu,slug',
+            'ten'       => 'required|string|unique:thuonghieu,ten',
+            // 'slug'      => 'required|string|unique:thuonghieu,slug',
             'logo'      => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'mota'      => 'nullable|string',
             'trangthai' => 'required|in:Hoạt động,Tạm khóa,Dừng hoạt động',
@@ -71,9 +74,10 @@ class ThuonghieuController extends Controller
 
         $link_hinhanh = $this->domain . $this->uploadDir . '/' . $fileName;
 
-        ThuongHieuModel::create([
+        $slug = Str::slug(str_replace('/', '-', $request->ten));
+        ThuongHieuModel::create([ // chưa đủ để chống xss
             'ten'       => $request->ten,
-            'slug'      => $request->slug,
+            'slug'      => $slug,
             'logo'      => $link_hinhanh,
             'mota'      => $request->mota,
             'trangthai' => $request->trangthai,
@@ -107,11 +111,11 @@ class ThuonghieuController extends Controller
     {
         $thuonghieu = ThuongHieuModel::findOrFail($id);
 
-        $request->validate([
-            'ten'       => 'required|string',
-            'slug'      => 'required|string|unique:thuonghieu,slug,' . $id,
-            'logo'      => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'mota'      => 'nullable|string',
+        $request->validate([ // chưa đủ để chống xss
+            'ten'       => 'required|string|unique:thuonghieu,ten,' . $id,
+            // 'slug'      => 'required|string|unique:thuonghieu,slug,' . $id,
+            'logo'      => 'sometimes|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'mota'      => 'sometimes|string',
             'trangthai' => 'required|in:Hoạt động,Tạm khóa,Dừng hoạt động',
         ]);
 
@@ -137,9 +141,8 @@ class ThuonghieuController extends Controller
             $link_hinhanh = $this->domain . $this->uploadDir . '/' . $fileName;
             $thuonghieu->logo = $link_hinhanh;
         }
-
         $thuonghieu->ten = $request->ten;
-        $thuonghieu->slug = $request->slug;
+        $thuonghieu->slug = Str::slug(str_replace('/', '-', $request->ten));
         $thuonghieu->mota = $request->mota;
         $thuonghieu->trangthai = $request->trangthai;
 

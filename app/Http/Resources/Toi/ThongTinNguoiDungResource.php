@@ -24,8 +24,8 @@ class ThongTinNguoiDungResource extends JsonResource
             'gioitinh' => $this->gioitinh,
             'ngaysinh' => $this->ngaysinh ? $this->ngaysinh->format('Y-m-d') : null,
             'avatar' => $this->avatar,
-            'vaitro' => $this->vaitro,
-            'trangthai' => $this->trangthai,
+            // 'vaitro' => $this->vaitro,
+            // 'trangthai' => $this->trangthai,
             // Thêm địa chỉ
             'diachi' => DiachiGiaohangResource::collection($this->whenLoaded('diachi')),
         ];

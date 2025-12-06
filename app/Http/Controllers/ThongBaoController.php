@@ -38,8 +38,8 @@ class ThongBaoController extends Controller
         $nguoidungs = NguoidungModel::where('vaitro', '!=', 'admin')->get();
         $nguoidungs = NguoidungModel::orderBy('id', 'asc')->get();
         $trangthais = ThongbaoModel::getEnumValues('trangthai');
-
-        return view('thongbao.create', compact('nguoidungs', 'trangthais'));
+        $loaithongbaos = ThongbaoModel::getEnumValues('loaithongbao');
+        return view('thongbao.create', compact('nguoidungs', 'trangthais','loaithongbaos'));
     }
 
     /**
@@ -48,12 +48,14 @@ class ThongBaoController extends Controller
     public function store(Request $request)
     {
         $enumTrangthai = ThongbaoModel::getEnumValues('trangthai');
+        $enumLoaiThongBao = ThongbaoModel::getEnumValues('loaithongbao');
 
         $validated = $request->validate([
             'id_nguoidung' => ['required', 'exists:nguoidung,id'],
             'tieude'       => ['required', 'string'],
             'noidung'      => ['required', 'string'],
             'lienket'      => ['nullable', 'string'],
+            'loaithongbao'    => ['required', 'in:' . implode(',', $enumLoaiThongBao)],
             'trangthai'    => ['required', 'in:' . implode(',', $enumTrangthai)],
         ]);
 
@@ -81,9 +83,10 @@ class ThongBaoController extends Controller
         $thongbao = ThongbaoModel::findOrFail($id);
         // $nguoidungs = NguoidungModel::where('vaitro', '!=', 'admin')->get();
         $nguoidungs = NguoidungModel::orderBy('id', 'asc')->get();
+        $loaithongbaos = ThongbaoModel::getEnumValues('loaithongbao');
         $trangthais = ThongbaoModel::getEnumValues('trangthai');
 
-        return view('thongbao.edit', compact('thongbao', 'nguoidungs', 'trangthais'));
+        return view('thongbao.edit', compact('thongbao', 'nguoidungs', 'trangthais','loaithongbaos'));
     }
 
     /**
@@ -93,12 +96,14 @@ class ThongBaoController extends Controller
     {
         $thongbao = ThongbaoModel::findOrFail($id);
         $enumTrangthai = ThongbaoModel::getEnumValues('trangthai');
+        $enumLoaiThongBao = ThongbaoModel::getEnumValues('loaithongbao');
 
         $validated = $request->validate([
             'id_nguoidung' => ['required', 'exists:nguoidung,id'],
             'tieude'       => ['required', 'string'],
             'noidung'      => ['required', 'string'],
             'lienket'      => ['nullable', 'string'],
+            'loaithongbao'    => ['required', 'in:' . implode(',', $enumLoaiThongBao)],
             'trangthai'    => ['required', 'in:' . implode(',', $enumTrangthai)],
         ]);
 

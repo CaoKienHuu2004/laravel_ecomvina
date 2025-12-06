@@ -5,7 +5,7 @@ namespace App\Http\Resources\Frontend;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Carbon;
-
+use Illuminate\Support\Facades\Redis;
 
 /**
  * @OA\Schema(
@@ -62,6 +62,26 @@ class QuatangResource extends JsonResource
         $today = Carbon::today();
         $endDate = Carbon::parse($this->ngayketthuc);
         $thoigian_conlai = $endDate->gte($today) ? $today->diffInDays($endDate) : 0; // Tính số ngày còn lại, nếu ngày kết thúc đã qua thì trả về 0
+
+
+        $token = $request->bearerToken();
+        $key = "api_token:$token";
+        $userId = Redis::get($key); // user_id lấy từ redis
+
+        $cartTotal = 0;
+
+        if ($userId) {
+            $cartTotal = \App\Models\GiohangModel::where('id_nguoidung', $userId)
+                ->sum('thanhtien');
+        }
+
+        $phanTramDatDuoc = 0;
+
+        if ($this->dieukiengiatri > 0) {
+            $phanTramDatDuoc = round(($cartTotal / $this->dieukiengiatri) * 100);
+            $phanTramDatDuoc = min(100, max(0, $phanTramDatDuoc)); // luôn 0–100%
+        }
+
         return [
             'id' => $this->id,
             'id_bienthe' => $this->id_bienthe,
@@ -74,6 +94,7 @@ class QuatangResource extends JsonResource
             ],
             'dieukiensoluong' => $this->dieukiensoluong,
             'dieukiengiatri' => $this->dieukiengiatri,
+            'phantram_datduoc' => $phanTramDatDuoc,
             'tieude' => $this->tieude,
             'thongtin' => $this->thongtin,
             'hinhanh' => $this->hinhanh,

@@ -2,28 +2,57 @@
 
 @section('title', 'Thêm hình ảnh sản phẩm')
 
+{{--
+    // Controller truyền xuống không
+    // các route sư dụng hinhanhsanpham.store --- của breadcrumb hinhanhsanpham.index trang-chu
+--}}
+
 @section('content')
 <div class="page-wrapper">
     <div class="content">
+
+
         <div class="page-header">
-            <div class="page-title">
-                <h2 class="text-center">🖼️ Thêm hình ảnh sản phẩm</h2>
-                <h6 class="text-center text-muted">Thêm mới hình ảnh cho sản phẩm</h6>
-            </div>
+            <x-header.breadcrumb
+                title="Tạo Mới Hình Ảnh Sản Phẩm"
+                :links="[
+                    ['label' => 'Tổng quan', 'route' => 'trang-chu'],
+                    ['label' => 'Danh sách hình ảnh sản phẩm', 'route' => 'hinhanhsanpham.index']
+                ]"
+                active="Thêm mới"
+            />
         </div>
 
-        <div class="card shadow-sm p-4">
-            {{-- Hiển thị thông báo lỗi --}}
+        {{-- HIỆN THÔNG BÁO --}}
+        <div class="error-log">
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                </div>
+            @endif
+
             @if ($errors->any())
-                <div class="alert alert-danger">
-                    <strong>Lỗi!</strong> Vui lòng kiểm tra lại các trường nhập.<br><br>
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
                     <ul class="mb-0">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
                         @endforeach
                     </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
                 </div>
             @endif
+        </div>
+
+        <div class="card shadow-sm p-4">
+
 
             {{-- Form thêm mới --}}
             <form action="{{ route('hinhanhsanpham.store') }}" method="POST" enctype="multipart/form-data" class="mt-3">
@@ -58,11 +87,11 @@
 
                 {{-- Nút hành động --}}
                 <div class="d-flex justify-content-between mt-4">
-                    <a href="{{ route('hinhanhsanpham.index') }}" class="btn btn-secondary">
+                    {{-- <a href="{{ route('hinhanhsanpham.index') }}" class="btn btn-secondary">
                         ← Quay lại
-                    </a>
+                    </a> --}}
                     <button type="submit" class="btn btn-primary">
-                        💾 Lưu hình ảnh
+                        Lưu hình ảnh
                     </button>
                 </div>
             </form>

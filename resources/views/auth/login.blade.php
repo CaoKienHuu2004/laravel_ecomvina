@@ -16,6 +16,9 @@
       <link rel="stylesheet" href="{{ asset('plugins/fontawesome/css/all.min.css') }}">
       <link rel="stylesheet" href="{{ asset('css/style.css') }}">
    </head>
+   @php
+        $clientUrl = env('CLIENT_URL', 'http://148.230.100.215:3000');
+    @endphp
    <body class="account-page">
       <div class="main-wrapper">
          <div class="account-content">
@@ -54,7 +57,7 @@
                         <div class="form-login">
                            <div class="alreadyuser">
                               {{-- // ------------------ Không có routes của NEXTJS, hoặc lấy theo domain ngoại, dang-nhap vì để tạm vây -------------- ///////// --}}
-                              <h4><a href="{{ route('dang-nhap')}}" class="hover-a" style="color: #DE473F !important;">Quay lại trang chủ</a></h4>
+                              <h4><a href="{{ $clientUrl}}" class="hover-a" style="color: #DE473F !important;">Quay lại trang chủ</a></h4>
                            </div>
                         </div>
                         <div class="form-login">

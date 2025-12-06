@@ -165,6 +165,7 @@ use App\Http\Controllers\API\Frontend\DanhmucFrontendAPI;
 use App\Http\Controllers\API\Frontend\DiaChiFrontendAPI;
 use App\Http\Controllers\API\Frontend\DonHangFrontendAPI;
 use App\Http\Controllers\API\Frontend\GioHangFrontendAPI;
+use App\Http\Controllers\API\Frontend\GuiThongBaoFrontendAPI;
 use App\Http\Controllers\API\Frontend\MaGiamGiaFrontendAPI;
 use App\Http\Controllers\API\Frontend\QuatangAllFrontendAPI;
 use App\Http\Controllers\API\Frontend\SanPhamAllFrontendAPI;
@@ -175,6 +176,7 @@ use App\Http\Controllers\API\Frontend\TimKiemAPI;
 use App\Http\Controllers\API\Frontend\TinhThanhVietNamFrontendAPI;
 use App\Http\Controllers\API\Frontend\TrangChuAPI;
 use App\Http\Controllers\API\Frontend\TrangDieuKhoan;
+use App\Http\Controllers\API\Frontend\TrangGioiThieu;
 use App\Http\Controllers\API\Frontend\TukhoaFrontendAPI;
 use App\Http\Controllers\API\Frontend\YeuThichFrontendAPI;
 use App\Http\Controllers\API\LoaiBienTheAPI;
@@ -191,6 +193,7 @@ use App\Http\Controllers\API\ThongBaoAPI;
         Route::middleware('auth.api')->group(function () {
             Route::get('thong-tin-nguoi-dung', [AuthFrontendController::class, 'profile']);
             Route::post('cap-nhat-thong-tin', [AuthFrontendController::class, 'updateProfile']);
+            Route::patch('cap-nhat-mat-khau', [AuthFrontendController::class, 'updatePassword']);
             Route::post('dang-xuat', [AuthFrontendController::class, 'logout']);
         });
     });
@@ -200,7 +203,10 @@ use App\Http\Controllers\API\ThongBaoAPI;
 
     //page HTML tỉnh
     Route::apiResource('trang-dieu-khoan', TrangDieuKhoan::class)->only(['index']);
+    Route::apiResource('trang-gioi-thieu', TrangGioiThieu::class)->only(['index']);
     //page HTML tỉnh
+
+    Route::post('/gui-lien-he', [GuiThongBaoFrontendAPI::class, 'guiLienHe']);
 
     Route::apiResource('trang-chu', TrangChuAPI::class)->only(['index']);
 
@@ -274,6 +280,8 @@ use App\Http\Controllers\API\ThongBaoAPI;
         // Tích hợp thanh toán VNPAY, cần thêm 3 route
         Route::post('/toi/donhangs/{id}/payment-url', [DonHangFrontendAPI::class, 'createPaymentUrl']);
         Route::get('/toi/donhangs/{id}/status', [DonHangFrontendAPI::class, 'getPaymentStatus']);
+        // Tích hợp vietqr
+        Route::post('/toi/donhangs/{id}/vietqr-url', [DonHangFrontendAPI::class, 'createVietqrtUrl']);
     });
         // Tích hợp thanh toán VNPAY, cần thêm 3 route
         Route::get('/toi/donhangs/payment-callback', [DonHangFrontendAPI::class, 'handlePaymentCallback'])
@@ -306,7 +314,7 @@ use App\Http\Controllers\API\ThongBaoAPI;
     });
     Route::middleware(['auth.api'])->prefix('toi')->group(function () {
         Route::get('/thongbaos', [ThongBaoFrontendAPI::class, 'index']);       // Lấy danh sách
-        Route::delete('/thongbaos/{id}', [ThongBaoFrontendAPI::class, 'destroy']); // Xóa soft
+        Route::delete('/thongbaos/{id}', [ThongBaoFrontendAPI::class, 'destroy']); // Xóa
         Route::patch('/thongbaos/{id}/daxem', [ThongBaoFrontendAPI::class, 'markAsRead']); // Optional
         Route::patch('/thongbaos/{id}/tam-an', [ThongBaoFrontendAPI::class, 'toggleStatus']); // Optional
     });

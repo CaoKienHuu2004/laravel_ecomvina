@@ -6,33 +6,7 @@
 @section('content')
 <div class="page-wrapper">
 
-    {{-- HIỆN THÔNG BÁO --}}
-    <div class="error-log">
-        @if (session('success'))
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
-            </div>
-        @endif
 
-        @if (session('error'))
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                {{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
-            </div>
-        @endif
-
-        @if ($errors->any())
-            <div class="alert alert-warning alert-dismissible fade show" role="alert">
-                <ul class="mb-0">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
-            </div>
-        @endif
-    </div>
 
 
     <div class="content">
@@ -45,6 +19,34 @@
                 ]"
                 active="Thêm mới"
             />
+        </div>
+
+        {{-- HIỆN THÔNG BÁO --}}
+        <div class="error-log">
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                </div>
+            @endif
         </div>
 
         <div class="card">
@@ -104,6 +106,22 @@
                             @enderror
                         </div>
                     </div>
+
+                    {{-- Loại Thông Báo --}}
+                    <div class="col-lg-6 col-sm-12">
+                        <div class="form-group">
+                            <label>Loại Thông Báo</label>
+                            <select name="loaithongbao" class="form-select">
+                                @foreach ($loaithongbaos as $ltb)
+                                    <option value="{{ $ltb }}">{{ $ltb }}</option>
+                                @endforeach
+                            </select>
+                            @error('loaithongbao')
+                                <span class="text-danger">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+
 
                     {{-- Trạng thái --}}
                     <div class="col-lg-6 col-sm-12">

@@ -39,7 +39,7 @@
 
       <div class="row">
         {{-- Phần thông tin chương trình --}}
-        <div class="col-lg-6">
+        <div class="col-lg-12">
           <div class="card mb-4">
             <div class="card-header"><h4>Thông tin chương trình</h4></div>
             <div class="card-body">
@@ -92,7 +92,7 @@
         </div>
 
         {{-- Phần danh sách quà tặng --}}
-        <div class="col-lg-6">
+        <div class="col-lg-12">
           <div class="card mb-4">
             <div class="card-header"><h4>Danh sách quà tặng sự kiện</h4></div>
             <div class="card-body">
@@ -105,7 +105,8 @@
                   @php
                     $tieude = is_array($gift) ? ($gift['tieude'] ?? '') : $gift->tieude;
                     $thongtin = is_array($gift) ? ($gift['thongtin'] ?? '') : $gift->thongtin;
-                    $dieukien = is_array($gift) ? ($gift['dieukien'] ?? '') : $gift->dieukien;
+                    $dieukiensoluong = is_array($gift) ? ($gift['dieukiensoluong'] ?? '') : $gift->dieukiensoluong;
+                    $dieukiengiatri = is_array($gift) ? ($gift['dieukiengiatri'] ?? '') : $gift->dieukiengiatri;
                     $ngaybatdau = is_array($gift) ? ($gift['ngaybatdau'] ?? '') : (isset($gift->ngaybatdau) ? date('Y-m-d\TH:i', strtotime($gift->ngaybatdau)) : '');
                     $ngayketthuc = is_array($gift) ? ($gift['ngayketthuc'] ?? '') : (isset($gift->ngayketthuc) ? date('Y-m-d\TH:i', strtotime($gift->ngayketthuc)) : '');
                     $trangthai = is_array($gift) ? ($gift['trangthai'] ?? '') : $gift->trangthai;
@@ -145,8 +146,12 @@
                     </div>
 
                     <div class="mb-2">
-                      <label>Điều kiện:</label>
-                      <input type="text" name="quatangsukien[{{ $index }}][dieukien]" class="form-control" value="{{ $dieukien }}">
+                      <label>Điều kiện số lượng: <span class="text-danger">*</span></label>
+                      <input type="number" max="999" min="0" step="1" name="quatangsukien[{{ $index }}][dieukiensoluong]" class="form-control" value="{{ $dieukiensoluong }}">
+                    </div>
+                    <div class="mb-2">
+                      <label>Điều kiện giá trị:</label>
+                      <input type="number" max="99999999999" min="0" step="1000" name="quatangsukien[{{ $index }}][dieukiengiatri]" class="form-control" value="{{ $dieukiengiatri }}">
                     </div>
 
                     <div class="mb-2">

@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
 use App\Http\Resources\Frontend\QuatangAllResource;
-use App\Http\Resources\Frontend\QuatangResource;
+use App\Http\Resources\Web\QuatangResource; // web khác frontend ở chổ có thêm giỏ hàng session
 use App\Http\Resources\Frontend\SanphamCoQuatangCoBientheDeThemVaoGioResource;
 use App\Models\QuatangsukienModel;
 use App\Models\SanphamModel;

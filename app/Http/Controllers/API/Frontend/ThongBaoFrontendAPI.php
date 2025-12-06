@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Frontend\ThongbaoResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\ThongbaoModel;
@@ -16,11 +17,26 @@ use Illuminate\Support\Facades\DB;
  *     type="object",
  *     title="Thông báo",
  *     description="Thông tin chi tiết một thông báo của người dùng",
- *     @OA\Property(property="id", type="integer", example=1, description="ID của thông báo"),
- *     @OA\Property(property="id_nguoidung", type="integer", example=5, description="ID người dùng nhận thông báo"),
- *     @OA\Property(property="tieude", type="string", example="Thông báo mới", description="Tiêu đề thông báo"),
- *     @OA\Property(property="noidung", type="string", example="Nội dung chi tiết thông báo", description="Nội dung thông báo"),
- *     @OA\Property(property="lienket", type="string", nullable=true, example="https://example.com", description="Đường dẫn liên kết kèm theo thông báo"),
+ *
+ *     @OA\Property(property="id", type="integer", example=55, description="ID của thông báo"),
+ *     @OA\Property(property="tieude", type="string", example="Cập nhật thông tin cá nhân", description="Tiêu đề thông báo"),
+ *     @OA\Property(property="noidung", type="string", example="Bạn vui lòng cập nhật thông tin cá nhân để hoàn thiện hồ sơ.", description="Nội dung thông báo"),
+ *
+ *     @OA\Property(
+ *         property="lienket",
+ *         type="string",
+ *         nullable=true,
+ *         example="http://148.230.100.215:3000/qua-tang",
+ *         description="Đường dẫn liên kết kèm theo thông báo"
+ *     ),
+ *
+ *     @OA\Property(
+ *         property="loaithongbao",
+ *         type="string",
+ *         example="Hệ thống",
+ *         description="Loại thông báo (Hệ thống, Khuyến mãi, Quà tặng, Đơn hàng, ...)"
+ *     ),
+ *
  *     @OA\Property(
  *         property="trangthai",
  *         type="string",
@@ -28,9 +44,21 @@ use Illuminate\Support\Facades\DB;
  *         example="Chưa đọc",
  *         description="Trạng thái của thông báo"
  *     ),
- *     @OA\Property(property="created_at", type="string", format="date-time", example="2025-10-15T09:30:00Z", description="Thời gian tạo thông báo"),
- *     @OA\Property(property="updated_at", type="string", format="date-time", example="2025-10-15T09:35:00Z", description="Thời gian cập nhật thông báo"),
- *     @OA\Property(property="deleted_at", type="string", format="date-time", nullable=true, example=null, description="Thời gian xóa mềm thông báo nếu có")
+ *
+ *     @OA\Property(
+ *         property="created_at",
+ *         type="string",
+ *         format="date-time",
+ *         example="2025-12-02T16:57:27+07:00",
+ *         description="Thời gian tạo thông báo"
+ *     ),
+ *
+ *     @OA\Property(
+ *         property="thoigian",
+ *         type="string",
+ *         example="5 phút trước",
+ *         description="Thời gian tương đối kể từ khi tạo (diffForHumans)"
+ *     )
  * )
  */
 class ThongBaoFrontendAPI extends BaseFrontendController
@@ -39,19 +67,24 @@ class ThongBaoFrontendAPI extends BaseFrontendController
 
     /**
      * @OA\Get(
-     *     path="/toi/thongbaos",
+     *     path="api/toi/thongbaos",
      *     tags={"Thông báo (tôi)"},
      *     summary="Lấy danh sách tất cả thông báo của người dùng",
      *     description="Trả về danh sách thông báo của người dùng đang đăng nhập",
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Response(
      *         response=200,
      *         description="Danh sách thông báo thành công",
      *         @OA\JsonContent(
      *             type="object",
+     *
      *             @OA\Property(property="status", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Danh sách thông báo"),
-     *             @OA\Property(property="data", type="array",
+     *
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
      *                 @OA\Items(ref="#/components/schemas/Thongbao")
      *             )
      *         )
@@ -69,7 +102,7 @@ class ThongBaoFrontendAPI extends BaseFrontendController
         return $this->jsonResponse([
             'status' => true,
             'message' => 'Danh sách thông báo',
-            'data' => $thongbaos,
+            'data' => ThongbaoResource::collection($thongbaos),
         ], Response::HTTP_OK);
     }
 
@@ -77,9 +110,9 @@ class ThongBaoFrontendAPI extends BaseFrontendController
 
     /**
      * @OA\Delete(
-     *     path="/toi/thongbaos/{id}",
+     *     path="api/toi/thongbaos/{id}",
      *     tags={"Thông báo (tôi)"},
-     *     summary="Xóa thông báo (soft delete)",
+     *     summary="Xóa thông báo",
      *     description="Xóa mềm thông báo của người dùng",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
@@ -118,7 +151,7 @@ class ThongBaoFrontendAPI extends BaseFrontendController
 
     /**
      * @OA\Patch(
-     *     path="/toi/thongbaos/{id}/daxem",
+     *     path="api/toi/thongbaos/{id}/daxem",
      *     tags={"Thông báo (tôi)"},
      *     summary="Đánh dấu thông báo đã đọc",
      *     security={{"bearerAuth":{}}},
@@ -163,7 +196,7 @@ class ThongBaoFrontendAPI extends BaseFrontendController
 
     /**
      * @OA\Patch(
-     *     path="/toi/thongbaos/{id}/tam-an",
+     *     path="api/toi/thongbaos/{id}/tam-an",
      *     tags={"Thông báo (tôi)"},
      *     summary="Thay đổi trạng thái Tạm ẩn / Khác",
      *     security={{"bearerAuth":{}}},

@@ -1,6 +1,9 @@
 @extends('layouts.app')
 
 @section('title', 'Cập nhật danh mục | Quản trị hệ thống Siêu Thị Vina')
+
+{{-- // controller truyền xuống $danhmuc --}}
+{{-- // các route sư dụng danhmuc.update --- của breadcrumb danhmuc.index trang-chu  --}}
 {{--
     $danhmuc->logo chứa đường dẫn URL đầy đủ, ví dụ:
     http://148.230.100.215/assets/client/images/categories/tenfilehinhanh.jpg
@@ -8,16 +11,44 @@
 @section('content')
 <div class="page-wrapper">
     <div class="content">
+
         <div class="page-header">
-            <div class="page-title">
-                <h4>Cập nhật danh mục sản phẩm</h4>
-                <h6>Chỉnh sửa thông tin danh mục</h6>
-            </div>
-            <div class="page-btn">
-                <a href="{{ route('danhmuc.index') }}" class="btn btn-secondary">
-                    ← Quay lại danh sách
-                </a>
-            </div>
+            <x-header.breadcrumb
+                title="Sửa Danh Mục"
+                :links="[
+                    ['label' => 'Tổng quan', 'route' => 'trang-chu'],
+                    ['label' => 'Danh sách danh mục', 'route' => 'danhmuc.index']
+                ]"
+                active="Chỉnh sửa"
+            />
+        </div>
+
+        {{-- HIỆN THÔNG BÁO --}}
+        <div class="error-log">
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                    <ul class="mb-0">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button>
+                </div>
+            @endif
         </div>
 
         <div class="card shadow-sm">
@@ -41,7 +72,7 @@
                         <div class="form-group">
                             <label>Slug</label>
                             <input type="text" name="slug" class="form-control" value="{{ old('slug', $danhmuc->slug) }}" readonly>
-                            <small class="text-muted success">Slug được tạo tự động từ tên danh mục.</small>
+                            <small class="text-muted success">Slug là duy nhất, được tạo tự động từ tên danh mục.</small>
                         </div>
                     </div>
 
@@ -90,9 +121,9 @@
                     </div>
 
                     <!-- Nút hành động -->
-                    <div class="col-lg-12 text-end mt-3">
+                    <div class="col-lg-12 text-start mt-3">
                         <button type="submit" class="btn btn-primary">
-                            💾 Cập nhật danh mục
+                            Cập nhật danh mục
                         </button>
                     </div>
                 </form>

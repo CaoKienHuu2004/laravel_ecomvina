@@ -20,13 +20,14 @@ class DanhmucController extends Controller
     {
         $query = DanhmucModel::query()->withCount('sanpham');
 
-        // ✅ Tìm kiếm theo tên
-        if ($request->filled('keyword')) {
-            $query->where('ten', 'like', '%' . $request->keyword . '%');
-        }
+        // // ✅ Tìm kiếm theo tên
+        // if ($request->filled('keyword')) {
+        //     $query->where('ten', 'like', '%' . $request->keyword . '%');
+        // }
 
         // ✅ Phân trang (5 danh mục mỗi trang)
-        $danhmucs = $query->orderBy('id', 'desc')->paginate(10);
+        // $danhmucs = $query->orderBy('id', 'desc')->paginate(10);
+        $danhmucs = $query->orderBy('id', 'desc')->get(); //clientside paginate
 
         return view('danhmuc.index', compact('danhmucs'));
     }
@@ -39,8 +40,8 @@ class DanhmucController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'ten'       => 'required|string|max:255',
-            'logo'      => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'ten'       => 'required|string|max:255|unique:danhmuc,ten',
+            'logo'      => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'parent'    => 'required|in:Cha,Con',
             'trangthai' => 'required|in:Hiển thị,Tạm ẩn',
         ]);
@@ -61,7 +62,7 @@ class DanhmucController extends Controller
         $link_hinh_anh = $this->domain . $this->uploadDir . '/' . $fileName;
         DanhmucModel::create([
             'ten'       => $request->ten,
-            'slug'      => Str::slug($request->ten),
+            'slug'      => Str::slug(str_replace('/', '-', $request->ten)),
             'logo'      => $link_hinh_anh,
             'parent'    => $request->parent,
             'trangthai' => $request->trangthai,
@@ -87,8 +88,8 @@ class DanhmucController extends Controller
         $danhmuc = DanhmucModel::findOrFail($id);
 
         $request->validate([
-            'ten'       => 'required|string|max:255',
-            'logo'      => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'ten'       => 'required|string|max:255|unique:danhmuc,ten',
+            'logo'      => 'sometimes|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'parent'    => 'required|in:Cha,Con',
             'trangthai' => 'required|in:Hiển thị,Tạm ẩn',
         ]);
@@ -116,7 +117,7 @@ class DanhmucController extends Controller
         }
 
         $danhmuc->ten = $request->ten;
-        $danhmuc->slug = Str::slug($request->ten);
+        $danhmuc->slug = Str::slug(str_replace('/', '-', $request->ten));
         $danhmuc->parent = $request->parent;
         $danhmuc->trangthai = $request->trangthai;
 

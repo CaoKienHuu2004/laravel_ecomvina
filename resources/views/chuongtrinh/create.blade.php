@@ -34,7 +34,7 @@
 
       <div class="row">
         {{-- Phần thông tin chương trình --}}
-        <div class="col-lg-6">
+        <div class="col-lg-12">
           <div class="card mb-4">
             <div class="card-header">
               <h4>Thông tin chương trình</h4>
@@ -85,7 +85,7 @@
         </div>
 
         {{-- Phần danh sách quà tặng --}}
-        <div class="col-lg-6">
+        <div class="col-lg-12">
           <div class="card mb-4">
             <div class="card-header">
               <h4>Danh sách quà tặng sự kiện</h4>
@@ -126,8 +126,12 @@
                         @enderror
                     </div>
                   <div class="mb-2">
-                      <label>Điều kiện:</label>
-                      <input type="text" name="quatangsukien[0][dieukien]" class="form-control">
+                      <label>Điều kiện số lượng: <span class="text-danger">*</span></label>
+                      <input type="number" step="1" max="999" min="0" name="quatangsukien[0][dieukiensoluong]" class="form-control">
+                  </div>
+                  <div class="mb-2">
+                      <label>Điều kiện giá trị:</label>
+                      <input type="number" step="1000" max="99999999999" min="0" name="quatangsukien[0][dieukiengiatri]" class="form-control">
                   </div>
                   <div class="mb-2">
                       <label>Ngày Bắt Đầu:</label>

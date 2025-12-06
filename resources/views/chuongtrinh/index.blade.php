@@ -13,7 +13,8 @@
         <h6>
           {{-- Thống kê trạng thái --}}
           @php
-            $countAll = $chuongtrinhs->total();
+            $countAll = $chuongtrinhs->count();
+            // $countAll = $chuongtrinhs->total();
             $countTrangThai = [];
             foreach($trangthais as $tt) {
                 $countTrangThai[$tt] = $chuongtrinhs->filter(fn($c) => $c->trangthai === $tt)->count();
@@ -44,7 +45,7 @@
     <div class="card">
       <div class="card-body">
         {{-- Filter --}}
-        <form method="GET" action="{{ route('chuongtrinh.index') }}" class="row g-3 mb-3" id="filterForm">
+        {{-- <form method="GET" action="{{ route('chuongtrinh.index') }}" class="row g-3 mb-3" id="filterForm">
           <div class="col-md-4">
             <input
               type="text"
@@ -72,11 +73,11 @@
           <div class="col-md-2">
             <a href="{{ route('chuongtrinh.index') }}" class="btn btn-outline-danger w-100">Xóa filter</a>
           </div>
-        </form>
+        </form> --}}
 
         {{-- Bảng danh sách --}}
         <div class="table-responsive">
-          <table class="table table-bordered align-middle">
+          <table class="table datanew">
             <thead>
               <tr>
                 <th>Tiêu đề</th>
@@ -132,9 +133,9 @@
         </div>
 
         {{-- Phân trang --}}
-        <div class="d-flex justify-content-end mt-3">
+        {{-- <div class="d-flex justify-content-end mt-3">
           {{ $chuongtrinhs->links() }}
-        </div>
+        </div> --}}
       </div>
     </div>
   </div>

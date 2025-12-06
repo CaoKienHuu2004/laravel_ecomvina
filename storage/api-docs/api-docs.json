@@ -286,14 +286,6 @@
                                                     "type": "string",
                                                     "example": "https://domain.com/storage/path/avatar.jpg"
                                                 },
-                                                "vaitro": {
-                                                    "type": "string",
-                                                    "example": "admin"
-                                                },
-                                                "trangthai": {
-                                                    "type": "string",
-                                                    "example": "active"
-                                                },
                                                 "diachi": {
                                                     "description": "Danh sách địa chỉ giao hàng",
                                                     "type": "array",
@@ -430,6 +422,169 @@
                     },
                     "422": {
                         "description": "Dữ liệu đầu vào không hợp lệ"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/cap-nhat-mat-khau": {
+            "patch": {
+                "tags": [
+                    "Xác thực người dùng (Auth)"
+                ],
+                "summary": "Cập nhật mật khẩu người dùng",
+                "description": "Cập nhật mật khẩu cho người dùng đã đăng nhập. Yêu cầu header Authorization: Bearer {token}.\n     *                  Cần gửi current_password (mật khẩu hiện tại), new_password và new_password_confirmation.",
+                "operationId": "f464b79f3ba8a14e14432c8f560a40e3",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "current_password",
+                                    "new_password",
+                                    "new_password_confirmation"
+                                ],
+                                "properties": {
+                                    "current_password": {
+                                        "description": "Mật khẩu hiện tại của người dùng",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "oldPass123"
+                                    },
+                                    "new_password": {
+                                        "description": "Mật khẩu mới",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "newPass456"
+                                    },
+                                    "new_password_confirmation": {
+                                        "description": "Xác nhận mật khẩu mới (phải giống new_password)",
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "newPass456"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Cập nhật mật khẩu thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Cập nhật mật khẩu thành công"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Mật khẩu cũ không đúng",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Mật khẩu cũ không đúng!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Token không hợp lệ hoặc đã hết hạn",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Token không hợp lệ hoặc đã hết hạn!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Người dùng không tồn tại",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Người dùng không tồn tại!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Dữ liệu đầu vào không hợp lệ",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Dữ liệu không hợp lệ"
+                                        },
+                                        "errors": {
+                                            "type": "object",
+                                            "example": {
+                                                "current_password": [
+                                                    "The current password field is required."
+                                                ],
+                                                "new_password": [
+                                                    "The new password confirmation does not match."
+                                                ]
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -1793,6 +1948,120 @@
                 ]
             }
         },
+        "/api/toi/donhangs/{id}/vietqr-url": {
+            "post": {
+                "tags": [
+                    "Thanh toán VietQR"
+                ],
+                "summary": "Tạo URL mã QR thanh toán VietQR cho đơn hàng",
+                "description": "\n     *         - Kiểm tra user đã xác thực.\n     *         - Kiểm tra đơn hàng tồn tại và thuộc user hiện tại.\n     *         - Chỉ cho phép tạo mã QR nếu phương thức thanh toán có id_phuongthuc = 2 (CP).\n     *         - Trả về URL ảnh QR code động dùng để thanh toán.\n     *         - Gửi thông báo cho admin kiểm tra thanh toán thủ công trên VietQR.\n     *     ",
+                "operationId": "d2b32282a64514868c5dc202615bf777",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID của đơn hàng cần tạo mã QR",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 123
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tạo URL VietQR thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Tạo url VietQR thành công"
+                                        },
+                                        "data": {
+                                            "type": "string",
+                                            "format": "url",
+                                            "example": "https://img.vietqr.io/image/123456789-0123456789-01.png?amount=100000&addInfo=THANH%20TOAN%20DON%20HANG%201234&accountName=Nguyen%20Van%20A"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Chưa xác thực user",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Chưa xác thực user"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Phương thức thanh toán không hỗ trợ tạo mã QR",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Phương thức thanh toán không hỗ trợ tạo mã QR"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Đơn hàng không tồn tại hoặc không thuộc về bạn",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Đơn hàng không tồn tại hoặc không thuộc về bạn"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/toi/giohang": {
             "get": {
                 "tags": [
@@ -2157,6 +2426,142 @@
                         "bearerAuth": []
                     }
                 ]
+            }
+        },
+        "/api/gui-lien-he": {
+            "post": {
+                "tags": [
+                    "Liên hệ"
+                ],
+                "summary": "Gửi liên hệ từ trang liên hệ",
+                "description": "\n    * API dùng để khách hàng gửi thông tin liên hệ tới hệ thống.\n    *\n    * Bao gồm cơ chế chống spam:\n    * - Rate Limit: tối đa 3 yêu cầu / phút mỗi IP\n    * - Honeypot: phát hiện bot tự động\n    * - Chặn gửi nội dung trùng lặp trong 30 giây\n    * - Chặn từ khóa spam: http, https, www, quảng cáo,...\n    * - Chặn email rác (mailinator, yopmail,...)\n    *\n    * Khi gửi thành công, hệ thống sẽ tạo 1 bản ghi trong bảng 'thongbao'\n    * và gửi đến tài khoản admin.",
+                "operationId": "751632090906a1aa66eaa2a138824e21",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hoten",
+                                    "sodienthoai",
+                                    "tieude",
+                                    "noidung"
+                                ],
+                                "properties": {
+                                    "hoten": {
+                                        "type": "string",
+                                        "example": "Nguyễn Văn A"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "vana@gmail.com",
+                                        "nullable": true
+                                    },
+                                    "sodienthoai": {
+                                        "type": "string",
+                                        "example": "0987654321"
+                                    },
+                                    "tieude": {
+                                        "type": "string",
+                                        "example": "Tôi muốn hỏi về sản phẩm"
+                                    },
+                                    "noidung": {
+                                        "type": "string",
+                                        "example": "Cho tôi hỏi sản phẩm này còn hàng không?"
+                                    },
+                                    "website": {
+                                        "description": "Trường ẩn để chống bot (honeypot). Người dùng thật KHÔNG được nhập.",
+                                        "type": "string",
+                                        "example": null,
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Gửi liên hệ thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Gửi liên hệ thành công!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Lỗi hệ thống hoặc bị phát hiện spam",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Phát hiện spam."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Dữ liệu không hợp lệ (validate lỗi)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The hoten field is required."
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "429": {
+                        "description": "Gửi quá nhanh (Rate Limit)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Bạn gửi quá nhanh, vui lòng thử lại sau ít phút."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
             }
         },
         "/api/ma-giam-gia": {
@@ -3250,14 +3655,14 @@
                 ]
             }
         },
-        "/toi/thongbaos": {
+        "api/toi/thongbaos": {
             "get": {
                 "tags": [
                     "Thông báo (tôi)"
                 ],
                 "summary": "Lấy danh sách tất cả thông báo của người dùng",
                 "description": "Trả về danh sách thông báo của người dùng đang đăng nhập",
-                "operationId": "b14bebd52d4009b721f5ac890aefa827",
+                "operationId": "7486346228d39af7e25a78b7100fec04",
                 "responses": {
                     "200": {
                         "description": "Danh sách thông báo thành công",
@@ -3293,14 +3698,14 @@
                 ]
             }
         },
-        "/toi/thongbaos/{id}": {
+        "api/toi/thongbaos/{id}": {
             "delete": {
                 "tags": [
                     "Thông báo (tôi)"
                 ],
-                "summary": "Xóa thông báo (soft delete)",
+                "summary": "Xóa thông báo",
                 "description": "Xóa mềm thông báo của người dùng",
-                "operationId": "48ea375362dcf0f12eccbd9a556083ff",
+                "operationId": "6958d9a79903047b3e597b315b5798fa",
                 "parameters": [
                     {
                         "name": "id",
@@ -3327,13 +3732,13 @@
                 ]
             }
         },
-        "/toi/thongbaos/{id}/daxem": {
+        "api/toi/thongbaos/{id}/daxem": {
             "patch": {
                 "tags": [
                     "Thông báo (tôi)"
                 ],
                 "summary": "Đánh dấu thông báo đã đọc",
-                "operationId": "cde5b67b9cf2b0f956e5684f9a3a3303",
+                "operationId": "3f65caba9c2ee8ddb74d3c1c0aaa8aff",
                 "parameters": [
                     {
                         "name": "id",
@@ -3367,13 +3772,13 @@
                 ]
             }
         },
-        "/toi/thongbaos/{id}/tam-an": {
+        "api/toi/thongbaos/{id}/tam-an": {
             "patch": {
                 "tags": [
                     "Thông báo (tôi)"
                 ],
                 "summary": "Thay đổi trạng thái Tạm ẩn / Khác",
-                "operationId": "7b45e2acf729613aba0506db9ad1f028",
+                "operationId": "7b7bc6e069bae6ad351f22c209e8ffde",
                 "parameters": [
                     {
                         "name": "id",
@@ -3829,6 +4234,41 @@
                                             "items": {
                                                 "$ref": "#/components/schemas/TrangDieuKhoanItem"
                                             }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/trang-gioi-thieu": {
+            "get": {
+                "tags": [
+                    "Trang Giới Thiệu"
+                ],
+                "summary": "Lấy thông tin trang giới thiệu Siêu Thị Vina",
+                "description": "Trả về nội dung HTML và các thông tin liên quan của trang giới thiệu Siêu Thị Vina",
+                "operationId": "1d01550255a238022578146963376718",
+                "responses": {
+                    "200": {
+                        "description": "Thông tin trang giới thiệu",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Thông tin trang giới thiệu Siêu Thị Vina"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/TrangGioiThieuItem"
                                         }
                                     },
                                     "type": "object"
@@ -4838,28 +5278,28 @@
                     "id": {
                         "description": "ID của thông báo",
                         "type": "integer",
-                        "example": 1
-                    },
-                    "id_nguoidung": {
-                        "description": "ID người dùng nhận thông báo",
-                        "type": "integer",
-                        "example": 5
+                        "example": 55
                     },
                     "tieude": {
                         "description": "Tiêu đề thông báo",
                         "type": "string",
-                        "example": "Thông báo mới"
+                        "example": "Cập nhật thông tin cá nhân"
                     },
                     "noidung": {
                         "description": "Nội dung thông báo",
                         "type": "string",
-                        "example": "Nội dung chi tiết thông báo"
+                        "example": "Bạn vui lòng cập nhật thông tin cá nhân để hoàn thiện hồ sơ."
                     },
                     "lienket": {
                         "description": "Đường dẫn liên kết kèm theo thông báo",
                         "type": "string",
-                        "example": "https://example.com",
+                        "example": "http://148.230.100.215:3000/qua-tang",
                         "nullable": true
+                    },
+                    "loaithongbao": {
+                        "description": "Loại thông báo (Hệ thống, Khuyến mãi, Quà tặng, Đơn hàng, ...)",
+                        "type": "string",
+                        "example": "Hệ thống"
                     },
                     "trangthai": {
                         "description": "Trạng thái của thông báo",
@@ -4875,20 +5315,12 @@
                         "description": "Thời gian tạo thông báo",
                         "type": "string",
                         "format": "date-time",
-                        "example": "2025-10-15T09:30:00Z"
+                        "example": "2025-12-02T16:57:27+07:00"
                     },
-                    "updated_at": {
-                        "description": "Thời gian cập nhật thông báo",
+                    "thoigian": {
+                        "description": "Thời gian tương đối kể từ khi tạo (diffForHumans)",
                         "type": "string",
-                        "format": "date-time",
-                        "example": "2025-10-15T09:35:00Z"
-                    },
-                    "deleted_at": {
-                        "description": "Thời gian xóa mềm thông báo nếu có",
-                        "type": "string",
-                        "format": "date-time",
-                        "example": null,
-                        "nullable": true
+                        "example": "5 phút trước"
                     }
                 },
                 "type": "object"
@@ -5325,16 +5757,38 @@
                     "trangthai": {
                         "type": "string",
                         "example": "Hiển thị"
+                    }
+                },
+                "type": "object"
+            },
+            "TrangGioiThieuItem": {
+                "title": "Trang Giới Thiệu Siêu Thị Vina",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 2
                     },
-                    "created_at": {
+                    "tieude": {
                         "type": "string",
-                        "format": "date-time",
-                        "example": "2025-12-02T23:41:42.000000Z"
+                        "example": "Giới thiệu về Siêu Thị Vina"
                     },
-                    "updated_at": {
+                    "slug": {
                         "type": "string",
-                        "format": "date-time",
-                        "example": "2025-12-02T23:41:42.000000Z"
+                        "example": "http://148.230.100.215:3000/gioi-thieu"
+                    },
+                    "mota": {
+                        "description": "Nội dung HTML đầy đủ của trang giới thiệu",
+                        "type": "string",
+                        "example": "<div class='page'>...</div>"
+                    },
+                    "hinhanh": {
+                        "type": "string",
+                        "example": "http://148.230.100.215/assets/client/images/page/trang_gioithieu.jpg",
+                        "nullable": true
+                    },
+                    "trangthai": {
+                        "type": "string",
+                        "example": "Hiển thị"
                     }
                 },
                 "type": "object"
@@ -6493,6 +6947,14 @@
             "description": "Thanh toán VNPAY"
         },
         {
+            "name": "Thanh toán VietQR",
+            "description": "Thanh toán VietQR"
+        },
+        {
+            "name": "Liên hệ",
+            "description": "Liên hệ"
+        },
+        {
             "name": "Quà Tặng",
             "description": "Quà Tặng"
         },
@@ -6511,6 +6973,10 @@
         {
             "name": "Trang Điều Khoản",
             "description": "Trang Điều Khoản"
+        },
+        {
+            "name": "Trang Giới Thiệu",
+            "description": "Trang Giới Thiệu"
         },
         {
             "name": "Từ khóa",

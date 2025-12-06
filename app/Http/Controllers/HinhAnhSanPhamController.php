@@ -20,20 +20,27 @@ class HinhAnhSanphamController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->input('search');
+        // $search = $request->input('search');
 
-        $query = HinhanhsanphamModel::with('sanpham')->orderByDesc('id');
+        $query = HinhanhsanphamModel::with(
+            'sanpham',
+            'sanpham.bienthe',
+            'sanpham.bienthe.loaibienthe'
+        );
 
-        if ($search) {
-            $query->where('id', $search) // tìm theo id của hình ảnh
-                ->orWhereHas('sanpham', function ($q) use ($search) {
-                    $q->where('ten', 'like', "%{$search}%"); // tìm theo tên sản phẩm liên kết
-                });
-        }
 
-        $hinhanhs = $query->paginate(10)->withQueryString(); // phân trang 10 bản ghi
+        // if ($search) {
+        //     $query->where('id', $search) // tìm theo id của hình ảnh
+        //         ->orWhereHas('sanpham', function ($q) use ($search) {
+        //             $q->where('ten', 'like', "%{$search}%"); // tìm theo tên sản phẩm liên kết
+        //         });
+        // }
 
-        return view('hinhanhsanpham.index', compact('hinhanhs', 'search'));
+        // $hinhanhs = $query->paginate(10)->withQueryString(); // phân trang 10 bản ghi, serversite paginate
+        $hinhanhs = $query->orderBy('id', 'desc')->get(); // client paginate
+        return view('hinhanhsanpham.index', compact('hinhanhs'));
+
+        // return view('hinhanhsanpham.index', compact('hinhanhs', 'search'));
     }
 
     /**
@@ -60,7 +67,12 @@ class HinhAnhSanphamController extends Controller
      */
     public function show($id)
     {
-        $hinhanh = HinhanhsanphamModel::with('sanpham')->findOrFail($id);
+        $hinhanh = HinhanhsanphamModel::with(
+            'sanpham',
+            'sanpham.bienthe',
+            'sanpham.bienthe.loaibienthe'
+        )
+        ->findOrFail($id);
         return view('hinhanhsanpham.show', compact('hinhanh'));
     }
 

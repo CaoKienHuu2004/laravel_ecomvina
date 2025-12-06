@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Frontend\DanhgiaResource;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use App\Models\DanhgiaModel;
@@ -101,13 +102,19 @@ class DanhGiaFrontendAPI extends Controller
     {
         $user = $request->get('auth_user');
 
-        $danhgias = DanhgiaModel::with('sanpham','chitietdonhang')
+        $danhgias = DanhgiaModel::with(
+                'sanpham',
+                'sanpham.bienthe',
+                'sanpham.bienthe.loaibienthe',
+                'chitietdonhang',
+            )
             ->where('id_nguoidung', $user->id)
             ->orderByDesc('id')
             ->get();
+
         return response()->json([
             'success' => true,
-            'data' => $danhgias
+            'data' => DanhgiaResource::collection($danhgias)
         ], Response::HTTP_OK);
     }
 
@@ -152,7 +159,8 @@ class DanhGiaFrontendAPI extends Controller
             ->join('sanpham', 'bienthe.id_sanpham', '=', 'sanpham.id')
             ->where('donhang.id_nguoidung', $user->id)
             ->where('sanpham.id', $validated['id_sanpham'])
-            ->whereIn('donhang.trangthai', ['Đã giao', 'Hoàn tất'])
+            ->whereIn('donhang.trangthai', ['Thành công'])
+            // ->whereIn('donhang.trangthai', ['Đã giao hàng', 'Thành công'])
             ->select('chitiet_donhang.id')
             ->first();
 

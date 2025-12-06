@@ -9,6 +9,7 @@
                         <th>Tiêu đề</th>
                         <th>Nội dung</th>
                         <th>Liên kết</th>
+                        <th>Loại thông báo</th>
                         <th>Trạng thái</th>
                         <th class="text-center">Hành động</th>
                     </tr>
@@ -30,14 +31,17 @@
                                      style="width:45px;height:45px;border-radius:50%;object-fit:cover;">
                             @endif
                         </td>
-                        <td>{!! wordwrap(e($tb->tieude), 25, "<br>") !!}</td>
-                        <td><small>{!! wordwrap(e($tb->noidung), 40, "<br>") !!}</small></td>
+                        <td>{!! wordwrap(($tb->tieude), 25, "<br>", true) !!}</td>
+                        <td><small>{!! wordwrap(($tb->noidung), 36, "<br>", true) !!}</small></td>
                         <td>
                             @if($tb->lienket)
                                 <a href="{{ $tb->lienket }}" target="_blank" class="text-primary">Mở liên kết</a>
                             @else
                                 <span class="text-muted">Không có</span>
                             @endif
+                        </td>
+                        <td>
+                            <strong>{{ $tb->loaithongbao ?? 'Không xác định' }}</strong><br>
                         </td>
                         <td>
                             @if($tb->trangthai == 'Chưa đọc')
