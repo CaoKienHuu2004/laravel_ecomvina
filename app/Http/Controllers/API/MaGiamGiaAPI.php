@@ -81,7 +81,7 @@ class MaGiamGiaAPI extends BaseController
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'magiamgia'   => 'required|integer|unique:magiamgia,magiamgia',
+            'magiamgia'   => 'required|string|unique:magiamgia,magiamgia',
             'dieukien'    => 'required|string|max:255',
             'mota'        => 'nullable|string',
             'giatri'      => 'required|integer|min:0',
@@ -114,7 +114,7 @@ class MaGiamGiaAPI extends BaseController
         }
 
         $validated = $request->validate([
-            'magiamgia'   => 'nullable|integer|unique:magiamgia,magiamgia,' . $id,
+            'magiamgia'   => 'nullable|string|unique:magiamgia,magiamgia,' . $id,
             'dieukien'    => 'nullable|string|max:255',
             'mota'        => 'nullable|string',
             'giatri'      => 'nullable|integer|min:0',

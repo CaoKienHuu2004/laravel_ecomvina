@@ -117,11 +117,6 @@ class TrangChuAPI extends BaseFrontendController
      *                     @OA\Items(ref="#/components/schemas/SanphamItem")
      *                 ),
      *                 @OA\Property(
-     *                     property="new_coupon",
-     *                     type="array",
-     *                     @OA\Items(ref="#/components/schemas/MaGiamGiaItem")
-     *                 ),
-     *                 @OA\Property(
      *                     property="new_launch",
      *                     type="array",
      *                     @OA\Items(ref="#/components/schemas/SanphamItem")
@@ -164,25 +159,6 @@ class TrangChuAPI extends BaseFrontendController
      *     ),
      *     @OA\Property(property="sold_count", type="integer", example=532),
      *     @OA\Property(property="have_gift", type="boolean", example=true)
-     * )
-     * @OA\Schema(
-     *     schema="MaGiamGiaItem",
-     *     type="object",
-     *     title="Mã Giảm Giá",
-     *
-     *     @OA\Property(property="id", type="integer", example=1),
-     *     @OA\Property(property="magiamgia", type="integer", example=20241201, description="Mã giảm giá dạng số"),
-     *     @OA\Property(property="dieukien", type="string", example="khachhang_moi", description="Điều kiện áp dụng"),
-     *     @OA\Property(property="mota", type="string", nullable=true, example="Voucher 100K cho khách hàng mới"),
-     *     @OA\Property(property="giatri", type="integer", example=100000, description="Giá trị số tiền được giảm"),
-     *     @OA\Property(property="ngaybatdau", type="string", format="date", example="2024-11-01"),
-     *     @OA\Property(property="ngayketthuc", type="string", format="date", example="2024-12-31"),
-     *     @OA\Property(
-     *          property="trangthai",
-     *          type="string",
-     *          enum={"Hoạt động", "Tạm khóa", "Dừng hoạt động"},
-     *          example="Hoạt động"
-     *     )
      * )
      *
      * @OA\Schema(
@@ -284,7 +260,7 @@ class TrangChuAPI extends BaseFrontendController
             'top_categories' => $this->getTopCategories($request),
             'top_brands'     => $this->getTopBrands($request),
             'best_products'  => $this->getBestProducts($request),
-            'new_coupon' => $this->getNewCoupon($request),
+            // 'new_coupon' => $this->getNewCoupon($request),
 
             // 'recommend'      => $this->getRecommend($request, $request->get('danhmuc_id')), // bỏ phần recommend
             // Hàng mới chào sân, mới thêm vào hệ thống

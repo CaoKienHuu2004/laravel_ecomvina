@@ -386,7 +386,7 @@ Route::apiResource('api-trang-dieu-khoan', TrangDieuKhoanWebAPI::class)->only(['
 
 // gọi kèm các routes WebApi khác
 Route::get('/api-tinh-thanh', [TinhThanhVietNamWebApi::class, 'index']);
-Route::apiResource('api-ma-giam-gia', MaGiamGiaWebApi::class)->only(['index','show']);
+Route::apiResource('api-ma-giam-gia', MaGiamGiaWebApi::class)->only(['index']);
 // gọi kèm các routes WebApi khác
 
 //-------------------------------------------------- Guest User authetication --------------------------------//

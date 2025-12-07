@@ -38,7 +38,7 @@ class TrangChuWebAPI extends BaseFrontendController
             'top_brands'     => $this->getTopBrands($request),
             'best_products'  => $this->getBestProducts($request),
 
-            'new_coupon' => $this->getNewCoupon($request),
+            // 'new_coupon' => $this->getNewCoupon($request),
 
             // 'recommend'      => $this->getRecommend($request, $request->get('danhmuc_id')), // bỏ phần recommend
             // Hàng mới chào sân, mới thêm vào hệ thống

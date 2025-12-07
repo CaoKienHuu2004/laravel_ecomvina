@@ -1367,7 +1367,7 @@
                     "Đơn hàng (tôi)"
                 ],
                 "summary": "Tạo đơn hàng mới từ giỏ hàng của người dùng",
-                "description": "\n     *         API cho phép người dùng tạo đơn hàng mới từ giỏ hàng hiện tại.\n     *         Khi đơn hàng được tạo, hệ thống sẽ:\n     *         - Tạo đơn hàng với trạng thái và phương thức thanh toán tương ứng.\n     *         - Tạo chi tiết đơn hàng cho từng sản phẩm trong giỏ.\n     *         - Xóa giỏ hàng của người dùng sau khi tạo đơn.\n     *         - Trạng thái thanh toán mặc định là 'Chưa thanh toán' hoặc 'Đã thanh toán' tùy phương thức.\n     *\n     *         **Lưu ý**:\n     *         - Các xử lý giảm tồn kho, tăng lượt mua được thực hiện tự động qua Observer khi đơn hàng chuyển sang trạng thái 'Thành công'.\n     *     ",
+                "description": "\n     *         API cho phép người dùng tạo đơn hàng mới từ giỏ hàng hiện tại.\n     *         Khi đơn hàng được tạo, hệ thống sẽ:\n     *         - Tạo đơn IP người dùng vào table used_voucher_ip tương ứng ở redis, phụ vụ magiamgia dieukien (id -2 - khách hàng mới được giảm 50k, với giỏ hàng 50k trở lên).\n     *         - Tạo đơn hàng với trạng thái và phương thức thanh toán tương ứng.\n     *         - Tạo chi tiết đơn hàng cho từng sản phẩm trong giỏ.\n     *         - Xóa giỏ hàng của người dùng sau khi tạo đơn.\n     *         - Trạng thái thanh toán mặc định là 'Chưa thanh toán' hoặc 'Đã thanh toán' tùy phương thức.\n     *\n     *         **Lưu ý**:\n     *         - Các xử lý giảm tồn kho, tăng lượt mua được thực hiện tự động qua Observer khi đơn hàng chuyển sang trạng thái 'Thành công'.\n     *     ",
                 "operationId": "e126c6326573fc567815a7b139587eeb",
                 "requestBody": {
                     "required": true,
@@ -2569,44 +2569,12 @@
                 "tags": [
                     "Mã giảm giá"
                 ],
-                "summary": "Lấy danh sách mã giảm giá có hỗ trợ tìm kiếm và phân trang",
-                "description": "Trả về danh sách các mã giảm giá, hỗ trợ tìm kiếm theo mã giảm giá, mô tả hoặc trạng thái, kèm phân trang.",
+                "summary": "Lấy danh sách mã giảm giá mà người dùng đủ điều kiện sử dụng",
+                "description": "\n     * - API sẽ tự xác định người dùng qua Bearer Token (nếu có).\n     * - Nếu user đã đăng nhập → tính tổng tiền giỏ hàng từ database.\n     * - Sau đó lọc các mã giảm giá có trường 'dieukien' là số và tổng giỏ hàng >= dieukien.\n     * - Trả về danh sách các mã mà người dùng đủ điều kiện sử dụng.\n     * ",
                 "operationId": "11d665d9dc772980c78cd63abf263e40",
-                "parameters": [
-                    {
-                        "name": "q",
-                        "in": "query",
-                        "description": "Từ khóa tìm kiếm (theo mã giảm giá, mô tả hoặc trạng thái)",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "example": "SALE50"
-                        }
-                    },
-                    {
-                        "name": "page",
-                        "in": "query",
-                        "description": "Số trang cần lấy",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    },
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "description": "Số lượng bản ghi trên mỗi trang",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "example": 10
-                        }
-                    }
-                ],
                 "responses": {
                     "200": {
-                        "description": "Danh sách mã giảm giá kèm phân trang",
+                        "description": "Danh sách mã giảm giá phù hợp",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2624,82 +2592,6 @@
                                             "items": {
                                                 "$ref": "#/components/schemas/MaGiamGia"
                                             }
-                                        },
-                                        "pagination": {
-                                            "properties": {
-                                                "total": {
-                                                    "type": "integer",
-                                                    "example": 100
-                                                },
-                                                "per_page": {
-                                                    "type": "integer",
-                                                    "example": 10
-                                                },
-                                                "current_page": {
-                                                    "type": "integer",
-                                                    "example": 1
-                                                },
-                                                "last_page": {
-                                                    "type": "integer",
-                                                    "example": 10
-                                                },
-                                                "from": {
-                                                    "type": "integer",
-                                                    "example": 1
-                                                },
-                                                "to": {
-                                                    "type": "integer",
-                                                    "example": 10
-                                                }
-                                            },
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/ma-giam-gia/{id}": {
-            "get": {
-                "tags": [
-                    "Mã giảm giá"
-                ],
-                "summary": "Lấy chi tiết mã giảm giá theo ID",
-                "description": "Trả về thông tin chi tiết của một mã giảm giá dựa trên ID.",
-                "operationId": "6f98602ab596dff0a65c48e332c7b8a3",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID của mã giảm giá cần lấy",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 1
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Thông tin chi tiết mã giảm giá",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Chi tiết mã giảm giá"
-                                        },
-                                        "data": {
-                                            "$ref": "#/components/schemas/MaGiamGia"
                                         }
                                     },
                                     "type": "object"
@@ -2707,25 +2599,8 @@
                             }
                         }
                     },
-                    "404": {
-                        "description": "Không tìm thấy mã giảm giá",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": false
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Mã giảm giá không tồn tại"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
+                    "401": {
+                        "description": "Token không hợp lệ hoặc không xác định được người dùng"
                     }
                 }
             }
@@ -4170,12 +4045,6 @@
                                                         "$ref": "#/components/schemas/SanphamItem"
                                                     }
                                                 },
-                                                "new_coupon": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/MaGiamGiaItem"
-                                                    }
-                                                },
                                                 "new_launch": {
                                                     "type": "array",
                                                     "items": {
@@ -5459,55 +5328,6 @@
                 },
                 "type": "object"
             },
-            "MaGiamGiaItem": {
-                "title": "Mã Giảm Giá",
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "magiamgia": {
-                        "description": "Mã giảm giá dạng số",
-                        "type": "integer",
-                        "example": 20241201
-                    },
-                    "dieukien": {
-                        "description": "Điều kiện áp dụng",
-                        "type": "string",
-                        "example": "khachhang_moi"
-                    },
-                    "mota": {
-                        "type": "string",
-                        "example": "Voucher 100K cho khách hàng mới",
-                        "nullable": true
-                    },
-                    "giatri": {
-                        "description": "Giá trị số tiền được giảm",
-                        "type": "integer",
-                        "example": 100000
-                    },
-                    "ngaybatdau": {
-                        "type": "string",
-                        "format": "date",
-                        "example": "2024-11-01"
-                    },
-                    "ngayketthuc": {
-                        "type": "string",
-                        "format": "date",
-                        "example": "2024-12-31"
-                    },
-                    "trangthai": {
-                        "type": "string",
-                        "enum": [
-                            "Hoạt động",
-                            "Tạm khóa",
-                            "Dừng hoạt động"
-                        ],
-                        "example": "Hoạt động"
-                    }
-                },
-                "type": "object"
-            },
             "CategoryHotItem": {
                 "title": "Danh mục nổi bật",
                 "properties": {
@@ -5978,34 +5798,37 @@
                 "properties": {
                     "id": {
                         "type": "integer",
-                        "example": 1
+                        "example": 13
                     },
                     "magiamgia": {
                         "type": "string",
-                        "example": "SALE50"
+                        "example": "SIEUTHIVINA2025"
+                    },
+                    "dieukien": {
+                        "type": "string",
+                        "example": "200000"
                     },
                     "mota": {
                         "type": "string",
-                        "example": "Giảm 50% cho đơn hàng đầu tiên"
+                        "example": "Mã Voucher thuộc Nền tảng bán hàng trực tuyến Siêu Thị VinaMã Voucher thuộc Nền tảng bán hàng trực tuyến Siêu Thị Vina, dành tặng cho các khách hàng không kể bất kỳ ai với ưu đãi lên đến 20%. Áp dụng 1 lần duy nhất."
+                    },
+                    "giatri": {
+                        "type": "integer",
+                        "example": 20000
+                    },
+                    "ngaybatdau": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-09-01T00:00:00+07:00"
+                    },
+                    "ngayketthuc": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-09-01T00:00:00+07:00"
                     },
                     "trangthai": {
                         "type": "string",
                         "example": "Hoạt động"
-                    },
-                    "giatri": {
-                        "type": "number",
-                        "format": "float",
-                        "example": 50
-                    },
-                    "ngaybatdau": {
-                        "type": "string",
-                        "format": "date",
-                        "example": "2025-01-01"
-                    },
-                    "ngayketthuc": {
-                        "type": "string",
-                        "format": "date",
-                        "example": "2025-12-31"
                     }
                 },
                 "type": "object"

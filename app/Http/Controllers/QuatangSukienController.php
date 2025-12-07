@@ -295,4 +295,6 @@ class QuatangSukienController extends Controller
 
         return redirect()->route('quatangsukien.trash')->with('success', 'Xóa vĩnh viễn thành công!');
     }
+
+
 }

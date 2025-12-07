@@ -26,6 +26,8 @@ use App\Http\Resources\Toi\TheoDoiDonHangDetail\TheoDoiDonHangResource as TheoDo
 use App\Models\BientheModel;
 use App\Traits\SentMessToClient;
 
+use Illuminate\Support\Facades\Redis;
+
 /**
  * @OA\Schema(
  *     schema="Donhang",
@@ -264,6 +266,7 @@ class DonHangFrontendAPI extends BaseFrontendController
      *     description="
      *         API cho phép người dùng tạo đơn hàng mới từ giỏ hàng hiện tại.
      *         Khi đơn hàng được tạo, hệ thống sẽ:
+     *         - Tạo đơn IP người dùng vào table used_voucher_ip tương ứng ở redis, phụ vụ magiamgia dieukien (id -2 - khách hàng mới được giảm 50k, với giỏ hàng 50k trở lên).
      *         - Tạo đơn hàng với trạng thái và phương thức thanh toán tương ứng.
      *         - Tạo chi tiết đơn hàng cho từng sản phẩm trong giỏ.
      *         - Xóa giỏ hàng của người dùng sau khi tạo đơn.
@@ -501,6 +504,18 @@ class DonHangFrontendAPI extends BaseFrontendController
                 "Đơn hàng",
                 $user->id
             ); // trả về bool $check true/false
+
+            /// Lưu IP vào bảng IP redis chỉ để check điều kiện người dùng mới cho bảng magiamgia
+
+           $magiamgiaId = $id_magiamgia; // $magiamgiaId = $request->input('magiamgia_id'); // mã giảm giá user chọn
+            $ip = $request->getClientIp();
+            if ($magiamgiaId == 2) { // 2 là vì trong database mô tả của magiamgia đầy là mã kiểm tra người dùng mới, nền suy ra dùng IP để check
+                $redisIpKey = "used_voucher_ip:$ip";
+
+                // Lưu IP 1 năm
+                Redis::setex($redisIpKey, 86400 * 365, true);
+            }
+            /// Lưu IP vào bảng IP redis chỉ để check điều kiện người dùng mới cho bảng magiamgia
 
 
             DB::commit();

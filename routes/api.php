@@ -223,7 +223,7 @@ use App\Http\Controllers\API\ThongBaoAPI;
 
     // gọi kèm các routes api khác
     Route::get('/tinh-thanh', [TinhThanhVietNamFrontendAPI::class, 'index']);
-    Route::apiResource('ma-giam-gia', MaGiamGiaFrontendAPI::class)->only(['index','show']);
+    Route::apiResource('ma-giam-gia', MaGiamGiaFrontendAPI::class)->only(['index']);
     // gọi kèm các routes api khác
 
     // có slug: sanpham, danhmuc,

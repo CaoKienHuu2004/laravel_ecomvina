@@ -31,8 +31,8 @@ class MagiamgiaModel extends Model
 
     // Ép kiểu dữ liệu cho các trường
     protected $casts = [
-        'magiamgia'   => 'integer',
-        'giatri'      => 'integer',
+        // 'magiamgia'   => 'integer',
+        // 'giatri'      => 'integer',
         'ngaybatdau'  => 'date',
         'ngayketthuc' => 'date',
     ];

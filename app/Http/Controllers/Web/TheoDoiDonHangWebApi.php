@@ -128,6 +128,7 @@ class TheoDoiDonHangWebApi extends Controller
             'Đang giao hàng' => 'Đang giao hàng',
             'Đã giao hàng' => 'Đã giao',
             'Đã hủy' => 'Đã hủy',
+            'Thành công' => 'Đã giao',
         ];
 
         $query = DonhangModel::with([
@@ -270,6 +271,7 @@ class TheoDoiDonHangWebApi extends Controller
             'Đang giao hàng' => 4,
             'Đã giao hàng' => 5,
             'Đã hủy' => 6,
+            'Thành công' => 7,
         ];
 
         $currentStatus = $donhang->trangthai;

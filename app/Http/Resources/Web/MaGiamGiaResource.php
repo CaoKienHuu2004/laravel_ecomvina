@@ -14,6 +14,24 @@ class MaGiamGiaResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return parent::toArray($request);
+        // return parent::toArray($request);
+        return [
+            'id'          => $this->id,
+            'magiamgia'   => $this->magiamgia,
+            'dieukien'    => $this->dieukien,
+            'mota'        => $this->mota,
+            'giatri'      => $this->giatri,
+
+            // ISO 8601
+            'ngaybatdau'  => $this->ngaybatdau
+                ? $this->ngaybatdau->toIso8601String()
+                : null,
+
+            'ngayketthuc' => $this->ngayketthuc
+                ? $this->ngayketthuc->toIso8601String()
+                : null,
+
+            'trangthai'   => $this->trangthai,
+        ];
     }
 }

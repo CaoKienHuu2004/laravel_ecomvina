@@ -24,6 +24,8 @@ use App\Http\Resources\Toi\TheoDoiDonHangDetail\TheoDoiDonHangResource as TheoDo
 use App\Models\BientheModel;
 use App\Traits\SentMessToClient;
 
+use Illuminate\Support\Facades\Redis;
+
 
 class DonHangWebApi extends BaseFrontendController
 {
@@ -310,6 +312,18 @@ class DonHangWebApi extends BaseFrontendController
                 "Đơn hàng",
                 $user->id
             ); // trả về bool $check true/false
+
+            /// Lưu IP vào bảng IP redis chỉ để check điều kiện người dùng mới cho bảng magiamgia
+
+           $magiamgiaId = $id_magiamgia; // $magiamgiaId = $request->input('magiamgia_id'); // mã giảm giá user chọn
+            $ip = $request->getClientIp();
+            if ($magiamgiaId == 2) { // 2 là vì trong database mô tả của magiamgia đầy là mã kiểm tra người dùng mới, nền suy ra dùng IP để check
+                $redisIpKey = "used_voucher_ip:$ip";
+
+                // Lưu IP 1 năm
+                Redis::setex($redisIpKey, 86400 * 365, true);
+            }
+            /// Lưu IP vào bảng IP redis chỉ để check điều kiện người dùng mới cho bảng magiamgia
 
             DB::commit();
 
