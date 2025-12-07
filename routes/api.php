@@ -301,7 +301,7 @@ use App\Http\Controllers\API\ThongBaoAPI;
     Route::middleware(['auth.api'])->prefix('toi')->group(function () {
         Route::get('/yeuthichs', [YeuThichFrontendAPI::class, 'index']); // Xem danh sách yêu thích
         Route::post('/yeuthichs', [YeuThichFrontendAPI::class, 'store']); // Thêm sản phẩm vào yêu thích
-        Route::put('/yeuthichs/{id_sanpham}', [YeuThichFrontendAPI::class, 'update']); // Bỏ yêu thích (chuyển trạng thái)
+        Route::patch('/yeuthichs/{id_sanpham}', [YeuThichFrontendAPI::class, 'update']); // Bỏ yêu thích (chuyển trạng thái)
     });
 
     Route::middleware(['auth.api'])->prefix('toi')->group(function () {

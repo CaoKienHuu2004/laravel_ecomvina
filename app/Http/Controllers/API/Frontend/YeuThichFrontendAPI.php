@@ -12,64 +12,17 @@ use Illuminate\Http\Response;
  * @OA\Schema(
  *     schema="YeuThich",
  *     type="object",
- *     title="Yêu thích",
- *     description="Thông tin sản phẩm yêu thích của người dùng",
- *     @OA\Property(property="id", type="integer", example=1),
- *     @OA\Property(property="id_nguoidung", type="integer", example=5),
- *     @OA\Property(property="id_sanpham", type="integer", example=12),
- *     @OA\Property(property="trangthai", type="string", example="Hiển thị"),
- *     @OA\Property(
- *         property="sanpham",
- *         type="object",
- *         description="Thông tin sản phẩm",
- *         @OA\Property(property="id", type="integer", example=12),
- *         @OA\Property(property="tensanpham", type="string", example="Áo thun nam"),
- *         @OA\Property(property="gia", type="number", format="float", example=250000),
+ *     @OA\Property(property="id", type="integer", example=11),
+ *     @OA\Property(property="ten", type="string", example="Keo ong xanh Tracybee Propolis Mint & Honey – Giảm đau rát họng, ho, viêm họng (Vị Bạc Hà)"),
+ *     @OA\Property(property="id_sanpham", type="integer", example=1),
  *
- *         @OA\Property(
- *             property="hinhanhsanpham",
- *             type="array",
- *             description="Danh sách hình ảnh sản phẩm",
- *             @OA\Items(
- *                 type="object",
- *                 @OA\Property(property="id", type="integer", example=3),
- *                 @OA\Property(property="url", type="string", example="https://example.com/images/sp1.jpg"),
+ *     @OA\Property(property="giagiam_min", type="number", example=2700000),
+ *     @OA\Property(property="giagiam_max", type="number", example=2700000),
  *
- *             )
- *         ),
- *         @OA\Property(
- *             property="danhmuc",
- *             type="object",
- *             description="Danh mục sản phẩm",
- *             @OA\Property(property="id", type="integer", example=2),
- *             @OA\Property(property="tendanhmuc", type="string", example="Thời trang nam"),
+ *     @OA\Property(property="gia_min", type="number", example=2700000),
+ *     @OA\Property(property="gia_max", type="number", example=2700000),
  *
- *         ),
- *         @OA\Property(
- *             property="thuonghieu",
- *             type="object",
- *             description="Thương hiệu sản phẩm",
- *             @OA\Property(property="id", type="integer", example=1),
- *             @OA\Property(property="tenthuonghieu", type="string", example="Nike"),
- *
- *         ),
- *         @OA\Property(
- *             property="bienthe",
- *             type="object",
- *             description="Biến thể sản phẩm",
- *             @OA\Property(property="id", type="integer", example=10),
- *             @OA\Property(property="tenbienthe", type="string", example="Size M"),
- *
- *             @OA\Property(
- *                 property="loaibienthe",
- *                 type="object",
- *                 description="Loại biến thể",
- *                 @OA\Property(property="id", type="integer", example=100),
- *                 @OA\Property(property="tenloaibienthe", type="string", example="Size"),
- *
- *             )
- *         )
- *     )
+ *     @OA\Property(property="hinhanhsanpham", type="string", example="http://148.230.100.215/assets/client/images/thumbs/keo-ong-xanh.webp")
  * )
  */
 class YeuThichFrontendAPI extends Controller
@@ -187,7 +140,7 @@ class YeuThichFrontendAPI extends Controller
     }
 
     /**
-     * @OA\Put(
+     * @OA\Patch(
      *     path="/api/toi/yeuthichs/{id_sanpham}",
      *     tags={"Yêu thích (tôi)"},
      *     summary="Cập nhật trạng thái yêu thích (bỏ hoặc yêu thích lại sản phẩm)",

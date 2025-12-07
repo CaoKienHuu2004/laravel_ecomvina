@@ -4460,12 +4460,12 @@
             }
         },
         "/api/toi/yeuthichs/{id_sanpham}": {
-            "put": {
+            "patch": {
                 "tags": [
                     "Yêu thích (tôi)"
                 ],
                 "summary": "Cập nhật trạng thái yêu thích (bỏ hoặc yêu thích lại sản phẩm)",
-                "operationId": "ba413153c12e0fcc2335b1e4a9503ae7",
+                "operationId": "92b01fae11288235def1419d49373096",
                 "parameters": [
                     {
                         "name": "id_sanpham",
@@ -5636,116 +5636,38 @@
                 "type": "object"
             },
             "YeuThich": {
-                "title": "Yêu thích",
-                "description": "Thông tin sản phẩm yêu thích của người dùng",
                 "properties": {
                     "id": {
                         "type": "integer",
-                        "example": 1
+                        "example": 11
                     },
-                    "id_nguoidung": {
-                        "type": "integer",
-                        "example": 5
+                    "ten": {
+                        "type": "string",
+                        "example": "Keo ong xanh Tracybee Propolis Mint & Honey – Giảm đau rát họng, ho, viêm họng (Vị Bạc Hà)"
                     },
                     "id_sanpham": {
                         "type": "integer",
-                        "example": 12
+                        "example": 1
                     },
-                    "trangthai": {
+                    "giagiam_min": {
+                        "type": "number",
+                        "example": 2700000
+                    },
+                    "giagiam_max": {
+                        "type": "number",
+                        "example": 2700000
+                    },
+                    "gia_min": {
+                        "type": "number",
+                        "example": 2700000
+                    },
+                    "gia_max": {
+                        "type": "number",
+                        "example": 2700000
+                    },
+                    "hinhanhsanpham": {
                         "type": "string",
-                        "example": "Hiển thị"
-                    },
-                    "sanpham": {
-                        "description": "Thông tin sản phẩm",
-                        "properties": {
-                            "id": {
-                                "type": "integer",
-                                "example": 12
-                            },
-                            "tensanpham": {
-                                "type": "string",
-                                "example": "Áo thun nam"
-                            },
-                            "gia": {
-                                "type": "number",
-                                "format": "float",
-                                "example": 250000
-                            },
-                            "hinhanhsanpham": {
-                                "description": "Danh sách hình ảnh sản phẩm",
-                                "type": "array",
-                                "items": {
-                                    "properties": {
-                                        "id": {
-                                            "type": "integer",
-                                            "example": 3
-                                        },
-                                        "url": {
-                                            "type": "string",
-                                            "example": "https://example.com/images/sp1.jpg"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            },
-                            "danhmuc": {
-                                "description": "Danh mục sản phẩm",
-                                "properties": {
-                                    "id": {
-                                        "type": "integer",
-                                        "example": 2
-                                    },
-                                    "tendanhmuc": {
-                                        "type": "string",
-                                        "example": "Thời trang nam"
-                                    }
-                                },
-                                "type": "object"
-                            },
-                            "thuonghieu": {
-                                "description": "Thương hiệu sản phẩm",
-                                "properties": {
-                                    "id": {
-                                        "type": "integer",
-                                        "example": 1
-                                    },
-                                    "tenthuonghieu": {
-                                        "type": "string",
-                                        "example": "Nike"
-                                    }
-                                },
-                                "type": "object"
-                            },
-                            "bienthe": {
-                                "description": "Biến thể sản phẩm",
-                                "properties": {
-                                    "id": {
-                                        "type": "integer",
-                                        "example": 10
-                                    },
-                                    "tenbienthe": {
-                                        "type": "string",
-                                        "example": "Size M"
-                                    },
-                                    "loaibienthe": {
-                                        "description": "Loại biến thể",
-                                        "properties": {
-                                            "id": {
-                                                "type": "integer",
-                                                "example": 100
-                                            },
-                                            "tenloaibienthe": {
-                                                "type": "string",
-                                                "example": "Size"
-                                            }
-                                        },
-                                        "type": "object"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        },
-                        "type": "object"
+                        "example": "http://148.230.100.215/assets/client/images/thumbs/keo-ong-xanh.webp"
                     }
                 },
                 "type": "object"

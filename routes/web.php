@@ -416,7 +416,7 @@ Route::middleware(['auth.api'])->group(function () {
 Route::middleware(['auth.api'])->group(function () {
     Route::get('/toi/yeuthich', [YeuThichWebApi::class, 'index']); // Xem danh sách yêu thích
     Route::post('/toi/yeuthich', [YeuThichWebApi::class, 'store']); // Thêm sản phẩm vào yêu thích
-    Route::put('/toi/yeuthich/{id_sanpham}', [YeuThichWebApi::class, 'update']); // Bỏ yêu thích (chuyển trạng thái)
+    Route::patch('/toi/yeuthich/{id_sanpham}', [YeuThichWebApi::class, 'update']); // Bỏ yêu thích (chuyển trạng thái)
 });
 
 Route::middleware(['auth.api'])->prefix('toi')->group(function () {
