@@ -94,6 +94,7 @@ class GioHangFrontendAPI extends BaseFrontendController
      *      - Thêm sản phẩm vào giỏ hàng của người dùng hiện tại.
      *      - Nếu có chương trình khuyến mãi/quà tặng (bảng quatang_sukien):
      *          + Tự động kiểm tra điều kiện số lượng (dieukiensoluong).
+     *          + Tự động kiểm tra điều kiện giá trị (dieukiengiatri) tính theo tổng số tiền trong giỏ có đủ điều kiện của chiến lược này không(soluong và giatri).
      *          + Áp dụng đúng mô hình 'Mua X tặng 1'.
      *          + Thêm dòng quà tặng vào giỏ (thanhtien = 0) hoặc tự động cập nhật/xóa nếu không còn thỏa điều kiện.
      *      - Tính toán lại thành tiền theo số lượng phải trả.
@@ -495,6 +496,7 @@ class GioHangFrontendAPI extends BaseFrontendController
      *     - Cập nhật số lượng sản phẩm trong giỏ hàng.
      *     - Nếu số lượng mới bằng 0, sản phẩm sẽ bị xóa khỏi giỏ hàng cùng các quà tặng liên quan.
      *     - Tự động áp dụng chương trình quà tặng/sự kiện nếu thỏa điều kiện (số lượng sản phẩm >= điều kiện số lượng) và trong thời gian hiệu lực.
+     *     -Tự động kiểm tra điều kiện giá trị (dieukiengiatri) tính theo tổng số tiền trong giỏ có đủ điều kiện của chiến lược này không(soluong và giatri).
      *     - Tự động thêm hoặc xóa quà tặng miễn phí tương ứng với số lượng sản phẩm trong giỏ.
      *     - Không còn quản lý số lượng lượt tặng (`luottang`) trong bảng biến thể.
      *     ",

@@ -891,11 +891,12 @@ class GioHangWebApi extends Controller
 
                     // Kiểm tra số biến thể thuộc thương hiệu trong giỏ
                     $distinctVariantCount = collect($cartItems)
-                        ->filter(fn ($item) => {
-                            // Lấy thông tin bienthe từ $item['id_bienthe']
-                            $variant = BientheModel::with('sanpham.thuonghieu')->find($item['id_bienthe']);
-                            return $variant && $variant->sanpham->id_thuonghieu == $brandId;
-                        })->unique('id_bienthe')->count();
+                        ->filter(fn ($item) =>
+                            ($variant = BientheModel::with('sanpham.thuonghieu')->find($item['id_bienthe']))
+                            && $variant->sanpham->id_thuonghieu == $brandId
+                        )
+                        ->unique('id_bienthe')
+                        ->count();
 
 
 

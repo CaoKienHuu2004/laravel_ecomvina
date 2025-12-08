@@ -2129,7 +2129,7 @@
                     "Giỏ hàng (tôi)"
                 ],
                 "summary": "Thêm sản phẩm vào giỏ hàng (tự động áp dụng khuyến mãi/quà tặng nếu có)",
-                "description": "\n     *      Chức năng:\n     *      - Thêm sản phẩm vào giỏ hàng của người dùng hiện tại.\n     *      - Nếu có chương trình khuyến mãi/quà tặng (bảng quatang_sukien):\n     *          + Tự động kiểm tra điều kiện số lượng (dieukiensoluong).\n     *          + Áp dụng đúng mô hình 'Mua X tặng 1'.\n     *          + Thêm dòng quà tặng vào giỏ (thanhtien = 0) hoặc tự động cập nhật/xóa nếu không còn thỏa điều kiện.\n     *      - Tính toán lại thành tiền theo số lượng phải trả.\n     *      - Trả về toàn bộ giỏ hàng sau khi cập nhật.\n     *\n     *      Lưu ý:\n     *      - Không còn sử dụng trường luottang trong bảng biến thể để quản lý số lượng quà.\n     *      - Toàn bộ xử lý được khóa transaction + lockForUpdate() để chống race condition.\n     *     ",
+                "description": "\n     *      Chức năng:\n     *      - Thêm sản phẩm vào giỏ hàng của người dùng hiện tại.\n     *      - Nếu có chương trình khuyến mãi/quà tặng (bảng quatang_sukien):\n     *          + Tự động kiểm tra điều kiện số lượng (dieukiensoluong).\n     *          + Tự động kiểm tra điều kiện giá trị (dieukiengiatri) tính theo tổng số tiền trong giỏ có đủ điều kiện của chiến lược này không(soluong và giatri).\n     *          + Áp dụng đúng mô hình 'Mua X tặng 1'.\n     *          + Thêm dòng quà tặng vào giỏ (thanhtien = 0) hoặc tự động cập nhật/xóa nếu không còn thỏa điều kiện.\n     *      - Tính toán lại thành tiền theo số lượng phải trả.\n     *      - Trả về toàn bộ giỏ hàng sau khi cập nhật.\n     *\n     *      Lưu ý:\n     *      - Không còn sử dụng trường luottang trong bảng biến thể để quản lý số lượng quà.\n     *      - Toàn bộ xử lý được khóa transaction + lockForUpdate() để chống race condition.\n     *     ",
                 "operationId": "8ca4a60b35d7fd3b6da07cf9a9169c5c",
                 "requestBody": {
                     "description": "Dữ liệu để thêm hoặc cập nhật sản phẩm trong giỏ hàng",
@@ -2231,7 +2231,7 @@
                     "Giỏ hàng (tôi)"
                 ],
                 "summary": "Cập nhật số lượng sản phẩm trong giỏ hàng (tự động áp dụng khuyến mãi/quà tặng nếu có)",
-                "description": "\n     *     - Cập nhật số lượng sản phẩm trong giỏ hàng.\n     *     - Nếu số lượng mới bằng 0, sản phẩm sẽ bị xóa khỏi giỏ hàng cùng quà tặng liên quan.\n     *     - Áp dụng tự động chương trình quà tặng/sự kiện nếu thỏa điều kiện (`dieukiensoluong <= soluong`) và trong thời gian hiệu lực.\n     *     - Tự động thêm hoặc xóa quà tặng miễn phí tương ứng với số lượng sản phẩm.\n     *     - Không còn quản lý số lượng lượt tặng (`luottang`) trong bảng biến thể.\n     *     ",
+                "description": "\n     *     - Cập nhật số lượng sản phẩm trong giỏ hàng.\n     *     - Nếu số lượng mới bằng 0, sản phẩm sẽ bị xóa khỏi giỏ hàng cùng các quà tặng liên quan.\n     *     - Tự động áp dụng chương trình quà tặng/sự kiện nếu thỏa điều kiện (số lượng sản phẩm >= điều kiện số lượng) và trong thời gian hiệu lực.\n     *     -Tự động kiểm tra điều kiện giá trị (dieukiengiatri) tính theo tổng số tiền trong giỏ có đủ điều kiện của chiến lược này không(soluong và giatri).\n     *     - Tự động thêm hoặc xóa quà tặng miễn phí tương ứng với số lượng sản phẩm trong giỏ.\n     *     - Không còn quản lý số lượng lượt tặng (`luottang`) trong bảng biến thể.\n     *     ",
                 "operationId": "07103609c72dbee47dea2043693ab594",
                 "parameters": [
                     {
@@ -2255,7 +2255,7 @@
                                 ],
                                 "properties": {
                                     "soluong": {
-                                        "description": "Số lượng mới của sản phẩm. Nếu = 0 sẽ xóa sản phẩm khỏi giỏ hàng cùng quà tặng liên quan.",
+                                        "description": "Số lượng mới của sản phẩm. Nếu bằng 0 sẽ xóa sản phẩm và các quà tặng liên quan khỏi giỏ hàng.",
                                         "type": "integer",
                                         "example": 5
                                     }
@@ -2281,7 +2281,7 @@
                                             "example": "Cập nhật số lượng thành công"
                                         },
                                         "data": {
-                                            "description": "Danh sách sản phẩm trong giỏ hàng sau khi cập nhật, bao gồm cả quà tặng miễn phí",
+                                            "description": "Danh sách sản phẩm trong giỏ hàng sau khi cập nhật, bao gồm cả quà tặng miễn phí nếu có",
                                             "type": "array",
                                             "items": {
                                                 "$ref": "#/components/schemas/GioHangResource"
@@ -2306,6 +2306,26 @@
                                         "message": {
                                             "type": "string",
                                             "example": "Không tìm thấy sản phẩm trong giỏ hàng"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Yêu cầu không hợp lệ hoặc số lượng vượt quá điều kiện cho phép",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Số lượng yêu cầu vượt quá số lượng tồn kho hiện có."
                                         }
                                     },
                                     "type": "object"
