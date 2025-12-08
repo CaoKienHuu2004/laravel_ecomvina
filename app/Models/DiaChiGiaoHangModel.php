@@ -12,7 +12,8 @@ class DiaChiGiaoHangModel extends Model
     use HasFactory, SoftDeletes;
 
     // Tên bảng tương ứng trong database
-    protected $table = 'diachi_giaohang';
+    // protected $table = 'diachi_giaohang';
+    protected $table = 'diachi_nguoidung'; //edit
 
     // Khóa chính
     protected $primaryKey = 'id';

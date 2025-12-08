@@ -51,8 +51,8 @@ class DonhangModel extends Model
         'id_magiamgia',
         'id_nguoidung',
         'id_phivanchuyen',
-        'id_diachigiaohang', //edit
-        // 'id_diachinguoidung',
+        // 'id_diachigiaohang', //edit
+        'id_diachinguoidung',
         'madon',
         'tongsoluong',
         'tamtinh',
@@ -180,8 +180,8 @@ class DonhangModel extends Model
      */
     public function diachigiaohang()
     {
-        return $this->belongsTo(DiaChiGiaoHangModel::class, 'id_diachigiaohang');
-        // return $this->belongsTo(DiaChiGiaoHangModel::class, 'id_diachinguoidung');
+        // return $this->belongsTo(DiaChiGiaoHangModel::class, 'id_diachigiaohang');
+        return $this->belongsTo(DiaChiGiaoHangModel::class, 'id_diachinguoidung');
     }
 
     /**

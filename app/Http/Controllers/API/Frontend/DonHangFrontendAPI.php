@@ -364,7 +364,7 @@ class DonHangFrontendAPI extends BaseFrontendController
         $validator = Validator::make($request->only('ma_phuongthuc', 'ma_magiamgia', 'id_diachigiaohang'), [
             'ma_phuongthuc'      => 'required|string|exists:phuongthuc,maphuongthuc',
             'ma_magiamgia'       => 'nullable|string|exists:magiamgia,magiamgia',
-            'id_diachigiaohang'  => 'required|integer|exists:diachi_giaohang,id',
+            'id_diachigiaohang'  => 'required|integer|exists:diachi_nguoidung,id',
         ]);
 
         if ($validator->fails()) {
@@ -460,7 +460,7 @@ class DonHangFrontendAPI extends BaseFrontendController
                 'id_phuongthuc'       => $phuongthuc->id,
                 'id_nguoidung'        => $user->id,
                 'id_phivanchuyen'     => $id_phivanchuyen,
-                'id_diachigiaohang'   => $id_diachigiaohang,
+                'id_diachinguoidung'   => $id_diachigiaohang,
                 'id_magiamgia'        => $id_magiamgia ?? null,
                 'madon'               => DonhangModel::generateOrderCode(),
                 'tongsoluong'         => $tongsoluong,
