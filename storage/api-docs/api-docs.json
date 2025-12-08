@@ -2129,10 +2129,10 @@
                     "Giỏ hàng (tôi)"
                 ],
                 "summary": "Thêm sản phẩm vào giỏ hàng (tự động áp dụng khuyến mãi/quà tặng nếu có)",
-                "description": "\n     *      - Thêm sản phẩm vào giỏ hàng của người dùng hiện tại.\n     *      - Tự động kiểm tra và áp dụng chương trình quà tặng/sự kiện nếu thỏa điều kiện (`dieukiensoluong <= tổng số lượng sản phẩm`) và trong thời gian hiệu lực.\n     *      - Tự động thêm hoặc xóa quà tặng miễn phí tương ứng (`thanhtien = 0`).\n     *      - Không còn quản lý số lượng lượt tặng (`luottang`) trong bảng biến thể.\n     *     ",
+                "description": "\n     *      Chức năng:\n     *      - Thêm sản phẩm vào giỏ hàng của người dùng hiện tại.\n     *      - Nếu có chương trình khuyến mãi/quà tặng (bảng quatang_sukien):\n     *          + Tự động kiểm tra điều kiện số lượng (dieukiensoluong).\n     *          + Áp dụng đúng mô hình 'Mua X tặng 1'.\n     *          + Thêm dòng quà tặng vào giỏ (thanhtien = 0) hoặc tự động cập nhật/xóa nếu không còn thỏa điều kiện.\n     *      - Tính toán lại thành tiền theo số lượng phải trả.\n     *      - Trả về toàn bộ giỏ hàng sau khi cập nhật.\n     *\n     *      Lưu ý:\n     *      - Không còn sử dụng trường luottang trong bảng biến thể để quản lý số lượng quà.\n     *      - Toàn bộ xử lý được khóa transaction + lockForUpdate() để chống race condition.\n     *     ",
                 "operationId": "8ca4a60b35d7fd3b6da07cf9a9169c5c",
                 "requestBody": {
-                    "description": "Thông tin sản phẩm cần thêm vào giỏ hàng",
+                    "description": "Dữ liệu để thêm hoặc cập nhật sản phẩm trong giỏ hàng",
                     "required": true,
                     "content": {
                         "application/json": {
@@ -2143,12 +2143,12 @@
                                 ],
                                 "properties": {
                                     "id_bienthe": {
-                                        "description": "ID biến thể sản phẩm",
+                                        "description": "ID biến thể sản phẩm cần thêm",
                                         "type": "integer",
                                         "example": 21
                                     },
                                     "soluong": {
-                                        "description": "Số lượng sản phẩm muốn thêm (phải >= 1)",
+                                        "description": "Số lượng muốn thêm vào giỏ (phải >= 1)",
                                         "type": "integer",
                                         "example": 2
                                     }
@@ -2160,34 +2160,21 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "Thêm sản phẩm vào giỏ hàng thành công",
+                        "description": "Thêm vào giỏ hàng thành công",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Thêm sản phẩm vào giỏ hàng thành công"
-                                        },
-                                        "data": {
-                                            "description": "Danh sách sản phẩm trong giỏ hàng sau khi thêm, bao gồm cả quà tặng miễn phí",
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/GioHangResource"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
+                                    "description": "Danh sách giỏ hàng sau khi thêm, gồm cả sản phẩm và quà tặng",
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/GioHangResource"
+                                    }
                                 }
                             }
                         }
                     },
                     "400": {
-                        "description": "Dữ liệu không hợp lệ hoặc thiếu trường bắt buộc",
+                        "description": "Dữ liệu không hợp lệ",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2222,7 +2209,7 @@
                                         },
                                         "error": {
                                             "type": "string",
-                                            "example": "Chi tiết lỗi từ server"
+                                            "example": "Thông báo lỗi chi tiết từ server"
                                         }
                                     },
                                     "type": "object"
