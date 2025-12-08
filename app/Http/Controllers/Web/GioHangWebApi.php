@@ -82,7 +82,7 @@ class GioHangWebApi extends Controller
      */
     /**
      * @OA\Get(
-     *     path="/toi/giohang/init",
+     *     path="/web/giohang/init",
      *     summary="Khởi tạo giỏ hàng",
      *     description="WebApi này luôn được gọi fetchapi ở trang page.tsx(tương tự index.php của php)  dùng để khởi tạo session cho giỏ hàng. Khi gọi, nó sẽ tạo một session mới (nếu chưa có), đặt một biến cờ 'khoitao_giohang' vào session, và trả về session ID. Đồng thời, nó cũng gửi về một cookie XSRF-TOKEN để client sử dụng cho các request tiếp theo nhằm chống lại tấn công CSRF.",
      *     tags={"Giỏ Hàng (web)"},
@@ -184,8 +184,86 @@ class GioHangWebApi extends Controller
         return $user;
     }
 
+
     /**
-     * 🛒 Lấy danh sách sản phẩm trong giỏ hàng
+     * @OA\Get(
+     *     path="/web/giohang",
+     *     summary="Lấy danh sách sản phẩm trong giỏ hàng (Web)",
+     *     description="
+     *         API lấy toàn bộ sản phẩm trong giỏ hàng.
+     *         - Nếu người dùng **đã đăng nhập** (gửi kèm Bearer Token), giỏ hàng sẽ được lấy từ **database**.
+     *         - Nếu người dùng **chưa đăng nhập**, giỏ hàng sẽ được lấy từ **session (cookie: laravel_session)**.
+     *
+     *         Bao gồm đầy đủ thông tin:
+     *         - Số lượng
+     *         - Thành tiền (tự tính — bao gồm khuyến mãi nếu có)
+     *         - Thông tin biến thể
+     *         - Sản phẩm
+     *         - Hình ảnh
+     *         - Loại biến thể
+     *     ",
+     *     tags={"Giỏ Hàng (web)"},
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lấy giỏ hàng thành công.",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer", nullable=true, example=12),
+     *                 @OA\Property(property="id_nguoidung", type="integer", nullable=true, example=5),
+     *                 @OA\Property(property="id_bienthe", type="integer", example=101),
+     *                 @OA\Property(property="soluong", type="integer", example=3),
+     *                 @OA\Property(property="thanhtien", type="number", example=150000),
+     *                 @OA\Property(property="trangthai", type="string", example="Hiển thị"),
+     *
+     *                 @OA\Property(
+     *                     property="bienthe",
+     *                     type="object",
+     *                     description="Thông tin biến thể sản phẩm",
+     *                     @OA\Property(property="id", type="integer", example=101),
+     *                     @OA\Property(property="giagoc", type="integer", example=50000),
+     *
+     *                     @OA\Property(
+     *                         property="loaibienthe",
+     *                         type="object",
+     *                         description="Loại biến thể (màu sắc, kích thước...)",
+     *                         @OA\Property(property="id", type="integer", example=3),
+     *                         @OA\Property(property="ten", type="string", example="Màu đỏ")
+     *                     ),
+     *
+     *                     @OA\Property(
+     *                         property="sanpham",
+     *                         type="object",
+     *                         description="Thông tin sản phẩm cha",
+     *                         @OA\Property(property="id", type="integer", example=20),
+     *                         @OA\Property(property="ten", type="string", example="Áo thun nam cotton"),
+     *
+     *                         @OA\Property(
+     *                             property="hinhanhsanpham",
+     *                             type="array",
+     *                             @OA\Items(
+     *                                 type="object",
+     *                                 @OA\Property(property="url", type="string", example="https://example.com/image1.jpg")
+     *                             )
+     *                         )
+     *                     )
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=401,
+     *         description="Không hợp lệ hoặc thiếu Bearer Token (chỉ áp dụng khi lấy giỏ từ DB)."
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=500,
+     *         description="Lỗi máy chủ."
+     *     )
+     * )
      */
     public function index(Request $request)
     {
@@ -269,8 +347,99 @@ class GioHangWebApi extends Controller
         }
     }
 
+
     /**
-     * ➕ Thêm sản phẩm vào giỏ hàng
+     * @OA\Post(
+     *     path="/web/giohang",
+     *     tags={"Giỏ Hàng (web)"},
+     *     summary="Thêm sản phẩm vào giỏ hàng (Hỗ trợ cả user đăng nhập & khách).",
+     *     description="
+     *     API này dùng để thêm sản phẩm (biến thể) vào giỏ hàng.
+     *     - Nếu người dùng **đăng nhập**, giỏ hàng sẽ lưu trong **database**.
+     *     - Nếu **chưa đăng nhập**, giỏ hàng lưu trong **session**.
+     *
+     *     API tự động tính khuyến mãi theo 2 rule:
+     *     **RULE 1: Khuyến mãi theo số lượng (quatang_sukien) → tặng FREE item.**
+     *     **RULE 2: Quà theo giá trị giỏ hàng (quangcao) → tặng 1 biến thể.**
+     *     ",
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"id_bienthe", "soluong"},
+     *             @OA\Property(
+     *                 property="id_bienthe",
+     *                 type="integer",
+     *                 example=12,
+     *                 description="ID của biến thể cần thêm vào giỏ hàng."
+     *             ),
+     *             @OA\Property(
+     *                 property="soluong",
+     *                 type="integer",
+     *                 minimum=1,
+     *                 example=3,
+     *                 description="Số lượng sản phẩm muốn thêm."
+     *             ),
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=201,
+     *         description="Thêm vào giỏ hàng thành công. Trả về danh sách giỏ hàng sau khi cập nhật.",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(
+     *                @OA\Property(property="id", type="integer", example=101),
+     *                @OA\Property(property="id_nguoidung", type="integer", example=5),
+     *                @OA\Property(property="id_bienthe", type="integer", example=12),
+     *                @OA\Property(property="soluong", type="integer", example=4, description="Tổng số lượng đã cộng dồn."),
+     *                @OA\Property(property="thanhtien", type="number", example=450000),
+     *                @OA\Property(property="trangthai", type="string", example="Hiển thị"),
+     *                @OA\Property(
+     *                     property="bienthe",
+     *                     type="object",
+     *                     description="Thông tin biến thể.",
+     *                     @OA\Property(property="id", type="integer", example=12),
+     *                     @OA\Property(property="giagoc", type="number", example=150000),
+     *                     @OA\Property(
+     *                         property="sanpham",
+     *                         type="object",
+     *                         @OA\Property(property="id", type="integer", example=2),
+     *                         @OA\Property(property="tensanpham", type="string", example="Áo thun nam"),
+     *                         @OA\Property(
+     *                             property="hinhanhsanpham",
+     *                             type="array",
+     *                             @OA\Items(
+     *                                 @OA\Property(property="url", type="string", example="https://.../image.jpg")
+     *                             )
+     *                         )
+     *                     )
+     *                )
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=400,
+     *         description="Dữ liệu gửi lên không hợp lệ (thiếu id_bienthe hoặc soluong không đúng).",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="The soluong field must be at least 1.")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=404,
+     *         description="Không tìm thấy biến thể hoặc biến thể đã bị xóa.",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Biến thể không tồn tại.")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=500,
+     *         description="Lỗi server trong quá trình thêm giỏ hàng.",
+     *     )
+     * )
      */
     public function store(Request $request)
     {
@@ -567,8 +736,54 @@ class GioHangWebApi extends Controller
 
 
 
+
         /**
-         * ✏️ Cập nhật số lượng sản phẩm trong giỏ hàng
+         * @OA\Put(
+         *     path="/web/giohang/{id}",
+         *     tags={"Giỏ Hàng (web)"},
+         *     summary="Cập nhật số lượng sản phẩm trong giỏ hàng",
+         *     description="Cập nhật số lượng sản phẩm trong giỏ hàng Web API. Nếu số lượng = 0 thì xóa sản phẩm. Tự động xử lý quà tặng rule 1 và rule 2.",
+         *
+         *     @OA\Parameter(
+         *         name="id",
+         *         in="path",
+         *         required=true,
+         *         description="ID sản phẩm trong giỏ hàng (id bản ghi giỏ hàng, không phải id_bienthe)",
+         *         example=10
+         *     ),
+         *
+         *     @OA\RequestBody(
+         *         required=true,
+         *         @OA\JsonContent(
+         *             required={"soluong"},
+         *             @OA\Property(
+         *                 property="soluong",
+         *                 type="integer",
+         *                 example=5,
+         *                 description="Số lượng mới của sản phẩm"
+         *             )
+         *         )
+         *     ),
+         *
+         *     @OA\Response(
+         *         response=200,
+         *         description="Cập nhật giỏ hàng thành công",
+         *         @OA\JsonContent(
+         *             @OA\Property(property="status", type="boolean", example=true),
+         *             @OA\Property(property="message", type="string", example="Cập nhật giỏ hàng thành công"),
+         *         )
+         *     ),
+         *
+         *     @OA\Response(
+         *         response=404,
+         *         description="Không tìm thấy sản phẩm trong giỏ"
+         *     ),
+         *
+         *     @OA\Response(
+         *         response=500,
+         *         description="Lỗi trong quá trình cập nhật giỏ hàng"
+         *     )
+         * )
          */
         public function update(Request $request, $id)
         {
@@ -948,8 +1163,49 @@ class GioHangWebApi extends Controller
 
 
     /**
-     * ❌ Xóa sản phẩm khỏi giỏ hàng
+     * @OA\Delete(
+     *     path="/web/giohang/{id}",
+     *     summary="Xóa sản phẩm khỏi giỏ hàng",
+     *     description="Xóa sản phẩm khỏi giỏ hàng. Nếu người dùng đã đăng nhập thì xóa trong database. Nếu chưa đăng nhập thì xóa trong session.",
+     *     tags={"Giỏ Hàng (web)"},
+     *
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID sản phẩm trong giỏ hàng (hoặc ID biến thể nếu chưa đăng nhập)",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Xóa sản phẩm khỏi giỏ hàng thành công",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=true),
+     *             @OA\Property(property="message", type="string", example="Xóa sản phẩm khỏi giỏ hàng thành công")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=404,
+     *         description="Không tìm thấy sản phẩm trong giỏ hàng",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Sản phẩm không tồn tại trong giỏ hàng session")
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=401,
+     *         description="Token không hợp lệ hoặc hết hạn (nếu có token)",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="status", type="boolean", example=false),
+     *             @OA\Property(property="message", type="string", example="Token không hợp lệ")
+     *         )
+     *     )
+     * )
      */
+
     public function destroy(Request $request, $id)
     {
         $user = $this->get_user_from_token($request);

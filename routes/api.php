@@ -203,7 +203,7 @@ use App\Http\Controllers\API\ThongBaoAPI;
 
     //page HTML tỉnh
     Route::apiResource('trang-dieu-khoan', TrangDieuKhoan::class)->only(['index']);
-    Route::apiResource('trang-gioi-thieu', TrangGioiThieu::class)->only(['index']);
+    // Route::apiResource('trang-gioi-thieu', TrangGioiThieu::class)->only(['index']);
     //page HTML tỉnh
 
     Route::post('/gui-lien-he', [GuiThongBaoFrontendAPI::class, 'guiLienHe']);
@@ -265,46 +265,46 @@ use App\Http\Controllers\API\ThongBaoAPI;
     // Route::delete('/guest/giohang/{id_bienthesp}', [GuestCartAPI::class, 'destroy']);
 
     Route::middleware(['auth.api'])->group(function () {
-        Route::get('/toi/giohang', [GioHangFrontendAPI::class, 'index']);
-        Route::post('/toi/giohang', [GioHangFrontendAPI::class, 'store']);
-        Route::put('/toi/giohang/{id}', [GioHangFrontendAPI::class, 'update']);
-        Route::delete('/toi/giohang/{id}', [GioHangFrontendAPI::class, 'destroy']);
+        Route::get('/tai-khoan/giohang', [GioHangFrontendAPI::class, 'index']);
+        Route::post('/tai-khoan/giohang', [GioHangFrontendAPI::class, 'store']);
+        Route::put('/tai-khoan/giohang/{id}', [GioHangFrontendAPI::class, 'update']);
+        Route::delete('/tai-khoan/giohang/{id}', [GioHangFrontendAPI::class, 'destroy']);
     });
     Route::middleware(['auth.api'])->group(function () {
-        Route::get('/toi/donhangs', [DonHangFrontendAPI::class, 'index']);
-        Route::get('/toi/donhangs/{id}', [DonHangFrontendAPI::class, 'show']);
-        Route::post('/toi/donhangs', [DonHangFrontendAPI::class, 'store']);
-        Route::put('/toi/donhangs/{id}', [DonHangFrontendAPI::class, 'update']);
-        Route::patch('/toi/donhangs/{id}/huy', [DonHangFrontendAPI::class, 'cancel']);
+        Route::get('/tai-khoan/donhangs', [DonHangFrontendAPI::class, 'index']);
+        Route::get('/tai-khoan/donhangs/{id}', [DonHangFrontendAPI::class, 'show']);
+        Route::post('/tai-khoan/donhangs', [DonHangFrontendAPI::class, 'store']);
+        Route::put('/tai-khoan/donhangs/{id}', [DonHangFrontendAPI::class, 'update']);
+        Route::patch('/tai-khoan/donhangs/{id}/huy', [DonHangFrontendAPI::class, 'cancel']);
 
         // Tích hợp thanh toán VNPAY, cần thêm 3 route
-        Route::post('/toi/donhangs/{id}/payment-url', [DonHangFrontendAPI::class, 'createPaymentUrl']);
-        Route::get('/toi/donhangs/{id}/status', [DonHangFrontendAPI::class, 'getPaymentStatus']);
+        Route::post('/tai-khoan/donhangs/{id}/payment-url', [DonHangFrontendAPI::class, 'createPaymentUrl']);
+        Route::get('/tai-khoan/donhangs/{id}/status', [DonHangFrontendAPI::class, 'getPaymentStatus']);
         // Tích hợp vietqr
-        Route::post('/toi/donhangs/{id}/vietqr-url', [DonHangFrontendAPI::class, 'createVietqrtUrl']);
+        // Route::post('/tai-khoan/donhangs/{id}/vietqr-url', [DonHangFrontendAPI::class, 'createVietqrtUrl']);
     });
         // Tích hợp thanh toán VNPAY, cần thêm 3 route
-        Route::get('/toi/donhangs/payment-callback', [DonHangFrontendAPI::class, 'handlePaymentCallback'])
-        ->name('api.toi.donhangs.payment-callback');
+        Route::get('/tai-khoan/donhangs/payment-callback', [DonHangFrontendAPI::class, 'handlePaymentCallback'])
+        ->name('api.tai-khoan.donhangs.payment-callback');
         // ko cần auth vì là hook từ VNPAY gửi về, nếu auth có thể dẫn đến lỗi 401 Unauthorized
 
-        Route::middleware(['auth.api'])->group(function () {
-            Route::get('/toi/theodoi-donhang', [TheoDoiDonHangFrontendAPI::class, 'index']);
-            Route::put('/toi/theodoi-donhang/{id}', [TheoDoiDonHangFrontendAPI::class, 'update']);
-        });
+        // Route::middleware(['auth.api'])->group(function () {
+        //     Route::get('/tai-khoan/theodoi-donhang', [TheoDoiDonHangFrontendAPI::class, 'index']);
+        //     Route::put('/tai-khoan/theodoi-donhang/{id}', [TheoDoiDonHangFrontendAPI::class, 'update']);
+        // });
     Route::middleware(['auth.api'])->group(function () {
-        Route::get('/toi/danhgias', [DanhGiaFrontendAPI::class, 'index']);
-        Route::post('/toi/danhgias', [DanhGiaFrontendAPI::class, 'store']);
-        Route::put('/toi/danhgias/{id}', [DanhGiaFrontendAPI::class, 'update']);
-        Route::delete('/toi/danhgias/{id}', [DanhGiaFrontendAPI::class, 'destroy']);
+        Route::get('/tai-khoan/danhgias', [DanhGiaFrontendAPI::class, 'index']);
+        Route::post('/tai-khoan/danhgias', [DanhGiaFrontendAPI::class, 'store']);
+        Route::put('/tai-khoan/danhgias/{id}', [DanhGiaFrontendAPI::class, 'update']);
+        Route::delete('/tai-khoan/danhgias/{id}', [DanhGiaFrontendAPI::class, 'destroy']);
     });
-    Route::middleware(['auth.api'])->prefix('toi')->group(function () {
+    Route::middleware(['auth.api'])->prefix('tai-khoan')->group(function () {
         Route::get('/yeuthichs', [YeuThichFrontendAPI::class, 'index']); // Xem danh sách yêu thích
         Route::post('/yeuthichs', [YeuThichFrontendAPI::class, 'store']); // Thêm sản phẩm vào yêu thích
         Route::patch('/yeuthichs/{id_sanpham}', [YeuThichFrontendAPI::class, 'update']); // Bỏ yêu thích (chuyển trạng thái)
     });
 
-    Route::middleware(['auth.api'])->prefix('toi')->group(function () {
+    Route::middleware(['auth.api'])->prefix('tai-khoan')->group(function () {
         Route::get('/diachis', [DiaChiFrontendAPI::class, 'index']);
         Route::post('/diachis', [DiaChiFrontendAPI::class, 'store']);
         Route::put('/diachis/{id}', [DiaChiFrontendAPI::class, 'update']);
@@ -312,9 +312,9 @@ use App\Http\Controllers\API\ThongBaoAPI;
         Route::patch('/diachis/{id}/macdinh', [DiaChiFrontendAPI::class, 'setDefault']);
         Route::patch('/diachis/{id}/trangthai', [DiaChiFrontendAPI::class, 'toggleStatus']);
     });
-    Route::middleware(['auth.api'])->prefix('toi')->group(function () {
+    Route::middleware(['auth.api'])->prefix('tai-khoan')->group(function () {
         Route::get('/thongbaos', [ThongBaoFrontendAPI::class, 'index']);       // Lấy danh sách
-        Route::delete('/thongbaos/{id}', [ThongBaoFrontendAPI::class, 'destroy']); // Xóa
+        // Route::delete('/thongbaos/{id}', [ThongBaoFrontendAPI::class, 'destroy']); // Xóa
         Route::patch('/thongbaos/{id}/daxem', [ThongBaoFrontendAPI::class, 'markAsRead']); // Optional
         Route::patch('/thongbaos/{id}/tam-an', [ThongBaoFrontendAPI::class, 'toggleStatus']); // Optional
     });

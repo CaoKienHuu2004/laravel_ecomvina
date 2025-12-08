@@ -29,8 +29,8 @@ class YeuThichFrontendAPI extends Controller
 {
     /**
      * @OA\Get(
-     *     path="/api/toi/yeuthichs",
-     *     tags={"Yêu thích (tôi)"},
+     *     path="/api/tai-khoan/yeuthichs",
+     *     tags={"Yêu thích (Tài khoản)"},
      *     summary="Lấy danh sách sản phẩm yêu thích của người dùng",
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
@@ -77,8 +77,8 @@ class YeuThichFrontendAPI extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/toi/yeuthichs",
-     *     tags={"Yêu thích (tôi)"},
+     *     path="/api/tai-khoan/yeuthichs",
+     *     tags={"Yêu thích (Tài khoản)"},
      *     summary="Thêm sản phẩm vào danh sách yêu thích",
      *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
@@ -141,8 +141,8 @@ class YeuThichFrontendAPI extends Controller
 
     /**
      * @OA\Patch(
-     *     path="/api/toi/yeuthichs/{id_sanpham}",
-     *     tags={"Yêu thích (tôi)"},
+     *     path="/api/tai-khoan/yeuthichs/{id_sanpham}",
+     *     tags={"Yêu thích (Tài khoản)"},
      *     summary="Cập nhật trạng thái yêu thích (bỏ hoặc yêu thích lại sản phẩm)",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(

@@ -358,11 +358,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
 // // Nếu guest (chưa đăng nhập) → vẫn có giỏ hàng, nhưng dựa trên session_id (Laravel session) hoặc cookie.
 // // Route::get('/giohang/guest', [GioHangFrontendAPI::class, 'guestCart']);
 
-Route::get('/toi/giohang/init', [GioHangWebApi::class, 'init']); // giống session init của php ở đâu file index.php
-Route::get('/toi/giohang', [GioHangWebApi::class, 'index']);
-Route::post('/toi/giohang', [GioHangWebApi::class, 'store']);
-Route::put('/toi/giohang/{id}', [GioHangWebApi::class, 'update']);
-Route::delete('/toi/giohang/{id}', [GioHangWebApi::class, 'destroy']);
+Route::get('/web/giohang/init', [GioHangWebApi::class, 'init']); // giống session init của php ở đâu file index.php
+Route::get('/web/giohang', [GioHangWebApi::class, 'index']);
+Route::post('/web/giohang', [GioHangWebApi::class, 'store']);
+Route::put('/web/giohang/{id}', [GioHangWebApi::class, 'update']);
+Route::delete('/web/giohang/{id}', [GioHangWebApi::class, 'destroy']);
 
 Route::get('/api-san-pham', [SanphamAllWebAPI::class, 'index']);
 Route::get('/api-san-pham/{id}', [SanphamAllWebAPI::class, 'show']);
@@ -392,34 +392,34 @@ Route::apiResource('api-ma-giam-gia', MaGiamGiaWebApi::class)->only(['index']);
 //-------------------------------------------------- Guest User authetication --------------------------------//
 
 Route::middleware(['auth.api'])->group(function () {
-    Route::get('/toi/donhang', [DonHangWebApi::class, 'index']);
-    Route::post('/toi/donhang', [DonHangWebApi::class, 'store']);
-    Route::post('/toi/donhang', [DonHangWebApi::class, 'show']);
-    Route::put('/toi/donhang/{id}', [DonHangWebApi::class, 'update']);
-    Route::patch('/toi/donhang/{id}/huy', [DonHangWebApi::class, 'cancel']);
+    Route::get('/tai-khoan/donhang', [DonHangWebApi::class, 'index']);
+    Route::post('/tai-khoan/donhang', [DonHangWebApi::class, 'store']);
+    Route::post('/tai-khoan/donhang', [DonHangWebApi::class, 'show']);
+    Route::put('/tai-khoan/donhang/{id}', [DonHangWebApi::class, 'update']);
+    Route::patch('/tai-khoan/donhang/{id}/huy', [DonHangWebApi::class, 'cancel']);
     // Tích hợp vietqr
-        Route::post('/toi/donhang/{id}/vietqr-url', [DonHangWebApi::class, 'createVietqrtUrl']);
+        Route::post('/tai-khoan/donhang/{id}/vietqr-url', [DonHangWebApi::class, 'createVietqrtUrl']);
 
     // Tích hợp thanh toán VNPAY, cần thêm 3 route
-    Route::post('/toi/donhang/{id}/payment-url', [DonHangWebApi::class, 'createPaymentUrl']);
-    Route::get('/toi/donhang/{id}/status', [DonHangWebApi::class, 'getPaymentStatus']);
+    Route::post('/tai-khoan/donhang/{id}/payment-url', [DonHangWebApi::class, 'createPaymentUrl']);
+    Route::get('/tai-khoan/donhang/{id}/status', [DonHangWebApi::class, 'getPaymentStatus']);
 });
     // Tích hợp thanh toán VNPAY, cần thêm 3 route
-    Route::get('/toi/donhang/payment-callback', [DonHangWebApi::class, 'handlePaymentCallback'])
-    ->name('toi.donhang.payment-callback');;
+    Route::get('/tai-khoan/donhang/payment-callback', [DonHangWebApi::class, 'handlePaymentCallback'])
+    ->name('tai-khoan.donhang.payment-callback');;
     // ko cần auth vì là hook từ VNPAY gửi về, nếu auth có thể dẫn đến lỗi 401 Unauthorized
 
     Route::middleware(['auth.order_code'])->group(function () {
-        Route::get('/toi/theodoi-donhang', [TheoDoiDonHangWebApi::class, 'index']);
-        Route::put('/toi/theodoi-donhang/{id}', [TheoDoiDonHangWebApi::class, 'update']);
+        Route::get('/web/tracuu-donhang', [TheoDoiDonHangWebApi::class, 'index']);
+        // Route::put('/web/tracuu-donhang/{id}', [TheoDoiDonHangWebApi::class, 'update']);
     });
 Route::middleware(['auth.api'])->group(function () {
-    Route::get('/toi/yeuthich', [YeuThichWebApi::class, 'index']); // Xem danh sách yêu thích
-    Route::post('/toi/yeuthich', [YeuThichWebApi::class, 'store']); // Thêm sản phẩm vào yêu thích
-    Route::patch('/toi/yeuthich/{id_sanpham}', [YeuThichWebApi::class, 'update']); // Bỏ yêu thích (chuyển trạng thái)
+    Route::get('/tai-khoan/yeuthich', [YeuThichWebApi::class, 'index']); // Xem danh sách yêu thích
+    Route::post('/tai-khoan/yeuthich', [YeuThichWebApi::class, 'store']); // Thêm sản phẩm vào yêu thích
+    Route::patch('/tai-khoan/yeuthich/{id_sanpham}', [YeuThichWebApi::class, 'update']); // Bỏ yêu thích (chuyển trạng thái)
 });
 
-Route::middleware(['auth.api'])->prefix('toi')->group(function () {
+Route::middleware(['auth.api'])->prefix('tai-khoan')->group(function () {
     Route::get('/diachi', [DiaChiWebApi::class, 'index']);
     Route::post('/diachi', [DiaChiWebApi::class, 'store']);
     Route::put('/diachi/{id}', [DiaChiWebApi::class, 'update']);

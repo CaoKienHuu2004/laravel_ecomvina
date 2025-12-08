@@ -69,10 +69,10 @@ class DonHangFrontendAPI extends BaseFrontendController
 
     /**
      * @OA\Get(
-     *     path="/api/toi/donhangs",
+     *     path="/api/tai-khoan/donhangs",
      *     summary="Lấy danh sách đơn hàng của người dùng (theo trạng thái)",
      *     description="API này trả về danh sách các đơn hàng của người dùng hiện tại, được phân loại theo trạng thái (VD: Chờ thanh toán, Đang xác nhận,...).",
-     *     tags={"Đơn hàng (tôi)"},
+     *     tags={"Đơn hàng (Tài khoản)"},
      *     security={{"bearerAuth": {}}},
      *     @OA\Parameter(
      *         name="trangthai",
@@ -193,9 +193,9 @@ class DonHangFrontendAPI extends BaseFrontendController
 
     /**
      * @OA\Get(
-     *     path="/api/toi/donhangs/{id}",
+     *     path="/api/tai-khoan/donhangs/{id}",
      *     summary="Xem chi tiết một đơn hàng của người dùng hiện tại",
-     *     tags={"Đơn hàng (tôi)"},
+     *     tags={"Đơn hàng (Tài khoản)"},
      *     security={{"bearerAuth": {}}},
      *     @OA\Parameter(
      *         name="id",
@@ -261,7 +261,7 @@ class DonHangFrontendAPI extends BaseFrontendController
 
     /**
      * @OA\Post(
-     *     path="/api/toi/donhangs",
+     *     path="/api/tai-khoan/donhangs",
      *     summary="Tạo đơn hàng mới từ giỏ hàng của người dùng",
      *     description="
      *         API cho phép người dùng tạo đơn hàng mới từ giỏ hàng hiện tại.
@@ -275,7 +275,7 @@ class DonHangFrontendAPI extends BaseFrontendController
      *         **Lưu ý**:
      *         - Các xử lý giảm tồn kho, tăng lượt mua được thực hiện tự động qua Observer khi đơn hàng chuyển sang trạng thái 'Thành công'.
      *     ",
-     *     tags={"Đơn hàng (tôi)"},
+     *     tags={"Đơn hàng (Tài khoản)"},
      *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
@@ -539,7 +539,7 @@ class DonHangFrontendAPI extends BaseFrontendController
 
     /**
      * @OA\Put(
-     *     path="/api/toi/donhangs/{id}",
+     *     path="/api/tai-khoan/donhangs/{id}",
      *     summary="Cập nhật thông tin và trạng thái đơn hàng (đồng bộ chi tiết)",
      *     description="
      *     ✅ Cho phép người dùng:
@@ -551,7 +551,7 @@ class DonHangFrontendAPI extends BaseFrontendController
      *     - Nếu trạng thái là **'Đã giao hàng'** → `DonhangObserver` sẽ tự động trừ kho (`bienthe.soluong -= chitietdonhang.soluong`) và tăng `luotmua`.
      *     - Nếu trạng thái là **'Đã hủy đơn'** → `DonhangObserver` sẽ tự động hoàn lại tồn kho (`bienthe.soluong += chitietdonhang.soluong`).
      *     ",
-     *     tags={"Đơn hàng (tôi)"},
+     *     tags={"Đơn hàng (Tài khoản)"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
@@ -678,13 +678,13 @@ class DonHangFrontendAPI extends BaseFrontendController
 
     /**
      * @OA\Patch(
-     *     path="/api/toi/donhangs/{id}/huy",
+     *     path="/api/tai-khoan/donhangs/{id}/huy",
      *     summary="Hủy đơn hàng của người dùng (đồng bộ kho tự động)",
      *     description="
      *     ❌ Hủy đơn hàng khi đơn vẫn còn trong trạng thái 'Chờ xử lý'.
      *     🔁 Khi đơn bị hủy, **Observer DonhangObserver** sẽ tự hoàn lại số lượng sản phẩm trong kho (`bienthe.soluong += chitietdonhang.soluong`).
      *     ",
-     *     tags={"Đơn hàng (tôi)"},
+     *     tags={"Đơn hàng (Tài khoản)"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
@@ -736,7 +736,7 @@ class DonHangFrontendAPI extends BaseFrontendController
 
     /**
      * @OA\Post(
-     *     path="/api/toi/donhangs/{id}/create-payment-url",
+     *     path="/api/tai-khoan/donhangs/{id}/create-payment-url",
      *     summary="Tạo URL thanh toán VNPAY cho đơn hàng",
      *     description="
      *         Tạo URL thanh toán VNPAY dựa trên thông tin đơn hàng và trả về URL này cho frontend để người dùng tiến hành thanh toán.
@@ -809,7 +809,7 @@ class DonHangFrontendAPI extends BaseFrontendController
         $vnp_Url = config('vnpay.payment_url');
         $vnp_TmnCode = config('vnpay.tmn_code');
         $vnp_HashSecret = config('vnpay.hash_secret');
-        $vnp_Returnurl = route('api.toi.donhangs.payment-callback');
+        $vnp_Returnurl = route('api.tai-khoan.donhangs.payment-callback');
 
         $inputData = [
             'vnp_Version' => '2.1.0',
@@ -840,7 +840,7 @@ class DonHangFrontendAPI extends BaseFrontendController
 
     /**
      * @OA\Get(
-     *     path="/api/toi/donhangs/payment-callback",
+     *     path="/api/tai-khoan/donhangs/payment-callback",
      *     summary="Xử lý callback từ VNPAY sau khi thanh toán",
      *     description="
      *         Nhận thông tin callback từ VNPAY về kết quả thanh toán.
@@ -948,7 +948,7 @@ class DonHangFrontendAPI extends BaseFrontendController
 
     /**
      * @OA\Get(
-     *     path="/api/toi/donhangs/{id}/payment-status",
+     *     path="/api/tai-khoan/donhangs/{id}/payment-status",
      *     summary="Lấy trạng thái thanh toán đơn hàng",
      *     description="
      *         API cho phép frontend hoặc client kiểm tra trạng thái thanh toán và trạng thái đơn hàng.
@@ -1009,62 +1009,7 @@ class DonHangFrontendAPI extends BaseFrontendController
     // #begin------------------- Tích hợp thanh toán VietQR ----------------------//
 
 
-    /**
-     * @OA\Post(
-     *     path="/api/toi/donhangs/{id}/vietqr-url",
-     *     summary="Tạo URL mã QR thanh toán VietQR cho đơn hàng",
-     *     description="
-     *         - Kiểm tra user đã xác thực.
-     *         - Kiểm tra đơn hàng tồn tại và thuộc user hiện tại.
-     *         - Chỉ cho phép tạo mã QR nếu phương thức thanh toán có id_phuongthuc = 2 (CP).
-     *         - Trả về URL ảnh QR code động dùng để thanh toán.
-     *         - Gửi thông báo cho admin kiểm tra thanh toán thủ công trên VietQR.
-     *     ",
-     *     tags={"Thanh toán VietQR"},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="ID của đơn hàng cần tạo mã QR",
-     *         required=true,
-     *         @OA\Schema(type="integer", example=123)
-     *     ),
-     *     security={{"bearerAuth": {}}},
-     *     @OA\Response(
-     *         response=200,
-     *         description="Tạo URL VietQR thành công",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="status", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Tạo url VietQR thành công"),
-     *             @OA\Property(property="data", type="string", format="url", example="https://img.vietqr.io/image/123456789-0123456789-01.png?amount=100000&addInfo=THANH%20TOAN%20DON%20HANG%201234&accountName=Nguyen%20Van%20A")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Chưa xác thực user",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Chưa xác thực user")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=403,
-     *         description="Phương thức thanh toán không hỗ trợ tạo mã QR",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Phương thức thanh toán không hỗ trợ tạo mã QR")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Đơn hàng không tồn tại hoặc không thuộc về bạn",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Đơn hàng không tồn tại hoặc không thuộc về bạn")
-     *         )
-     *     )
-     * )
-     */
+
     public function createVietqrtUrl(Request $request, $id)
     {
         $user = $request->get('auth_user');

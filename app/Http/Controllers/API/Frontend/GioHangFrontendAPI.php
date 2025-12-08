@@ -13,7 +13,7 @@ use Illuminate\Http\Response;
 
 /**
  * @OA\Tag(
- *     name="Giỏ hàng (tôi)",
+ *     name="Giỏ hàng (Tài khoản)",
  *     description="Các API thao tác với giỏ hàng của người dùng frontend"
  * )
  */
@@ -21,8 +21,8 @@ class GioHangFrontendAPI extends BaseFrontendController
 {
     /**
      * @OA\Get(
-     *     path="/api/toi/giohang",
-     *     tags={"Giỏ hàng (tôi)"},
+     *     path="/api/tai-khoan/giohang",
+     *     tags={"Giỏ hàng (Tài khoản)"},
      *     summary="Lấy toàn bộ giỏ hàng của người dùng hiện tại",
      *     description="Trả về danh sách sản phẩm trong giỏ hàng của người dùng đang đăng nhập. Nếu giỏ hàng trống sẽ trả về thông báo.",
      *     security={{"bearerAuth": {}}},
@@ -86,8 +86,8 @@ class GioHangFrontendAPI extends BaseFrontendController
 
     /**
      * @OA\Post(
-     *     path="/api/toi/giohang",
-     *     tags={"Giỏ hàng (tôi)"},
+     *     path="/api/tai-khoan/giohang",
+     *     tags={"Giỏ hàng (Tài khoản)"},
      *     summary="Thêm sản phẩm vào giỏ hàng (tự động áp dụng khuyến mãi/quà tặng nếu có)",
      *     description="
      *      Chức năng:
@@ -489,8 +489,8 @@ class GioHangFrontendAPI extends BaseFrontendController
 
     /**
      * @OA\Put(
-     *     path="/api/toi/giohang/{id}",
-     *     tags={"Giỏ hàng (tôi)"},
+     *     path="/api/tai-khoan/giohang/{id}",
+     *     tags={"Giỏ hàng (Tài khoản)"},
      *     summary="Cập nhật số lượng sản phẩm trong giỏ hàng (tự động áp dụng khuyến mãi/quà tặng nếu có)",
      *     description="
      *     - Cập nhật số lượng sản phẩm trong giỏ hàng.
@@ -848,8 +848,8 @@ class GioHangFrontendAPI extends BaseFrontendController
 
     /**
      * @OA\Delete(
-     *     path="/api/toi/giohang/{id}",
-     *     tags={"Giỏ hàng (tôi)"},
+     *     path="/api/tai-khoan/giohang/{id}",
+     *     tags={"Giỏ hàng (Tài khoản)"},
      *     summary="Xóa sản phẩm khỏi giỏ hàng",
      *     security={{"bearerAuth": {}}},
      *     @OA\Parameter(

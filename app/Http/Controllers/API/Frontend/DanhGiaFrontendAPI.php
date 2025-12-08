@@ -81,8 +81,8 @@ class DanhGiaFrontendAPI extends Controller
 
     /**
      * @OA\Get(
-     *     path="/api/toi/danhgias",
-     *     tags={"Đánh giá (tôi)"},
+     *     path="/api/tai-khoan/danhgias",
+     *     tags={"Đánh giá (Tài khoản)"},
      *     summary="Lấy danh sách đánh giá của người dùng đã đăng nhập",
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
@@ -120,8 +120,8 @@ class DanhGiaFrontendAPI extends Controller
 
     /**
      * @OA\Post(
-     *     path="/api/toi/danhgias",
-     *     tags={"Đánh giá (tôi)"},
+     *     path="/api/tai-khoan/danhgias",
+     *     tags={"Đánh giá (Tài khoản)"},
      *     summary="Thêm đánh giá mới (chỉ cho sản phẩm đã mua)",
      *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
@@ -203,8 +203,8 @@ class DanhGiaFrontendAPI extends Controller
 
     /**
      * @OA\Put(
-     *     path="/api/toi/danhgias/{id}",
-     *     tags={"Đánh giá (tôi)"},
+     *     path="/api/tai-khoan/danhgias/{id}",
+     *     tags={"Đánh giá (Tài khoản)"},
      *     summary="Cập nhật đánh giá của chính mình",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
@@ -254,8 +254,8 @@ class DanhGiaFrontendAPI extends Controller
 
     /**
      * @OA\Delete(
-     *     path="/api/toi/danhgias/{id}",
-     *     tags={"Đánh giá (tôi)"},
+     *     path="/api/tai-khoan/danhgias/{id}",
+     *     tags={"Đánh giá (Tài khoản)"},
      *     summary="Xóa đánh giá của chính mình",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),

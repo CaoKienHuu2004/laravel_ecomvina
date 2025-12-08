@@ -512,7 +512,7 @@ class DonHangWebApi extends BaseFrontendController
         $vnp_Url = config('vnpay.payment_url');
         $vnp_TmnCode = config('vnpay.tmn_code');
         $vnp_HashSecret = config('vnpay.hash_secret');
-        $vnp_Returnurl = route('toi.donhang.payment-callback');
+        $vnp_Returnurl = route('tai-khoan.donhang.payment-callback');
 
         $inputData = [
             'vnp_Version' => '2.1.0',

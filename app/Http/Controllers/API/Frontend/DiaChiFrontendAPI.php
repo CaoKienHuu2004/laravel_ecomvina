@@ -48,10 +48,10 @@ class DiaChiFrontendAPI extends BaseFrontendController
 
     /**
      * @OA\Get(
-     *     path="/api/toi/diachis",
+     *     path="/api/tai-khoan/diachis",
      *     summary="Lấy danh sách địa chỉ người dùng",
      *     description="Trả về danh sách tất cả địa chỉ của người dùng hiện tại, sắp xếp Mặc định lên đầu",
-     *     tags={"Địa chỉ (tôi)"},
+     *     tags={"Địa chỉ (Tài khoản)"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Response(
      *         response=200,
@@ -80,10 +80,10 @@ class DiaChiFrontendAPI extends BaseFrontendController
 
     /**
      * @OA\Post(
-     *     path="/api/toi/diachis",
+     *     path="/api/tai-khoan/diachis",
      *     summary="Thêm địa chỉ mới",
      *     description="Người dùng thêm địa chỉ mới. Nếu chọn 'Mặc định', các địa chỉ khác sẽ chuyển thành 'Khác'.",
-     *     tags={"Địa chỉ (tôi)"},
+     *     tags={"Địa chỉ (Tài khoản)"},
      *     security={{"bearerAuth":{}}},
      *     @OA\RequestBody(
      *         required=true,
@@ -151,10 +151,10 @@ class DiaChiFrontendAPI extends BaseFrontendController
 
     /**
      * @OA\Put(
-     *     path="/api/toi/diachis/{id}",
+     *     path="/api/tai-khoan/diachis/{id}",
      *     summary="Cập nhật địa chỉ",
      *     description="Cho phép cập nhật thông tin địa chỉ. Nếu chọn 'Mặc định', các địa chỉ khác sẽ chuyển thành 'Khác'.",
-     *     tags={"Địa chỉ (tôi)"},
+     *     tags={"Địa chỉ (Tài khoản)"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
@@ -236,10 +236,10 @@ class DiaChiFrontendAPI extends BaseFrontendController
 
     /**
      * @OA\Delete(
-     *     path="/api/toi/diachis/{id}",
+     *     path="/api/tai-khoan/diachis/{id}",
      *     summary="Xóa địa chỉ (soft delete)",
      *     description="Xóa địa chỉ của người dùng theo ID (soft delete).",
-     *     tags={"Địa chỉ (tôi)"},
+     *     tags={"Địa chỉ (Tài khoản)"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
@@ -283,10 +283,10 @@ class DiaChiFrontendAPI extends BaseFrontendController
 
     /**
      * @OA\Patch(
-     *     path="/api/toi/diachis/{id}/macdinh",
+     *     path="/api/tai-khoan/diachis/{id}/macdinh",
      *     summary="Đặt địa chỉ mặc định",
      *     description="Đặt địa chỉ thành Mặc định và các địa chỉ khác chuyển thành Khác.",
-     *     tags={"Địa chỉ (tôi)"},
+     *     tags={"Địa chỉ (Tài khoản)"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",
@@ -347,10 +347,10 @@ class DiaChiFrontendAPI extends BaseFrontendController
 
     /**
      * @OA\Patch(
-     *     path="/api/toi/diachis/{id}/trangthai",
+     *     path="/api/tai-khoan/diachis/{id}/trangthai",
      *     summary="Thay đổi trạng thái địa chỉ",
      *     description="Chuyển trạng thái địa chỉ giữa Khác và Tạm ẩn. Địa chỉ mặc định không được tạm ẩn.",
-     *     tags={"Địa chỉ (tôi)"},
+     *     tags={"Địa chỉ (Tài khoản)"},
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
      *         name="id",

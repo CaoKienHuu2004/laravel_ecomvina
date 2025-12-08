@@ -828,13 +828,13 @@
                 }
             }
         },
-        "/api/toi/danhgias": {
+        "/api/tai-khoan/danhgias": {
             "get": {
                 "tags": [
-                    "Đánh giá (tôi)"
+                    "Đánh giá (Tài khoản)"
                 ],
                 "summary": "Lấy danh sách đánh giá của người dùng đã đăng nhập",
-                "operationId": "38226af8f0f6b5180f9e5f743311536c",
+                "operationId": "585c88636868c2bcc859bad657ef5c7d",
                 "responses": {
                     "200": {
                         "description": "Danh sách đánh giá của người dùng",
@@ -867,10 +867,10 @@
             },
             "post": {
                 "tags": [
-                    "Đánh giá (tôi)"
+                    "Đánh giá (Tài khoản)"
                 ],
                 "summary": "Thêm đánh giá mới (chỉ cho sản phẩm đã mua)",
-                "operationId": "0161f7122aa86e0f725a8d82d0c4e405",
+                "operationId": "fcdf2e5c0a728e4973fd8a9a48e136b8",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -924,13 +924,13 @@
                 ]
             }
         },
-        "/api/toi/danhgias/{id}": {
+        "/api/tai-khoan/danhgias/{id}": {
             "put": {
                 "tags": [
-                    "Đánh giá (tôi)"
+                    "Đánh giá (Tài khoản)"
                 ],
                 "summary": "Cập nhật đánh giá của chính mình",
-                "operationId": "6ead60585920c9657f32eddf17e383da",
+                "operationId": "b9a801e98131a9e3d5dd18fbf342b042",
                 "parameters": [
                     {
                         "name": "id",
@@ -977,10 +977,10 @@
             },
             "delete": {
                 "tags": [
-                    "Đánh giá (tôi)"
+                    "Đánh giá (Tài khoản)"
                 ],
                 "summary": "Xóa đánh giá của chính mình",
-                "operationId": "5c172c3d718e8a1a7b859056ebb284d0",
+                "operationId": "6feceb3f1317ad66419d69220ea978c3",
                 "parameters": [
                     {
                         "name": "id",
@@ -1021,14 +1021,14 @@
                 }
             }
         },
-        "/api/toi/diachis": {
+        "/api/tai-khoan/diachis": {
             "get": {
                 "tags": [
-                    "Địa chỉ (tôi)"
+                    "Địa chỉ (Tài khoản)"
                 ],
                 "summary": "Lấy danh sách địa chỉ người dùng",
                 "description": "Trả về danh sách tất cả địa chỉ của người dùng hiện tại, sắp xếp Mặc định lên đầu",
-                "operationId": "fa25bd5136fe8b1b785616651f4ff9ab",
+                "operationId": "d75534dc175b5cd17151ae11f7fce204",
                 "responses": {
                     "200": {
                         "description": "Danh sách địa chỉ thành công"
@@ -1045,11 +1045,11 @@
             },
             "post": {
                 "tags": [
-                    "Địa chỉ (tôi)"
+                    "Địa chỉ (Tài khoản)"
                 ],
                 "summary": "Thêm địa chỉ mới",
                 "description": "Người dùng thêm địa chỉ mới. Nếu chọn 'Mặc định', các địa chỉ khác sẽ chuyển thành 'Khác'.",
-                "operationId": "f5dd7b288a3c8d22bc7d39554979362b",
+                "operationId": "3a4b6644746115c1a4ec2f0ad755e3b6",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -1103,14 +1103,14 @@
                 ]
             }
         },
-        "/api/toi/diachis/{id}": {
+        "/api/tai-khoan/diachis/{id}": {
             "put": {
                 "tags": [
-                    "Địa chỉ (tôi)"
+                    "Địa chỉ (Tài khoản)"
                 ],
                 "summary": "Cập nhật địa chỉ",
                 "description": "Cho phép cập nhật thông tin địa chỉ. Nếu chọn 'Mặc định', các địa chỉ khác sẽ chuyển thành 'Khác'.",
-                "operationId": "59a2ce6582cdd47751efec13bcb19052",
+                "operationId": "7b055b651bdc43df14f9006438c9f590",
                 "parameters": [
                     {
                         "name": "id",
@@ -1167,11 +1167,11 @@
             },
             "delete": {
                 "tags": [
-                    "Địa chỉ (tôi)"
+                    "Địa chỉ (Tài khoản)"
                 ],
                 "summary": "Xóa địa chỉ (soft delete)",
                 "description": "Xóa địa chỉ của người dùng theo ID (soft delete).",
-                "operationId": "b7a7116bb8c00daf73e275d5284e0618",
+                "operationId": "ecadbf3acb8ba4212a70f2389581677a",
                 "parameters": [
                     {
                         "name": "id",
@@ -1198,14 +1198,14 @@
                 ]
             }
         },
-        "/api/toi/diachis/{id}/macdinh": {
+        "/api/tai-khoan/diachis/{id}/macdinh": {
             "patch": {
                 "tags": [
-                    "Địa chỉ (tôi)"
+                    "Địa chỉ (Tài khoản)"
                 ],
                 "summary": "Đặt địa chỉ mặc định",
                 "description": "Đặt địa chỉ thành Mặc định và các địa chỉ khác chuyển thành Khác.",
-                "operationId": "f2cb4d22321a3a2884e6898e89ccce9a",
+                "operationId": "3b3aee46261d9cf2b71842daac1f6da4",
                 "parameters": [
                     {
                         "name": "id",
@@ -1232,14 +1232,14 @@
                 ]
             }
         },
-        "/api/toi/diachis/{id}/trangthai": {
+        "/api/tai-khoan/diachis/{id}/trangthai": {
             "patch": {
                 "tags": [
-                    "Địa chỉ (tôi)"
+                    "Địa chỉ (Tài khoản)"
                 ],
                 "summary": "Thay đổi trạng thái địa chỉ",
                 "description": "Chuyển trạng thái địa chỉ giữa Khác và Tạm ẩn. Địa chỉ mặc định không được tạm ẩn.",
-                "operationId": "9087c25f8c4726173218561e54ee93a8",
+                "operationId": "76a5ae6d34d54d1f51279ea238a871af",
                 "parameters": [
                     {
                         "name": "id",
@@ -1269,14 +1269,14 @@
                 ]
             }
         },
-        "/api/toi/donhangs": {
+        "/api/tai-khoan/donhangs": {
             "get": {
                 "tags": [
-                    "Đơn hàng (tôi)"
+                    "Đơn hàng (Tài khoản)"
                 ],
                 "summary": "Lấy danh sách đơn hàng của người dùng (theo trạng thái)",
                 "description": "API này trả về danh sách các đơn hàng của người dùng hiện tại, được phân loại theo trạng thái (VD: Chờ thanh toán, Đang xác nhận,...).",
-                "operationId": "8750be511c570a9e9736cf05fa2f2c6b",
+                "operationId": "f9547ffa333a6b1faf2186e1ecf58bb9",
                 "parameters": [
                     {
                         "name": "trangthai",
@@ -1364,11 +1364,11 @@
             },
             "post": {
                 "tags": [
-                    "Đơn hàng (tôi)"
+                    "Đơn hàng (Tài khoản)"
                 ],
                 "summary": "Tạo đơn hàng mới từ giỏ hàng của người dùng",
                 "description": "\n     *         API cho phép người dùng tạo đơn hàng mới từ giỏ hàng hiện tại.\n     *         Khi đơn hàng được tạo, hệ thống sẽ:\n     *         - Tạo đơn IP người dùng vào table used_voucher_ip tương ứng ở redis, phụ vụ magiamgia dieukien (id -2 - khách hàng mới được giảm 50k, với giỏ hàng 50k trở lên).\n     *         - Tạo đơn hàng với trạng thái và phương thức thanh toán tương ứng.\n     *         - Tạo chi tiết đơn hàng cho từng sản phẩm trong giỏ.\n     *         - Xóa giỏ hàng của người dùng sau khi tạo đơn.\n     *         - Trạng thái thanh toán mặc định là 'Chưa thanh toán' hoặc 'Đã thanh toán' tùy phương thức.\n     *\n     *         **Lưu ý**:\n     *         - Các xử lý giảm tồn kho, tăng lượt mua được thực hiện tự động qua Observer khi đơn hàng chuyển sang trạng thái 'Thành công'.\n     *     ",
-                "operationId": "e126c6326573fc567815a7b139587eeb",
+                "operationId": "a14d4fd797b334e7fed001eac37e4803",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -1577,13 +1577,13 @@
                 ]
             }
         },
-        "/api/toi/donhangs/{id}": {
+        "/api/tai-khoan/donhangs/{id}": {
             "get": {
                 "tags": [
-                    "Đơn hàng (tôi)"
+                    "Đơn hàng (Tài khoản)"
                 ],
                 "summary": "Xem chi tiết một đơn hàng của người dùng hiện tại",
-                "operationId": "30b6129bccc462d99a98360c3559a8a8",
+                "operationId": "43ae71c093507a125de9de8160044a4e",
                 "parameters": [
                     {
                         "name": "id",
@@ -1624,11 +1624,11 @@
             },
             "put": {
                 "tags": [
-                    "Đơn hàng (tôi)"
+                    "Đơn hàng (Tài khoản)"
                 ],
                 "summary": "Cập nhật thông tin và trạng thái đơn hàng (đồng bộ chi tiết)",
                 "description": "\n     *     ✅ Cho phép người dùng:\n     *     - Cập nhật `id_phuongthuc`, `id_magiamgia` khi đơn còn ở trạng thái **'Chờ xử lý'**.\n     *     - Cập nhật `trangthai` (Đã chấp nhận, Đang giao hàng, Đã giao hàng, Đã hủy đơn).\n     *\n     *     🔁 Khi thay đổi `trangthai`:\n     *     - Hệ thống tự **đồng bộ tất cả chi tiết đơn hàng** (`chitiet_donhang.trangthai` = trạng thái mới).\n     *     - Nếu trạng thái là **'Đã giao hàng'** → `DonhangObserver` sẽ tự động trừ kho (`bienthe.soluong -= chitietdonhang.soluong`) và tăng `luotmua`.\n     *     - Nếu trạng thái là **'Đã hủy đơn'** → `DonhangObserver` sẽ tự động hoàn lại tồn kho (`bienthe.soluong += chitietdonhang.soluong`).\n     *     ",
-                "operationId": "85f7161fcfd6e50cf9003afeb13aa3e1",
+                "operationId": "eeddeedd30e5acc51b7ba60181352833",
                 "parameters": [
                     {
                         "name": "id",
@@ -1694,14 +1694,14 @@
                 ]
             }
         },
-        "/api/toi/donhangs/{id}/huy": {
+        "/api/tai-khoan/donhangs/{id}/huy": {
             "patch": {
                 "tags": [
-                    "Đơn hàng (tôi)"
+                    "Đơn hàng (Tài khoản)"
                 ],
                 "summary": "Hủy đơn hàng của người dùng (đồng bộ kho tự động)",
                 "description": "\n     *     ❌ Hủy đơn hàng khi đơn vẫn còn trong trạng thái 'Chờ xử lý'.\n     *     🔁 Khi đơn bị hủy, **Observer DonhangObserver** sẽ tự hoàn lại số lượng sản phẩm trong kho (`bienthe.soluong += chitietdonhang.soluong`).\n     *     ",
-                "operationId": "4ea580bea74d4bfa87f50419268fd5a4",
+                "operationId": "06a084cf626cbb5af9f907961cbb5bb9",
                 "parameters": [
                     {
                         "name": "id",
@@ -1732,14 +1732,14 @@
                 ]
             }
         },
-        "/api/toi/donhangs/{id}/create-payment-url": {
+        "/api/tai-khoan/donhangs/{id}/create-payment-url": {
             "post": {
                 "tags": [
                     "Thanh toán VNPAY"
                 ],
                 "summary": "Tạo URL thanh toán VNPAY cho đơn hàng",
                 "description": "\n     *         Tạo URL thanh toán VNPAY dựa trên thông tin đơn hàng và trả về URL này cho frontend để người dùng tiến hành thanh toán.\n     *         - Chỉ tạo cho đơn hàng có trạng thái thanh toán là 'Chưa thanh toán'.\n     *         - Trả về URL đầy đủ có chữ ký bảo mật của VNPAY.\n     *         - Frontend sẽ chuyển hướng người dùng sang URL này để thực hiện thanh toán.\n     *     ",
-                "operationId": "56f0da829bf579685765912ba96a56c8",
+                "operationId": "84726778f34fa2c6c45c33346fa16ec7",
                 "parameters": [
                     {
                         "name": "id",
@@ -1804,14 +1804,14 @@
                 ]
             }
         },
-        "/api/toi/donhangs/payment-callback": {
+        "/api/tai-khoan/donhangs/payment-callback": {
             "get": {
                 "tags": [
                     "Thanh toán VNPAY"
                 ],
                 "summary": "Xử lý callback từ VNPAY sau khi thanh toán",
                 "description": "\n     *         Nhận thông tin callback từ VNPAY về kết quả thanh toán.\n     *         - Xác thực chữ ký bảo mật (secure hash) để đảm bảo dữ liệu hợp lệ.\n     *         - Kiểm tra mã đơn hàng và trạng thái thanh toán (vnp_ResponseCode).\n     *         - Nếu thành công (ResponseCode = '00'), cập nhật đơn hàng thành 'Đã thanh toán' và trạng thái đơn hàng là 'Chờ xử lý'.\n     *         - Nếu thất bại, cập nhật trạng thái thanh toán là 'Thanh toán thất bại' và trạng thái đơn hàng là 'Đã hủy'.\n     *         - Trả về chuỗi 'OK' khi thành công để VNPAY ghi nhận callback.\n     *         - Trả về lỗi 400 nếu chữ ký không hợp lệ hoặc dữ liệu không đúng.\n     *     ",
-                "operationId": "2cf0f2f90ff68ebd15f8488b062b542e",
+                "operationId": "cd35d2b5c3aef90a46217003e8a6a0fc",
                 "parameters": [
                     {
                         "name": "vnp_Amount",
@@ -1872,14 +1872,14 @@
                 }
             }
         },
-        "/api/toi/donhangs/{id}/payment-status": {
+        "/api/tai-khoan/donhangs/{id}/payment-status": {
             "get": {
                 "tags": [
                     "Thanh toán VNPAY"
                 ],
                 "summary": "Lấy trạng thái thanh toán đơn hàng",
                 "description": "\n     *         API cho phép frontend hoặc client kiểm tra trạng thái thanh toán và trạng thái đơn hàng.\n     *         - Dùng để hiển thị thông tin cập nhật cho người dùng sau khi thanh toán.\n     *         - Trả về:\n     *           + payment_status: trạng thái thanh toán (ví dụ: 'Chưa thanh toán', 'Đã thanh toán', 'Thanh toán thất bại')\n     *           + order_status: trạng thái đơn hàng (ví dụ: 'Chờ xử lý', 'Đã hủy', ...)\n     *     ",
-                "operationId": "e8d0f51afb0a935b67c5e76984d8da83",
+                "operationId": "89d881ad8e29cd4e6328bd710bd9e6a8",
                 "parameters": [
                     {
                         "name": "id",
@@ -1948,14 +1948,14 @@
                 ]
             }
         },
-        "/api/toi/donhangs/{id}/vietqr-url": {
+        "/api/tai-khoan/donhangs/{id}/vietqr-url": {
             "post": {
                 "tags": [
                     "Thanh toán VietQR"
                 ],
                 "summary": "Tạo URL mã QR thanh toán VietQR cho đơn hàng",
                 "description": "\n     *         - Kiểm tra user đã xác thực.\n     *         - Kiểm tra đơn hàng tồn tại và thuộc user hiện tại.\n     *         - Chỉ cho phép tạo mã QR nếu phương thức thanh toán có id_phuongthuc = 2 (CP).\n     *         - Trả về URL ảnh QR code động dùng để thanh toán.\n     *         - Gửi thông báo cho admin kiểm tra thanh toán thủ công trên VietQR.\n     *     ",
-                "operationId": "d2b32282a64514868c5dc202615bf777",
+                "operationId": "38dea5d65596ce58a28be2222ca3c908",
                 "parameters": [
                     {
                         "name": "id",
@@ -2062,14 +2062,14 @@
                 ]
             }
         },
-        "/api/toi/giohang": {
+        "/api/tai-khoan/giohang": {
             "get": {
                 "tags": [
-                    "Giỏ hàng (tôi)"
+                    "Giỏ hàng (Tài khoản)"
                 ],
                 "summary": "Lấy toàn bộ giỏ hàng của người dùng hiện tại",
                 "description": "Trả về danh sách sản phẩm trong giỏ hàng của người dùng đang đăng nhập. Nếu giỏ hàng trống sẽ trả về thông báo.",
-                "operationId": "9233d0598f07ba2c0312c01d3488c6b6",
+                "operationId": "a8a2c96f900c3860e59e038153eb9e11",
                 "responses": {
                     "200": {
                         "description": "Danh sách sản phẩm trong giỏ hàng hoặc thông báo giỏ hàng trống",
@@ -2126,11 +2126,11 @@
             },
             "post": {
                 "tags": [
-                    "Giỏ hàng (tôi)"
+                    "Giỏ hàng (Tài khoản)"
                 ],
                 "summary": "Thêm sản phẩm vào giỏ hàng (tự động áp dụng khuyến mãi/quà tặng nếu có)",
                 "description": "\n     *      Chức năng:\n     *      - Thêm sản phẩm vào giỏ hàng của người dùng hiện tại.\n     *      - Nếu có chương trình khuyến mãi/quà tặng (bảng quatang_sukien):\n     *          + Tự động kiểm tra điều kiện số lượng (dieukiensoluong).\n     *          + Tự động kiểm tra điều kiện giá trị (dieukiengiatri) tính theo tổng số tiền trong giỏ có đủ điều kiện của chiến lược này không(soluong và giatri).\n     *          + Áp dụng đúng mô hình 'Mua X tặng 1'.\n     *          + Thêm dòng quà tặng vào giỏ (thanhtien = 0) hoặc tự động cập nhật/xóa nếu không còn thỏa điều kiện.\n     *      - Tính toán lại thành tiền theo số lượng phải trả.\n     *      - Trả về toàn bộ giỏ hàng sau khi cập nhật.\n     *\n     *      Lưu ý:\n     *      - Không còn sử dụng trường luottang trong bảng biến thể để quản lý số lượng quà.\n     *      - Toàn bộ xử lý được khóa transaction + lockForUpdate() để chống race condition.\n     *     ",
-                "operationId": "8ca4a60b35d7fd3b6da07cf9a9169c5c",
+                "operationId": "f62cc3d7f6191c98bede952c549b6761",
                 "requestBody": {
                     "description": "Dữ liệu để thêm hoặc cập nhật sản phẩm trong giỏ hàng",
                     "required": true,
@@ -2225,14 +2225,14 @@
                 ]
             }
         },
-        "/api/toi/giohang/{id}": {
+        "/api/tai-khoan/giohang/{id}": {
             "put": {
                 "tags": [
-                    "Giỏ hàng (tôi)"
+                    "Giỏ hàng (Tài khoản)"
                 ],
                 "summary": "Cập nhật số lượng sản phẩm trong giỏ hàng (tự động áp dụng khuyến mãi/quà tặng nếu có)",
                 "description": "\n     *     - Cập nhật số lượng sản phẩm trong giỏ hàng.\n     *     - Nếu số lượng mới bằng 0, sản phẩm sẽ bị xóa khỏi giỏ hàng cùng các quà tặng liên quan.\n     *     - Tự động áp dụng chương trình quà tặng/sự kiện nếu thỏa điều kiện (số lượng sản phẩm >= điều kiện số lượng) và trong thời gian hiệu lực.\n     *     -Tự động kiểm tra điều kiện giá trị (dieukiengiatri) tính theo tổng số tiền trong giỏ có đủ điều kiện của chiến lược này không(soluong và giatri).\n     *     - Tự động thêm hoặc xóa quà tặng miễn phí tương ứng với số lượng sản phẩm trong giỏ.\n     *     - Không còn quản lý số lượng lượt tặng (`luottang`) trong bảng biến thể.\n     *     ",
-                "operationId": "07103609c72dbee47dea2043693ab594",
+                "operationId": "86219681d0e422ae5a4d17f33c1dd6ad",
                 "parameters": [
                     {
                         "name": "id",
@@ -2366,10 +2366,10 @@
             },
             "delete": {
                 "tags": [
-                    "Giỏ hàng (tôi)"
+                    "Giỏ hàng (Tài khoản)"
                 ],
                 "summary": "Xóa sản phẩm khỏi giỏ hàng",
-                "operationId": "5a86f08a2bed209eecc3b00d22cef254",
+                "operationId": "c802d37481f44b44e16abaec942c48c1",
                 "parameters": [
                     {
                         "name": "id",
@@ -3362,189 +3362,14 @@
                 }
             }
         },
-        "/api/toi/theodoi-donhang": {
+        "api/tai-khoan/thongbaos": {
             "get": {
                 "tags": [
-                    "Theo dõi đơn hàng (tôi)"
-                ],
-                "summary": "Lấy danh sách đơn hàng của người dùng (theo trạng thái)",
-                "description": "API này trả về danh sách các đơn hàng của người dùng hiện tại, được phân loại theo trạng thái (VD: Chờ thanh toán, Đang xác nhận,...).",
-                "operationId": "4f42a3336bce3575407d33eebecd0bae",
-                "parameters": [
-                    {
-                        "name": "trangthai",
-                        "in": "query",
-                        "description": "Lọc đơn hàng theo trạng thái",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "Chờ xử lý",
-                                "Đã xác nhận",
-                                "Đang chuẩn bị hàng",
-                                "Đang giao hàng",
-                                "Đã giao hàng",
-                                "Đã hủy"
-                            ]
-                        }
-                    },
-                    {
-                        "name": "madon",
-                        "in": "query",
-                        "description": "Tìm kiếm đơn hàng theo mã đơn (VD: DH000123)",
-                        "required": false,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Danh sách đơn hàng được nhóm theo trạng thái",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Danh Sách Đơn Hàng Theo Trạng Thái Đơn Hàng Của Khách Hàng #5: Nguyễn Văn A"
-                                        },
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "properties": {
-                                                    "label": {
-                                                        "type": "string",
-                                                        "example": "Đang xác nhận"
-                                                    },
-                                                    "trangthai": {
-                                                        "type": "string",
-                                                        "example": "Đã xác nhận"
-                                                    },
-                                                    "soluong": {
-                                                        "type": "integer",
-                                                        "example": 3
-                                                    },
-                                                    "donhang": {
-                                                        "type": "array",
-                                                        "items": {
-                                                            "$ref": "#/components/schemas/TheoDoiDonHangResource"
-                                                        }
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Không xác thực được người dùng"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/toi/theodoi-donhang/{id}": {
-            "put": {
-                "tags": [
-                    "Theo dõi đơn hàng (tôi)"
-                ],
-                "summary": "Cập nhật trạng thái đơn hàng",
-                "description": "API này cho phép người dùng cập nhật trạng thái đơn hàng (VD: Đã giao hàng, Đã hủy). Và ko cho chạy ngược trạng thái.",
-                "operationId": "2552bf4c5c0859796ce68c36eea4c32a",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID của đơn hàng cần cập nhật",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 12
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "trangthai"
-                                ],
-                                "properties": {
-                                    "trangthai": {
-                                        "type": "string",
-                                        "enum": [
-                                            "Đã giao hàng",
-                                            "Đã hủy"
-                                        ],
-                                        "example": "Đã hủy"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Cập nhật trạng thái đơn hàng thành công",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Cập Nhật Trang Thái Đơn Hàng Thành Công"
-                                        },
-                                        "data": {
-                                            "$ref": "#/components/schemas/TheoDoiDonHangResource"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Không xác thực được người dùng"
-                    },
-                    "404": {
-                        "description": "Không tìm thấy đơn hàng hoặc bạn không có quyền"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "api/toi/thongbaos": {
-            "get": {
-                "tags": [
-                    "Thông báo (tôi)"
+                    "Thông báo (Tài khoản)"
                 ],
                 "summary": "Lấy danh sách tất cả thông báo của người dùng",
                 "description": "Trả về danh sách thông báo của người dùng đang đăng nhập",
-                "operationId": "7486346228d39af7e25a78b7100fec04",
+                "operationId": "e9633f96779063dc91e37229263917b9",
                 "responses": {
                     "200": {
                         "description": "Danh sách thông báo thành công",
@@ -3580,47 +3405,13 @@
                 ]
             }
         },
-        "api/toi/thongbaos/{id}": {
-            "delete": {
-                "tags": [
-                    "Thông báo (tôi)"
-                ],
-                "summary": "Xóa thông báo",
-                "description": "Xóa mềm thông báo của người dùng",
-                "operationId": "6958d9a79903047b3e597b315b5798fa",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID thông báo",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Xóa thành công"
-                    },
-                    "404": {
-                        "description": "Không tìm thấy thông báo"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "api/toi/thongbaos/{id}/daxem": {
+        "api/tai-khoan/thongbaos/{id}/daxem": {
             "patch": {
                 "tags": [
-                    "Thông báo (tôi)"
+                    "Thông báo (Tài khoản)"
                 ],
                 "summary": "Đánh dấu thông báo đã đọc",
-                "operationId": "3f65caba9c2ee8ddb74d3c1c0aaa8aff",
+                "operationId": "6215b21cf8e253198607137635d0977b",
                 "parameters": [
                     {
                         "name": "id",
@@ -3654,13 +3445,13 @@
                 ]
             }
         },
-        "api/toi/thongbaos/{id}/tam-an": {
+        "api/tai-khoan/thongbaos/{id}/tam-an": {
             "patch": {
                 "tags": [
-                    "Thông báo (tôi)"
+                    "Thông báo (Tài khoản)"
                 ],
                 "summary": "Thay đổi trạng thái Tạm ẩn / Khác",
-                "operationId": "7b7bc6e069bae6ad351f22c209e8ffde",
+                "operationId": "108888f1173c31a734ea7b732c4b0588",
                 "parameters": [
                     {
                         "name": "id",
@@ -4120,41 +3911,6 @@
                 }
             }
         },
-        "/api/trang-gioi-thieu": {
-            "get": {
-                "tags": [
-                    "Trang Giới Thiệu"
-                ],
-                "summary": "Lấy thông tin trang giới thiệu Siêu Thị Vina",
-                "description": "Trả về nội dung HTML và các thông tin liên quan của trang giới thiệu Siêu Thị Vina",
-                "operationId": "1d01550255a238022578146963376718",
-                "responses": {
-                    "200": {
-                        "description": "Thông tin trang giới thiệu",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Thông tin trang giới thiệu Siêu Thị Vina"
-                                        },
-                                        "data": {
-                                            "$ref": "#/components/schemas/TrangGioiThieuItem"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/api/tukhoas": {
             "get": {
                 "tags": [
@@ -4359,13 +4115,13 @@
                 }
             }
         },
-        "/api/toi/yeuthichs": {
+        "/api/tai-khoan/yeuthichs": {
             "get": {
                 "tags": [
-                    "Yêu thích (tôi)"
+                    "Yêu thích (Tài khoản)"
                 ],
                 "summary": "Lấy danh sách sản phẩm yêu thích của người dùng",
-                "operationId": "6d290ddc4b50bcc6b2d3dcc7fc99fd59",
+                "operationId": "c92a42436c94ecfe9d51df6296151f02",
                 "responses": {
                     "200": {
                         "description": "Danh sách sản phẩm yêu thích",
@@ -4405,10 +4161,10 @@
             },
             "post": {
                 "tags": [
-                    "Yêu thích (tôi)"
+                    "Yêu thích (Tài khoản)"
                 ],
                 "summary": "Thêm sản phẩm vào danh sách yêu thích",
-                "operationId": "baacf32149ea2db3a93646516bc74062",
+                "operationId": "2b0f77e3b0c1de5a4262e0579ede5648",
                 "requestBody": {
                     "required": true,
                     "content": {
@@ -4466,13 +4222,13 @@
                 ]
             }
         },
-        "/api/toi/yeuthichs/{id_sanpham}": {
+        "/api/tai-khoan/yeuthichs/{id_sanpham}": {
             "patch": {
                 "tags": [
-                    "Yêu thích (tôi)"
+                    "Yêu thích (Tài khoản)"
                 ],
                 "summary": "Cập nhật trạng thái yêu thích (bỏ hoặc yêu thích lại sản phẩm)",
-                "operationId": "92b01fae11288235def1419d49373096",
+                "operationId": "142fd6a6922f294258f2a0cf24be7efb",
                 "parameters": [
                     {
                         "name": "id_sanpham",
@@ -4523,14 +4279,14 @@
                 ]
             }
         },
-        "/toi/giohang/init": {
+        "/web/giohang/init": {
             "get": {
                 "tags": [
                     "Giỏ Hàng (web)"
                 ],
                 "summary": "Khởi tạo giỏ hàng",
                 "description": "WebApi này luôn được gọi fetchapi ở trang page.tsx(tương tự index.php của php)  dùng để khởi tạo session cho giỏ hàng. Khi gọi, nó sẽ tạo một session mới (nếu chưa có), đặt một biến cờ 'khoitao_giohang' vào session, và trả về session ID. Đồng thời, nó cũng gửi về một cookie XSRF-TOKEN để client sử dụng cho các request tiếp theo nhằm chống lại tấn công CSRF.",
-                "operationId": "24e01e3390527df006a84df154807a00",
+                "operationId": "54f83f5ac815f213cd92ee126a6a960c",
                 "responses": {
                     "200": {
                         "description": "Khởi tạo thành công. Trả về status và session_id.",
@@ -4569,14 +4325,426 @@
                 }
             }
         },
-        "/toi/theodoi-donhang": {
+        "/web/giohang": {
             "get": {
                 "tags": [
-                    "Theo dõi đơn hàng (tôi) (web)"
+                    "Giỏ Hàng (web)"
+                ],
+                "summary": "Lấy danh sách sản phẩm trong giỏ hàng (Web)",
+                "description": "\n     *         API lấy toàn bộ sản phẩm trong giỏ hàng.\n     *         - Nếu người dùng **đã đăng nhập** (gửi kèm Bearer Token), giỏ hàng sẽ được lấy từ **database**.\n     *         - Nếu người dùng **chưa đăng nhập**, giỏ hàng sẽ được lấy từ **session (cookie: laravel_session)**.\n     *\n     *         Bao gồm đầy đủ thông tin:\n     *         - Số lượng\n     *         - Thành tiền (tự tính — bao gồm khuyến mãi nếu có)\n     *         - Thông tin biến thể\n     *         - Sản phẩm\n     *         - Hình ảnh\n     *         - Loại biến thể\n     *     ",
+                "operationId": "fae1246dc996ecbf9dae74ae372fd188",
+                "responses": {
+                    "200": {
+                        "description": "Lấy giỏ hàng thành công.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 12,
+                                                "nullable": true
+                                            },
+                                            "id_nguoidung": {
+                                                "type": "integer",
+                                                "example": 5,
+                                                "nullable": true
+                                            },
+                                            "id_bienthe": {
+                                                "type": "integer",
+                                                "example": 101
+                                            },
+                                            "soluong": {
+                                                "type": "integer",
+                                                "example": 3
+                                            },
+                                            "thanhtien": {
+                                                "type": "number",
+                                                "example": 150000
+                                            },
+                                            "trangthai": {
+                                                "type": "string",
+                                                "example": "Hiển thị"
+                                            },
+                                            "bienthe": {
+                                                "description": "Thông tin biến thể sản phẩm",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 101
+                                                    },
+                                                    "giagoc": {
+                                                        "type": "integer",
+                                                        "example": 50000
+                                                    },
+                                                    "loaibienthe": {
+                                                        "description": "Loại biến thể (màu sắc, kích thước...)",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 3
+                                                            },
+                                                            "ten": {
+                                                                "type": "string",
+                                                                "example": "Màu đỏ"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "sanpham": {
+                                                        "description": "Thông tin sản phẩm cha",
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 20
+                                                            },
+                                                            "ten": {
+                                                                "type": "string",
+                                                                "example": "Áo thun nam cotton"
+                                                            },
+                                                            "hinhanhsanpham": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "properties": {
+                                                                        "url": {
+                                                                            "type": "string",
+                                                                            "example": "https://example.com/image1.jpg"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Không hợp lệ hoặc thiếu Bearer Token (chỉ áp dụng khi lấy giỏ từ DB)."
+                    },
+                    "500": {
+                        "description": "Lỗi máy chủ."
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Giỏ Hàng (web)"
+                ],
+                "summary": "Thêm sản phẩm vào giỏ hàng (Hỗ trợ cả user đăng nhập & khách).",
+                "description": "\n     *     API này dùng để thêm sản phẩm (biến thể) vào giỏ hàng.\n     *     - Nếu người dùng **đăng nhập**, giỏ hàng sẽ lưu trong **database**.\n     *     - Nếu **chưa đăng nhập**, giỏ hàng lưu trong **session**.\n     *\n     *     API tự động tính khuyến mãi theo 2 rule:\n     *     **RULE 1: Khuyến mãi theo số lượng (quatang_sukien) → tặng FREE item.**\n     *     **RULE 2: Quà theo giá trị giỏ hàng (quangcao) → tặng 1 biến thể.**\n     *     ",
+                "operationId": "0714c3d334146c724c8033b39b5c701b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "id_bienthe",
+                                    "soluong"
+                                ],
+                                "properties": {
+                                    "id_bienthe": {
+                                        "description": "ID của biến thể cần thêm vào giỏ hàng.",
+                                        "type": "integer",
+                                        "example": 12
+                                    },
+                                    "soluong": {
+                                        "description": "Số lượng sản phẩm muốn thêm.",
+                                        "type": "integer",
+                                        "minimum": 1,
+                                        "example": 3
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Thêm vào giỏ hàng thành công. Trả về danh sách giỏ hàng sau khi cập nhật.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 101
+                                            },
+                                            "id_nguoidung": {
+                                                "type": "integer",
+                                                "example": 5
+                                            },
+                                            "id_bienthe": {
+                                                "type": "integer",
+                                                "example": 12
+                                            },
+                                            "soluong": {
+                                                "description": "Tổng số lượng đã cộng dồn.",
+                                                "type": "integer",
+                                                "example": 4
+                                            },
+                                            "thanhtien": {
+                                                "type": "number",
+                                                "example": 450000
+                                            },
+                                            "trangthai": {
+                                                "type": "string",
+                                                "example": "Hiển thị"
+                                            },
+                                            "bienthe": {
+                                                "description": "Thông tin biến thể.",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 12
+                                                    },
+                                                    "giagoc": {
+                                                        "type": "number",
+                                                        "example": 150000
+                                                    },
+                                                    "sanpham": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer",
+                                                                "example": 2
+                                                            },
+                                                            "tensanpham": {
+                                                                "type": "string",
+                                                                "example": "Áo thun nam"
+                                                            },
+                                                            "hinhanhsanpham": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "properties": {
+                                                                        "url": {
+                                                                            "type": "string",
+                                                                            "example": "https://.../image.jpg"
+                                                                        }
+                                                                    },
+                                                                    "type": "object"
+                                                                }
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Dữ liệu gửi lên không hợp lệ (thiếu id_bienthe hoặc soluong không đúng).",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "The soluong field must be at least 1."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Không tìm thấy biến thể hoặc biến thể đã bị xóa.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Biến thể không tồn tại."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Lỗi server trong quá trình thêm giỏ hàng."
+                    }
+                }
+            }
+        },
+        "/web/giohang/{id}": {
+            "put": {
+                "tags": [
+                    "Giỏ Hàng (web)"
+                ],
+                "summary": "Cập nhật số lượng sản phẩm trong giỏ hàng",
+                "description": "Cập nhật số lượng sản phẩm trong giỏ hàng Web API. Nếu số lượng = 0 thì xóa sản phẩm. Tự động xử lý quà tặng rule 1 và rule 2.",
+                "operationId": "39ba601484435d3a36dd8f3141f2c363",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID sản phẩm trong giỏ hàng (id bản ghi giỏ hàng, không phải id_bienthe)",
+                        "required": true,
+                        "example": 10
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "soluong"
+                                ],
+                                "properties": {
+                                    "soluong": {
+                                        "description": "Số lượng mới của sản phẩm",
+                                        "type": "integer",
+                                        "example": 5
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Cập nhật giỏ hàng thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Cập nhật giỏ hàng thành công"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Không tìm thấy sản phẩm trong giỏ"
+                    },
+                    "500": {
+                        "description": "Lỗi trong quá trình cập nhật giỏ hàng"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Giỏ Hàng (web)"
+                ],
+                "summary": "Xóa sản phẩm khỏi giỏ hàng",
+                "description": "Xóa sản phẩm khỏi giỏ hàng. Nếu người dùng đã đăng nhập thì xóa trong database. Nếu chưa đăng nhập thì xóa trong session.",
+                "operationId": "0deb4c83dbef6fa6f5059221da59798e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID sản phẩm trong giỏ hàng (hoặc ID biến thể nếu chưa đăng nhập)",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Xóa sản phẩm khỏi giỏ hàng thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Xóa sản phẩm khỏi giỏ hàng thành công"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Không tìm thấy sản phẩm trong giỏ hàng",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Sản phẩm không tồn tại trong giỏ hàng session"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Token không hợp lệ hoặc hết hạn (nếu có token)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Token không hợp lệ"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/web/tracuu-donhang": {
+            "get": {
+                "tags": [
+                    "Trả cứu đơn hàng (web)"
                 ],
                 "summary": "Lấy danh sách đơn hàng của người dùng (theo trạng thái)",
                 "description": "API cho phép người dùng xem tất cả các đơn hàng của họ, được phân loại theo từng trạng thái. Mỗi trạng thái bao gồm nhãn hiển thị, mã trạng thái, tổng số đơn và danh sách chi tiết các đơn hàng tương ứng.",
-                "operationId": "9394a7059381dbb345ecaffa3d1a1fc3",
+                "operationId": "990e0553df52f4e8e441526926b474c4",
                 "parameters": [
                     {
                         "name": "madon",
@@ -4676,146 +4844,6 @@
                                         "message": {
                                             "type": "string",
                                             "example": "Không có quyền truy cập đơn hàng này."
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "ApiKeyAuth": [],
-                        "ApiKeyOrder": []
-                    }
-                ]
-            }
-        },
-        "/toi/theodoi-donhang/{id}": {
-            "put": {
-                "tags": [
-                    "Theo dõi đơn hàng (tôi) (web)"
-                ],
-                "summary": "Cập nhật trạng thái đơn hàng",
-                "description": "API cho phép người dùng cập nhật trạng thái đơn hàng của họ theo ID đơn hàng. Yêu cầu phải có `username` và `madon` để xác thực. Và cho phép cập nhật trang thái ngược lại, và chỉ có trạng thái Đã giao hàng và Đã hủy, Đã giao hàng nếu khác đã nhận hàng thành công, Đã hủy nếu khách muốn hủy đơn hàng vì sự cố.",
-                "operationId": "eea6a5662b390ee28fddc43fc69c400e",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID đơn hàng cần cập nhật",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    },
-                    {
-                        "name": "username",
-                        "in": "query",
-                        "description": "Tên tài khoản người dùng, bắt buộc để xác thực",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "madon",
-                        "in": "query",
-                        "description": "Mã đơn hàng, bắt buộc để xác thực",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "trangthai"
-                                ],
-                                "properties": {
-                                    "trangthai": {
-                                        "description": "Trạng thái mới của đơn hàng",
-                                        "type": "string",
-                                        "enum": [
-                                            "Đã giao hàng",
-                                            "Đã hủy"
-                                        ]
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Đơn hàng đã được cập nhật trạng thái thành công",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/TheoDoiDonHangResource"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Thiếu hoặc không xác thực được người dùng (username hoặc madon sai hoặc thiếu)",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": false
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Thiếu tên tài khoản hoặc mã đơn hàng để xác thực!"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Không có quyền truy cập đơn hàng (madon không thuộc user này)",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": false
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Thiếu tên tài khoản hoặc mã đơn hàng để xác thực!"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Không tìm thấy đơn hàng hoặc không có quyền cập nhật",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": false
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Không tìm thấy đơn hàng hoặc bạn không có quyền."
                                         }
                                     },
                                     "type": "object"
@@ -5579,38 +5607,6 @@
                     "hinhanh": {
                         "type": "string",
                         "example": "http://148.230.100.215/assets/client/images/page/trang_dieukhoan.jpg",
-                        "nullable": true
-                    },
-                    "trangthai": {
-                        "type": "string",
-                        "example": "Hiển thị"
-                    }
-                },
-                "type": "object"
-            },
-            "TrangGioiThieuItem": {
-                "title": "Trang Giới Thiệu Siêu Thị Vina",
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 2
-                    },
-                    "tieude": {
-                        "type": "string",
-                        "example": "Giới thiệu về Siêu Thị Vina"
-                    },
-                    "slug": {
-                        "type": "string",
-                        "example": "http://148.230.100.215:3000/gioi-thieu"
-                    },
-                    "mota": {
-                        "description": "Nội dung HTML đầy đủ của trang giới thiệu",
-                        "type": "string",
-                        "example": "<div class='page'>...</div>"
-                    },
-                    "hinhanh": {
-                        "type": "string",
-                        "example": "http://148.230.100.215/assets/client/images/page/trang_gioithieu.jpg",
                         "nullable": true
                     },
                     "trangthai": {
@@ -6643,16 +6639,12 @@
     },
     "tags": [
         {
-            "name": "Giỏ hàng (tôi)",
+            "name": "Giỏ hàng (Tài khoản)",
             "description": "Các API thao tác với giỏ hàng của người dùng frontend"
         },
         {
             "name": "Mã giảm giá",
             "description": "Hiện thị tất các mã giảm giá đang có trên hệ thống"
-        },
-        {
-            "name": "Theo dõi đơn hàng (tôi)",
-            "description": "API cho phép người dùng xem và cập nhật trạng thái đơn hàng của họ"
         },
         {
             "name": "Tỉnh Thành Việt Nam",
@@ -6661,10 +6653,6 @@
         {
             "name": "Trang Chủ",
             "description": " sản phẩm của trang chủ được lọc theo yêu cầu nghiệp vụ của từng selection, tên cũ sanphams-selection"
-        },
-        {
-            "name": "Theo dõi đơn hàng (tôi) (web)",
-            "description": "API cho phép người dùng xem và cập nhật trạng thái đơn hàng của họ"
         },
         {
             "name": "Xác thực người dùng (Auth)",
@@ -6679,20 +6667,20 @@
             "description": "Banner Quảng Cáo"
         },
         {
-            "name": "Đánh giá (tôi)",
-            "description": "Đánh giá (tôi)"
+            "name": "Đánh giá (Tài khoản)",
+            "description": "Đánh giá (Tài khoản)"
         },
         {
             "name": "Danh mục",
             "description": "Danh mục"
         },
         {
-            "name": "Địa chỉ (tôi)",
-            "description": "Địa chỉ (tôi)"
+            "name": "Địa chỉ (Tài khoản)",
+            "description": "Địa chỉ (Tài khoản)"
         },
         {
-            "name": "Đơn hàng (tôi)",
-            "description": "Đơn hàng (tôi)"
+            "name": "Đơn hàng (Tài khoản)",
+            "description": "Đơn hàng (Tài khoản)"
         },
         {
             "name": "Thanh toán VNPAY",
@@ -6715,8 +6703,8 @@
             "description": "Tất Cả Sản phẩm (Trang Tất Cả Sản Phẩm)"
         },
         {
-            "name": "Thông báo (tôi)",
-            "description": "Thông báo (tôi)"
+            "name": "Thông báo (Tài khoản)",
+            "description": "Thông báo (Tài khoản)"
         },
         {
             "name": "Tìm kiếm sản phẩm",
@@ -6727,20 +6715,20 @@
             "description": "Trang Điều Khoản"
         },
         {
-            "name": "Trang Giới Thiệu",
-            "description": "Trang Giới Thiệu"
-        },
-        {
             "name": "Từ khóa",
             "description": "Từ khóa"
         },
         {
-            "name": "Yêu thích (tôi)",
-            "description": "Yêu thích (tôi)"
+            "name": "Yêu thích (Tài khoản)",
+            "description": "Yêu thích (Tài khoản)"
         },
         {
             "name": "Giỏ Hàng (web)",
             "description": "Giỏ Hàng (web)"
+        },
+        {
+            "name": "Trả cứu đơn hàng (web)",
+            "description": "Trả cứu đơn hàng (web)"
         }
     ]
 }

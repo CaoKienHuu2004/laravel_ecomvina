@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\DB;
 
 /**
  * @OA\Tag(
- *     name="Theo dõi đơn hàng (tôi) (web)",
+ *     name="Tra cứu đơn hàng (web)",
  *     description="API cho phép người dùng xem và cập nhật trạng thái đơn hàng của họ"
  * )
  */
@@ -35,13 +35,13 @@ class TheoDoiDonHangWebApi extends Controller
 
     /**
      * @OA\Get(
-     *     path="/toi/theodoi-donhang",
+     *     path="/web/tracuu-donhang",
      *     summary="Lấy danh sách đơn hàng của người dùng (theo trạng thái)",
      *     description="API cho phép người dùng xem tất cả các đơn hàng của họ, được phân loại theo từng trạng thái. Mỗi trạng thái bao gồm nhãn hiển thị, mã trạng thái, tổng số đơn và danh sách chi tiết các đơn hàng tương ứng.",
      *     security={
      *         {"ApiKeyAuth": {},"ApiKeyOrder": {}}
      *     },
-     *     tags={"Theo dõi đơn hàng (tôi) (web)"},
+     *     tags={"Tra cứu đơn hàng (web)"},
      *
      *     @OA\Parameter(
      *         name="madon",
@@ -164,74 +164,7 @@ class TheoDoiDonHangWebApi extends Controller
 
 
 
-    /**
-     * @OA\Put(
-     *     path="/toi/theodoi-donhang/{id}",
-     *     summary="Cập nhật trạng thái đơn hàng",
-     *     description="API cho phép người dùng cập nhật trạng thái đơn hàng của họ theo ID đơn hàng. Yêu cầu phải có `username` và `madon` để xác thực. Và cho phép cập nhật trang thái ngược lại, và chỉ có trạng thái Đã giao hàng và Đã hủy, Đã giao hàng nếu khác đã nhận hàng thành công, Đã hủy nếu khách muốn hủy đơn hàng vì sự cố.",
-     *      security={
-        *         {"ApiKeyAuth": {},"ApiKeyOrder": {}}
-        *     },
-     *     tags={"Theo dõi đơn hàng (tôi) (web)"},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="ID đơn hàng cần cập nhật",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Parameter(
-     *         name="username",
-     *         in="query",
-     *         description="Tên tài khoản người dùng, bắt buộc để xác thực",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Parameter(
-     *         name="madon",
-     *         in="query",
-     *         description="Mã đơn hàng, bắt buộc để xác thực",
-     *         required=true,
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"trangthai"},
-     *             @OA\Property(property="trangthai", type="string", description="Trạng thái mới của đơn hàng", enum={"Đã giao hàng","Đã hủy"})
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Đơn hàng đã được cập nhật trạng thái thành công",
-     *         @OA\JsonContent(ref="#/components/schemas/TheoDoiDonHangResource")
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Thiếu hoặc không xác thực được người dùng (username hoặc madon sai hoặc thiếu)",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Thiếu tên tài khoản hoặc mã đơn hàng để xác thực!")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=403,
-     *         description="Không có quyền truy cập đơn hàng (madon không thuộc user này)",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Thiếu tên tài khoản hoặc mã đơn hàng để xác thực!")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Không tìm thấy đơn hàng hoặc không có quyền cập nhật",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="boolean", example=false),
-     *             @OA\Property(property="message", type="string", example="Không tìm thấy đơn hàng hoặc bạn không có quyền.")
-     *         )
-     *     )
-     * )
-     */
+
     public function update(AuthOrderCodeRequesty $request, $id)
     {
         $user = $request->get('auth_user');

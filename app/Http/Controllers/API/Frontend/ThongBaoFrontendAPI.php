@@ -67,8 +67,8 @@ class ThongBaoFrontendAPI extends BaseFrontendController
 
     /**
      * @OA\Get(
-     *     path="api/toi/thongbaos",
-     *     tags={"Thông báo (tôi)"},
+     *     path="api/tai-khoan/thongbaos",
+     *     tags={"Thông báo (Tài khoản)"},
      *     summary="Lấy danh sách tất cả thông báo của người dùng",
      *     description="Trả về danh sách thông báo của người dùng đang đăng nhập",
      *     security={{"bearerAuth":{}}},
@@ -108,51 +108,34 @@ class ThongBaoFrontendAPI extends BaseFrontendController
 
 
 
-    /**
-     * @OA\Delete(
-     *     path="api/toi/thongbaos/{id}",
-     *     tags={"Thông báo (tôi)"},
-     *     summary="Xóa thông báo",
-     *     description="Xóa mềm thông báo của người dùng",
-     *     security={{"bearerAuth":{}}},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         description="ID thông báo",
-     *         required=true,
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(response=200, description="Xóa thành công"),
-     *     @OA\Response(response=404, description="Không tìm thấy thông báo")
-     * )
-     */
-    public function destroy(Request $request, $id)
-    {
-        $user = $request->get('auth_user');
 
-        $thongbao = ThongbaoModel::where('id', $id)
-            ->where('id_nguoidung', $user->id)
-            ->first();
+    // public function destroy(Request $request, $id)
+    // {
+    //     $user = $request->get('auth_user');
 
-        if (!$thongbao) {
-            return $this->jsonResponse([
-                'status' => false,
-                'message' => 'Không tìm thấy thông báo',
-            ], Response::HTTP_NOT_FOUND);
-        }
+    //     $thongbao = ThongbaoModel::where('id', $id)
+    //         ->where('id_nguoidung', $user->id)
+    //         ->first();
 
-        $thongbao->delete();
+    //     if (!$thongbao) {
+    //         return $this->jsonResponse([
+    //             'status' => false,
+    //             'message' => 'Không tìm thấy thông báo',
+    //         ], Response::HTTP_NOT_FOUND);
+    //     }
 
-        return $this->jsonResponse([
-            'status' => true,
-            'message' => 'Xóa thông báo thành công',
-        ], Response::HTTP_OK);
-    }
+    //     $thongbao->delete();
+
+    //     return $this->jsonResponse([
+    //         'status' => true,
+    //         'message' => 'Xóa thông báo thành công',
+    //     ], Response::HTTP_OK);
+    // }
 
     /**
      * @OA\Patch(
-     *     path="api/toi/thongbaos/{id}/daxem",
-     *     tags={"Thông báo (tôi)"},
+     *     path="api/tai-khoan/thongbaos/{id}/daxem",
+     *     tags={"Thông báo (Tài khoản)"},
      *     summary="Đánh dấu thông báo đã đọc",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(
@@ -196,8 +179,8 @@ class ThongBaoFrontendAPI extends BaseFrontendController
 
     /**
      * @OA\Patch(
-     *     path="api/toi/thongbaos/{id}/tam-an",
-     *     tags={"Thông báo (tôi)"},
+     *     path="api/tai-khoan/thongbaos/{id}/tam-an",
+     *     tags={"Thông báo (Tài khoản)"},
      *     summary="Thay đổi trạng thái Tạm ẩn / Khác",
      *     security={{"bearerAuth":{}}},
      *     @OA\Parameter(

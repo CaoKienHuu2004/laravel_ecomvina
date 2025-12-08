@@ -12,13 +12,6 @@ use Illuminate\Support\Facades\DB;
 
 use App\Traits\SentMessToAdmin;
 
-
-/**
- * @OA\Tag(
- *     name="Theo dõi đơn hàng (tôi)",
- *     description="API cho phép người dùng xem và cập nhật trạng thái đơn hàng của họ"
- * )
- */
 class TheoDoiDonHangFrontendAPI extends Controller
 {
     use ApiResponse;
@@ -32,60 +25,7 @@ class TheoDoiDonHangFrontendAPI extends Controller
         $this->domain = env('DOMAIN', 'http://148.230.100.215/');
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/toi/theodoi-donhang",
-     *     summary="Lấy danh sách đơn hàng của người dùng (theo trạng thái)",
-     *     description="API này trả về danh sách các đơn hàng của người dùng hiện tại, được phân loại theo trạng thái (VD: Chờ thanh toán, Đang xác nhận,...).",
-     *     tags={"Theo dõi đơn hàng (tôi)"},
-     *     security={{"bearerAuth": {}}},
-     *     @OA\Parameter(
-     *         name="trangthai",
-     *         in="query",
-     *         required=false,
-     *         description="Lọc đơn hàng theo trạng thái",
-     *         @OA\Schema(
-     *             type="string",
-     *             enum={"Chờ xử lý","Đã xác nhận","Đang chuẩn bị hàng","Đang giao hàng","Đã giao hàng","Đã hủy"}
-     *         )
-     *     ),
-     *     @OA\Parameter(
-     *         name="madon",
-     *         in="query",
-     *         required=false,
-     *         description="Tìm kiếm đơn hàng theo mã đơn (VD: DH000123)",
-     *         @OA\Schema(type="string")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Danh sách đơn hàng được nhóm theo trạng thái",
-     *         @OA\JsonContent(
-     *             type="object",
-     *             @OA\Property(property="status", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Danh Sách Đơn Hàng Theo Trạng Thái Đơn Hàng Của Khách Hàng #5: Nguyễn Văn A"),
-     *             @OA\Property(
-     *                 property="data",
-     *                 type="array",
-     *                 @OA\Items(
-     *                     type="object",
-     *                     @OA\Property(property="label", type="string", example="Đang xác nhận"),
-     *                     @OA\Property(property="trangthai", type="string", example="Đã xác nhận"),
-     *                     @OA\Property(property="soluong", type="integer", example=3),
-     *                     @OA\Property(
-     *                         property="donhang",
-     *                         type="array",
-     *                         @OA\Items(ref="#/components/schemas/TheoDoiDonHangResource")
-     *                     )
-     *                 )
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Không xác thực được người dùng"
-     *     )
-     * )
-     */
+
     public function index(Request $request)
     {
         $user = $request->get('auth_user');
@@ -154,52 +94,6 @@ class TheoDoiDonHangFrontendAPI extends Controller
         ], Response::HTTP_OK);
     }
 
-
-    /**
-     * @OA\Put(
-     *     path="/api/toi/theodoi-donhang/{id}",
-     *     summary="Cập nhật trạng thái đơn hàng",
-     *     description="API này cho phép người dùng cập nhật trạng thái đơn hàng (VD: Đã giao hàng, Đã hủy). Và ko cho chạy ngược trạng thái.",
-     *     tags={"Theo dõi đơn hàng (tôi)"},
-     *     security={{"bearerAuth": {}}},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         description="ID của đơn hàng cần cập nhật",
-     *         @OA\Schema(type="integer", example=12)
-     *     ),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(
-     *             required={"trangthai"},
-     *             @OA\Property(
-     *                 property="trangthai",
-     *                 type="string",
-     *                 enum={"Đã giao hàng","Đã hủy"},
-     *                 example="Đã hủy"
-     *             )
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Cập nhật trạng thái đơn hàng thành công",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="status", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Cập Nhật Trang Thái Đơn Hàng Thành Công"),
-     *             @OA\Property(property="data", ref="#/components/schemas/TheoDoiDonHangResource")
-     *         )
-     *     ),
-     *     @OA\Response(
-     *         response=401,
-     *         description="Không xác thực được người dùng"
-     *     ),
-     *     @OA\Response(
-     *         response=404,
-     *         description="Không tìm thấy đơn hàng hoặc bạn không có quyền"
-     *     )
-     * )
-     */
     public function update(Request $request, $id)
     {
         $user = $request->get('auth_user');
