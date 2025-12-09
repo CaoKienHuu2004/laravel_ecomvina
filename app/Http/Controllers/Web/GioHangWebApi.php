@@ -472,7 +472,7 @@ class GioHangWebApi extends Controller
 
                 $totalQuantity = $soluongNew + ($existingItem ? $existingItem->soluong : 0);
 
-                
+
                 // Tổng giỏ hiện tại (chỉ tính hàng có thanhtien > 0) //edit
                 $tongGiaHienTai = GiohangModel::where('id_nguoidung', $userId)
                     ->where('thanhtien', '>', 0)

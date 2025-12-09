@@ -17,7 +17,8 @@ class VerifyCsrfToken extends Middleware
         // '/register',  // này có fortify CSRF rồi
         // '/reset-password',  // này có fortify CSRF rồi
         'api/*', // dung cho API token của santum
-        'toi/*', // mai mốt FE cùng domain thì xóa đi
+        'web/*', // mai mốt FE cùng domain thì xóa đi
+        'tai-khoan/*', // mai mốt FE cùng domain thì xóa đi
         'auth/*', // mai mốt FE cùng domain thì xóa đi
         'api-*', // mai mốt FE cùng domain thì xóa đi
         // '*', // nguy hiểm, tắt CSRF hoàn toàn
