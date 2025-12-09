@@ -384,12 +384,8 @@
                   <span class="menu-arrow"></span
                 ></a>
                 <ul>
-                  <li><a href="generalsettings.html">General Settings</a></li>
-                  <li><a href="emailsettings.html">Email Settings</a></li>
-                  <li><a href="paymentsettings.html">Payment Settings</a></li>
-                  <li><a href="currencysettings.html">Currency Settings</a></li>
-                  <li><a href="grouppermissions.html">Group Permissions</a></li>
-                  <li><a href="taxrates.html">Tax Rates</a></li>
+                  {{-- //----Trang Nội Dung ---// --}}
+                  <li><a class="{{ request()->routeIs('trangnoidung.index') || request()->routeIs('trangnoidung.edit') || request()->routeIs('trangnoidung.create') || request()->routeIs('trangnoidung.show')  ? 'active' : '' }}" href="{{ route('trangnoidung.index') }}">Danh sách trang nội dung</a></li>
                 </ul>
               </li>
             </ul>

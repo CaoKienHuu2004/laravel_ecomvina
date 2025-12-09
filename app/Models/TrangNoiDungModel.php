@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class TrangNoiDungModel extends Model
 {
@@ -33,4 +34,18 @@ class TrangNoiDungModel extends Model
         'hinhanh' => 'page.jpg',
         'trangthai' => 'Hiển thị',
     ];
+
+     /**
+     * //Model động lấy field enum động
+     */
+    public static function getEnumValues($column)
+    {
+        $table = (new static)->getTable();
+
+        $result = DB::select("SHOW COLUMNS FROM {$table} WHERE Field = '{$column}'");
+
+        preg_match_all("/'([^']+)'/", $result[0]->Type, $matches);
+
+        return $matches[1];
+    }
 }

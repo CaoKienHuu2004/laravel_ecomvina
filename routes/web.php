@@ -39,6 +39,7 @@ use App\Http\Controllers\Web\TukhoaWebApi;
 
 use App\Http\Controllers\QuanlyBaivietController;
 use App\Http\Controllers\QuatangSukienController;
+use App\Http\Controllers\TrangNoiDungController;
 
 // use App\Http\Controllers\SanphamController;
 // use App\Http\Controllers\DanhmucController;
@@ -335,6 +336,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
         //câp nhât trạng thái đã đọc
         Route::patch('/update-status/{id}', [ThongBaoController::class, 'updateStatus'])->name('thongbao.update-status');
     });
+
     /* ===================== QUẢN LÝ BÀI VIẾT ===================== */
     Route::prefix('baiviet')->group(function () {
         Route::get('/', [QuanlyBaivietController::class, 'index'])->name('baiviet.index');
@@ -354,6 +356,17 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('/edit/{id}', [MagiamgiaController::class,'edit'])->name('edit.magiamgia');
         Route::put('/update/{id}', [MagiamgiaController::class,'update'])->name('magiamgia.update');
         Route::delete('/delete/{id}', [MagiamgiaController::class,'destroy'])->name('delete.magiamgia');
+    });
+    /* ===================== TRANG NỘI DUNG ===================== */
+    Route::prefix('trangnoidung')->group(function () {
+        Route::get('/', [TrangNoiDungController::class, 'index'])->name('trangnoidung.index');
+        Route::get('/create', [TrangNoiDungController::class, 'create'])->name('trangnoidung.create');
+        Route::post('/store', [TrangNoiDungController::class, 'store'])->name('trangnoidung.store');
+        Route::get('/show/{id}', [TrangNoiDungController::class, 'show'])->name('trangnoidung.show');
+        Route::get('/edit/{id}', [TrangNoiDungController::class, 'edit'])->name('trangnoidung.edit');
+        Route::put('/update/{id}', [TrangNoiDungController::class, 'update'])->name('trangnoidung.update');
+        Route::delete('/delete/{id}', [TrangNoiDungController::class, 'destroy'])->name('trangnoidung.destroy');
+
     });
 });
 // Route::get('/dashboard', function () {
