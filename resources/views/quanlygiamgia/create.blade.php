@@ -6,9 +6,14 @@
 <div class="page-wrapper">
   <div class="content">
     <div class="page-header">
-      <div class="page-title">
-        <h4>TẠO MÃ GIẢM GIÁ</h4>
-      </div>
+        <x-header.breadcrumb
+            title="Thêm Mới Mã Giảm Giá"
+            :links="[
+                ['label' => 'Tổng quan', 'route' => 'trang-chu'],
+                ['label' => 'Danh sách Mã Giảm Giá', 'route' => 'danhsach.magiamgia']
+            ]"
+            active="Thêm mới"
+        />
     </div>
 
     @if(session('success'))
@@ -18,67 +23,94 @@
     </div>
     @endif
 
+    <!-- Hiển thị lỗi validate -->
+    @if($errors->any())
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+      <ul class="mb-0">
+        @foreach($errors->all() as $error)
+          <li>{{ $error }}</li>
+        @endforeach
+      </ul>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label 'Close'></button>
+    </div>
+    @endif
+
     <div class="card">
       <div class="card-body">
         <form action="{{ route('store.magiamgia') }}" method="POST">
           @csrf
+
           <div class="row">
             <div class="col-lg-6 col-12">
               <div class="form-group">
-                <label for="magiamgia">Mã Giảm Giá</label>
-                <input type="text" class="form-control" id="magiamgia" name="magiamgia" value="{{ old('magiamgia') }}" required>
+                <label for="magiamgia">Mã Giảm Giá <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="magiamgia" name="magiamgia"
+                       value="{{ old('magiamgia') }}" required placeholder="VD: SIEUTHI2025">
               </div>
             </div>
             <div class="col-lg-6 col-12">
               <div class="form-group">
-                <label for="giatri">Giảm Giá (VNĐ)</label>
-                <input type="number" class="form-control" id="giatri" name="giatri" value="{{ old('giatri') }}" required min="0" max="10000000000000">
+                <label for="giatri">Giá Trị Giảm (VNĐ) <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="giatri" name="giatri"
+                       value="{{ old('giatri') }}" required min="1" placeholder="VD: 50000">
               </div>
             </div>
           </div>
+
           <div class="row">
             <div class="col-lg-6 col-12">
               <div class="form-group">
-                <label for="dieukien">Điều Kiện</label>
-                <input type="text" class="form-control" id="dieukien" name="dieukien" value="{{ old('dieukien') }}">
+                <label for="dieukien">Điều kiện </label>
+                <input type="number" class="form-control" id="dieukien" name="dieukien"
+                       value="{{ old('dieukien') }}" min="0" placeholder="0 = Không yêu cầu">
+                <small class="text-muted">Ví dụ: 5 → phải mua ít nhất 5 sản phẩm</small>
               </div>
             </div>
-            <div class="col-lg-6 col-12">
+
+          </div>
+
+          <div class="row">
+            <div class="col-lg-12 col-12">
               <div class="form-group">
                 <label for="mota">Mô Tả</label>
-                <textarea class="form-control" id="mota" name="mota">{{ old('mota') }}</textarea>
+                <textarea class="form-control" id="mota" name="mota" rows="3" placeholder="Ví dụ: Giảm 50k cho đơn từ 300k...">{{ old('mota') }}</textarea>
               </div>
             </div>
           </div>
+
           <div class="row">
             <div class="col-lg-6 col-12">
               <div class="form-group">
-                <label for="ngaybatdau">Ngày Bắt Đầu</label>
-                <input type="date" class="form-control" id="ngaybatdau" name="ngaybatdau" value="{{ old('ngaybatdau') }}" required>
+                <label for="ngaybatdau">Ngày Bắt Đầu <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="ngaybatdau" name="ngaybatdau"
+                       value="{{ old('ngaybatdau') }}" required>
               </div>
             </div>
             <div class="col-lg-6 col-12">
               <div class="form-group">
-                <label for="ngayketthuc">Ngày Kết Thúc</label>
-                <input type="date" class="form-control" id="ngayketthuc" name="ngayketthuc" value="{{ old('ngayketthuc') }}" required>
+                <label for="ngayketthuc">Ngày Kết Thúc <span class="text-danger">*</span></label>
+                <input type="date" class="form-control" id="ngayketthuc" name="ngayketthuc"
+                       value="{{ old('ngayketthuc') }}" required>
               </div>
             </div>
           </div>
 
-          <div class="form-group">
-    <label for="trangthai">Trạng Thái</label>
-    <select class="form-control" id="trangthai" name="trangthai" required>
-        <option value="Hoạt Động" {{ old('trangthai') == 'Hoạt Động' ? 'selected' : '' }}>Hoạt Động</option>
-        <option value="Tạm khóa" {{ old('trangthai') == 'Tạm khóa' ? 'selected' : '' }}>Tạm khóa</option>
-        <option value="Dừng hoạt động" {{ old('trangthai') == 'Dừng hoạt động' ? 'selected' : '' }}>Dừng hoạt động</option>
-    </select>
-    @error('trangthai')
-        <div class="alert alert-danger mt-2">{{ $message }}</div>
-    @enderror
-</div>
+          <div class="row">
+            <div class="col-lg-6 col-12">
+              <div class="form-group">
+                <label for="trangthai">Trạng Thái <span class="text-danger">*</span></label>
+                <select class="form-control" id="trangthai" name="trangthai" required>
+                  <option value="Hoạt động" {{ old('trangthai') == 'Hoạt động' ? 'selected' : '' }}>Hoạt động</option>
+                  <option value="Tạm khóa" {{ old('trangthai') == 'Tạm khóa' ? 'selected' : '' }}>Tạm khóa</option>
+                  <option value="Dừng hoạt động" {{ old('trangthai') == 'Dừng hoạt động' ? 'selected' : '' }}>Dừng hoạt động</option>
+                </select>
+              </div>
+            </div>
+            <div class="col-lg-6 col-12 d-flex align-items-end">
+              <button type="submit" class="btn btn-primary w-100">Tạo Mã Giảm Giá</button>
+            </div>
+          </div>
 
-
-          <button type="submit" class="btn btn-primary">Tạo Mã Giảm Giá</button>
         </form>
       </div>
     </div>

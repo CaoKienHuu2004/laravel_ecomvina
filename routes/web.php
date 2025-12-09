@@ -350,6 +350,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('/', [MagiamgiaController::class, 'index'])->name('danhsach.magiamgia');
         Route::get('/create', [MagiamgiaController::class,'create'])->name('create.magiamgia');
         Route::post('/store', [MagiamgiaController::class,'store'])->name('store.magiamgia');
+        Route::get('/show/{id}', [MagiamgiaController::class, 'show'])->name('magiamgia.show');
         Route::get('/edit/{id}', [MagiamgiaController::class,'edit'])->name('edit.magiamgia');
         Route::put('/update/{id}', [MagiamgiaController::class,'update'])->name('magiamgia.update');
         Route::delete('/delete/{id}', [MagiamgiaController::class,'destroy'])->name('delete.magiamgia');

@@ -358,7 +358,7 @@
                   <span class="menu-arrow"></span
                 ></a>
                 <ul>
-                  <li><a class="{{ request()->routeIs('danhsach.magiamgia') || request()->routeIs('create.magiamgia') || request()->routeIs('edit.magiamgia')  ? 'active' : '' }}" href="{{ route('danhsach.magiamgia') }}">Danh Sách Mã Giảm Giá</a></li>
+                  <li><a class="{{ request()->routeIs('danhsach.magiamgia') || request()->routeIs('create.magiamgia') || request()->routeIs('edit.magiamgia') || request()->routeIs('magiamgia.show')   ? 'active' : '' }}" href="{{ route('danhsach.magiamgia') }}">Danh Sách Mã Giảm Giá</a></li>
 
                 </ul>
               </li>
