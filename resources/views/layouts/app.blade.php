@@ -308,17 +308,13 @@
               {{-- // -- Quản lý bài viết --// --}}
               <li class="submenu">
                 <a href="javascript:void(0);"
-                  ><img src="{{asset('img/icons/sales1.svg')}}" alt="img" /><span>
+                  ><img src="{{asset('img/icons/post-svgrepo-com.svg')}}" alt="img" /><span>
                     Quản lý bài viết</span
                   >
                   <span class="menu-arrow"></span
                 ></a>
                 <ul>
-                  <li><a href="saleslist.html">Voucher</a></li>
-                  <li><a href="pos.html">Ưu đãi sản phẩm</a></li>
-                  <li><a href="pos.html">Sự kiện khuyến mãi</a></li>
-                  <li><a href="/">Đánh giá sản phẩm</a></li>
-                  <li><a href="pos.html">Danh sách đơn hàng</a></li>
+                  <li><a class="{{ request()->routeIs('baiviet.index') || request()->routeIs('baiviet.edit') || request()->routeIs('baiviet.create') || request()->routeIs('baiviet.show') ? 'active' : '' }}" href="{{ route('baiviet.index') }}">Danh Sách Bài Viết</a></li>
 
                 </ul>
               </li>
@@ -356,17 +352,13 @@
               {{-- // -- Quản lý mã giảm giá --// --}}
               <li class="submenu">
                 <a href="javascript:void(0);"
-                  ><img src="{{asset('img/icons/sales1.svg')}}" alt="img" /><span>
+                  ><img src="{{asset('img/icons/voucher-discount-tag-svgrepo-com.svg')}}" alt="img" /><span>
                     Quản lý mã giảm giá</span
                   >
                   <span class="menu-arrow"></span
                 ></a>
                 <ul>
-                  <li><a href="saleslist.html">Voucher</a></li>
-                  <li><a href="pos.html">Ưu đãi sản phẩm</a></li>
-                  <li><a href="pos.html">Sự kiện khuyến mãi</a></li>
-                  <li><a href="/">Đánh giá sản phẩm</a></li>
-                  <li><a href="pos.html">Danh sách đơn hàng</a></li>
+                  <li><a class="{{ request()->routeIs('danhsach.magiamgia') || request()->routeIs('create.magiamgia') || request()->routeIs('edit.magiamgia')  ? 'active' : '' }}" href="{{ route('danhsach.magiamgia') }}">Danh Sách Mã Giảm Giá</a></li>
 
                 </ul>
               </li>

@@ -1389,10 +1389,30 @@
                                         "example": null,
                                         "nullable": true
                                     },
-                                    "id_diachigiaohang": {
+                                    "id_diachinguoidung": {
                                         "description": "id dia chỉ ngươi dùng FE lấy được trước đó rồi truyền vào component donhang (nếu có)",
                                         "type": "integer",
                                         "example": 19
+                                    },
+                                    "nguoinhan": {
+                                        "description": "Họ tên người nhận",
+                                        "type": "string",
+                                        "example": "Lê văn B"
+                                    },
+                                    "diachinhan": {
+                                        "description": "địa chỉ người nhận hàng",
+                                        "type": "string",
+                                        "example": "123 pham văn trị, q.bình thạnh, Thành phố hồ chí minh"
+                                    },
+                                    "sodienthoai": {
+                                        "description": "10 chử số ",
+                                        "type": "string",
+                                        "example": "1234567890"
+                                    },
+                                    "khuvucgiao": {
+                                        "description": "thuộc enum tỉnh thành việt nam",
+                                        "type": "string",
+                                        "example": "Thành phố Hồ Chí Minh"
                                     }
                                 },
                                 "type": "object"
@@ -1939,120 +1959,6 @@
                     },
                     "401": {
                         "description": "Token không hợp lệ hoặc chưa đăng nhập"
-                    }
-                },
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ]
-            }
-        },
-        "/api/tai-khoan/donhangs/{id}/vietqr-url": {
-            "post": {
-                "tags": [
-                    "Thanh toán VietQR"
-                ],
-                "summary": "Tạo URL mã QR thanh toán VietQR cho đơn hàng",
-                "description": "\n     *         - Kiểm tra user đã xác thực.\n     *         - Kiểm tra đơn hàng tồn tại và thuộc user hiện tại.\n     *         - Chỉ cho phép tạo mã QR nếu phương thức thanh toán có id_phuongthuc = 2 (CP).\n     *         - Trả về URL ảnh QR code động dùng để thanh toán.\n     *         - Gửi thông báo cho admin kiểm tra thanh toán thủ công trên VietQR.\n     *     ",
-                "operationId": "38dea5d65596ce58a28be2222ca3c908",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID của đơn hàng cần tạo mã QR",
-                        "required": true,
-                        "schema": {
-                            "type": "integer",
-                            "example": 123
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Tạo URL VietQR thành công",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Tạo url VietQR thành công"
-                                        },
-                                        "data": {
-                                            "type": "string",
-                                            "format": "url",
-                                            "example": "https://img.vietqr.io/image/123456789-0123456789-01.png?amount=100000&addInfo=THANH%20TOAN%20DON%20HANG%201234&accountName=Nguyen%20Van%20A"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "Chưa xác thực user",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": false
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Chưa xác thực user"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "403": {
-                        "description": "Phương thức thanh toán không hỗ trợ tạo mã QR",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": false
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Phương thức thanh toán không hỗ trợ tạo mã QR"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Đơn hàng không tồn tại hoặc không thuộc về bạn",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean",
-                                            "example": false
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Đơn hàng không tồn tại hoặc không thuộc về bạn"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
                     }
                 },
                 "security": [
@@ -4740,7 +4646,7 @@
         "/web/tracuu-donhang": {
             "get": {
                 "tags": [
-                    "Trả cứu đơn hàng (web)"
+                    "Tra cứu đơn hàng (web)"
                 ],
                 "summary": "Lấy danh sách đơn hàng của người dùng (theo trạng thái)",
                 "description": "API cho phép người dùng xem tất cả các đơn hàng của họ, được phân loại theo từng trạng thái. Mỗi trạng thái bao gồm nhãn hiển thị, mã trạng thái, tổng số đơn và danh sách chi tiết các đơn hàng tương ứng.",
@@ -6655,6 +6561,10 @@
             "description": " sản phẩm của trang chủ được lọc theo yêu cầu nghiệp vụ của từng selection, tên cũ sanphams-selection"
         },
         {
+            "name": "Tra cứu đơn hàng (web)",
+            "description": "API cho phép người dùng xem và cập nhật trạng thái đơn hàng của họ"
+        },
+        {
             "name": "Xác thực người dùng (Auth)",
             "description": "Xác thực người dùng (Auth)"
         },
@@ -6685,10 +6595,6 @@
         {
             "name": "Thanh toán VNPAY",
             "description": "Thanh toán VNPAY"
-        },
-        {
-            "name": "Thanh toán VietQR",
-            "description": "Thanh toán VietQR"
         },
         {
             "name": "Liên hệ",
@@ -6725,10 +6631,6 @@
         {
             "name": "Giỏ Hàng (web)",
             "description": "Giỏ Hàng (web)"
-        },
-        {
-            "name": "Trả cứu đơn hàng (web)",
-            "description": "Trả cứu đơn hàng (web)"
         }
     ]
 }

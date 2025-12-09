@@ -320,7 +320,7 @@ class DonhangController extends Controller
             'id_phuongthuc'    => 'nullable|integer',
             'id_magiamgia'     => 'nullable|integer',
             'id_phivanchuyen'  => 'nullable|integer',
-            'id_diachigiaohang'=> 'nullable|integer',
+            'id_diachinguoidung'=> 'nullable|integer',
             'tongtien'         => 'required|numeric'
         ]);
 
@@ -336,7 +336,7 @@ class DonhangController extends Controller
             'id_phuongthuc'    => $validated['id_phuongthuc'] ?? null,
             'id_magiamgia'     => $validated['id_magiamgia'] ?? null,
             'id_phivanchuyen'  => $validated['id_phivanchuyen'] ?? null,
-            'id_diachigiaohang'=> $validated['id_diachigiaohang'] ?? null,
+            'id_diachinguoidung'=> $validated['id_diachinguoidung'] ?? null,
             'tongsoluong'      => $tongsoluong,
             'tamtinh'          => $validated['tongtien'],
             'thanhtien'        => $validated['tongtien'],
@@ -386,7 +386,7 @@ class DonhangController extends Controller
             'id_phuongthuc'   => 'nullable|integer',
             'id_magiamgia'    => 'nullable|integer',
             'id_phivanchuyen' => 'nullable|integer',
-            'id_diachigiaohang'=> 'nullable|integer',
+            'id_diachinguoidung'=> 'nullable|integer',
             'tongtien'        => 'required|numeric',
         ]);
 
@@ -398,7 +398,7 @@ class DonhangController extends Controller
             'id_phuongthuc'=> $validated['id_phuongthuc'] ?? null,
             'id_magiamgia' => $validated['id_magiamgia'] ?? null,
             'id_phivanchuyen' => $validated['id_phivanchuyen'] ?? null,
-            'id_diachigiaohang'=> $validated['id_diachigiaohang'] ?? null,
+            'id_diachinguoidung'=> $validated['id_diachinguoidung'] ?? null,
             'thanhtien'       => $validated['tongtien'],
             'tamtinh'         => $validated['tongtien'],
         ]);

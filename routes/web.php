@@ -21,9 +21,10 @@ use App\Http\Controllers\Web\YeuThichWebApi;
 
 use App\Http\Controllers\HinhAnhSanphamController;
 use App\Http\Controllers\LoaiBientheController;
+use App\Http\Controllers\MagiamgiaController;
 use App\Http\Controllers\PhuongThucController;
 use App\Http\Controllers\QuangCaoController;
-use App\Http\Controllers\QuatangSukienController;
+
 use App\Http\Controllers\ThongBaoController;
 use App\Http\Controllers\Web\TrangDieuKhoanWebAPI;
 use App\Http\Controllers\Web\AuthWebController;
@@ -35,6 +36,9 @@ use App\Http\Controllers\Web\QuatangAllWebAPI;
 use App\Http\Controllers\Web\TimKiemWebApi;
 use App\Http\Controllers\Web\TinhThanhVietNamWebApi;
 use App\Http\Controllers\Web\TukhoaWebApi;
+
+use App\Http\Controllers\QuanlyBaivietController;
+use App\Http\Controllers\QuatangSukienController;
 
 // use App\Http\Controllers\SanphamController;
 // use App\Http\Controllers\DanhmucController;
@@ -330,6 +334,25 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::delete('/delete/{id}', [ThongBaoController::class, 'destroy'])->name('thongbao.destroy');
         //câp nhât trạng thái đã đọc
         Route::patch('/update-status/{id}', [ThongBaoController::class, 'updateStatus'])->name('thongbao.update-status');
+    });
+    /* ===================== QUẢN LÝ BÀI VIẾT ===================== */
+    Route::prefix('baiviet')->group(function () {
+        Route::get('/', [QuanlyBaivietController::class, 'index'])->name('baiviet.index');
+        Route::get('/create', [QuanlyBaivietController::class, 'create'])->name('baiviet.create');
+        Route::post('/store', [QuanlyBaivietController::class, 'store'])->name('baiviet.store');
+        Route::get('/show/{id}', [QuanlyBaivietController::class, 'show'])->name('baiviet.show');
+        Route::get('/edit/{id}', [QuanlyBaivietController::class, 'edit'])->name('baiviet.edit');
+        Route::put('/update/{id}', [QuanlyBaivietController::class, 'update'])->name('baiviet.update');
+        Route::delete('/delete/{id}', [QuanlyBaivietController::class, 'destroy'])->name('baiviet.destroy');
+    });
+        /* ===================== QUẢN LÝ MÃ GIẢM GIÁ ===================== */
+    Route::prefix('magiamgia')->group(function () {
+        Route::get('/', [MagiamgiaController::class, 'index'])->name('danhsach.magiamgia');
+        Route::get('/create', [MagiamgiaController::class,'create'])->name('create.magiamgia');
+        Route::post('/store', [MagiamgiaController::class,'store'])->name('store.magiamgia');
+        Route::get('/edit/{id}', [MagiamgiaController::class,'edit'])->name('edit.magiamgia');
+        Route::put('/update/{id}', [MagiamgiaController::class,'update'])->name('magiamgia.update');
+        Route::delete('/delete/{id}', [MagiamgiaController::class,'destroy'])->name('delete.magiamgia');
     });
 });
 // Route::get('/dashboard', function () {

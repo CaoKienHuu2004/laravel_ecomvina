@@ -22,6 +22,7 @@ use Illuminate\Validation\Rule;
 use App\Http\Resources\Toi\TheoDoiDonHang\TheoDoiDonHangResource;
 use App\Http\Resources\Toi\TheoDoiDonHangDetail\TheoDoiDonHangResource as TheoDoiDonHangDetailResource;
 use App\Models\BientheModel;
+use App\Models\PhiVanChuyenModel;
 use App\Traits\SentMessToClient;
 
 use Illuminate\Support\Facades\Redis;
@@ -168,11 +169,36 @@ class DonHangWebApi extends BaseFrontendController
 
     public function store(Request $request)
     {
+        $provinces = config('tinhthanh', []);
+        // lấy danh sách khu vực (khi config trả mảng hoặc object)
+        $arrKhuvuc = [];
+        if (is_array($provinces)) {
+            $arrKhuvuc = $provinces['khuvuc'] ?? [];
+        } elseif (is_object($provinces)) {
+            $arrKhuvuc = $provinces->khuvuc ?? [];
+        }
+
+        // nếu arrKhuvuc là mảng, chuyển sang chuỗi cho rule in:
+        $inKhuvuc = is_array($arrKhuvuc) && count($arrKhuvuc) ? implode(',', $arrKhuvuc) : '';
+
         // Bước 1: Validate dữ liệu đầu vào
-        $validator = Validator::make($request->only('ma_phuongthuc', 'ma_magiamgia', 'id_diachigiaohang'), [
-            'ma_phuongthuc'      => 'required|string|exists:phuongthuc,maphuongthuc',
-            'ma_magiamgia'       => 'nullable|string|exists:magiamgia,magiamgia',
-            'id_diachigiaohang'  => 'required|integer|exists:diachi_nguoidung,id',
+        $validator = Validator::make($request->only(
+            'ma_phuongthuc',
+            'ma_magiamgia',
+            'id_diachinguoidung',
+            'nguoinhan',
+            'diachinhan',
+            'sodienthoai',
+            'khuvucgiao'
+        ), [
+            'ma_phuongthuc'     => 'required|string|exists:phuongthuc,maphuongthuc',
+            'ma_magiamgia'      => 'nullable|string|exists:magiamgia,magiamgia',
+            'id_diachinguoidung'=> 'required|integer|exists:diachi_nguoidung,id',
+            'nguoinhan'         => 'required|string',
+            'diachinhan'        => 'required|string',
+            'sodienthoai'       => 'required|string|max:10',
+            // nếu không có khu vực hợp lệ thì bỏ rule in: để không gây fail
+            'khuvucgiao'        => $inKhuvuc ? 'required|string|in:' . $inKhuvuc : 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -223,16 +249,20 @@ class DonHangWebApi extends BaseFrontendController
                 $trangthaiDonhang = $mapTrangthai[$phuongthuc->trangthai] ?? 'Chờ xử lý';
             }
 
-            $freeship = MagiamgiaModel::where('magiamgia', $request->input('ma_magiamgia'))
-                ->where('giatri', 0)
-                ->where('ngaybatdau', '<=', now())
-                ->where('ngayketthuc', '>=', now())
-                ->where('trangthai', 'Hoạt động')
-                ->exists();
+            $freeship = false;
+            $maMagiamgiaInput = $request->input('ma_magiamgia');
+            if ($maMagiamgiaInput) {
+                $freeship = MagiamgiaModel::where('magiamgia', $maMagiamgiaInput)
+                    ->where('giatri', 0)
+                    ->where('ngaybatdau', '<=', now())
+                    ->where('ngayketthuc', '>=', now())
+                    ->where('trangthai', 'Hoạt động')
+                    ->exists();
+            }
 
-            $id_diachigiaohang = $validated['id_diachigiaohang'];
+            $id_diachinguoidung = $validated['id_diachinguoidung'];
 
-            $diachiGiaoHang = $user->diachi()->where('id', $id_diachigiaohang)->first();
+            $diachiGiaoHang = $user->diachi()->where('id', $id_diachinguoidung)->first();
             if (!$diachiGiaoHang) {
                 return response()->json([
                     'status' => false,
@@ -248,27 +278,65 @@ class DonHangWebApi extends BaseFrontendController
                 $id_phivanchuyen = 2;
             }
 
-            $id_magiamgia = MagiamgiaModel::where('magiamgia', $request->input('ma_magiamgia'))
-                ->where('ngaybatdau', '<=', now())
-                ->where('ngayketthuc', '>=', now())
-                ->where('trangthai', 'Hoạt động')
-                ->value('id');
+            $id_magiamgia = null;
+            if ($maMagiamgiaInput) {
+                $id_magiamgia = MagiamgiaModel::where('magiamgia', $maMagiamgiaInput)
+                    ->where('ngaybatdau', '<=', now())
+                    ->where('ngayketthuc', '>=', now())
+                    ->where('trangthai', 'Hoạt động')
+                    ->value('id');
+            }
 
             $tongsoluong = $giohang->sum('soluong');
 
-            $tamtinh = $giohang->sum('thanhtien') + ($id_phivanchuyen == 1 ? 25000 : ($id_phivanchuyen == 2 ? 35000 : 0));
+            $phigia = ($id_phivanchuyen == 1 ? 25000 : ($id_phivanchuyen == 2 ? 35000 : 0));
+            $tamtinh = $giohang->sum('thanhtien') + $phigia;
 
             $giatriMagiamgia = $id_magiamgia ? MagiamgiaModel::where('id', $id_magiamgia)->value('giatri') : 0;
 
             $thanhtien = $tamtinh - $giatriMagiamgia;
-
             if ($thanhtien < 0) $thanhtien = 0; // tránh âm
+
+            $sodienthoai = $validated['sodienthoai'];
+            $diachinhan = $validated['diachinhan'];
+            $nguoinhan = $validated['nguoinhan'];
+            $ma_magiamgia = MagiamgiaModel::find($id_magiamgia) ?? null;
+
+            $ma_phuongthuc = $validated['ma_phuongthuc'];
+
+            // Xác định hinh thuc thanh toan
+            $hinhthucthanhtoan = '';
+            if ($ma_phuongthuc === "cod") {
+                $hinhthucthanhtoan = "Nhận tiền khi giao hàng.";
+            } elseif ($ma_phuongthuc === "dbt") {
+                $hinhthucthanhtoan = "Thanh toán online.";
+            } elseif ($ma_phuongthuc === "cp") {
+                $hinhthucthanhtoan = "Chuyển khoản trực tiếp.";
+            } else {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Phương thức thanh toán không được hỗ trợ.',
+                ], Response::HTTP_BAD_REQUEST);
+            }
+
+            // Lấy phí vận chuyển — kiểm tra null an toàn
+            $phivanchuyen = PhiVanChuyenModel::find($id_phivanchuyen);
+            if (!$phivanchuyen) {
+                // fallback: đặt tên mặc định và phí = 0
+                $ten_phivanchuyen = 'Không xác định';
+                $phigia = 0;
+            } else {
+                $ten_phivanchuyen = $phivanchuyen->ten;
+            }
+
+            // $khuvucgiao
+            $khuvucgiao = $validated['khuvucgiao'];
 
             $donhang = DonhangModel::create([
                 'id_phuongthuc'       => $phuongthuc->id,
                 'id_nguoidung'        => $user->id,
                 'id_phivanchuyen'     => $id_phivanchuyen,
-                'id_diachinguoidung'   => $id_diachigiaohang,
+                'id_diachinguoidung'  => $id_diachinguoidung,
                 'id_magiamgia'        => $id_magiamgia ?? null,
                 'madon'               => DonhangModel::generateOrderCode(),
                 'tongsoluong'         => $tongsoluong,
@@ -276,6 +344,17 @@ class DonHangWebApi extends BaseFrontendController
                 'thanhtien'           => $thanhtien,
                 'trangthaithanhtoan'  => $trangthaiThanhtoan,
                 'trangthai'           => $trangthaiDonhang,
+                // thông tin giao hàng
+                'sodienthoai'         => $sodienthoai,
+                'diachinhan'          => $diachinhan,
+                'nguoinhan'           => $nguoinhan,
+                // thông tin vận chuyển / voucher
+                'khuvucgiao'          => $khuvucgiao,
+                'hinhthucvanchuyen'   => $ten_phivanchuyen ?? 'Không xác định',
+                'phigiaohang'         => $phigia,
+                'hinhthucthanhtoan'   => $hinhthucthanhtoan,
+                'mavoucher'           => $ma_magiamgia,
+                'giagiam'             => $giatriMagiamgia
             ]);
 
             foreach ($giohang as $item) {
@@ -297,33 +376,30 @@ class DonHangWebApi extends BaseFrontendController
 
             GiohangModel::where('id_nguoidung', $user->id)->delete();
 
+            // gửi thông báo
             $this->sentMessToAdmin(
                 'Đơn hàng mới từ ' . $user->hoten . '-' . $user->sodienthoai,
-                'Người dùng ' . $user->hoten . '-' . $user->sodienthoai . '-' . $user->username . '-' . $user->email . ' vừa tạo đơn hàng mới mã ' . $donhang->madon . '. Vui lòng kiểm tra và gọi điện cho khách hàng để truyển trạng thái đơn hàng từ Chờ xử lý -> Đã xác nhận và xử lý đơn hàng kịp thời.',
+                'Người dùng ' . $user->hoten . '-' . $user->sodienthoai . '-' . $user->username . '-' . $user->email . ' vừa tạo đơn hàng mới mã ' . $donhang->madon . '. Vui lòng kiểm tra và gọi điện cho khách hàng để truyền trạng thái đơn hàng từ Chờ xử lý -> Đã xác nhận và xử lý đơn hàng kịp thời.',
                 $this->domain . 'donhang/show/' . $donhang->id,
                 "Đơn hàng"
             );
+
             $this->SentMessToClient(
                 'Xác nhận đơn hàng mới của bạn',
                 'Chào ' . $user->hoten . ', bạn đã tạo thành công đơn hàng mã ' . $donhang->madon .
                 '. Vui lòng chờ nhân viên liên hệ để xác nhận và xử lý đơn hàng. Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!',
-                $this->domainClient.'/' . 'don-hang', // http://14.321321.241342/don-hang/id
-                // $this->domainClient.'/' . 'don-hang/' . $donhang->id, // http://14.321321.241342/don-hang/id
+                $this->domainClient . '/' . 'don-hang',
                 "Đơn hàng",
                 $user->id
-            ); // trả về bool $check true/false
+            );
 
-            /// Lưu IP vào bảng IP redis chỉ để check điều kiện người dùng mới cho bảng magiamgia
-
-           $magiamgiaId = $id_magiamgia; // $magiamgiaId = $request->input('magiamgia_id'); // mã giảm giá user chọn
+            // Lưu IP vào Redis nếu voucher là mã người dùng mới (theo logic cũ bạn để id = 2)
+            $magiamgiaId = $id_magiamgia;
             $ip = $request->getClientIp();
-            if ($magiamgiaId == 2) { // 2 là vì trong database mô tả của magiamgia đầy là mã kiểm tra người dùng mới, nền suy ra dùng IP để check
+            if ($magiamgiaId == 2) {
                 $redisIpKey = "used_voucher_ip:$ip";
-
-                // Lưu IP 1 năm
                 Redis::setex($redisIpKey, 86400 * 365, true);
             }
-            /// Lưu IP vào bảng IP redis chỉ để check điều kiện người dùng mới cho bảng magiamgia
 
             DB::commit();
 
