@@ -84,6 +84,209 @@ class GioHangFrontendAPI extends BaseFrontendController
         ], Response::HTTP_OK);
     }
 
+
+    // public function store(Request $request)
+    // {
+    //     $validated = $request->validate([
+    //         'id_bienthe' => 'required|exists:bienthe,id',
+    //         'soluong' => 'required|integer|min:1',
+    //     ]);
+
+    //     $user = $request->get('auth_user');
+    //     $userId = $user->id;
+    //     $id_bienthe = $validated['id_bienthe'];
+    //     $soluongNew = $validated['soluong'];
+
+    //     DB::beginTransaction();
+    //     try {
+    //         // =======================================
+    //         // 1. XỬ LÝ THÊM SẢN PHẨM VÀ KHUYẾN MÃI BUY X GET Y
+    //         // =======================================
+
+    //         $variant = BientheModel::lockForUpdate()->findOrFail($id_bienthe);
+    //         $priceUnit = $variant->giagoc;
+
+    //         $existingItem = GiohangModel::where('id_nguoidung', $userId)
+    //             ->where('id_bienthe', $id_bienthe)
+    //             ->where('thanhtien', '>', 0)
+    //             ->lockForUpdate()
+    //             ->first();
+
+    //         $totalQuantity = $soluongNew + ($existingItem ? $existingItem->soluong : 0);
+
+    //         // Kiểm tra khuyến mãi theo số lượng
+    //         $promotion = DB::table('quatang_sukien as qs')
+    //             ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
+    //             ->where('qs.id_bienthe', $id_bienthe)
+    //             ->where('qs.dieukiensoluong', '<=', $totalQuantity)
+    //             ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
+    //             ->select('qs.dieukiensoluong as discount_multiplier', 'bt.giagoc')
+    //             ->first();
+
+    //         $numFree = 0;
+    //         $thanhtien = $totalQuantity * $priceUnit;
+
+    //         if ($promotion) {
+    //             $promotionCount = floor($totalQuantity / $promotion->discount_multiplier);
+    //             $numFree = $promotionCount;
+
+    //             $numToPay = $totalQuantity - $numFree;
+    //             $thanhtien = $numToPay * $promotion->giagoc;
+
+    //             // Lấy dòng quà tặng hiện có
+    //             $existingFreeItem = GiohangModel::where('id_nguoidung', $userId)
+    //                 ->where('id_bienthe', $id_bienthe)
+    //                 ->where('thanhtien', 0)
+    //                 ->lockForUpdate()
+    //                 ->first();
+
+    //             if ($numFree > 0) {
+    //                 if ($existingFreeItem) {
+    //                     $existingFreeItem->update([
+    //                         'soluong' => $numFree,
+    //                         'trangthai' => 'Hiển thị'
+    //                     ]);
+    //                 } else {
+    //                     GiohangModel::create([
+    //                         'id_nguoidung' => $userId,
+    //                         'id_bienthe' => $id_bienthe,
+    //                         'soluong' => $numFree,
+    //                         'thanhtien' => 0,
+    //                         'trangthai' => 'Hiển thị',
+    //                     ]);
+    //                 }
+    //             } else {
+    //                 // Không còn "quà tặng theo số lượng" → xóa dòng free
+    //                 GiohangModel::where('id_nguoidung', $userId)
+    //                     ->where('id_bienthe', $id_bienthe)
+    //                     ->where('thanhtien', 0)
+    //                     ->delete();
+    //             }
+    //         }
+
+    //         // Cập nhật hoặc thêm sản phẩm chính
+    //         if ($existingItem) {
+    //             $existingItem->update([
+    //                 'soluong' => $totalQuantity,
+    //                 'thanhtien' => $thanhtien,
+    //                 'trangthai' => 'Hiển thị',
+    //             ]);
+    //             $item = $existingItem;
+    //         } else {
+    //             $item = GiohangModel::create([
+    //                 'id_nguoidung' => $userId,
+    //                 'id_bienthe' => $id_bienthe,
+    //                 'soluong' => $totalQuantity,
+    //                 'thanhtien' => $thanhtien,
+    //                 'trangthai' => 'Hiển thị',
+    //             ]);
+    //         }
+
+    //         DB::commit();
+
+    //         // ============================================================
+    //         // 2. CHECK QUÀ TẶNG DỰA TRÊN TỔNG GIÁ TRỊ GIỎ HÀNG (RULE 2)
+    //         // ============================================================
+
+    //         DB::beginTransaction();
+
+    //         // Lấy giỏ hàng chính
+    //         $cartItems = GiohangModel::with('bienthe.sanpham.thuonghieu')
+    //             ->where('id_nguoidung', $userId)
+    //             ->where('thanhtien', '>', 0)
+    //             ->where('trangthai', 'Hiển thị')
+    //             ->lockForUpdate()
+    //             ->get();
+
+    //         $cartTotalValue = $cartItems->sum('thanhtien');
+
+    //         // Lấy rule quà tặng active
+    //         $activeGifts = QuatangsukienModel::where('trangthai', 'Hiển thị')
+    //             ->whereNull('deleted_at')
+    //             ->whereRaw('NOW() BETWEEN ngaybatdau AND ngayketthuc')
+    //             ->get();
+
+    //         foreach ($activeGifts as $rule) {
+    //             $giftBientheId = $rule->id_bienthe;
+    //             $requiredValue = $rule->dieukiengiatri;
+    //             $requiredQty   = $rule->dieukiensoluong;
+
+    //             // Check tổng giá trị
+    //             if ($cartTotalValue < $requiredValue) {
+    //                 GiohangModel::where('id_nguoidung', $userId)
+    //                     ->where('id_bienthe', $giftBientheId)
+    //                     ->where('thanhtien', 0)
+    //                     ->delete();
+    //                 continue;
+    //             }
+
+    //             // Lấy thương hiệu của quà
+    //             $giftVariant = BientheModel::with('sanpham.thuonghieu')->find($giftBientheId);
+    //             if (!$giftVariant) continue;
+
+    //             $brandId = $giftVariant->sanpham->id_thuonghieu ?? null;
+    //             if (!$brandId) continue;
+
+    //             // Đếm số biến thể khác nhau trong giỏ thuộc thương hiệu này
+    //             $distinctVariantCount = $cartItems
+    //                 ->filter(fn($item) => $item->bienthe->sanpham->id_thuonghieu == $brandId)
+    //                 ->unique('id_bienthe')
+    //                 ->count();
+
+    //             if ($distinctVariantCount < $requiredQty) {
+    //                 GiohangModel::where('id_nguoidung', $userId)
+    //                     ->where('id_bienthe', $giftBientheId)
+    //                     ->where('thanhtien', 0)
+    //                     ->delete();
+    //                 continue;
+    //             }
+
+    //             // ĐỦ ĐIỀU KIỆN → cấp quà
+    //             $existingGift = GiohangModel::where('id_nguoidung', $userId)
+    //                 ->where('id_bienthe', $giftBientheId)
+    //                 ->where('thanhtien', 0)
+    //                 ->lockForUpdate()
+    //                 ->first();
+
+    //             if ($existingGift) {
+    //                 $existingGift->update([
+    //                     'soluong' => 1,
+    //                     'trangthai' => 'Hiển thị',
+    //                 ]);
+    //             } else {
+    //                 GiohangModel::create([
+    //                     'id_nguoidung' => $userId,
+    //                     'id_bienthe'   => $giftBientheId,
+    //                     'soluong'      => 1,
+    //                     'thanhtien'    => 0,
+    //                     'trangthai'    => 'Hiển thị',
+    //                 ]);
+    //             }
+    //         }
+
+    //         DB::commit();
+
+    //         // ============================================================
+    //         // TRẢ KẾT QUẢ CUỐI
+    //         // ============================================================
+
+    //         GioHangResource::withoutWrapping();
+    //         $cartItems = GiohangModel::with(['bienthe.sanpham.thuonghieu','bienthe.loaibienthe','bienthe.sanpham.hinhanhsanpham'])
+    //             ->where('id_nguoidung', $userId)
+    //             ->where('trangthai', 'Hiển thị')
+    //             ->get();
+
+    //         return response()->json(GioHangResource::collection($cartItems), Response::HTTP_CREATED);
+
+    //     } catch (\Throwable $e) {
+    //         DB::rollBack();
+    //         return $this->jsonResponse([
+    //             'status' => false,
+    //             'message' => 'Lỗi khi thêm sản phẩm vào giỏ hàng',
+    //             'error' => $e->getMessage(),
+    //         ], Response::HTTP_INTERNAL_SERVER_ERROR);
+    //     }
+    // }
     /**
      * @OA\Post(
      *     path="/api/tai-khoan/giohang",
@@ -170,13 +373,11 @@ class GioHangFrontendAPI extends BaseFrontendController
 
         DB::beginTransaction();
         try {
-            // =======================================
-            // 1. XỬ LÝ THÊM SẢN PHẨM VÀ KHUYẾN MÃI BUY X GET Y
-            // =======================================
-
+            // Khóa biến thể để tránh race condition
             $variant = BientheModel::lockForUpdate()->findOrFail($id_bienthe);
             $priceUnit = $variant->giagoc;
 
+            // Lấy sản phẩm chính hiện tại trong giỏ (nếu có)
             $existingItem = GiohangModel::where('id_nguoidung', $userId)
                 ->where('id_bienthe', $id_bienthe)
                 ->where('thanhtien', '>', 0)
@@ -185,13 +386,23 @@ class GioHangFrontendAPI extends BaseFrontendController
 
             $totalQuantity = $soluongNew + ($existingItem ? $existingItem->soluong : 0);
 
-            // Kiểm tra khuyến mãi theo số lượng
+            // Tổng giỏ hiện tại (chỉ tính hàng có thanhtien > 0)
+            $tongGiaHienTai = GiohangModel::where('id_nguoidung', $userId)
+                ->where('thanhtien', '>', 0)
+                ->sum('thanhtien');
+
+            // Tổng giỏ mới sau khi thêm sản phẩm
+            $tongGiaGioHang = $tongGiaHienTai + ($soluongNew * $priceUnit);
+
+            // Kiểm tra khuyến mãi
             $promotion = DB::table('quatang_sukien as qs')
                 ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
                 ->where('qs.id_bienthe', $id_bienthe)
+                // ->where('bt.luottang', '>', 0)
+                ->where('qs.dieukiengiatri', '<=', $tongGiaGioHang)
                 ->where('qs.dieukiensoluong', '<=', $totalQuantity)
                 ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
-                ->select('qs.dieukiensoluong as discount_multiplier', 'bt.giagoc')
+                ->select('qs.dieukiensoluong as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
                 ->first();
 
             $numFree = 0;
@@ -199,24 +410,38 @@ class GioHangFrontendAPI extends BaseFrontendController
 
             if ($promotion) {
                 $promotionCount = floor($totalQuantity / $promotion->discount_multiplier);
+                // $numFree = min($promotionCount, $promotion->current_luottang);
                 $numFree = $promotionCount;
-
                 $numToPay = $totalQuantity - $numFree;
                 $thanhtien = $numToPay * $promotion->giagoc;
 
-                // Lấy dòng quà tặng hiện có
+                // Lấy quà tặng hiện có (nếu có)
                 $existingFreeItem = GiohangModel::where('id_nguoidung', $userId)
                     ->where('id_bienthe', $id_bienthe)
                     ->where('thanhtien', 0)
                     ->lockForUpdate()
                     ->first();
 
+                // $currentFreeQty = $existingFreeItem ? $existingFreeItem->soluong : 0;
+                // $deltaFree = $numFree - $currentFreeQty;
+
+                // // Chỉ trừ hoặc cộng lại phần chênh lệch quà tặng, bỏ vì thay đổi logic luottang là Tăng theo table Donhang chứ ko phải là quản lý số quà tặng
+                // // Bỏ vì luottang sẽ liên quan đế thông kế chưa ko còn là quản lý số quà tặng
+                // if ($deltaFree > 0) {
+                //     DB::table('bienthe')
+                //         ->where('id', $id_bienthe)
+                //         ->update(['luottang' => DB::raw("GREATEST(luottang - {$deltaFree}, 0)")]);
+                // } elseif ($deltaFree < 0) {
+                //     $restore = abs($deltaFree);
+                //     DB::table('bienthe')
+                //         ->where('id', $id_bienthe)
+                //         ->update(['luottang' => DB::raw("luottang + {$restore}")]);
+                // }
+
+                // Cập nhật hoặc tạo dòng quà tặng
                 if ($numFree > 0) {
                     if ($existingFreeItem) {
-                        $existingFreeItem->update([
-                            'soluong' => $numFree,
-                            'trangthai' => 'Hiển thị'
-                        ]);
+                        $existingFreeItem->update(['soluong' => $numFree, 'trangthai' => 'Hiển thị']);
                     } else {
                         GiohangModel::create([
                             'id_nguoidung' => $userId,
@@ -227,7 +452,7 @@ class GioHangFrontendAPI extends BaseFrontendController
                         ]);
                     }
                 } else {
-                    // Không còn "quà tặng theo số lượng" → xóa dòng free
+                    // Nếu không còn quà tặng thì xóa dòng quà
                     GiohangModel::where('id_nguoidung', $userId)
                         ->where('id_bienthe', $id_bienthe)
                         ->where('thanhtien', 0)
@@ -255,98 +480,11 @@ class GioHangFrontendAPI extends BaseFrontendController
 
             DB::commit();
 
-            // ============================================================
-            // 2. CHECK QUÀ TẶNG DỰA TRÊN TỔNG GIÁ TRỊ GIỎ HÀNG (RULE 2)
-            // ============================================================
-
-            DB::beginTransaction();
-
-            // Lấy giỏ hàng chính
-            $cartItems = GiohangModel::with('bienthe.sanpham.thuonghieu')
-                ->where('id_nguoidung', $userId)
-                ->where('thanhtien', '>', 0)
-                ->where('trangthai', 'Hiển thị')
-                ->lockForUpdate()
-                ->get();
-
-            $cartTotalValue = $cartItems->sum('thanhtien');
-
-            // Lấy rule quà tặng active
-            $activeGifts = QuatangsukienModel::where('trangthai', 'Hiển thị')
-                ->whereNull('deleted_at')
-                ->whereRaw('NOW() BETWEEN ngaybatdau AND ngayketthuc')
-                ->get();
-
-            foreach ($activeGifts as $rule) {
-                $giftBientheId = $rule->id_bienthe;
-                $requiredValue = $rule->dieukiengiatri;
-                $requiredQty   = $rule->dieukiensoluong;
-
-                // Check tổng giá trị
-                if ($cartTotalValue < $requiredValue) {
-                    GiohangModel::where('id_nguoidung', $userId)
-                        ->where('id_bienthe', $giftBientheId)
-                        ->where('thanhtien', 0)
-                        ->delete();
-                    continue;
-                }
-
-                // Lấy thương hiệu của quà
-                $giftVariant = BientheModel::with('sanpham.thuonghieu')->find($giftBientheId);
-                if (!$giftVariant) continue;
-
-                $brandId = $giftVariant->sanpham->id_thuonghieu ?? null;
-                if (!$brandId) continue;
-
-                // Đếm số biến thể khác nhau trong giỏ thuộc thương hiệu này
-                $distinctVariantCount = $cartItems
-                    ->filter(fn($item) => $item->bienthe->sanpham->id_thuonghieu == $brandId)
-                    ->unique('id_bienthe')
-                    ->count();
-
-                if ($distinctVariantCount < $requiredQty) {
-                    GiohangModel::where('id_nguoidung', $userId)
-                        ->where('id_bienthe', $giftBientheId)
-                        ->where('thanhtien', 0)
-                        ->delete();
-                    continue;
-                }
-
-                // ĐỦ ĐIỀU KIỆN → cấp quà
-                $existingGift = GiohangModel::where('id_nguoidung', $userId)
-                    ->where('id_bienthe', $giftBientheId)
-                    ->where('thanhtien', 0)
-                    ->lockForUpdate()
-                    ->first();
-
-                if ($existingGift) {
-                    $existingGift->update([
-                        'soluong' => 1,
-                        'trangthai' => 'Hiển thị',
-                    ]);
-                } else {
-                    GiohangModel::create([
-                        'id_nguoidung' => $userId,
-                        'id_bienthe'   => $giftBientheId,
-                        'soluong'      => 1,
-                        'thanhtien'    => 0,
-                        'trangthai'    => 'Hiển thị',
-                    ]);
-                }
-            }
-
-            DB::commit();
-
-            // ============================================================
-            // TRẢ KẾT QUẢ CUỐI
-            // ============================================================
-
             GioHangResource::withoutWrapping();
-            $cartItems = GiohangModel::with(['bienthe.sanpham.thuonghieu','bienthe.loaibienthe','bienthe.sanpham.hinhanhsanpham'])
+            $cartItems = GiohangModel::with(['bienthe.sanpham.thuonghieu', 'bienthe.loaibienthe', 'bienthe.sanpham.hinhanhsanpham'])
                 ->where('id_nguoidung', $userId)
                 ->where('trangthai', 'Hiển thị')
                 ->get();
-
             return response()->json(GioHangResource::collection($cartItems), Response::HTTP_CREATED);
 
         } catch (\Throwable $e) {
@@ -562,6 +700,7 @@ class GioHangFrontendAPI extends BaseFrontendController
      *     )
      * )
      */
+
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
@@ -573,6 +712,7 @@ class GioHangFrontendAPI extends BaseFrontendController
 
         DB::beginTransaction();
         try {
+            // ✅ Khóa dòng giỏ hàng cần cập nhật để tránh xung đột
             $item = GiohangModel::where('id_nguoidung', $userId)
                 ->where('id', $id)
                 ->lockForUpdate()
@@ -581,31 +721,20 @@ class GioHangFrontendAPI extends BaseFrontendController
             $id_bienthe = $item->id_bienthe;
             $soluongNew = $validated['soluong'];
 
-            // Lấy biến thể để kiểm tra điều kiện
-            $variant = BientheModel::lockForUpdate()->findOrFail($id_bienthe);
-            $priceUnit = $variant->giagoc;
-
-            // === Logic kiểm tra điều kiện giá trị ===
-            // Ví dụ: kiểm tra số lượng yêu cầu không vượt quá số lượng tồn kho (ví dụ biến thể có trường 'stock')
-            if (isset($variant->stock) && $soluongNew > $variant->stock) {
-                DB::rollBack();
-                return $this->jsonResponse([
-                    'status' => false,
-                    'message' => "Số lượng yêu cầu vượt quá số lượng tồn kho hiện có ({$variant->stock}).",
-                ], Response::HTTP_BAD_REQUEST);
-            }
-
-            // Hoặc thêm các điều kiện khác nếu cần, ví dụ:
-            // if (!$variant->is_active) {
-            //     DB::rollBack();
-            //     return $this->jsonResponse([
-            //         'status' => false,
-            //         'message' => 'Sản phẩm đã ngừng kinh doanh, không thể cập nhật số lượng.',
-            //     ], Response::HTTP_BAD_REQUEST);
-            // }
-
-            // Nếu số lượng là 0 thì xóa sản phẩm và quà tặng
+            // ✅ Nếu giảm về 0 → xóa sản phẩm và quà tặng liên quan
             if ($soluongNew == 0) {
+                // Lấy quà tặng hiện tại để hoàn lại luottang nếu có
+                $freeItem = GiohangModel::where('id_nguoidung', $userId)
+                    ->where('id_bienthe', $id_bienthe)
+                    ->where('thanhtien', 0)
+                    ->first();
+
+                // if ($freeItem) {
+                //     $restoreQty = $freeItem->soluong;
+                //     DB::table('bienthe')->where('id', $id_bienthe)
+                //         ->update(['luottang' => DB::raw("luottang + {$restoreQty}")]);
+                // }
+
                 GiohangModel::where('id_nguoidung', $userId)
                     ->where('id_bienthe', $id_bienthe)
                     ->delete();
@@ -617,10 +746,23 @@ class GioHangFrontendAPI extends BaseFrontendController
                 ]);
             }
 
-            // Kiểm tra khuyến mãi/quà tặng
+            // ✅ Lấy biến thể sản phẩm và khóa để cập nhật an toàn
+            $variant = BientheModel::lockForUpdate()->findOrFail($id_bienthe);
+            $priceUnit = $variant->giagoc;
+
+            $tongGiaHienTai = GiohangModel::where('id_nguoidung', $userId)
+                ->where('thanhtien', '>', 0)
+                ->where('id', '!=', $id)
+                ->sum('thanhtien');
+
+            $tongGiaGioHang = $tongGiaHienTai + ($soluongNew * $priceUnit);
+
+            // ✅ Kiểm tra khuyến mãi/quà tặng áp dụng
             $promotion = DB::table('quatang_sukien as qs')
                 ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
                 ->where('qs.id_bienthe', $id_bienthe)
+                // ->where('bt.luottang', '>', 0)
+                ->where('qs.dieukiengiatri', '<=', $tongGiaGioHang)
                 ->where('qs.dieukiensoluong', '<=', $soluongNew)
                 ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
                 ->select(
@@ -631,31 +773,51 @@ class GioHangFrontendAPI extends BaseFrontendController
                 )
                 ->first();
 
+            // ✅ Tính toán số lượng & thành tiền
             $numFreeNew = 0;
             $thanhtien = $soluongNew * $priceUnit;
 
             if ($promotion) {
                 $promotionCount = floor($soluongNew / $promotion->discount_multiplier);
+                // $numFreeNew = min($promotionCount, $promotion->current_luottang);
                 $numFreeNew = $promotionCount;
                 $numToPay = $soluongNew - $numFreeNew;
                 $thanhtien = $numToPay * $promotion->giagoc;
             }
 
-            // Lấy quà tặng cũ nếu có
+            // ✅ Lấy số quà tặng cũ (nếu có)
             $freeItem = GiohangModel::where('id_nguoidung', $userId)
                 ->where('id_bienthe', $id_bienthe)
                 ->where('thanhtien', 0)
                 ->lockForUpdate()
                 ->first();
 
-            // Cập nhật sản phẩm chính
+            // $numFreeOld = $freeItem ? $freeItem->soluong : 0;
+            // $delta = $numFreeNew - $numFreeOld;
+
+            // ✅ Cập nhật lại luottang theo chênh lệch
+            // Bỏ vì luottang sẽ liên quan đế thông kế chưa ko còn là quản lý số quà tặng
+            // if ($delta > 0) {
+            //     // Giảm thêm
+            //     DB::table('bienthe')
+            //         ->where('id', $id_bienthe)
+            //         ->update(['luottang' => DB::raw("GREATEST(luottang - {$delta}, 0)")]);
+            // } elseif ($delta < 0) {
+            //     // Hoàn lại phần giảm
+            //     $restore = abs($delta);
+            //     DB::table('bienthe')
+            //         ->where('id', $id_bienthe)
+            //         ->update(['luottang' => DB::raw("luottang + {$restore}")]);
+            // }
+
+            // ✅ Cập nhật sản phẩm chính
             $item->update([
                 'soluong' => $soluongNew,
                 'thanhtien' => $thanhtien,
                 'trangthai' => 'Hiển thị',
             ]);
 
-            // Cập nhật hoặc xóa/tạo quà tặng
+            // ✅ Cập nhật hoặc xóa/tạo quà tặng
             if ($numFreeNew > 0) {
                 if ($freeItem) {
                     $freeItem->update([
@@ -679,12 +841,11 @@ class GioHangFrontendAPI extends BaseFrontendController
 
             DB::commit();
 
-            GioHangResource::withoutWrapping();
+            GioHangResource::withoutWrapping(); // Bỏ "data" bọc ngoài
             $cartItems = GiohangModel::with(['bienthe.sanpham.thuonghieu', 'bienthe.loaibienthe', 'bienthe.sanpham.hinhanhsanpham'])
                 ->where('id_nguoidung', $userId)
                 ->where('trangthai', 'Hiển thị')
                 ->get();
-
             return response()->json(GioHangResource::collection($cartItems), Response::HTTP_OK);
 
         } catch (\Throwable $e) {
@@ -696,6 +857,7 @@ class GioHangFrontendAPI extends BaseFrontendController
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
     // public function update(Request $request, $id)
     // {
     //     $validated = $request->validate([
@@ -707,7 +869,6 @@ class GioHangFrontendAPI extends BaseFrontendController
 
     //     DB::beginTransaction();
     //     try {
-    //         // ✅ Khóa dòng giỏ hàng cần cập nhật để tránh xung đột
     //         $item = GiohangModel::where('id_nguoidung', $userId)
     //             ->where('id', $id)
     //             ->lockForUpdate()
@@ -716,20 +877,31 @@ class GioHangFrontendAPI extends BaseFrontendController
     //         $id_bienthe = $item->id_bienthe;
     //         $soluongNew = $validated['soluong'];
 
-    //         // ✅ Nếu giảm về 0 → xóa sản phẩm và quà tặng liên quan
+    //         // Lấy biến thể để kiểm tra điều kiện
+    //         $variant = BientheModel::lockForUpdate()->findOrFail($id_bienthe);
+    //         $priceUnit = $variant->giagoc;
+
+    //         // === Logic kiểm tra điều kiện giá trị ===
+    //         // Ví dụ: kiểm tra số lượng yêu cầu không vượt quá số lượng tồn kho (ví dụ biến thể có trường 'stock')
+    //         if (isset($variant->stock) && $soluongNew > $variant->stock) {
+    //             DB::rollBack();
+    //             return $this->jsonResponse([
+    //                 'status' => false,
+    //                 'message' => "Số lượng yêu cầu vượt quá số lượng tồn kho hiện có ({$variant->stock}).",
+    //             ], Response::HTTP_BAD_REQUEST);
+    //         }
+
+    //         // Hoặc thêm các điều kiện khác nếu cần, ví dụ:
+    //         // if (!$variant->is_active) {
+    //         //     DB::rollBack();
+    //         //     return $this->jsonResponse([
+    //         //         'status' => false,
+    //         //         'message' => 'Sản phẩm đã ngừng kinh doanh, không thể cập nhật số lượng.',
+    //         //     ], Response::HTTP_BAD_REQUEST);
+    //         // }
+
+    //         // Nếu số lượng là 0 thì xóa sản phẩm và quà tặng
     //         if ($soluongNew == 0) {
-    //             // Lấy quà tặng hiện tại để hoàn lại luottang nếu có
-    //             $freeItem = GiohangModel::where('id_nguoidung', $userId)
-    //                 ->where('id_bienthe', $id_bienthe)
-    //                 ->where('thanhtien', 0)
-    //                 ->first();
-
-    //             // if ($freeItem) {
-    //             //     $restoreQty = $freeItem->soluong;
-    //             //     DB::table('bienthe')->where('id', $id_bienthe)
-    //             //         ->update(['luottang' => DB::raw("luottang + {$restoreQty}")]);
-    //             // }
-
     //             GiohangModel::where('id_nguoidung', $userId)
     //                 ->where('id_bienthe', $id_bienthe)
     //                 ->delete();
@@ -741,15 +913,10 @@ class GioHangFrontendAPI extends BaseFrontendController
     //             ]);
     //         }
 
-    //         // ✅ Lấy biến thể sản phẩm và khóa để cập nhật an toàn
-    //         $variant = BientheModel::lockForUpdate()->findOrFail($id_bienthe);
-    //         $priceUnit = $variant->giagoc;
-
-    //         // ✅ Kiểm tra khuyến mãi/quà tặng áp dụng
+    //         // Kiểm tra khuyến mãi/quà tặng
     //         $promotion = DB::table('quatang_sukien as qs')
     //             ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
     //             ->where('qs.id_bienthe', $id_bienthe)
-    //             // ->where('bt.luottang', '>', 0)
     //             ->where('qs.dieukiensoluong', '<=', $soluongNew)
     //             ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
     //             ->select(
@@ -760,51 +927,31 @@ class GioHangFrontendAPI extends BaseFrontendController
     //             )
     //             ->first();
 
-    //         // ✅ Tính toán số lượng & thành tiền
     //         $numFreeNew = 0;
     //         $thanhtien = $soluongNew * $priceUnit;
 
     //         if ($promotion) {
     //             $promotionCount = floor($soluongNew / $promotion->discount_multiplier);
-    //             // $numFreeNew = min($promotionCount, $promotion->current_luottang);
     //             $numFreeNew = $promotionCount;
     //             $numToPay = $soluongNew - $numFreeNew;
     //             $thanhtien = $numToPay * $promotion->giagoc;
     //         }
 
-    //         // ✅ Lấy số quà tặng cũ (nếu có)
+    //         // Lấy quà tặng cũ nếu có
     //         $freeItem = GiohangModel::where('id_nguoidung', $userId)
     //             ->where('id_bienthe', $id_bienthe)
     //             ->where('thanhtien', 0)
     //             ->lockForUpdate()
     //             ->first();
 
-    //         // $numFreeOld = $freeItem ? $freeItem->soluong : 0;
-    //         // $delta = $numFreeNew - $numFreeOld;
-
-    //         // ✅ Cập nhật lại luottang theo chênh lệch
-    //         // Bỏ vì luottang sẽ liên quan đế thông kế chưa ko còn là quản lý số quà tặng
-    //         // if ($delta > 0) {
-    //         //     // Giảm thêm
-    //         //     DB::table('bienthe')
-    //         //         ->where('id', $id_bienthe)
-    //         //         ->update(['luottang' => DB::raw("GREATEST(luottang - {$delta}, 0)")]);
-    //         // } elseif ($delta < 0) {
-    //         //     // Hoàn lại phần giảm
-    //         //     $restore = abs($delta);
-    //         //     DB::table('bienthe')
-    //         //         ->where('id', $id_bienthe)
-    //         //         ->update(['luottang' => DB::raw("luottang + {$restore}")]);
-    //         // }
-
-    //         // ✅ Cập nhật sản phẩm chính
+    //         // Cập nhật sản phẩm chính
     //         $item->update([
     //             'soluong' => $soluongNew,
     //             'thanhtien' => $thanhtien,
     //             'trangthai' => 'Hiển thị',
     //         ]);
 
-    //         // ✅ Cập nhật hoặc xóa/tạo quà tặng
+    //         // Cập nhật hoặc xóa/tạo quà tặng
     //         if ($numFreeNew > 0) {
     //             if ($freeItem) {
     //                 $freeItem->update([
@@ -828,11 +975,12 @@ class GioHangFrontendAPI extends BaseFrontendController
 
     //         DB::commit();
 
-    //         GioHangResource::withoutWrapping(); // Bỏ "data" bọc ngoài
+    //         GioHangResource::withoutWrapping();
     //         $cartItems = GiohangModel::with(['bienthe.sanpham.thuonghieu', 'bienthe.loaibienthe', 'bienthe.sanpham.hinhanhsanpham'])
     //             ->where('id_nguoidung', $userId)
     //             ->where('trangthai', 'Hiển thị')
     //             ->get();
+
     //         return response()->json(GioHangResource::collection($cartItems), Response::HTTP_OK);
 
     //     } catch (\Throwable $e) {

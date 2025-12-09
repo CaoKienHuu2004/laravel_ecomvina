@@ -15,8 +15,8 @@ class MagiamgiaModel extends Model
     // Khóa chính của bảng
     protected $primaryKey = 'id';
 
-    // // Cho phép Laravel tự động quản lý timestamps (created_at, updated_at)
-    // public $timestamps = true;
+    // Tắt tính năng timestamps nếu không dùng created_at, updated_at
+    public $timestamps = false;
 
     // Các cột được phép gán hàng loạt
     protected $fillable = [
@@ -31,8 +31,6 @@ class MagiamgiaModel extends Model
 
     // Ép kiểu dữ liệu cho các trường
     protected $casts = [
-        // 'magiamgia'   => 'integer',
-        // 'giatri'      => 'integer',
         'ngaybatdau'  => 'date',
         'ngayketthuc' => 'date',
     ];
@@ -65,6 +63,7 @@ class MagiamgiaModel extends Model
     {
         return self::$trangthaiLabels[$this->trangthai] ?? $this->trangthai;
     }
+
     public function donhang()
     {
         return $this->hasMany(DonhangModel::class, 'id_magiamgia');

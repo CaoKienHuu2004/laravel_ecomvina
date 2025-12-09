@@ -52,7 +52,7 @@
                         <tbody>
                             @forelse($magiamgia as $i => $item)
                                 <tr>
-                                    <td>$item->id</td>
+                                    <td>{{$item->id}}</td>
                                     <td><strong>{{ $item->magiamgia }}</strong></td>
                                     <td>
                                         @if($item->dieukien > 0 || $item->dieukien > 0)
