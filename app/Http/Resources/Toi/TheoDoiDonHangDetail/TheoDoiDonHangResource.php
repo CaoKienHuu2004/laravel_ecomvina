@@ -27,6 +27,20 @@ class TheoDoiDonHangResource extends JsonResource
             // 'created_at' => $converToStringCreated_at,
             // Sử dụng ->toIso8601String() để format đúng ISO 8601
             'created_at' => $this->created_at ? $this->created_at->toIso8601String() : null,
+
+            'nguoinhan' => $this->nguoinhan,
+            'diachinhan' => $this->diachinhan,
+            'sodienthoai' => $this->sodienthoai,
+            'khuvucgiao' => $this->khuvucgiao,
+
+            'hinhthucvanchuyen' => $this->hinhthucvanchuyen,
+            'phigiaohang' => $this->phigiaohang,
+            'hinhthucthanhtoan' => $this->hinhthucthanhtoan,
+            'mavoucher' => $this->mavoucher,
+            'giagiam' => $this->giagiam,
+
+
+
             'chitietdonhang' => ChiTietDonHangResource::collection($this->chitietdonhang),
             'phuongthuc' => new PhuongThucResource($this->phuongthuc),
             'phivanchuyen' => new PhiVanChuyenResource($this->phivanchuyen),

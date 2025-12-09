@@ -11,22 +11,37 @@ use App\Http\Resources\Toi\TheoDoiDonHang\ChiTietDonHangResource;
  * @OA\Schema(
  *     schema="TheoDoiDonHangResource",
  *     type="object",
- *     title="TheoDoiDonHangResource",
- *     description="Thông tin đơn hàng người dùng theo dõi",
- *     @OA\Property(property="id", type="integer", example=12, description="ID đơn hàng"),
- *     @OA\Property(property="madon", type="string", example="DH20251108001", description="Mã đơn hàng"),
- *     @OA\Property(property="tongsoluong", type="integer", example=3, description="Tổng số lượng sản phẩm trong đơn hàng"),
- *     @OA\Property(property="tamtinh", type="number", format="integer", example=450000, description="Tạm tính đơn hàng"),
- *     @OA\Property(property="thanhtien", type="number", format="integer", example=480000, description="Tổng tiền sau khi tính phí và giảm giá"),
- *     @OA\Property(property="trangthaithanhtoan", type="string", example="Đã thanh toán", description="Trạng thái thanh toán của đơn hàng"),
- *     @OA\Property(property="trangthai", type="string", example="Đang giao hàng", description="Trạng thái hiện tại của đơn hàng"),
- *     @OA\Property(property="created_at", type="string", example="2025-12-01T20:40:11+07:00", description="Đặt hàng vào ngày format đúng ISO 8601"),
+ *     title="Theo dõi đơn hàng",
+ *     description="Thông tin chi tiết đơn hàng theo từng trạng thái",
+ *
+ *     @OA\Property(property="id", type="integer", example=109),
+ *     @OA\Property(property="madon", type="string", example="VNA1212497"),
+ *     @OA\Property(property="tongsoluong", type="integer", example=2),
+ *     @OA\Property(property="tamtinh", type="integer", example=1783000),
+ *     @OA\Property(property="thanhtien", type="integer", example=1783000),
+ *
+ *     @OA\Property(property="trangthaithanhtoan", type="string", example="Chưa thanh toán"),
+ *     @OA\Property(property="trangthai", type="string", example="Chờ xử lý"),
+ *
+ *     @OA\Property(property="created_at", type="string", format="date-time", example="2025-12-09T12:49:28+07:00"),
+ *
  *     @OA\Property(
  *         property="chitietdonhang",
  *         type="array",
- *         description="Danh sách chi tiết đơn hàng",
  *         @OA\Items(ref="#/components/schemas/ChiTietDonHangResource")
- *     )
+ *     ),
+ *
+ *     @OA\Property(property="nguoinhan", type="string", example="Vợ Huy"),
+ *     @OA\Property(property="diachinhan", type="string", example="nhà vợ Huy"),
+ *     @OA\Property(property="sodienthoai", type="string", example="9876543120"),
+ *     @OA\Property(property="khuvucgiao", type="string", example="Thành phố Hồ Chí Minh"),
+ *
+ *     @OA\Property(property="hinhthucvanchuyen", type="string", example="Nội thành"),
+ *     @OA\Property(property="phigiaohang", type="integer", example=25000),
+ *     @OA\Property(property="hinhthucthanhtoan", type="string", example="Chuyển khoản trực tiếp."),
+ *
+ *     @OA\Property(property="mavoucher", type="string", nullable=true, example=null),
+ *     @OA\Property(property="giagiam", type="integer", example=0)
  * )
  */
 class TheoDoiDonHangResource extends JsonResource
@@ -46,6 +61,17 @@ class TheoDoiDonHangResource extends JsonResource
             // Sử dụng ->toIso8601String() để format đúng ISO 8601
             'created_at' => $this->created_at ? $this->created_at->toIso8601String() : null,
             'chitietdonhang' => ChiTietDonHangResource::collection($this->chitietdonhang),
+
+            'nguoinhan' => $this->nguoinhan,
+            'diachinhan' => $this->diachinhan,
+            'sodienthoai' => $this->sodienthoai,
+            'khuvucgiao' => $this->khuvucgiao,
+
+            'hinhthucvanchuyen' => $this->hinhthucvanchuyen,
+            'phigiaohang' => $this->phigiaohang,
+            'hinhthucthanhtoan' => $this->hinhthucthanhtoan,
+            'mavoucher' => $this->mavoucher,
+            'giagiam' => $this->giagiam,
         ];
     }
 }

@@ -6486,57 +6486,84 @@
                 "type": "object"
             },
             "TheoDoiDonHangResource": {
-                "title": "TheoDoiDonHangResource",
-                "description": "Thông tin đơn hàng người dùng theo dõi",
+                "title": "Theo dõi đơn hàng",
+                "description": "Thông tin chi tiết đơn hàng theo từng trạng thái",
                 "properties": {
                     "id": {
-                        "description": "ID đơn hàng",
                         "type": "integer",
-                        "example": 12
+                        "example": 109
                     },
                     "madon": {
-                        "description": "Mã đơn hàng",
                         "type": "string",
-                        "example": "DH20251108001"
+                        "example": "VNA1212497"
                     },
                     "tongsoluong": {
-                        "description": "Tổng số lượng sản phẩm trong đơn hàng",
                         "type": "integer",
-                        "example": 3
+                        "example": 2
                     },
                     "tamtinh": {
-                        "description": "Tạm tính đơn hàng",
-                        "type": "number",
-                        "format": "integer",
-                        "example": 450000
+                        "type": "integer",
+                        "example": 1783000
                     },
                     "thanhtien": {
-                        "description": "Tổng tiền sau khi tính phí và giảm giá",
-                        "type": "number",
-                        "format": "integer",
-                        "example": 480000
+                        "type": "integer",
+                        "example": 1783000
                     },
                     "trangthaithanhtoan": {
-                        "description": "Trạng thái thanh toán của đơn hàng",
                         "type": "string",
-                        "example": "Đã thanh toán"
+                        "example": "Chưa thanh toán"
                     },
                     "trangthai": {
-                        "description": "Trạng thái hiện tại của đơn hàng",
                         "type": "string",
-                        "example": "Đang giao hàng"
+                        "example": "Chờ xử lý"
                     },
                     "created_at": {
-                        "description": "Đặt hàng vào ngày format đúng ISO 8601",
                         "type": "string",
-                        "example": "2025-12-01T20:40:11+07:00"
+                        "format": "date-time",
+                        "example": "2025-12-09T12:49:28+07:00"
                     },
                     "chitietdonhang": {
-                        "description": "Danh sách chi tiết đơn hàng",
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/ChiTietDonHangResource"
                         }
+                    },
+                    "nguoinhan": {
+                        "type": "string",
+                        "example": "Vợ Huy"
+                    },
+                    "diachinhan": {
+                        "type": "string",
+                        "example": "nhà vợ Huy"
+                    },
+                    "sodienthoai": {
+                        "type": "string",
+                        "example": "9876543120"
+                    },
+                    "khuvucgiao": {
+                        "type": "string",
+                        "example": "Thành phố Hồ Chí Minh"
+                    },
+                    "hinhthucvanchuyen": {
+                        "type": "string",
+                        "example": "Nội thành"
+                    },
+                    "phigiaohang": {
+                        "type": "integer",
+                        "example": 25000
+                    },
+                    "hinhthucthanhtoan": {
+                        "type": "string",
+                        "example": "Chuyển khoản trực tiếp."
+                    },
+                    "mavoucher": {
+                        "type": "string",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "giagiam": {
+                        "type": "integer",
+                        "example": 0
                     }
                 },
                 "type": "object"
