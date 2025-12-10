@@ -42,6 +42,7 @@ use Illuminate\Http\Resources\Json\JsonResource;
  *         nullable=true,
  *         type="object",
  *         description="Thông tin biến thể quà tặng (null nếu không phải quà tặng)",
+ *         @OA\Property(property="id_bienthe", type="integer", example=1, description="id_biethe để dùng endpoint update"),
  *         @OA\Property(property="soluong", type="integer", example=1, description="Số lượng quà tặng"),
  *         @OA\Property(property="giagoc", type="number", format="float", example=100000, description="Giá gốc biến thể"),
  *         @OA\Property(property="thanhtien", type="number", format="float", example=0, description="Thành tiền quà tặng luôn bằng 0"),
@@ -70,6 +71,7 @@ class GioHangResource extends JsonResource
 
         // Nếu là quà tặng thì không hiển thị ở "bienthe" nữa
         'bienthe' => $isGift ? null : [
+            'id_bienthe' => $this->bienthe->id,
             'soluong' => $this->soluong,
             'giagoc' => $this->bienthe->giagoc,
             'thanhtien' => $this->thanhtien,
@@ -87,6 +89,7 @@ class GioHangResource extends JsonResource
 
         // Nếu là quà tặng thì hiển thị ở "bienthe_quatang"
         'bienthe_quatang' => $isGift ? [
+                'id_bienthe' => $this->bienthe->id,
                 'soluong' => $this->soluong,
                 'giagoc' => $this->bienthe->giagoc,
                 'thanhtien' => 0,

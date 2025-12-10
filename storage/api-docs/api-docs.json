@@ -2035,7 +2035,7 @@
                     "Giỏ hàng (Tài khoản)"
                 ],
                 "summary": "Thêm sản phẩm vào giỏ hàng (tự động áp dụng khuyến mãi/quà tặng nếu có)",
-                "description": "\n     *      Chức năng:\n     *      - Thêm sản phẩm vào giỏ hàng của người dùng hiện tại.\n     *      - Nếu có chương trình khuyến mãi/quà tặng (bảng quatang_sukien):\n     *          + Tự động kiểm tra điều kiện số lượng (dieukiensoluong).\n     *          + Tự động kiểm tra điều kiện giá trị (dieukiengiatri) tính theo tổng số tiền trong giỏ có đủ điều kiện của chiến lược này không(soluong và giatri).\n     *          + Áp dụng đúng mô hình 'Mua X tặng 1'.\n     *          + Thêm dòng quà tặng vào giỏ (thanhtien = 0) hoặc tự động cập nhật/xóa nếu không còn thỏa điều kiện.\n     *      - Tính toán lại thành tiền theo số lượng phải trả.\n     *      - Trả về toàn bộ giỏ hàng sau khi cập nhật.\n     *\n     *      Lưu ý:\n     *      - Không còn sử dụng trường luottang trong bảng biến thể để quản lý số lượng quà.\n     *      - Toàn bộ xử lý được khóa transaction + lockForUpdate() để chống race condition.\n     *     ",
+                "description": "\n     *      Chức năng:\n     *      - Thêm sản phẩm vào giỏ hàng của người dùng hiện tại.\n     *      - Nếu có chương trình khuyến mãi/quà tặng (bảng quatang_sukien):\n     *          + Tự động kiểm tra điều kiện số lượng (dieukiensoluong).\n     *          + Tự động kiểm tra điều kiện giá trị (dieukiengiatri) tính theo tổng số tiền trong giỏ có đủ điều kiện của chiến lược này không(soluong và giatri).\n     *          + Tự động kiểm tra điều kiện giá trị (dieukiengiatri) tính theo tổng số tiền trong giỏ có đủ điều kiện của chiến lược này không(soluong và giatri).\n     *          + **RULE 3:** Quà theo chương trình cụ thể (id_chuongtrinh) → FE gửi id_chuongtrinh để áp dụng đúng chương trình sự kiện.\n     *          + Áp dụng đúng mô hình 'Mua X tặng 1'.\n     *          + Thêm dòng quà tặng vào giỏ (thanhtien = 0) hoặc tự động cập nhật/xóa nếu không còn thỏa điều kiện.\n     *      - Tính toán lại thành tiền theo số lượng phải trả.\n     *      - Trả về toàn bộ giỏ hàng sau khi cập nhật.\n     *\n     *      Lưu ý:\n     *      - Không còn sử dụng trường luottang trong bảng biến thể để quản lý số lượng quà.\n     *      - Toàn bộ xử lý được khóa transaction + lockForUpdate() để chống race condition.\n     *     ",
                 "operationId": "f62cc3d7f6191c98bede952c549b6761",
                 "requestBody": {
                     "description": "Dữ liệu để thêm hoặc cập nhật sản phẩm trong giỏ hàng",
@@ -2055,6 +2055,11 @@
                                     },
                                     "soluong": {
                                         "description": "Số lượng muốn thêm vào giỏ (phải >= 1)",
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "id_chuongtrinh": {
+                                        "description": "ID chương trình sự kiện để áp dụng rule 3. FE tự chọn chương trình khi có nhiều chương trình trùng biến thể.",
                                         "type": "integer",
                                         "example": 2
                                     }
@@ -2137,7 +2142,7 @@
                     "Giỏ hàng (Tài khoản)"
                 ],
                 "summary": "Cập nhật số lượng sản phẩm trong giỏ hàng (tự động áp dụng khuyến mãi/quà tặng nếu có)",
-                "description": "\n     *     - Cập nhật số lượng sản phẩm trong giỏ hàng.\n     *     - Nếu số lượng mới bằng 0, sản phẩm sẽ bị xóa khỏi giỏ hàng cùng các quà tặng liên quan.\n     *     - Tự động áp dụng chương trình quà tặng/sự kiện nếu thỏa điều kiện (số lượng sản phẩm >= điều kiện số lượng) và trong thời gian hiệu lực.\n     *     -Tự động kiểm tra điều kiện giá trị (dieukiengiatri) tính theo tổng số tiền trong giỏ có đủ điều kiện của chiến lược này không(soluong và giatri).\n     *     - Tự động thêm hoặc xóa quà tặng miễn phí tương ứng với số lượng sản phẩm trong giỏ.\n     *     - Không còn quản lý số lượng lượt tặng (`luottang`) trong bảng biến thể.\n     *     ",
+                "description": "\n     *     - Cập nhật số lượng sản phẩm trong giỏ hàng.\n     *     - Nếu số lượng mới bằng 0, sản phẩm sẽ bị xóa khỏi giỏ hàng cùng các quà tặng liên quan.\n     *     - Tự động áp dụng chương trình quà tặng/sự kiện nếu thỏa điều kiện (số lượng sản phẩm >= điều kiện số lượng) và trong thời gian hiệu lực.\n     *     -Tự động kiểm tra điều kiện giá trị (dieukiengiatri) tính theo tổng số tiền trong giỏ có đủ điều kiện của chiến lược này không(soluong và giatri).\n     *     - **RULE 3:** Quà theo chương trình cụ thể (id_chuongtrinh) → FE gửi id_chuongtrinh để áp dụng đúng chương trình sự kiện.\n     *     - Tự động thêm hoặc xóa quà tặng miễn phí tương ứng với số lượng sản phẩm trong giỏ.\n     *     - Không còn quản lý số lượng lượt tặng (`luottang`) trong bảng biến thể.\n     *     ",
                 "operationId": "86219681d0e422ae5a4d17f33c1dd6ad",
                 "parameters": [
                     {
@@ -4348,7 +4353,7 @@
                     "Giỏ Hàng (web)"
                 ],
                 "summary": "Thêm sản phẩm vào giỏ hàng (Hỗ trợ cả user đăng nhập & khách).",
-                "description": "\n     *     API này dùng để thêm sản phẩm (biến thể) vào giỏ hàng.\n     *     - Nếu người dùng **đăng nhập**, giỏ hàng sẽ lưu trong **database**.\n     *     - Nếu **chưa đăng nhập**, giỏ hàng lưu trong **session**.\n     *\n     *     API tự động tính khuyến mãi theo 2 rule:\n     *     **RULE 1: Khuyến mãi theo số lượng (quatang_sukien) → tặng FREE item.**\n     *     **RULE 2: Quà theo giá trị giỏ hàng (quangcao) → tặng 1 biến thể.**\n     *     ",
+                "description": "\n     *     API này dùng để thêm sản phẩm (biến thể) vào giỏ hàng.\n     *     - Nếu người dùng **đăng nhập**, giỏ hàng sẽ lưu trong **database**.\n     *     - Nếu **chưa đăng nhập**, giỏ hàng lưu trong **session**.\n     *\n     *     API tự động tính khuyến mãi theo 3 rule:\n     *     **RULE 1: Khuyến mãi theo số lượng (quatang_sukien) → tặng FREE item.**\n     *     **RULE 2: Quà theo giá trị giỏ hàng (quangcao) → tặng 1 biến thể.**\n     *     **RULE 3: Quà theo Chương trình của quà tặng(id_chuongtrinh) → chỉ có thêm quà tặng có cùng chương trình sự kiện, chương trình nào do FE quyết định qua req id_chuongtrinh.**\n     *     ",
                 "operationId": "0714c3d334146c724c8033b39b5c701b",
                 "requestBody": {
                     "required": true,
@@ -4370,6 +4375,11 @@
                                         "type": "integer",
                                         "minimum": 1,
                                         "example": 3
+                                    },
+                                    "id_chuongtrinh": {
+                                        "description": "Param req quyết định điều kiện tặng quà, cụ thể là cụ thể là cùng 1 chương trình.",
+                                        "type": "integer",
+                                        "example": 12
                                     }
                                 },
                                 "type": "object"
@@ -4501,30 +4511,34 @@
                     "Giỏ Hàng (web)"
                 ],
                 "summary": "Cập nhật số lượng sản phẩm trong giỏ hàng",
-                "description": "Cập nhật số lượng sản phẩm trong giỏ hàng Web API. Nếu số lượng = 0 thì xóa sản phẩm. Tự động xử lý quà tặng rule 1 và rule 2.",
+                "description": "\n         * **API tự động xử lý 3 rule khuyến mãi:**\n         * - **RULE 1:** Khuyến mãi theo số lượng (quatang_sukien) → tặng FREE item tương ứng.\n         * - **RULE 2:** Quà theo giá trị giỏ hàng (quangcao) → hệ thống tự động kiểm tra và thêm quà.\n         * - **RULE 3:** Quà theo chương trình cụ thể (id_chuongtrinh) → FE gửi id_chuongtrinh để áp dụng đúng chương trình sự kiện.\n         *\n         * Nếu `soluong = 0` → sản phẩm bị xóa và quà tặng liên quan cũng bị xóa.\n         *     ",
                 "operationId": "39ba601484435d3a36dd8f3141f2c363",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "ID sản phẩm trong giỏ hàng (id bản ghi giỏ hàng, không phải id_bienthe)",
+                        "description": "ID bản ghi giỏ hàng (không phải id_bienthe)",
                         "required": true,
                         "example": 10
                     }
                 ],
                 "requestBody": {
+                    "description": "Dữ liệu cập nhật số lượng và chương trình khuyến mãi",
                     "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
-                                "required": [
-                                    "soluong"
-                                ],
                                 "properties": {
                                     "soluong": {
-                                        "description": "Số lượng mới của sản phẩm",
+                                        "description": "Số lượng mới của sản phẩm. Nếu = 0 → xóa sản phẩm",
                                         "type": "integer",
                                         "example": 5
+                                    },
+                                    "id_chuongtrinh": {
+                                        "description": "ID chương trình sự kiện để áp dụng rule 3. FE tự chọn chương trình khi có nhiều chương trình trùng biến thể.",
+                                        "type": "integer",
+                                        "example": 3,
+                                        "nullable": true
                                     }
                                 },
                                 "type": "object"
@@ -4554,7 +4568,7 @@
                         }
                     },
                     "404": {
-                        "description": "Không tìm thấy sản phẩm trong giỏ"
+                        "description": "Không tìm thấy sản phẩm trong giỏ hàng"
                     },
                     "500": {
                         "description": "Lỗi trong quá trình cập nhật giỏ hàng"
@@ -6325,6 +6339,11 @@
                     "bienthe_quatang": {
                         "description": "Thông tin biến thể quà tặng (null nếu không phải quà tặng)",
                         "properties": {
+                            "id_bienthe": {
+                                "description": "id_biethe để dùng endpoint update",
+                                "type": "integer",
+                                "example": 1
+                            },
                             "soluong": {
                                 "description": "Số lượng quà tặng",
                                 "type": "integer",

@@ -298,6 +298,8 @@ class GioHangFrontendAPI extends BaseFrontendController
      *      - Nếu có chương trình khuyến mãi/quà tặng (bảng quatang_sukien):
      *          + Tự động kiểm tra điều kiện số lượng (dieukiensoluong).
      *          + Tự động kiểm tra điều kiện giá trị (dieukiengiatri) tính theo tổng số tiền trong giỏ có đủ điều kiện của chiến lược này không(soluong và giatri).
+     *          + Tự động kiểm tra điều kiện giá trị (dieukiengiatri) tính theo tổng số tiền trong giỏ có đủ điều kiện của chiến lược này không(soluong và giatri).
+     *          + **RULE 3:** Quà theo chương trình cụ thể (id_chuongtrinh) → FE gửi id_chuongtrinh để áp dụng đúng chương trình sự kiện.
      *          + Áp dụng đúng mô hình 'Mua X tặng 1'.
      *          + Thêm dòng quà tặng vào giỏ (thanhtien = 0) hoặc tự động cập nhật/xóa nếu không còn thỏa điều kiện.
      *      - Tính toán lại thành tiền theo số lượng phải trả.
@@ -325,6 +327,12 @@ class GioHangFrontendAPI extends BaseFrontendController
      *                 type="integer",
      *                 example=2,
      *                 description="Số lượng muốn thêm vào giỏ (phải >= 1)"
+     *             ),
+     *             @OA\Property(
+     *                 property="id_chuongtrinh",
+     *                 type="integer",
+     *                 example=2,
+     *                 description="ID chương trình sự kiện để áp dụng rule 3. FE tự chọn chương trình khi có nhiều chương trình trùng biến thể."
      *             )
      *         )
      *     ),
@@ -364,12 +372,14 @@ class GioHangFrontendAPI extends BaseFrontendController
         $validated = $request->validate([
             'id_bienthe' => 'required|exists:bienthe,id',
             'soluong' => 'required|integer|min:1',
+            'id_chuongtrinh' => 'sometimes|exists:chuongtrinh,id',
         ]);
 
         $user = $request->get('auth_user');
         $userId = $user->id;
         $id_bienthe = $validated['id_bienthe'];
         $soluongNew = $validated['soluong'];
+        $id_chuongtrinh = $validated['id_chuongtrinh'] ?? null;
 
         DB::beginTransaction();
         try {
@@ -386,27 +396,42 @@ class GioHangFrontendAPI extends BaseFrontendController
 
             $totalQuantity = $soluongNew + ($existingItem ? $existingItem->soluong : 0);
 
-            // Tổng giỏ hiện tại (chỉ tính hàng có thanhtien > 0)
+           // Tổng giỏ hiện tại (chỉ tính hàng có thanhtien > 0) //edit
             $tongGiaHienTai = GiohangModel::where('id_nguoidung', $userId)
                 ->where('thanhtien', '>', 0)
                 ->sum('thanhtien');
 
             // Tổng giỏ mới sau khi thêm sản phẩm
-            $tongGiaGioHang = $tongGiaHienTai + ($soluongNew * $priceUnit);
+            $tongGiaGioHang = $tongGiaHienTai + ($soluongNew * $priceUnit); //edit
 
             // Kiểm tra khuyến mãi
-            $promotion = DB::table('quatang_sukien as qs')
-                ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
-                ->where('qs.id_bienthe', $id_bienthe)
-                // ->where('bt.luottang', '>', 0)
-                ->where('qs.dieukiengiatri', '<=', $tongGiaGioHang)
-                ->where('qs.dieukiensoluong', '<=', $totalQuantity)
-                ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
-                ->select('qs.dieukiensoluong as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
-                ->first();
+            $promotion = null;
+                if ($id_chuongtrinh !== null) {
+                    $promotion = DB::table('quatang_sukien as qs')
+                        ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
+                        ->where('qs.id_bienthe', $id_bienthe)
+                        ->where('qs.id_chuongtrinh', $id_chuongtrinh)
+                        ->where('qs.dieukiensoluong', '<=', $totalQuantity)
+                        ->where('qs.dieukiengiatri', '<=', $tongGiaGioHang)
+                        ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
+                        ->where('qs.trangthai', 'Hiển thị')
+                        ->select(
+                            'qs.dieukiensoluong as discount_multiplier',
+                            'bt.luottang as current_luottang',
+                            'bt.giagoc'
+                        )
+                        ->first();
+                }
 
-            $numFree = 0;
-            $thanhtien = $totalQuantity * $priceUnit;
+                $numFree = 0;
+                $thanhtien = $totalQuantity * $priceUnit;
+
+                if ($promotion === null) {
+                    GiohangModel::where('id_nguoidung', $userId)
+                        ->where('id_bienthe', $id_bienthe)
+                        ->where('thanhtien', 0)
+                        ->delete();
+                }
 
             if ($promotion) {
                 $promotionCount = floor($totalQuantity / $promotion->discount_multiplier);
@@ -635,6 +660,7 @@ class GioHangFrontendAPI extends BaseFrontendController
      *     - Nếu số lượng mới bằng 0, sản phẩm sẽ bị xóa khỏi giỏ hàng cùng các quà tặng liên quan.
      *     - Tự động áp dụng chương trình quà tặng/sự kiện nếu thỏa điều kiện (số lượng sản phẩm >= điều kiện số lượng) và trong thời gian hiệu lực.
      *     -Tự động kiểm tra điều kiện giá trị (dieukiengiatri) tính theo tổng số tiền trong giỏ có đủ điều kiện của chiến lược này không(soluong và giatri).
+     *     - **RULE 3:** Quà theo chương trình cụ thể (id_chuongtrinh) → FE gửi id_chuongtrinh để áp dụng đúng chương trình sự kiện.
      *     - Tự động thêm hoặc xóa quà tặng miễn phí tương ứng với số lượng sản phẩm trong giỏ.
      *     - Không còn quản lý số lượng lượt tặng (`luottang`) trong bảng biến thể.
      *     ",
@@ -655,6 +681,18 @@ class GioHangFrontendAPI extends BaseFrontendController
      *                 type="integer",
      *                 example=5,
      *                 description="Số lượng mới của sản phẩm. Nếu bằng 0 sẽ xóa sản phẩm và các quà tặng liên quan khỏi giỏ hàng."
+     *             )
+     *         )
+     *     ),
+     *      @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"id_chuongtrinh"},
+     *             @OA\Property(
+     *                 property="id_chuongtrinh",
+     *                 type="integer",
+     *                 example=5,
+     *                 description="ID chương trình sự kiện để áp dụng rule 3. FE tự chọn chương trình khi có nhiều chương trình trùng biến thể."
      *             )
      *         )
      *     ),
@@ -704,11 +742,13 @@ class GioHangFrontendAPI extends BaseFrontendController
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'soluong' => 'required|integer|min:0'
+            'soluong' => 'required|integer|min:0',
+            'id_chuongtrinh' => 'sometimes|exists:chuongtrinh,id'
         ]);
 
         $user = $request->get('auth_user');
         $userId = $user->id;
+        $id_chuongtrinh = $validated['id_chuongtrinh'] ?? null;
 
         DB::beginTransaction();
         try {
@@ -750,32 +790,43 @@ class GioHangFrontendAPI extends BaseFrontendController
             $variant = BientheModel::lockForUpdate()->findOrFail($id_bienthe);
             $priceUnit = $variant->giagoc;
 
+            // Cập nhật sản phẩm (giữ nguyên logic khuyến mãi như bạn đã có)
+            $variant = BientheModel::lockForUpdate()->findOrFail($id_bienthe);
+            $priceUnit = $variant->giagoc;
+
+            // Tổng giỏ hiện tại (chỉ tính hàng có thanhtien > 0)
             $tongGiaHienTai = GiohangModel::where('id_nguoidung', $userId)
                 ->where('thanhtien', '>', 0)
-                ->where('id', '!=', $id)
                 ->sum('thanhtien');
 
+            // Trừ đi giá cũ của sản phẩm đang cập nhật
+            $tongGiaHienTai -= $item->thanhtien;
+
+            // Tổng giỏ mới sau khi cập nhật số lượng
             $tongGiaGioHang = $tongGiaHienTai + ($soluongNew * $priceUnit);
 
-            // ✅ Kiểm tra khuyến mãi/quà tặng áp dụng
+            $promotion = null;
+            if ($id_chuongtrinh !== null) {
             $promotion = DB::table('quatang_sukien as qs')
                 ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
-                ->where('qs.id_bienthe', $id_bienthe)
-                // ->where('bt.luottang', '>', 0)
-                ->where('qs.dieukiengiatri', '<=', $tongGiaGioHang)
+                ->where('qs.id_bienthe', $id)
+                ->where('qs.id_chuongtrinh', $id_chuongtrinh)
                 ->where('qs.dieukiensoluong', '<=', $soluongNew)
+                ->where('qs.dieukiengiatri', '<=', $tongGiaGioHang) //edit
                 ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
-                ->select(
-                    'qs.id',
-                    'qs.dieukiensoluong as discount_multiplier',
-                    'bt.luottang as current_luottang',
-                    'bt.giagoc'
-                )
+                ->select('qs.dieukiensoluong as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
                 ->first();
+            }
 
-            // ✅ Tính toán số lượng & thành tiền
             $numFreeNew = 0;
             $thanhtien = $soluongNew * $priceUnit;
+
+            if ($promotion === null) {
+                GiohangModel::where('id_nguoidung', $userId)
+                    ->where('id_bienthe', $id_bienthe)
+                    ->where('thanhtien', 0)
+                    ->delete();
+            }
 
             if ($promotion) {
                 $promotionCount = floor($soluongNew / $promotion->discount_multiplier);
