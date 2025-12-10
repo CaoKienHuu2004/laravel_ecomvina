@@ -12,6 +12,7 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
+        // 'test-upload',
         //
         // '/login', // này có fortify CSRF rồi
         // '/register',  // này có fortify CSRF rồi

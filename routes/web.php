@@ -39,6 +39,7 @@ use App\Http\Controllers\Web\TukhoaWebApi;
 
 use App\Http\Controllers\QuanlyBaivietController;
 use App\Http\Controllers\QuatangSukienController;
+use App\Http\Controllers\Admin\TestUploadController;
 use App\Http\Controllers\TrangNoiDungController;
 
 // use App\Http\Controllers\SanphamController;
@@ -71,7 +72,10 @@ Route::prefix('auth')->group(function () {
             Route::post('dang-xuat', [AuthWebController::class, 'logout']);
         });
     });
-
+// ----------------- test '/' -----------------
+// Route::get('/test-upload', [TestUploadController::class, 'index']);
+// Route::post('/test-upload', [TestUploadController::class, 'upload'])->name('test.upload');
+// ----------------- test '/' -----------------
 
 // ----------------- REDIRECT '/' -----------------
 Route::get('/', function () {
