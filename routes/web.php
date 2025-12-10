@@ -347,7 +347,7 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::put('/update/{id}', [QuanlyBaivietController::class, 'update'])->name('baiviet.update');
         Route::delete('/delete/{id}', [QuanlyBaivietController::class, 'destroy'])->name('baiviet.destroy');
     });
-        /* ===================== QUẢN LÝ MÃ GIẢM GIÁ ===================== */
+    /* ===================== QUẢN LÝ MÃ GIẢM GIÁ ===================== */
     Route::prefix('magiamgia')->group(function () {
         Route::get('/', [MagiamgiaController::class, 'index'])->name('danhsach.magiamgia');
         Route::get('/create', [MagiamgiaController::class,'create'])->name('create.magiamgia');
@@ -356,6 +356,11 @@ Route::middleware(['auth', 'admin'])->group(function () {
         Route::get('/edit/{id}', [MagiamgiaController::class,'edit'])->name('edit.magiamgia');
         Route::put('/update/{id}', [MagiamgiaController::class,'update'])->name('magiamgia.update');
         Route::delete('/delete/{id}', [MagiamgiaController::class,'destroy'])->name('delete.magiamgia');
+
+        // 🗑️ Thùng rác
+        Route::get('/trash', [MagiamgiaController::class, 'trash'])->name('magiamgia.trash');
+        Route::post('/restore/{id}', [MagiamgiaController::class, 'restore'])->name('magiamgia.restore');
+        Route::delete('/force-delete/{id}', [MagiamgiaController::class, 'forceDelete'])->name('magiamgia.forceDelete');
     });
     /* ===================== TRANG NỘI DUNG ===================== */
     Route::prefix('trangnoidung')->group(function () {

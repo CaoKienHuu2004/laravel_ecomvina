@@ -10,11 +10,17 @@
             <div class="page-title">
                 <h4>DANH SÁCH MÃ GIẢM GIÁ</h4>
             </div>
-            <div class="page-btn">
+            <div class="d-flex">
+                <div class="page-btn">
                 <a href="{{ route('create.magiamgia') }}" class="btn btn-added">
-                    <img src="{{ asset('img/icons/plus.svg') }}" alt="img" class="me-1">
-                    Tạo mã giảm giá
+                    <img src="{{ asset('img/icons/plus.svg') }}" alt="img" class="me-1" /> Tạo mã giảm giá
                 </a>
+                </div>
+                <div class="page-btn ms-1">
+                <a href="{{ route('magiamgia.trash') }}" class="btn btn-added">
+                    <img src="{{ asset('img/icons/delete.svg') }}" alt="img" class="me-1" /> Thùng rác
+                </a>
+                </div>
             </div>
         </div>
 

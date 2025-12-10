@@ -111,4 +111,49 @@ class MagiamgiaController extends Controller
         $magiamgia = MagiamgiaModel::findOrFail($id);
         return response()->json(['valid' => $magiamgia->isValid()]);
     }
+
+    /**
+     * ============================
+     * 🗑️ DANH SÁCH THÙNG RÁC
+     * ============================
+     */
+    public function trash()
+    {
+        $magiamgias = MagiamgiaModel::onlyTrashed()
+            ->whereNotNull('dieukien')
+            ->whereRaw('dieukien REGEXP "^[0-9]+$"')
+            ->orderBy('id', 'desc')
+            ->get();
+
+        return view('quanlygiamgia.trash', compact('magiamgias'));
+    }
+
+    /**
+     * ============================
+     * 🔄 KHÔI PHỤC
+     * ============================
+     */
+    public function restore($id)
+    {
+        $qt = MagiamgiaModel::onlyTrashed()->findOrFail($id);
+        $qt->restore();
+
+        return redirect()->route('magiamgia.trash')->with('success', 'Khôi phục thành công!');
+    }
+
+    /**
+     * ============================
+     * ❌ XÓA VĨNH VIỄN
+     * ============================
+     */
+    public function forceDelete($id)
+    {
+        $qt = MagiamgiaModel::onlyTrashed()->findOrFail($id);
+
+
+        $qt->forceDelete();
+
+        return redirect()->route('magiamgia.trash')->with('success', 'Xóa vĩnh viễn thành công!');
+    }
+
 }

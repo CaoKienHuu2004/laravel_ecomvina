@@ -351,20 +351,20 @@ use App\Http\Controllers\API\ThongBaoAPI;
     });
 
     // Route::middleware(['auth.api','vaitro:seller'])->group(function () {
-    //     Route::apiResource('magiamgias', MaGiamGiaAPI::class)->only(['store','update','destroy']);
-    //     Route::apiResource('danhgias', DanhGiaAPI::class)->only(['store','update','destroy']);
-    //     Route::apiResource('sanphams', SanphamAPI::class)->only(['store','update','destroy']);
-    //     Route::apiResource('loaibienthes', LoaiBienTheAPI::class)->only(['store','update','destroy']); // làm menu khi hover list products da cấp
-    //     Route::apiResource('danhmucs', DanhmucAPI::class)->only(['store','update','destroy']);
-    //     Route::apiResource('chuongtrinhsukiens', SuKienAPI::class)->only(['store','update','destroy']);
-    //     Route::apiResource('quatangkhuyenmais', QuaTangSuKienAPI::class)->only(['store','update','destroy']);
+    //     Route::apiResource('seller/magiamgias', MaGiamGiaAPI::class)->only(['store','update','destroy']);
+    //     Route::apiResource('seller/danhgias', DanhGiaAPI::class)->only(['store','update','destroy']);
+    //     Route::apiResource('seller/sanphams', SanphamAPI::class)->only(['store','update','destroy']);
+    //     Route::apiResource('seller/loaibienthes', LoaiBienTheAPI::class)->only(['store','update','destroy']); // làm menu khi hover list products da cấp
+    //     Route::apiResource('seller/danhmucs', DanhmucAPI::class)->only(['store','update','destroy']);
+    //     Route::apiResource('seller/chuongtrinhsukiens', SuKienAPI::class)->only(['store','update','destroy']);
+    //     Route::apiResource('seller/quatangkhuyenmais', QuaTangSuKienAPI::class)->only(['store','update','destroy']);
 
-    //     Route::apiResource('giohangs', GioHangAPI::class)->only(['index','show','store','update','destroy']);
+    //     Route::apiResource('seller/giohangs', GioHangAPI::class)->only(['index','show','store','update','destroy']);
 
-    //     Route::apiResource('diachis', DiaChiNguoiDungAPI::class)->only(['index','show','store','update','destroy']);
+    //     Route::apiResource('seller/diachis', DiaChiNguoiDungAPI::class)->only(['index','show','store','update','destroy']);
 
-    //     Route::apiResource('yeuthichs', YeuThichAPI::class)->only(['index','show','store','update','destroy']);
-    //     Route::apiResource('nguoidungs', NguoidungAPI::class)->only(['index','show','store','update','destroy']);
+    //     Route::apiResource('seller/yeuthichs', YeuThichAPI::class)->only(['index','show','store','update','destroy']);
+    //     Route::apiResource('seller/nguoidungs', NguoidungAPI::class)->only(['index','show','store','update','destroy']);
 
     // });
 // });
