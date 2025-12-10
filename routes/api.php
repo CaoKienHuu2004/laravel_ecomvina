@@ -159,6 +159,7 @@ use App\Http\Controllers\API\YeuThichAPI;
 use App\Http\Controllers\API\Frontend\AuthFrontendController;
 use App\Http\Controllers\API\Frontend\BaiVietAllFrontendAPI;
 use App\Http\Controllers\API\Frontend\BannerQuangCaoFrontendAPI;
+
 use App\Http\Controllers\API\Frontend\DanhGiaFrontendAPI;
 use App\Http\Controllers\API\Frontend\DanhmucAllFrontendAPI;
 use App\Http\Controllers\API\Frontend\DanhmucFrontendAPI;
@@ -201,6 +202,7 @@ use App\Http\Controllers\API\ThongBaoAPI;
     // guest
 
 
+
     //page HTML tỉnh
     Route::apiResource('trang-dieu-khoan', TrangDieuKhoan::class)->only(['index']);
     // Route::apiResource('trang-gioi-thieu', TrangGioiThieu::class)->only(['index']);
@@ -219,6 +221,8 @@ use App\Http\Controllers\API\ThongBaoAPI;
         //bảng banner_quangcao
         Route::apiResource('bannerquangcaos', BannerQuangCaoFrontendAPI::class)->only(['index']);
         //bảng banner_quangcao
+
+
 
 
     // gọi kèm các routes api khác
@@ -326,23 +330,23 @@ use App\Http\Controllers\API\ThongBaoAPI;
     // Admin only + have api-key
     Route::middleware(['auth.api','vaitro:admin'])->group(function () {
 
-        Route::apiResource('magiamgias', MaGiamGiaAPI::class)->only(['index','show','store','update','destroy']);
-        Route::apiResource('danhgias', DanhGiaAPI::class)->only(['index','show','store','update','destroy']);
-        Route::apiResource('sanphams', SanphamAPI::class)->only(['index','show','store','update','destroy']);
-        Route::apiResource('loaibienthes', LoaiBienTheAPI::class)->only(['index','show','store','update','destroy']); // làm menu khi hover list products da cấp
-        Route::apiResource('danhmucs', DanhmucAPI::class)->only(['index','show','store','update','destroy']);
-        Route::apiResource('chuongtrinhsukiens', SuKienAPI::class)->only(['index','show','store','update','destroy']);
-        Route::apiResource('quatangkhuyenmais', QuaTangSuKienAPI::class)->only(['index','show','store','update','destroy']);
+        Route::apiResource('admin/magiamgias', MaGiamGiaAPI::class)->only(['index','show','store','update','destroy']);
+        Route::apiResource('admin/danhgias', DanhGiaAPI::class)->only(['index','show','store','update','destroy']);
+        Route::apiResource('admin/sanphams', SanphamAPI::class)->only(['index','show','store','update','destroy']);
+        Route::apiResource('admin/loaibienthes', LoaiBienTheAPI::class)->only(['index','show','store','update','destroy']); // làm menu khi hover list products da cấp
+        Route::apiResource('admin/danhmucs', DanhmucAPI::class)->only(['index','show','store','update','destroy']);
+        Route::apiResource('admin/chuongtrinhsukiens', SuKienAPI::class)->only(['index','show','store','update','destroy']);
+        Route::apiResource('admin/quatangkhuyenmais', QuaTangSuKienAPI::class)->only(['index','show','store','update','destroy']);
 
-        Route::apiResource('giohangs', GioHangAPI::class)->only(['index','show','store','update','destroy']);
+        Route::apiResource('admin/giohangs', GioHangAPI::class)->only(['index','show','store','update','destroy']);
 
-        Route::apiResource('diachis', DiaChiNguoiDungAPI::class)->only(['index','show','store','update','destroy']);
+        Route::apiResource('admin/diachis', DiaChiNguoiDungAPI::class)->only(['index','show','store','update','destroy']);
 
-        Route::apiResource('yeuthichs', YeuThichAPI::class)->only(['index','show','store','update','destroy']);
-        Route::apiResource('nguoidungs', NguoidungAPI::class)->only(['index','show','store','update','destroy']);
+        Route::apiResource('admin/yeuthichs', YeuThichAPI::class)->only(['index','show','store','update','destroy']);
+        Route::apiResource('admin/nguoidungs', NguoidungAPI::class)->only(['index','show','store','update','destroy']);
 
-        Route::apiResource('baiviets', BaiVietAPI::class)->only(['index','show']); // đang thiếu method
-        Route::apiResource('thongbaos', ThongBaoAPI::class)->only(['index','show','store','update','destroy']);
+        Route::apiResource('admin/baiviets', BaiVietAPI::class)->only(['index','show']); // đang thiếu method
+        Route::apiResource('admin/thongbaos', ThongBaoAPI::class)->only(['index','show','store','update','destroy']);
 
     });
 

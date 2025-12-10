@@ -45,7 +45,7 @@ class YeuThichWebApi extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'id_sanpham' => 'required|integer|exists:sanphams,id',
+            'id_sanpham' => 'required|integer|exists:sanpham,id',
         ]);
 
         $user = $request->get('auth_user');
@@ -73,13 +73,13 @@ class YeuThichWebApi extends Controller
             ]);
         }
 
-        // return response()->json([
-        //     'status' => true,
-        //     'message' => 'Đã thêm sản phẩm vào danh sách yêu thích',
-        //     'data' => $yeuThich
-        // ], Response::HTTP_CREATED);
-        YeuThichResource::withoutWrapping(); // Bỏ "data" bọc ngoài
-        return response()->json(YeuThichResource::collection($yeuThich), Response::HTTP_CREATED);
+        return response()->json([
+            'status' => true,
+            'message' => 'Đã thêm sản phẩm vào danh sách yêu thích',
+            'data' => $yeuThich
+        ], Response::HTTP_CREATED);
+        // YeuThichResource::withoutWrapping(); // Bỏ "data" bọc ngoài
+        // return response()->json(new YeuThichResource($yeuThich), Response::HTTP_CREATED);
     }
 
     public function update(Request $request, $id_sanpham)
@@ -101,14 +101,14 @@ class YeuThichWebApi extends Controller
         $newStatus = $yeuThich->trangthai === 'Hiển thị' ? 'Tạm ẩn' : 'Hiển thị';
         $yeuThich->update(['trangthai' => $newStatus]);
 
-        // return response()->json([
-        //     'status' => true,
-        //     'message' => $newStatus === 'Hiển thị'
-        //         ? 'Đã yêu thích lại sản phẩm'
-        //         : 'Đã bỏ yêu thích sản phẩm',
-        //     'data' => $yeuThich
-        // ], Response::HTTP_OK);
-        YeuThichResource::withoutWrapping(); // Bỏ "data" bọc ngoài
-        return response()->json(YeuThichResource::collection($yeuThich), Response::HTTP_OK);
+        return response()->json([
+            'status' => true,
+            'message' => $newStatus === 'Hiển thị'
+                ? 'Đã yêu thích lại sản phẩm'
+                : 'Đã bỏ yêu thích sản phẩm',
+            'data' => $yeuThich
+        ], Response::HTTP_OK);
+        // YeuThichResource::withoutWrapping(); // Bỏ "data" bọc ngoài
+        // return response()->json(new YeuThichResource($yeuThich), Response::HTTP_OK);
     }
 }

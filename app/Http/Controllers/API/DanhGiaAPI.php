@@ -15,8 +15,11 @@ class DanhGiaAPI extends BaseController
         $perPage = $request->get('per_page', 10);
         $q = $request->get('q');
 
-        $query = DanhgiaModel::with(['sanpham', 'nguoidung','chitietdonhang'])
-            ->latest('updated_at');
+            $query = DanhgiaModel::with([
+                'nguoidung',
+                'sanpham',
+                'chitietdonhang'
+            ])->orderBy('id','desc');
         // dd( $query);
         // var_dump($query);
         // exit();
@@ -34,11 +37,7 @@ class DanhGiaAPI extends BaseController
         }
 
 
-        $items = $query->with([
-                'nguoidung:id,hoten',
-                'sanpham',
-                'chitietdonhang'
-            ])->paginate($perPage);
+        $items = $query->paginate($perPage);
 
         // dd($query);
         // var_dump($query);

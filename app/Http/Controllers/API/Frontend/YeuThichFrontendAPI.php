@@ -104,7 +104,7 @@ class YeuThichFrontendAPI extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'id_sanpham' => 'required|integer|exists:sanphams,id',
+            'id_sanpham' => 'required|integer|exists:sanpham,id',
         ]);
 
         $user = $request->get('auth_user');

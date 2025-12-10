@@ -23,11 +23,11 @@ class YeuThichResource extends JsonResource
             'id' => $this->id,
             'ten' =>$this->sanpham->ten,
             'id_sanpham' =>$this->sanpham->id,
-            'giagiam_min' => $sanpham->giamgia ? $sanpham->giamgia * $min : $min,
-            'giagiam_max' => $sanpham->giamgia ? $sanpham->giamgia * $max : $max,
-            'gia_min' => $sanpham->giamgia ? $sanpham->giamgia * $max : $max,
-            'gia_max' => $sanpham->giamgia ? $sanpham->giamgia * $max : $max,
-            'hinhanhsanpham' =>$sanpham->hinhanhsanpham->first()->hinhanh,
+            // 'giagiam_min' => $sanpham->giamgia ? $sanpham->giamgia * $min : $min,
+            // 'giagiam_max' => $sanpham->giamgia ? $sanpham->giamgia * $max : $max,
+            'gia_min' => $sanpham->giamgia ? $sanpham->giamgia * $min : $min,
+            // 'gia_max' => $sanpham->giamgia ? $sanpham->giamgia * $max : $max,
+            'hinhanh' =>$sanpham->hinhanhsanpham->first()->hinhanh,
             //
             // id?: number | string;
             // name?: string;
