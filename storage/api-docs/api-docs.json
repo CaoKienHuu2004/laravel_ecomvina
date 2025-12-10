@@ -2772,7 +2772,7 @@
                     "Quà Tặng"
                 ],
                 "summary": "Lấy chi tiết một quà tặng theo ID hoặc slug",
-                "operationId": "b1b9e13976db33c141b20d08aaf57d9a",
+                "operationId": "5eb5df86ee3c9804e80efad37886f5f6",
                 "parameters": [
                     {
                         "name": "id",
@@ -2834,6 +2834,10 @@
                                                 "dieukiengiatri": {
                                                     "type": "integer",
                                                     "example": "3000"
+                                                },
+                                                "phantram_datduoc": {
+                                                    "type": "integer",
+                                                    "example": "0-100"
                                                 },
                                                 "tieude": {
                                                     "type": "string",
@@ -2899,6 +2903,7 @@
                                             "type": "object"
                                         },
                                         "sanpham_coqua": {
+                                            "description": "Danh sách các sản phẩm có quà tặng. Mỗi phần tử là một sản phẩm nằm trong chương trình khuyến mãi tặng kèm. FE có thể dùng mảng này để hiển thị danh sách sản phẩm đang được tặng quà thuộc cùng chương trình sự kiện với property data(ở đây là detail quà tặng).",
                                             "type": "array",
                                             "items": {
                                                 "properties": {

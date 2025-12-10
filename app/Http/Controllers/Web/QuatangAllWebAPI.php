@@ -29,11 +29,13 @@ class QuatangAllWebAPI extends Controller
 
 
         $quatangs = QuatangsukienModel::query()
+                ->whereDate('ngaybatdau', '<=', today())
+                ->whereDate('ngayketthuc', '>=', today())     // ⭐ CHỈ LẤY QUÀ CÒN HIỆU LỰC
                 ->with([
-                'bienthe',
-                'bienthe.sanpham',
-                'bienthe.sanpham.thuonghieu'
-            ]);
+                    'bienthe',
+                    'bienthe.sanpham',
+                    'bienthe.sanpham.thuonghieu'
+                ]);
         $hasFilter = false;
         if ($popular) {
             if($popular === "popular"){
@@ -182,8 +184,9 @@ class QuatangAllWebAPI extends Controller
         $quatang->increment('luotxem');
 
 
-        $sanphamCoQua = SanphamModel::whereHas('bienthe.quatangsukien', function ($q) {
+        $sanphamCoQua = SanphamModel::whereHas('bienthe.quatangsukien', function ($q) use ($quatang) {
                 $q->where('trangthai', 'Hiển thị')
+                ->where('id_chuongtrinh', $quatang->id_chuongtrinh) // ⭐ CHỈ LẤY QUÀ CÙNG CHƯƠNG TRÌNH
                 ->whereDate('ngaybatdau', '<=', now())
                 ->whereDate('ngayketthuc', '>=', now())
                 ->whereNull('deleted_at');
@@ -202,9 +205,10 @@ class QuatangAllWebAPI extends Controller
             ->withSum('bienthe as total_quantity', 'soluong')
             ->withAvg('danhgia as avg_rating', 'diem')
             ->withCount('danhgia as review_count')
-            ->withExists(['bienthe as have_gift' => function ($query) {
-                $query->whereHas('quatangsukien', function ($q) {
+            ->withExists(['bienthe as have_gift' => function ($query) use ($quatang) {
+                $query->whereHas('quatangsukien', function ($q) use ($quatang) {
                     $q->where('trangthai', 'Hiển thị')
+                    ->where('id_chuongtrinh', $quatang->id_chuongtrinh) // ⭐ CŨNG LỌC Ở ĐÂY
                     ->whereDate('ngaybatdau', '<=', now())
                     ->whereDate('ngayketthuc', '>=', now())
                     ->whereNull('deleted_at');

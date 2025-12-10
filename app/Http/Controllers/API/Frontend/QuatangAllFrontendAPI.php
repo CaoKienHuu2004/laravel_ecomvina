@@ -144,7 +144,9 @@ class QuatangAllFrontendAPI extends BaseFrontendController
 
 
         $quatangs = QuatangsukienModel::query()
-                ->with([
+            ->whereDate('ngaybatdau', '<=', today())
+            ->whereDate('ngayketthuc', '>=', today())     // ⭐ CHỈ LẤY QUÀ CÒN HIỆU LỰC
+            ->with([
                 'bienthe',
                 'bienthe.sanpham',
                 'bienthe.sanpham.thuonghieu'
@@ -218,6 +220,33 @@ class QuatangAllFrontendAPI extends BaseFrontendController
     }
 
 
+
+    public function getMenuFilterAsideInQuaTang()
+    {
+        $now = now()->toDateString();
+
+        $thuonghieus = ThuongHieuModel::whereHas('sanpham.bienthe.quatangsukien', function ($query) use ($now) {
+            $query->where('trangthai', 'Hiển thị')
+                ->whereDate('ngaybatdau', '<=', $now)
+                ->whereDate('ngayketthuc', '>=', $now)
+                ->whereNull('deleted_at');
+        })
+        ->get(['id', 'ten']);
+        // ->get(['id', 'ten', 'slug']);
+
+        $expiring = ['label' => 'Sắp hết hạn','param' => 'expiring','value' => 'expiring'];
+        $newest = ['label' => 'Mới nhất','param' => 'newest','value' => 'newest'];
+        $popular = ['label' => 'Phổ biến','param' => 'popular','value' => 'popular'];
+
+        return ([
+            'popular' => $popular,
+            'newest' => $newest,
+            'expiring' => $expiring,
+            'thuonghieus' => $thuonghieus,
+        ]);
+    }
+
+
     /**
      * @OA\Get(
      *     path="/api/quatangs-all/{id}",
@@ -252,6 +281,7 @@ class QuatangAllFrontendAPI extends BaseFrontendController
      *
      *                 @OA\Property(property="dieukiensoluong", type="integer", example="3"),
      *                 @OA\Property(property="dieukiengiatri", type="integer", example="3000"),
+     *                 @OA\Property(property="phantram_datduoc", type="integer", example="0-100"),
      *                 @OA\Property(property="tieude", type="string", example="Tặng 1 sản phẩm bách hóa khi mua 3 sản phẩm bất kỳ từ Trung Tâm Bán Hàng nhân ngày sinh nhật 13/10"),
      *                 @OA\Property(property="thongtin", type="string", example="Không có thông tin"),
      *                 @OA\Property(property="hinhanh", type="string", format="url", example="http://148.230.100.215/assets/client/images/thumbs/nuoc-rua-bat-bio-formula-bo-va-lo-hoi-tui-500ml-1.webp"),
@@ -275,6 +305,7 @@ class QuatangAllFrontendAPI extends BaseFrontendController
      *             @OA\Property(
      *                 property="sanpham_coqua",
      *                 type="array",
+     *                 description="Danh sách các sản phẩm có quà tặng. Mỗi phần tử là một sản phẩm nằm trong chương trình khuyến mãi tặng kèm. FE có thể dùng mảng này để hiển thị danh sách sản phẩm đang được tặng quà thuộc cùng chương trình sự kiện với property data(ở đây là detail quà tặng).",
      *                 @OA\Items(
      *                     type="object",
      *                     @OA\Property(property="id", type="integer", example=3),
@@ -325,32 +356,6 @@ class QuatangAllFrontendAPI extends BaseFrontendController
      *     )
      * )
      */
-    public function getMenuFilterAsideInQuaTang()
-    {
-        $now = now()->toDateString();
-
-        $thuonghieus = ThuongHieuModel::whereHas('sanpham.bienthe.quatangsukien', function ($query) use ($now) {
-            $query->where('trangthai', 'Hiển thị')
-                ->whereDate('ngaybatdau', '<=', $now)
-                ->whereDate('ngayketthuc', '>=', $now)
-                ->whereNull('deleted_at');
-        })
-        ->get(['id', 'ten']);
-        // ->get(['id', 'ten', 'slug']);
-
-        $expiring = ['label' => 'Sắp hết hạn','param' => 'expiring','value' => 'expiring'];
-        $newest = ['label' => 'Mới nhất','param' => 'newest','value' => 'newest'];
-        $popular = ['label' => 'Phổ biến','param' => 'popular','value' => 'popular'];
-
-        return ([
-            'popular' => $popular,
-            'newest' => $newest,
-            'expiring' => $expiring,
-            'thuonghieus' => $thuonghieus,
-        ]);
-    }
-
-
     public function show(string $id)
     {
         if (is_numeric($id)) {
@@ -388,8 +393,9 @@ class QuatangAllFrontendAPI extends BaseFrontendController
         $quatang->increment('luotxem');
 
 
-        $sanphamCoQua = SanphamModel::whereHas('bienthe.quatangsukien', function ($q) {
+        $sanphamCoQua = SanphamModel::whereHas('bienthe.quatangsukien', function ($q) use ($quatang) {
                 $q->where('trangthai', 'Hiển thị')
+                ->where('id_chuongtrinh', $quatang->id_chuongtrinh) // ⭐ CHỈ LẤY QUÀ CÙNG CHƯƠNG TRÌNH
                 ->whereDate('ngaybatdau', '<=', now())
                 ->whereDate('ngayketthuc', '>=', now())
                 ->whereNull('deleted_at');
@@ -408,9 +414,10 @@ class QuatangAllFrontendAPI extends BaseFrontendController
             ->withSum('bienthe as total_quantity', 'soluong')
             ->withAvg('danhgia as avg_rating', 'diem')
             ->withCount('danhgia as review_count')
-            ->withExists(['bienthe as have_gift' => function ($query) {
-                $query->whereHas('quatangsukien', function ($q) {
+            ->withExists(['bienthe as have_gift' => function ($query) use ($quatang) {
+                $query->whereHas('quatangsukien', function ($q) use ($quatang) {
                     $q->where('trangthai', 'Hiển thị')
+                    ->where('id_chuongtrinh', $quatang->id_chuongtrinh) // ⭐ CŨNG LỌC Ở ĐÂY
                     ->whereDate('ngaybatdau', '<=', now())
                     ->whereDate('ngayketthuc', '>=', now())
                     ->whereNull('deleted_at');
