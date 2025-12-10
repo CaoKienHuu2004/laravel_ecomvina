@@ -27,4 +27,25 @@ trait CleanAndLimitText
         }
         return $cleanText;
     }
+    private function cleanAndLimitTextPosts(string $text, int $limit = 160): string
+    {
+        // 1. Bỏ thẻ HTML
+        $textWithoutHtml = strip_tags($text);
+
+        // 2. Loại bỏ emoji & ký tự đặc biệt nguy hiểm (giữ lại chữ, số, dấu câu, khoảng trắng)
+        $cleanText = preg_replace('/[^\p{L}\p{N}\p{P}\s]/u', '', $textWithoutHtml);
+
+        // 3. Gộp nhiều khoảng trắng thành 1
+        $cleanText = preg_replace('/\s+/', ' ', $cleanText);
+
+        // 4. Trim bỏ khoảng trắng đầu/cuối
+        $cleanText = trim($cleanText);
+
+        // 5. Cắt chuỗi nếu quá dài
+        if (mb_strlen($cleanText) > $limit) {
+            return mb_substr($cleanText, 0, $limit) . '...';
+        }
+
+        return $cleanText;
+    }
 }
