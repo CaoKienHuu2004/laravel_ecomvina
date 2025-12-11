@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Chi tiết địa chỉ giao hàng')
+@section('title', 'Chi tiết địa chỉ người dùng')
 
 {{-- // các route sư dụng diachigiaohang.edit --- của breadcrumb diachigiaohang.index trang-chu --}}
 
@@ -11,10 +11,10 @@
 
         <div class="page-header">
             <x-header.breadcrumb
-                title='Xem Chi Tiết địa chỉ giao hàng của người dùng.'
+                title='Xem Chi Tiết địa chỉ người dùng của người dùng.'
                 :links="[
                     ['label' => 'Tổng quan', 'route' => 'trang-chu'],
-                    ['label' => 'Danh sách địa chỉ giao hàng', 'route' => 'diachigiaohang.index']
+                    ['label' => 'Danh sách địa chỉ người dùng', 'route' => 'diachigiaohang.index']
                 ]"
                 active="Chi tiết"
             />
@@ -55,7 +55,7 @@
                             <td>{{ $usernameValue }} / {{ $emailValue }}</td>
                         </tr>
                         <tr>
-                            <th>Số lượng địa chỉ giao hàng</th>
+                            <th>Số lượng địa chỉ người dùng</th>
                             <td>{{ $countDiaChiNguoiDung }}</td>
                         </tr>
                         <tr>

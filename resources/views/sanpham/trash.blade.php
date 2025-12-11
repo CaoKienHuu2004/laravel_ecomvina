@@ -32,8 +32,8 @@
 
             {{-- Bảng dữ liệu --}}
             <div class="table-responsive">
-                <table class="table table-bordered table-striped align-middle mb-0">
-                    <thead class="table-primary">
+                <table class="table datanew">
+                    <thead>
                         <tr>
                             <th>ID</th>
                             <th>Sản phẩm</th>

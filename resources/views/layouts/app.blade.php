@@ -194,7 +194,7 @@
                             </a>
                         </li>
                         {{-- /* ===================== ĐỊA CHỈ GIAO HÀNG ===================== */ --}}
-                        <li><a class="{{ request()->routeIs('diachigiaohang.index') || request()->routeIs('diachigiaohang.edit') || request()->routeIs('diachigiaohang.create') || request()->routeIs('diachigiaohang.show') || request()->routeIs('diachigiaohang.trash') ? 'active' : '' }}" href="{{ route('diachigiaohang.index') }}">Danh sách địa chỉ giao hàng</a></li>
+                        <li><a class="{{ request()->routeIs('diachigiaohang.index') || request()->routeIs('diachigiaohang.edit') || request()->routeIs('diachigiaohang.create') || request()->routeIs('diachigiaohang.show') || request()->routeIs('diachigiaohang.trash') ? 'active' : '' }}" href="{{ route('diachigiaohang.index') }}">Danh sách địa chỉ người dùng</a></li>
                         {{--  --}}
                     </ul>
                 </li>
@@ -441,6 +441,8 @@
 
     <script src="{{asset('js/script.js')}}"></script>
     <script src="{{asset('js/child_layouts.js')}}"></script>
+    <script src="{{asset('js/trangchu.js')}}"></script>  {{-- new Nguyên làm trang chu chart --}}
+
     <script>
       /**
         * This configuration was generated using the CKEditor 5 Builder. You can modify it anytime using this link:

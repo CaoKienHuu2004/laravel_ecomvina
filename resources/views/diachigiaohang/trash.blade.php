@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Thùng rác địa chỉ giao hàng | Quản trị hệ thống Siêu Thị Vina')
+@section('title', 'Thùng rác địa chỉ người dùng | Quản trị hệ thống Siêu Thị Vina')
 {{-- // các route sư dụng   diachigiaohang.restore diachigiaohang.forceDelete --- của breadcrumb diachigiaohang.index trang-chu --}}
 
 {{-- // controller truyền xuống $diachis --}}
@@ -9,10 +9,10 @@
     <div class="content">
         <div class="page-header">
             <x-header.breadcrumb
-                title="Danh sách địa chỉ giao hàng đang tạm xóa"
+                title="Danh sách địa chỉ người dùng đang tạm xóa"
                 :links="[
                     ['label' => 'Tổng quan', 'route' => 'trang-chu'],
-                    ['label' => 'Danh sách địa chỉ giao hàng', 'route' => 'diachigiaohang.index']
+                    ['label' => 'Danh sách địa chỉ người dùng', 'route' => 'diachigiaohang.index']
                 ]"
                 active="Thùng rác"
             />

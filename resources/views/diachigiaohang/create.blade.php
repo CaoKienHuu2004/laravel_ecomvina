@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Thêm mới địa chỉ giao hàng')
+@section('title', 'Thêm mới địa chỉ người dùng')
 {{-- // các route sư dụng  diachigiaohang.store --- của breadcrumb diachigiaohang.index trang-chu --}}
 
 {{-- // controller truyền xuống $tinhthanhs $nguoidungs --}}
@@ -9,10 +9,10 @@
     <div class="content">
         <div class="page-header">
             <x-header.breadcrumb
-                title="Thêm mới địa chỉ giao hàng"
+                title="Thêm mới địa chỉ người dùng"
                 :links="[
                     ['label' => 'Tổng quan', 'route' => 'trang-chu'],
-                    ['label' => 'Danh sách địa chỉ giao hàng', 'route' => 'diachigiaohang.index']
+                    ['label' => 'Danh sách địa chỉ người dùng', 'route' => 'diachigiaohang.index']
                 ]"
                 active="Thêm mới"
             />

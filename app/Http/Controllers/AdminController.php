@@ -10,6 +10,13 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use PhpParser\Node\Expr\AssignOp\Mod;
 
+ // begin: Alias của Nguyên
+use App\Models\DonhangModel;
+use App\Models\ChitietdonhangModel;
+use App\Models\BientheModel;
+use Carbon\Carbon;
+ // begin: Alias của Nguyên
+
 class AdminController extends Controller
 {
     // php artisan storage:link nhớ dùng khi lưu ảnh vào storage/app/public
@@ -33,6 +40,35 @@ class AdminController extends Controller
 
         return view('trangchu', compact('user'));
     }
+
+
+    // begin: method của Nguyên
+    public function trangchu()
+    {
+        // Tính tổng doanh thu tất cả thời gian
+        $tongDoanhThu = ChitietdonhangModel::sum('dongia');
+        // Tính tổng doanh thu hôm nay
+        $tongDoanhThuNgay = ChitietdonhangModel::whereHas('donhang', function($query) {
+            $query->whereDate('created_at', Carbon::today());
+        })->sum('dongia');
+        // Tính tổng doanh thu trong tuần
+        $startOfWeek = Carbon::now()->startOfWeek(); // Ngày bắt đầu của tuần
+        $endOfWeek = Carbon::now()->endOfWeek(); // Ngày kết thúc của tuần
+        $tongDoanhThuTuan = ChitietdonhangModel::whereHas('donhang', function($query) use ($startOfWeek, $endOfWeek) {
+            $query->whereBetween('created_at', [$startOfWeek, $endOfWeek]);
+        })->sum('dongia');
+        // Tính tổng doanh thu trong tháng
+        $tongDoanhThuThang = ChitietdonhangModel::whereHas('donhang', function($query) {
+            $query->whereMonth('created_at', Carbon::now()->month)
+                  ->whereYear('created_at', Carbon::now()->year);
+        })->sum('dongia');
+        $donHangsMoi = DonhangModel::orderBy('created_at', 'desc')->take(3)->get();
+        $sanPhamHetHang = BientheModel::with('sanpham','sanpham.hinhanhsanpham')->where('soluong', '<=', 5)->take(2)->get();
+        $sanPhamTonKho = BientheModel::with('sanpham','sanpham.hinhanhsanpham')->where('soluong', '>',100)->take(2) ->get();
+        return view('trangchu', compact('tongDoanhThu', 'tongDoanhThuNgay', 'tongDoanhThuTuan', 'tongDoanhThuThang', 'donHangsMoi', 'sanPhamHetHang', 'sanPhamTonKho')); // Truyền tổng doanh thu vào view
+    }
+    // end: method của Nguyên
+
     public function showLoginForm()
     {
         return view('auth.login');

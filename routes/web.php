@@ -89,9 +89,18 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::post('/cap-nhat-anh-dai-dien-tai-khoan', [AdminController::class, 'updateAvatar'])->name('cap-nhat-anh-dai-dien-tai-khoan');
     Route::post('/dang-xuat', [AdminController::class, 'logout'])->name('dang-xuat');
 
-    Route::get('/trang-chu', function () {
-        return view('trangchu');
-    })->name('trang-chu');
+    // origin
+    // Route::get('/trang-chu', function () {
+    //     return view('trangchu');
+    // })->name('trang-chu');
+    // origin
+
+    // Nguyên làm phần thông kê
+    Route::get('/trang-chu', [AdminController::class, 'trangchu'])->name('trang-chu');
+    Route::get('/thong-ke-doanh-thu', [AdminController::class, 'getThongKeDoanhThu'])->name('getThongKeDoanhThu');
+    // Nguyên làm phần thông kê
+
+
     /* ===================== SẢN PHẨM ===================== */
     // Route::prefix('san-pham')->group(function () {
     //     Route::get('/danh-sach', [SanphamController::class, 'index'])->name('danh-sach');

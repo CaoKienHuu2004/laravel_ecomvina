@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Danh sách địa chỉ giao hàng | Quản trị hệ thống Siêu Thị Vina')
+@section('title', 'Danh sách địa chỉ người dùng | Quản trị hệ thống Siêu Thị Vina')
 {{-- // các route sư dụng  diachigiaohang.index, diachigiaohang.create, diachigiaohang.show, diachigiaohang.edit, diachigiaohang.trash  diachigiaohang.destroy --}}
 
 {{-- // controller truyền xuống $diachis --}}
@@ -9,8 +9,8 @@
     <div class="content">
         <div class="page-header">
             <div class="page-title">
-                <h4>Danh sách địa chỉ giao hàng</h4>
-                <h6>Quản lý các địa chỉ giao hàng của khách hàng.</h6>
+                <h4>Danh sách địa chỉ người dùng</h4>
+                <h6>Quản lý các địa chỉ người dùng của khách hàng.</h6>
             </div>
             <div class="d-flex">
                 <div class="page-btn">
@@ -99,7 +99,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center">Không có địa chỉ giao hàng nào.</td>
+                                    <td colspan="7" class="text-center">Không có địa chỉ người dùng nào.</td>
                                 </tr>
                             @endforelse
                         </tbody>

@@ -525,7 +525,7 @@ class SanphamController extends Controller
                 }
             ])
             ->orderByDesc('deleted_at')
-            ->get();
+            ->get(); // client side paginate
         return view('sanpham.trash', compact('sanphams'));
     }
 
