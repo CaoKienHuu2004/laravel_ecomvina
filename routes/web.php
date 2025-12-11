@@ -452,8 +452,12 @@ Route::middleware(['auth.api'])->group(function () {
     Route::post('/tai-khoan/donhang', [DonHangWebApi::class, 'show']);
     Route::put('/tai-khoan/donhang/{id}', [DonHangWebApi::class, 'update']);
     Route::patch('/tai-khoan/donhang/{id}/huy', [DonHangWebApi::class, 'cancel']);
-    // Tích hợp vietqr
-        Route::post('/tai-khoan/donhang/{id}/vietqr-url', [DonHangWebApi::class, 'createVietqrtUrl']);
+    // // Tích hợp vietqr
+    //     Route::post('/tai-khoan/donhang/{id}/vietqr-url', [DonHangWebApi::class, 'createVietqrtUrl']);
+
+    // Thanh Toán Lại Đơn Hàng và Mua Lại (Trạng Thái Thành Công)
+    Route::patch('/tai-khoan/donhang/{id}/thanh-toan-lai-don-hang', [DonHangWebApi::class, 'thanhToanLaiDonHang']);
+    Route::patch('/tai-khoan/donhang/{id}/mua-lai-don-hang', [DonHangWebApi::class, 'muaLaiDonHang']);
 
     // Tích hợp thanh toán VNPAY, cần thêm 3 route
     Route::post('/tai-khoan/donhang/{id}/payment-url', [DonHangWebApi::class, 'createPaymentUrl']);

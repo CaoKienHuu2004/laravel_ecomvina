@@ -353,7 +353,7 @@ class DonHangWebApi extends BaseFrontendController
                 'hinhthucvanchuyen'   => $ten_phivanchuyen ?? 'Không xác định',
                 'phigiaohang'         => $phigia,
                 'hinhthucthanhtoan'   => $hinhthucthanhtoan,
-                'mavoucher'           => $ma_magiamgia,
+                'mavoucher'           => $ma_magiamgia ? $ma_magiamgia->magiamgia : null,
                 'giagiam'             => $giatriMagiamgia
             ]);
 
@@ -735,6 +735,108 @@ class DonHangWebApi extends BaseFrontendController
         ]);
     }
     // #end------------------- Tích hợp thanh toán VietQR ----------------------//
+
+    // #begin------------------- Mua Lại Đơn Hàng Và Đặt hàng lại đơn hàng ----------------------//
+    public function thanhToanLaiDonHang(Request $request, $id)
+    {
+        $user = $request->get('auth_user');
+
+        $donHang = DonHangModel::find($id);
+
+        if (!$donHang) {
+            return response()->json(['message' => 'Đơn hàng không tồn tại'], 404);
+        }
+
+        // Kiểm tra trạng thái đơn hàng có phải 'Đã hủy' không
+        if ($donHang->trangthai != 'Đã hủy') {
+            return response()->json(['message' => 'Đơn hàng chưa bị hủy không thể thanh toán lại'], 400);
+        }
+
+        $donHang->trangthai = 'Chờ xử lý';
+        $donHang->save();
+
+        $donhang = $donHang;
+
+        $this->sentMessToAdmin(
+            'Đơn hàng thanh toán lại từ ' . $user->hoten . '-' . $user->sodienthoai,
+            'Người dùng ' . $user->hoten . '-' . $user->sodienthoai . '-' . $user->username . '-' . $user->email . ' vừa tạo đơn hàng mới mã ' . $donhang->madon . '. Vui lòng kiểm tra và gọi điện cho khách hàng để truyền trạng thái đơn hàng từ Chờ xử lý -> Đã xác nhận và xử lý đơn hàng kịp thời.',
+            $this->domain . 'donhang/show/' . $donhang->id,
+            "Đơn hàng"
+        );
+
+        $this->SentMessToClient(
+            'Xác nhận đơn hàng mới của bạn',
+            'Chào ' . $user->hoten . ', bạn đã tạo thành công đơn hàng mã ' . $donhang->madon .
+            '. Vui lòng chờ nhân viên liên hệ để xác nhận và xử lý đơn hàng. Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!',
+            $this->domainClient . '/' . 'don-hang',
+            "Đơn hàng",
+            $user->id
+        );
+
+        // TODO: gọi xử lý thanh toán (redirect hoặc gọi API thanh toán)
+
+        return response()->json([
+            'message' => 'Đơn hàng đã được cập nhật trạng thái, bạn có thể tiến hành thanh toán lại',
+            'id_donhang' => $donHang->id,
+            'trangthai' => $donHang->trangthai,
+        ]);
+    }
+
+    public function muaLaiDonHang(Request $request, $id)
+    {
+        $user = $request->get('auth_user');
+
+        $donHangCu = DonHangModel::with('chitietdonhang')->find($id);
+
+        if (!$donHangCu || $donHangCu->trangthai != 'Thành công') {
+            return response()->json(['message' => 'Đơn hàng không tồn tại hoặc chưa thành công'], 404);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $donHangMoi = $donHangCu->replicate();
+            $donHangMoi->madon = DonHangModel::generateOrderCode();
+            $donHangMoi->trangthaithanhtoan = 'Chưa thanh toán';
+            $donHangMoi->trangthai = 'Chờ xử lý';
+            $donHangMoi->created_at = now();
+            $donHangMoi->updated_at = now();
+            $donHangMoi->save();
+
+            foreach ($donHangCu->chiTietDonHang as $chiTiet) {
+                $chiTietMoi = $chiTiet->replicate();
+                $chiTietMoi->id_donhang = $donHangMoi->id;
+                $chiTietMoi->save();
+            }
+
+            $donhang = $donHangMoi;
+            // gửi thông báo
+            $this->sentMessToAdmin(
+                'Đơn hàng mua lại từ ' . $user->hoten . '-' . $user->sodienthoai,
+                'Người dùng ' . $user->hoten . '-' . $user->sodienthoai . '-' . $user->username . '-' . $user->email . ' vừa tạo đơn hàng mới mã ' . $donhang->madon . '. Vui lòng kiểm tra và gọi điện cho khách hàng để truyền trạng thái đơn hàng từ Chờ xử lý -> Đã xác nhận và xử lý đơn hàng kịp thời.',
+                $this->domain . 'donhang/show/' . $donhang->id,
+                "Đơn hàng"
+            );
+
+            $this->SentMessToClient(
+                'Xác nhận đơn hàng mới của bạn',
+                'Chào ' . $user->hoten . ', bạn đã tạo thành công đơn hàng mã ' . $donhang->madon .
+                '. Vui lòng chờ nhân viên liên hệ để xác nhận và xử lý đơn hàng. Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!',
+                $this->domainClient . '/' . 'don-hang',
+                "Đơn hàng",
+                $user->id
+            );
+
+            DB::commit();
+
+            // return redirect()->route('checkout', ['order_id' => $donHangMoi->id]);
+            return response()->json(['message' => 'Id đơn hàng mới '.$donHangMoi->id],200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Lỗi khi tạo đơn hàng mới: ' . $e->getMessage()], 500);
+        }
+    }
+    // #end------------------- Mua Lại Đơn Hàng Và Đặt hàng lại đơn hàng ----------------------//
 
 }
 

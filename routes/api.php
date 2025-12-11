@@ -282,6 +282,10 @@ use App\Http\Controllers\API\ThongBaoAPI;
         Route::put('/tai-khoan/donhangs/{id}', [DonHangFrontendAPI::class, 'update']);
         Route::patch('/tai-khoan/donhangs/{id}/huy', [DonHangFrontendAPI::class, 'cancel']);
 
+        // Thanh Toán Lại Đơn Hàng và Mua Lại (Trạng Thái Thành Công)
+        Route::patch('/tai-khoan/donhangs/{id}/thanh-toan-lai-don-hang', [DonHangFrontendAPI::class, 'thanhToanLaiDonHang']);
+        Route::patch('/tai-khoan/donhangs/{id}/mua-lai-don-hang', [DonHangFrontendAPI::class, 'muaLaiDonHang']);
+
         // Tích hợp thanh toán VNPAY, cần thêm 3 route
         Route::post('/tai-khoan/donhangs/{id}/payment-url', [DonHangFrontendAPI::class, 'createPaymentUrl']);
         Route::get('/tai-khoan/donhangs/{id}/status', [DonHangFrontendAPI::class, 'getPaymentStatus']);
