@@ -146,6 +146,7 @@ class QuatangAllFrontendAPI extends BaseFrontendController
         $quatangs = QuatangsukienModel::query()
             ->whereDate('ngaybatdau', '<=', today())
             ->whereDate('ngayketthuc', '>=', today())     // ⭐ CHỈ LẤY QUÀ CÒN HIỆU LỰC
+            ->where('trangthai', 'Hiển thị') //này thiếu mapping với trangthai Tạm ẩn của chuongtrinh
             ->with([
                 'bienthe',
                 'bienthe.sanpham',

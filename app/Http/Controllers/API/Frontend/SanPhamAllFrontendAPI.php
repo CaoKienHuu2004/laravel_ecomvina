@@ -405,6 +405,7 @@ class SanPhamAllFrontendAPI extends BaseFrontendController
             'loaibienthe',
             'bienthe.loaibienthe',
             'bienthe.sanpham',
+            'bienthe.quatangsukien.chuongtrinh:id,tieude'
         ])
         ->withAvg('danhgia as avg_rating', 'diem')       // điểm trung bình
         ->withCount('danhgia as review_count')           // tổng số đánh giá
@@ -561,7 +562,7 @@ class SanPhamAllFrontendAPI extends BaseFrontendController
         // ])->findOrFail($id);
 
         $query = SanphamModel::with(['hinhanhsanpham', 'thuonghieu', 'danhgia', 'danhmuc',
-         'bienthe', 'loaibienthe','danhgia.nguoidung','bienthe.loaibienthe','bienthe.sanpham'])
+         'bienthe', 'loaibienthe','danhgia.nguoidung','bienthe.loaibienthe','bienthe.sanpham','bienthe.quatangsukien.chuongtrinh:id,tieude'])
         // $query = SanphamModel::with(['hinhanhsanpham', 'thuonghieu', 'danhgia', 'danhmuc',
         //  'bienthe', 'loaibienthe','danhgia.nguoidung','bienthe.loaibienthe','loaibienthe.sanpham'])
             // ->withSum('chitietdonhang as total_sold', 'soluong') // tổng số lượng bán

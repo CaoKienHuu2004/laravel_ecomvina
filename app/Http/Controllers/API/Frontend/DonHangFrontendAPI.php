@@ -135,13 +135,13 @@ class DonHangFrontendAPI extends BaseFrontendController
 
         // Danh sách trạng thái thực tế trong DB
         $validTrangThai = [
-            'Chờ xử lý',
-            'Đã xác nhận',
-            'Đang chuẩn bị hàng',
-            'Đang giao hàng',
-            'Đã giao hàng',
-            'Đã hủy',
-            'Thành công',
+            'Chờ xử lý', //1
+            'Đã xác nhận', //2
+            'Đang chuẩn bị hàng', //3
+            'Đang giao hàng', //4
+            'Đã giao hàng', //5
+            'Đã hủy', //6
+            'Thành công', //7
         ];
 
         // Label hiển thị tương ứng

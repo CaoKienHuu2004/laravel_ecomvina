@@ -82,6 +82,12 @@ class SanPhamAllResources extends JsonResource
             // 'slug'          => Str::slug($this->ten),
             'slug'          => $this->slug,
             'have_gift' => (bool) $this->have_gift ?? false,
+            'id_chuongtrinh' => optional(
+                $this->bienthe
+                    ->flatMap(fn($bt) => $bt->quatangsukien)
+                    ->first()
+                    ->chuongtrinh ?? null
+            )->id,
 
             'hinh_anh' =>  $hinhanhsanpham,
             // . Đánh giá (Rating - dựa trên 'danhgia' và withAvg)

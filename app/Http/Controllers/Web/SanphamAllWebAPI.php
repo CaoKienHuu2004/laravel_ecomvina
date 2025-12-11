@@ -227,6 +227,7 @@ class SanphamAllWebAPI extends BaseFrontendController
             'loaibienthe',
             'bienthe.loaibienthe',
             'bienthe.sanpham',
+            'bienthe.quatangsukien.chuongtrinh:id,tieude'
         ])
         ->withAvg('danhgia as avg_rating', 'diem')       // điểm trung bình
         ->withCount('danhgia as review_count')           // tổng số đánh giá
@@ -339,6 +340,12 @@ class SanphamAllWebAPI extends BaseFrontendController
                 'name' => $item->ten,
                 'slug' => $item->slug,
                 'have_gift' => (bool) $item->have_gift ?? false,
+                'giftProgramId' => optional(
+                    $item->bienthe
+                        ->flatMap(fn($bt) => $bt->quatangsukien)
+                        ->first()
+                        ->chuongtrinh ?? null
+                )->id,
                 'originalPrice' => (int)optional($item->bienthe->where('giagoc', '>', 0)->sortBy('giagoc')->first())->giagoc,
                 'discount' => (int)$item->giamgia,
                 'sold' => (int)$item->total_sold,
@@ -362,7 +369,7 @@ class SanphamAllWebAPI extends BaseFrontendController
         // ])->findOrFail($id);
 
         $query = SanphamModel::with(['hinhanhsanpham', 'thuonghieu', 'danhgia', 'danhmuc',
-         'bienthe', 'loaibienthe','danhgia.nguoidung','bienthe.loaibienthe','bienthe.sanpham'])
+         'bienthe', 'loaibienthe','danhgia.nguoidung','bienthe.loaibienthe','bienthe.sanpham','bienthe.quatangsukien.chuongtrinh:id,tieude'])
         // $query = SanphamModel::with(['hinhanhsanpham', 'thuonghieu', 'danhgia', 'danhmuc',
         //  'bienthe', 'loaibienthe','danhgia.nguoidung','bienthe.loaibienthe','loaibienthe.sanpham'])
             // ->withSum('chitietdonhang as total_sold', 'soluong') // tổng số lượng bán
@@ -401,7 +408,8 @@ class SanphamAllWebAPI extends BaseFrontendController
                 'bienthe',
                 'loaibienthe',
                 'bienthe.loaibienthe',
-                'bienthe.sanpham'
+                'bienthe.sanpham',
+                'bienthe.quatangsukien.chuongtrinh:id,tieude'
             ])
             ->withSum('bienthe as total_sold', 'luotban')
             ->withSum('bienthe as total_quantity', 'soluong')
@@ -447,6 +455,12 @@ class SanphamAllWebAPI extends BaseFrontendController
             'name' => $query->ten,
             'slug' => $query->slug,
             'have_gift' => $query->have_gift ?? false,
+            'giftProgramId' => optional(
+                $query->bienthe
+                    ->flatMap(fn($bt) => $bt->quatangsukien)
+                    ->first()
+                    ->chuongtrinh ?? null
+            )->id,
             'sold' => (int)$query->total_sold,
             'rating' => round($query->avg_rating, 1),
             'brand' => $query->thuonghieu->ten ?? null,
@@ -478,6 +492,12 @@ class SanphamAllWebAPI extends BaseFrontendController
                 'name' => $item->ten,
                 'slug' => $item->slug,
                 'have_gift' => $query->have_gift ?? false,
+                'giftProgramId' => optional(
+                    $item->bienthe
+                        ->flatMap(fn($bt) => $bt->quatangsukien)
+                        ->first()
+                        ->chuongtrinh ?? null
+                )->id,
                 'originalPrice' => (int)optional($item->bienthe->where('giagoc', '>', 0)->sortBy('giagoc')->first())->giagoc,
                 'discount' => (int)$item->giamgia,
                 'sold' => (int)$item->total_sold,

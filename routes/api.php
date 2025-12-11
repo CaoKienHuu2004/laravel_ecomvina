@@ -159,7 +159,7 @@ use App\Http\Controllers\API\YeuThichAPI;
 use App\Http\Controllers\API\Frontend\AuthFrontendController;
 use App\Http\Controllers\API\Frontend\BaiVietAllFrontendAPI;
 use App\Http\Controllers\API\Frontend\BannerQuangCaoFrontendAPI;
-
+use App\Http\Controllers\API\Frontend\ChuongtrinhFrontendAPI;
 use App\Http\Controllers\API\Frontend\DanhGiaFrontendAPI;
 use App\Http\Controllers\API\Frontend\DanhmucAllFrontendAPI;
 use App\Http\Controllers\API\Frontend\DanhmucFrontendAPI;
@@ -228,6 +228,7 @@ use App\Http\Controllers\API\ThongBaoAPI;
     // gọi kèm các routes api khác
     Route::get('/tinh-thanh', [TinhThanhVietNamFrontendAPI::class, 'index']);
     Route::apiResource('ma-giam-gia', MaGiamGiaFrontendAPI::class)->only(['index']);
+    Route::apiResource('chuong-trinh', ChuongtrinhFrontendAPI::class)->only(['index']); // có thể xóa, sau ngày 12-13-25 thì mới nâng cấp các filed hinhanh cho nó để để showw mockup
     // gọi kèm các routes api khác
 
     // có slug: sanpham, danhmuc,

@@ -372,7 +372,7 @@ class GioHangFrontendAPI extends BaseFrontendController
         $validated = $request->validate([
             'id_bienthe' => 'required|exists:bienthe,id',
             'soluong' => 'required|integer|min:1',
-            'id_chuongtrinh' => 'sometimes|exists:chuongtrinh,id',
+            'id_chuongtrinh' => 'sometimes|exists:chuongtrinh,id', // quyền định rules  3
         ]);
 
         $user = $request->get('auth_user');
@@ -410,9 +410,9 @@ class GioHangFrontendAPI extends BaseFrontendController
                     $promotion = DB::table('quatang_sukien as qs')
                         ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
                         ->where('qs.id_bienthe', $id_bienthe)
-                        ->where('qs.id_chuongtrinh', $id_chuongtrinh)
-                        ->where('qs.dieukiensoluong', '<=', $totalQuantity)
-                        ->where('qs.dieukiengiatri', '<=', $tongGiaGioHang)
+                        ->where('qs.id_chuongtrinh', $id_chuongtrinh) //rules 3 maybe
+                        ->where('qs.dieukiensoluong', '<=', $totalQuantity) //rules 1
+                        ->where('qs.dieukiengiatri', '<=', $tongGiaGioHang) //rules 2
                         ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
                         ->where('qs.trangthai', 'Hiển thị')
                         ->select(

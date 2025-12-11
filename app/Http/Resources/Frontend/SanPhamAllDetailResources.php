@@ -109,6 +109,12 @@ class SanPhamAllDetailResources extends JsonResource
             'ten' => $this->ten,
             'slug'          => $this->slug,
             'have_gift' => (bool) $this->have_gift?? false,
+            'id_chuongtrinh' => optional(
+                $this->bienthe
+                    ->flatMap(fn($bt) => $bt->quatangsukien)
+                    ->first()
+                    ->chuongtrinh ?? null
+            )->id,
             'danhmuc' => $this->danhmuc
             ? $this->danhmuc->map(function ($item) {
                 return [

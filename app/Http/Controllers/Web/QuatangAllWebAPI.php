@@ -31,6 +31,7 @@ class QuatangAllWebAPI extends Controller
         $quatangs = QuatangsukienModel::query()
                 ->whereDate('ngaybatdau', '<=', today())
                 ->whereDate('ngayketthuc', '>=', today())     // ⭐ CHỈ LẤY QUÀ CÒN HIỆU LỰC
+                ->where('trangthai', 'Hiển thị')
                 ->with([
                     'bienthe',
                     'bienthe.sanpham',
