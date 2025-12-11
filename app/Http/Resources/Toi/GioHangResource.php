@@ -71,7 +71,7 @@ class GioHangResource extends JsonResource
 
         // Nếu là quà tặng thì không hiển thị ở "bienthe" nữa
         'bienthe' => $isGift ? null : [
-            'id_bienthe' => $this->bienthe->id,
+            // 'id_bienthe' => $this->bienthe->id,
             'soluong' => $this->soluong,
             'giagoc' => $this->bienthe->giagoc,
             'thanhtien' => $this->thanhtien,
@@ -89,7 +89,7 @@ class GioHangResource extends JsonResource
 
         // Nếu là quà tặng thì hiển thị ở "bienthe_quatang"
         'bienthe_quatang' => $isGift ? [
-                'id_bienthe' => $this->bienthe->id,
+                // 'id_bienthe' => $this->bienthe->id,
                 'soluong' => $this->soluong,
                 'giagoc' => $this->bienthe->giagoc,
                 'thanhtien' => 0,

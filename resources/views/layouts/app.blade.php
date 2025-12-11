@@ -214,7 +214,7 @@
                 </ul>
               </li>
                 {{-- // -- quản lý kho --// --}}
-                <li class="submenu">
+                {{-- <li class="submenu">
                     <a href="javascript:void(0);"
                     ><img src="{{asset('img/icons/sales1.svg')}}" alt="img" /><span>
                         Quản lý kho</span
@@ -225,7 +225,7 @@
                         <li><a class="{{ request()->routeIs('danh-sach-kho-hang') ? 'active' : '' }}" href="{{ route('danh-sach-kho-hang') }}">Kho hàng</a></li>
 
                     </ul>
-                </li>
+                </li> --}}
                 {{-- // -- quản lý quà tăng --// --}}
                 <li class="submenu">
                     <a href="javascript:void(0);"

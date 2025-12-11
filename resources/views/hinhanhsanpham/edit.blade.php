@@ -121,14 +121,14 @@
                     </div>
 
                     {{-- Nút gửi form và quay lại --}}
-                    {{-- <div class="mt-4">
+                    <div class="mt-4">
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-save"></i> Cập nhật
                         </button>
-                        <a href="{{ route('hinhanhsanpham.index') }}" class="btn btn-secondary ms-2">
+                        {{-- <a href="{{ route('hinhanhsanpham.index') }}" class="btn btn-secondary ms-2">
                             <i class="bi bi-arrow-left"></i> Quay lại
-                        </a>
-                    </div> --}}
+                        </a> --}}
+                    </div>
                 </form>
 
             </div>

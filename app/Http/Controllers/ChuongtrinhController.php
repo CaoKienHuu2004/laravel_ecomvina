@@ -271,10 +271,78 @@ class ChuongtrinhController extends Controller
 
             $updatedIds = []; // Để lưu các quà tặng được update hoặc thêm mới
 
+            // foreach ($request->quatangsukien as $item) {
+            //     // Nếu có id => update, không có id => tạo mới
+            //     if (!empty($item['id'])) {
+            //         $quatang = QuatangsukienModel::find($item['id']);
+            //         if ($quatang) {
+            //             $quatang->id_chuongtrinh = $chuongtrinh->id;
+            //             $quatang->id_bienthe = $item['id_bienthe'];
+            //             $quatang->tieude = $item['tieude'];
+            //             $quatang->thongtin = $item['thongtin'] ?? '';
+            //             $quatang->dieukiensoluong = $item['dieukiensoluong'] ?? '';
+            //             $quatang->dieukiengiatri = $item['dieukiengiatri'] ?? '';
+            //             $quatang->trangthai = $item['trangthai'] ?? 'Hiển thị';
+            //             $quatang->ngaybatdau = $item['ngaybatdau'] ?? null;
+            //             $quatang->ngayketthuc = $item['ngayketthuc'] ?? null;
+
+            //             // Xử lý upload ảnh quà tặng nếu có
+            //             if (isset($item['hinhanh']) && $item['hinhanh'] instanceof \Illuminate\Http\UploadedFile) {
+            //                 // Xóa ảnh cũ
+            //                 if ($quatang->hinhanh) {
+            //                     $oldGiftPath = public_path(str_replace($this->domain, '', $quatang->hinhanh));
+            //                     if (file_exists($oldGiftPath)) {
+            //                         unlink($oldGiftPath);
+            //                     }
+            //                 }
+
+            //                 $giftFile = $item['hinhanh'];
+            //                 $giftName = Str::slug(str_replace('/', '-', $item['tieude'])) . '.' . $giftFile->getClientOriginalExtension();
+            //                 // $giftName = Str::slug($item['tieude']) . '.' . $giftFile->getClientOriginalExtension();
+            //                 $giftPath = public_path($this->uploadDir);
+            //                 if (!file_exists($giftPath)) mkdir($giftPath, 0755, true);
+            //                 $link_hinh_anh = $this->domain . $this->uploadDir . '/' . $giftName;
+            //                 $giftFile->move($giftPath, $giftName);
+            //                 $quatang->hinhanh = $link_hinh_anh;
+            //             }
+
+            //             $quatang->save();
+            //             $updatedIds[] = $quatang->id;
+            //         }
+            //     } else {
+            //         // Tạo mới quà tặng
+            //         $quatang = new QuatangsukienModel();
+            //         $quatang->id_chuongtrinh = $chuongtrinh->id;
+            //         $quatang->id_bienthe = $item['id_bienthe'];
+            //         $quatang->tieude = $item['tieude'];
+            //         $quatang->thongtin = $item['thongtin'] ?? '';
+            //         $quatang->dieukiensoluong = $item['dieukiensoluong'] ?? '';
+            //         $quatang->dieukiengiatri = $item['dieukiengiatri'] ?? '';
+            //         $quatang->trangthai = $item['trangthai'] ?? 'Hiển thị';
+            //         $quatang->ngaybatdau = $item['ngaybatdau'] ?? null;
+            //         $quatang->ngayketthuc = $item['ngayketthuc'] ?? null;
+
+            //         if (isset($item['hinhanh']) && $item['hinhanh'] instanceof \Illuminate\Http\UploadedFile) {
+            //             $giftFile = $item['hinhanh'];
+            //             $giftName = Str::slug($item['tieude']) . '.' . $giftFile->getClientOriginalExtension();
+            //             $giftPath = public_path($this->uploadDir);
+            //             if (!file_exists($giftPath)) mkdir($giftPath, 0755, true);
+            //             $link_hinh_anh = $this->domain . $this->uploadDir . '/' . $giftName;
+            //             $giftFile->move($giftPath, $giftName);
+            //             $quatang->hinhanh = $link_hinh_anh;
+            //         }
+
+            //         $quatang->save();
+            //         $updatedIds[] = $quatang->id;
+            //     }
+            // }
             foreach ($request->quatangsukien as $item) {
-                // Nếu có id => update, không có id => tạo mới
+
+                // --- UPDATE ---
                 if (!empty($item['id'])) {
+
                     $quatang = QuatangsukienModel::find($item['id']);
+
                     if ($quatang) {
                         $quatang->id_chuongtrinh = $chuongtrinh->id;
                         $quatang->id_bienthe = $item['id_bienthe'];
@@ -286,31 +354,38 @@ class ChuongtrinhController extends Controller
                         $quatang->ngaybatdau = $item['ngaybatdau'] ?? null;
                         $quatang->ngayketthuc = $item['ngayketthuc'] ?? null;
 
-                        // Xử lý upload ảnh quà tặng nếu có
+                        // ✔ Nếu có upload ảnh → xử lý ảnh
                         if (isset($item['hinhanh']) && $item['hinhanh'] instanceof \Illuminate\Http\UploadedFile) {
+
                             // Xóa ảnh cũ
                             if ($quatang->hinhanh) {
                                 $oldGiftPath = public_path(str_replace($this->domain, '', $quatang->hinhanh));
-                                if (file_exists($oldGiftPath)) {
-                                    unlink($oldGiftPath);
-                                }
+                                if (file_exists($oldGiftPath)) unlink($oldGiftPath);
                             }
 
                             $giftFile = $item['hinhanh'];
-                            $giftName = Str::slug(str_replace('/', '-', $item['tieude'])) . '.' . $giftFile->getClientOriginalExtension();
-                            // $giftName = Str::slug($item['tieude']) . '.' . $giftFile->getClientOriginalExtension();
+                            $giftName = Str::slug($item['tieude']) . '.' . $giftFile->getClientOriginalExtension();
                             $giftPath = public_path($this->uploadDir);
+
                             if (!file_exists($giftPath)) mkdir($giftPath, 0755, true);
+
                             $link_hinh_anh = $this->domain . $this->uploadDir . '/' . $giftName;
                             $giftFile->move($giftPath, $giftName);
+
                             $quatang->hinhanh = $link_hinh_anh;
+
                         }
+                        // ✔ Nếu KHÔNG upload ảnh → giữ ảnh cũ
+                        // => Không làm gì cả
 
                         $quatang->save();
                         $updatedIds[] = $quatang->id;
                     }
-                } else {
-                    // Tạo mới quà tặng
+
+                }
+                // --- CREATE NEW ---
+                else {
+
                     $quatang = new QuatangsukienModel();
                     $quatang->id_chuongtrinh = $chuongtrinh->id;
                     $quatang->id_bienthe = $item['id_bienthe'];
@@ -322,14 +397,23 @@ class ChuongtrinhController extends Controller
                     $quatang->ngaybatdau = $item['ngaybatdau'] ?? null;
                     $quatang->ngayketthuc = $item['ngayketthuc'] ?? null;
 
+                    // ✔ Nếu có upload ảnh → upload
                     if (isset($item['hinhanh']) && $item['hinhanh'] instanceof \Illuminate\Http\UploadedFile) {
+
                         $giftFile = $item['hinhanh'];
                         $giftName = Str::slug($item['tieude']) . '.' . $giftFile->getClientOriginalExtension();
                         $giftPath = public_path($this->uploadDir);
+
                         if (!file_exists($giftPath)) mkdir($giftPath, 0755, true);
+
                         $link_hinh_anh = $this->domain . $this->uploadDir . '/' . $giftName;
                         $giftFile->move($giftPath, $giftName);
+
                         $quatang->hinhanh = $link_hinh_anh;
+
+                    } else {
+                        // ✔ Tạo mới mà không có ảnh → set rỗng
+                        $quatang->hinhanh = '';
                     }
 
                     $quatang->save();

@@ -361,7 +361,7 @@ class SanphamController extends Controller
                 'giamgia.max'      => 'Giảm giá không được lớn hơn 100',
 
                 'anhsanpham.*.image' => 'Ảnh phải đúng định dạng hình ảnh (jpeg, png, jpg, gif, webp)',
-
+                // .php php steam rm artisan
                 'bienthe.*.gia.required' => 'Vui lòng nhập giá cho biến thể',
                 'bienthe.*.gia.numeric'  => 'Giá biến thể phải là số',
                 'bienthe.*.gia.min'      => 'Giá biến thể không được nhỏ hơn 0',
