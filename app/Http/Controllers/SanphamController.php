@@ -308,6 +308,72 @@ class SanphamController extends Controller
 
     public function update(Request $request, $id)
     {
+        $valueTrangThai = SanphamModel::getEnumValues('trangthai');
+
+        $request->validate(
+            [
+                'ten'        => 'required|string|max:255',
+                'id_danhmuc'   => 'required|array',
+                'id_danhmuc.*' => 'integer|exists:danhmuc,id',
+
+                'id_thuonghieu' => 'required|integer',
+
+                'xuatxu'   => 'required|string|max:255',
+                'sanxuat'  => 'nullable|string|max:255',
+
+                'mo_ta'        => 'required|string',
+
+                'giamgia'        => 'required|numeric|min:0|max:100',
+
+                'anhsanpham.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:6120',
+                // php init 2MB -> 20 MB, valite 2MB hien tai 6MB
+                'bienthe.*.gia' => 'required|numeric|min:0',
+                'bienthe.*.soluong' => 'required|integer|min:0',
+
+                'trangthai'    => 'required|in:' . implode(',', $valueTrangThai),
+            ],
+            [
+                'ten.required'         => 'Hãy nhập tên sản phẩm !',
+                'ten.string'           => 'Tên sản phẩm phải là chuỗi ký tự',
+                'ten.max'              => 'Tên sản phẩm không quá 255 ký tự',
+
+                'id_danhmuc.required'    => 'Vui lòng chọn ít nhất một danh mục',
+                'id_danhmuc.array'       => 'Danh mục không hợp lệ',
+                'id_danhmuc.*.integer'   => 'Danh mục không hợp lệ',
+                'id_danhmuc.*.exists'    => 'Danh mục đã chọn không tồn tại',
+
+                'id_thuonghieu.required' => 'Vui lòng chọn thương hiệu',
+                'id_thuonghieu.integer'  => 'Thương hiệu không hợp lệ',
+
+                'xuatxu.required'        => 'Vui lòng nhập xuất xứ',
+                'xuatxu.string'          => 'Xuất xứ phải là chuỗi ký tự',
+                'xuatxu.max'             => 'Xuất xứ không quá 255 ký tự',
+
+                'sanxuat.string'         => 'Nơi sản xuất phải là chuỗi ký tự',
+                'sanxuat.max'            => 'Nơi sản xuất không quá 255 ký tự',
+
+                'mo_ta.required'         => 'Vui lòng nhập mô tả sản phẩm',
+                'mo_ta.string'           => 'Mô tả sản phẩm không hợp lệ',
+
+                'giamgia.required' => 'Vui lòng nhập giảm giá',
+                'giamgia.numeric'  => 'Giảm giá phải là số',
+                'giamgia.min'      => 'Giảm giá không được nhỏ hơn 0',
+                'giamgia.max'      => 'Giảm giá không được lớn hơn 100',
+
+                'anhsanpham.*.image' => 'Ảnh phải đúng định dạng hình ảnh (jpeg, png, jpg, gif, webp)',
+
+                'bienthe.*.gia.required' => 'Vui lòng nhập giá cho biến thể',
+                'bienthe.*.gia.numeric'  => 'Giá biến thể phải là số',
+                'bienthe.*.gia.min'      => 'Giá biến thể không được nhỏ hơn 0',
+
+                'bienthe.*.soluong.required' => 'Vui lòng nhập số lượng cho biến thể',
+                'bienthe.*.soluong.integer'  => 'Số lượng biến thể phải là số nguyên',
+                'bienthe.*.soluong.min'      => 'Số lượng biến thể không được nhỏ hơn 0',
+
+                'trangthai.required'         => 'Vui lòng chọn trạng thái !',
+                'trangthai.in'           => 'Trạng thái không hợp lệ. Giá trị hợp lệ: ' . implode(', ', $valueTrangThai),
+            ]
+        );
         $sanpham = SanphamModel::with(['bienthe', 'hinhanhsanpham'])->findOrFail($id);
         // chưa validate
         // $valueTrangThai = SanphamModel::getEnumValues('trangthai');
