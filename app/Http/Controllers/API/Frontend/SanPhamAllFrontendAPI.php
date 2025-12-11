@@ -404,8 +404,7 @@ class SanPhamAllFrontendAPI extends BaseFrontendController
             'bienthe',
             'loaibienthe',
             'bienthe.loaibienthe',
-            'bienthe.sanpham',
-            'bienthe.quatangsukien.chuongtrinh:id,tieude'
+            'bienthe.sanpham'
         ])
         ->withAvg('danhgia as avg_rating', 'diem')       // điểm trung bình
         ->withCount('danhgia as review_count')           // tổng số đánh giá

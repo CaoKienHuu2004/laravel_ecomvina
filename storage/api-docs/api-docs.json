@@ -5853,6 +5853,10 @@
                         "type": "boolean",
                         "example": "true"
                     },
+                    "id_chuongtrinh": {
+                        "type": "integer",
+                        "example": 1
+                    },
                     "": {
                         "type": "string",
                         "example": "banh-quy-abc"

@@ -21,6 +21,7 @@ use Illuminate\Support\Str;
  *     @OA\Property(property="ten", type="string", example="Bánh quy ABC"),
  *     @OA\Property(property="slug", type="string", example="banh-quy-abc"),
  *     @OA\Property(property="have_gift", type="boolean", example="true"),
+ *     @OA\Property(property="id_chuongtrinh", type="integer", example=1),
  *     @OA\Property(property="", type="string", example="banh-quy-abc"),
  *     @OA\Property(
  *         property="rating",
@@ -230,6 +231,9 @@ class SanPhamAllDetailResources extends JsonResource
                     'giamgia' => $item->sanpham->giamgia,
                     'giahientai' => $item->giagoc * (1 - (($item->sanpham->giamgia ?? 0) / 100)),
                     'luotban' => $item->luotban,
+                    // 'id_chuongtrinh' => $item->quatangsukien->map(function($qt) {
+                    //     return $qt->chuongtrinh->id;
+                    // }),
 
                 ];
             })

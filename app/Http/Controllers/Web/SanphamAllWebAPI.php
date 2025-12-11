@@ -226,8 +226,8 @@ class SanphamAllWebAPI extends BaseFrontendController
             'bienthe',
             'loaibienthe',
             'bienthe.loaibienthe',
-            'bienthe.sanpham',
-            'bienthe.quatangsukien.chuongtrinh:id,tieude'
+            'bienthe.sanpham'
+            // ,'bienthe.quatangsukien.chuongtrinh:id,tieude'
         ])
         ->withAvg('danhgia as avg_rating', 'diem')       // điểm trung bình
         ->withCount('danhgia as review_count')           // tổng số đánh giá
@@ -340,12 +340,12 @@ class SanphamAllWebAPI extends BaseFrontendController
                 'name' => $item->ten,
                 'slug' => $item->slug,
                 'have_gift' => (bool) $item->have_gift ?? false,
-                'giftProgramId' => optional(
-                    $item->bienthe
-                        ->flatMap(fn($bt) => $bt->quatangsukien)
-                        ->first()
-                        ->chuongtrinh ?? null
-                )->id,
+                // 'giftProgramId' => optional(
+                //     $item->bienthe
+                //         ->flatMap(fn($bt) => $bt->quatangsukien)
+                //         ->first()
+                //         ->chuongtrinh ?? null
+                // )->id,
                 'originalPrice' => (int)optional($item->bienthe->where('giagoc', '>', 0)->sortBy('giagoc')->first())->giagoc,
                 'discount' => (int)$item->giamgia,
                 'sold' => (int)$item->total_sold,
@@ -408,8 +408,8 @@ class SanphamAllWebAPI extends BaseFrontendController
                 'bienthe',
                 'loaibienthe',
                 'bienthe.loaibienthe',
-                'bienthe.sanpham',
-                'bienthe.quatangsukien.chuongtrinh:id,tieude'
+                'bienthe.sanpham'
+                // ,'bienthe.quatangsukien.chuongtrinh:id,tieude'
             ])
             ->withSum('bienthe as total_sold', 'luotban')
             ->withSum('bienthe as total_quantity', 'soluong')
@@ -492,12 +492,12 @@ class SanphamAllWebAPI extends BaseFrontendController
                 'name' => $item->ten,
                 'slug' => $item->slug,
                 'have_gift' => $query->have_gift ?? false,
-                'giftProgramId' => optional(
-                    $item->bienthe
-                        ->flatMap(fn($bt) => $bt->quatangsukien)
-                        ->first()
-                        ->chuongtrinh ?? null
-                )->id,
+                // 'giftProgramId' => optional(
+                //     $item->bienthe
+                //         ->flatMap(fn($bt) => $bt->quatangsukien)
+                //         ->first()
+                //         ->chuongtrinh ?? null
+                // )->id,
                 'originalPrice' => (int)optional($item->bienthe->where('giagoc', '>', 0)->sortBy('giagoc')->first())->giagoc,
                 'discount' => (int)$item->giamgia,
                 'sold' => (int)$item->total_sold,
