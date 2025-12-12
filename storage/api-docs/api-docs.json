@@ -1393,26 +1393,6 @@
                                         "description": "id dia chỉ ngươi dùng FE lấy được trước đó rồi truyền vào component donhang (nếu có)",
                                         "type": "integer",
                                         "example": 19
-                                    },
-                                    "nguoinhan": {
-                                        "description": "Họ tên người nhận",
-                                        "type": "string",
-                                        "example": "Lê văn B"
-                                    },
-                                    "diachinhan": {
-                                        "description": "địa chỉ người nhận hàng",
-                                        "type": "string",
-                                        "example": "123 pham văn trị, q.bình thạnh, Thành phố hồ chí minh"
-                                    },
-                                    "sodienthoai": {
-                                        "description": "10 chử số ",
-                                        "type": "string",
-                                        "example": "1234567890"
-                                    },
-                                    "khuvucgiao": {
-                                        "description": "thuộc enum tỉnh thành việt nam",
-                                        "type": "string",
-                                        "example": "Thành phố Hồ Chí Minh"
                                     }
                                 },
                                 "type": "object"

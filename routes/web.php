@@ -449,7 +449,7 @@ Route::apiResource('api-ma-giam-gia', MaGiamGiaWebApi::class)->only(['index']);
 Route::middleware(['auth.api'])->group(function () {
     Route::get('/tai-khoan/donhang', [DonHangWebApi::class, 'index']);
     Route::post('/tai-khoan/donhang', [DonHangWebApi::class, 'store']);
-    Route::post('/tai-khoan/donhang', [DonHangWebApi::class, 'show']);
+    Route::get('/tai-khoan/donhang/{id}', [DonHangWebApi::class, 'show']);
     Route::put('/tai-khoan/donhang/{id}', [DonHangWebApi::class, 'update']);
     Route::patch('/tai-khoan/donhang/{id}/huy', [DonHangWebApi::class, 'cancel']);
     // // Tích hợp vietqr
