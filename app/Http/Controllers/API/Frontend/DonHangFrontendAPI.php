@@ -285,6 +285,10 @@ class DonHangFrontendAPI extends BaseFrontendController
      *             @OA\Property(property="ma_phuongthuc", type="string", example="cod", description="Mã phương thức thanh toán, ví dụ 'cod', 'paypal', ..."),
      *             @OA\Property(property="ma_magiamgia", type="string", nullable=true, example=null, description="Mã giảm giá (nếu có)"),
      *             @OA\Property(property="id_diachinguoidung", type="int", example=19, description="id dia chỉ ngươi dùng FE lấy được trước đó rồi truyền vào component donhang (nếu có)"),
+     *             @OA\Property(property="nguoinhan", type="string", example="Lê văn B", description="Họ tên người nhận"),
+     *             @OA\Property(property="diachinhan", type="string", example="123 pham văn trị, q.bình thạnh, Thành phố hồ chí minh", description="địa chỉ người nhận hàng"),
+     *             @OA\Property(property="sodienthoai", type="string", example="1234567890", description="10 chử số "),
+     *             @OA\Property(property="khuvucgiao", type="string", example="Thành phố Hồ Chí Minh", description="thuộc enum tỉnh thành việt nam")
      *         )
      *     ),
      *     @OA\Response(
@@ -361,36 +365,36 @@ class DonHangFrontendAPI extends BaseFrontendController
      */
     public function store(Request $request)
     {
-        // $provinces = config('tinhthanh', []);
-        // // lấy danh sách khu vực (khi config trả mảng hoặc object)
-        // $arrKhuvuc = [];
-        // if (is_array($provinces)) {
-        //     $arrKhuvuc = $provinces['khuvuc'] ?? [];
-        // } elseif (is_object($provinces)) {
-        //     $arrKhuvuc = $provinces->khuvuc ?? [];
-        // }
+        $provinces = config('tinhthanh', []);
+        // lấy danh sách khu vực (khi config trả mảng hoặc object)
+        $arrKhuvuc = [];
+        if (is_array($provinces)) {
+            $arrKhuvuc = $provinces['khuvuc'] ?? [];
+        } elseif (is_object($provinces)) {
+            $arrKhuvuc = $provinces->khuvuc ?? [];
+        }
 
-        // // nếu arrKhuvuc là mảng, chuyển sang chuỗi cho rule in:
-        // $inKhuvuc = is_array($arrKhuvuc) && count($arrKhuvuc) ? implode(',', $arrKhuvuc) : '';
+        // nếu arrKhuvuc là mảng, chuyển sang chuỗi cho rule in:
+        $inKhuvuc = is_array($arrKhuvuc) && count($arrKhuvuc) ? implode(',', $arrKhuvuc) : '';
 
         // Bước 1: Validate dữ liệu đầu vào
         $validator = Validator::make($request->only(
             'ma_phuongthuc',
             'ma_magiamgia',
             'id_diachinguoidung',
-            // 'nguoinhan',
-            // 'diachinhan',
-            // 'sodienthoai',
-            // 'khuvucgiao'
+            'nguoinhan',
+            'diachinhan',
+            'sodienthoai',
+            'khuvucgiao'
         ), [
             'ma_phuongthuc'     => 'required|string|exists:phuongthuc,maphuongthuc',
             'ma_magiamgia'      => 'nullable|string|exists:magiamgia,magiamgia',
             'id_diachinguoidung'=> 'required|integer|exists:diachi_nguoidung,id',
-            // 'nguoinhan'         => 'required|string',
-            // 'diachinhan'        => 'required|string',
-            // 'sodienthoai'       => 'required|string|max:10',
-            // // nếu không có khu vực hợp lệ thì bỏ rule in: để không gây fail
-            // 'khuvucgiao'        => $inKhuvuc ? 'required|string|in:' . $inKhuvuc : 'required|string',
+            'nguoinhan'         => 'required|string',
+            'diachinhan'        => 'required|string',
+            'sodienthoai'       => 'required|string|max:10',
+            // nếu không có khu vực hợp lệ thì bỏ rule in: để không gây fail
+            'khuvucgiao'        => $inKhuvuc ? 'required|string|in:' . $inKhuvuc : 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -489,9 +493,9 @@ class DonHangFrontendAPI extends BaseFrontendController
             $thanhtien = $tamtinh - $giatriMagiamgia;
             if ($thanhtien < 0) $thanhtien = 0; // tránh âm
 
-            // $sodienthoai = $validated['sodienthoai'];
-            // $diachinhan = $validated['diachinhan'];
-            // $nguoinhan = $validated['nguoinhan'];
+            $sodienthoai = $validated['sodienthoai'];
+            $diachinhan = $validated['diachinhan'];
+            $nguoinhan = $validated['nguoinhan'];
             $ma_magiamgia = MagiamgiaModel::find($id_magiamgia) ?? null;
 
             $ma_phuongthuc = $validated['ma_phuongthuc'];
@@ -522,12 +526,12 @@ class DonHangFrontendAPI extends BaseFrontendController
             }
 
             // $khuvucgiao
-            // $khuvucgiao = $validated['khuvucgiao'];
+            $khuvucgiao = $validated['khuvucgiao'];
 
-            $nguoinhan   = $diachiGiaoHang->hoten ?? $user->hoten;
-            $diachinhan  = $diachiGiaoHang->diachi ?? $diachiGiaoHang->diachi;
-            $sodienthoai = $diachiGiaoHang->sodienthoai ?? $user->sodienthoai;
-            $khuvucgiao = $diachiGiaoHang->tinhthanh;
+            // $nguoinhan   = $diachiGiaoHang->hoten ?? $user->hoten;
+            // $diachinhan  = $diachiGiaoHang->diachi ?? $diachiGiaoHang->diachi;
+            // $sodienthoai = $diachiGiaoHang->sodienthoai ?? $user->sodienthoai;
+            // $khuvucgiao = $diachiGiaoHang->tinhthanh;
 
             $donhang = DonhangModel::create([
                 'id_phuongthuc'       => $phuongthuc->id,
@@ -546,15 +550,12 @@ class DonHangFrontendAPI extends BaseFrontendController
                 'diachinhan'          => $diachinhan,
                 'nguoinhan'           => $nguoinhan,
                 'khuvucgiao'          => $khuvucgiao,
-                // 'sodienthoai'         => $sodienthoai,
-                // 'diachinhan'          => $diachinhan,
-                // 'nguoinhan'           => $nguoinhan,
-                // 'khuvucgiao'          => $khuvucgiao,
                 // thông tin vận chuyển / voucher
+
                 'hinhthucvanchuyen'   => $ten_phivanchuyen ?? 'Không xác định',
                 'phigiaohang'         => $phigia,
                 'hinhthucthanhtoan'   => $hinhthucthanhtoan,
-                'mavoucher'           =>  $ma_magiamgia ? $ma_magiamgia->magiamgia : null,
+                'mavoucher'           => $ma_magiamgia ? $ma_magiamgia->magiamgia : null,
                 'giagiam'             => $giatriMagiamgia
             ]);
 
@@ -620,6 +621,7 @@ class DonHangFrontendAPI extends BaseFrontendController
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
     // public function store(Request $request)
     // {
     //     // Bước 1: Validate dữ liệu đầu vào
@@ -1331,7 +1333,6 @@ class DonHangFrontendAPI extends BaseFrontendController
     // #end------------------- Tích hợp thanh toán VietQR ----------------------//
 
 
-
     // #begin------------------- Mua Lại Đơn Hàng Và Đặt hàng lại đơn hàng ----------------------//
     public function thanhToanLaiDonHang(Request $request, $id)
     {
@@ -1433,4 +1434,6 @@ class DonHangFrontendAPI extends BaseFrontendController
         }
     }
     // #end------------------- Mua Lại Đơn Hàng Và Đặt hàng lại đơn hàng ----------------------//
+
+
 }

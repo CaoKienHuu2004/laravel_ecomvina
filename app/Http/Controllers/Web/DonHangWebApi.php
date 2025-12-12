@@ -169,36 +169,36 @@ class DonHangWebApi extends BaseFrontendController
 
     public function store(Request $request)
     {
-        // $provinces = config('tinhthanh', []);
-        // // lấy danh sách khu vực (khi config trả mảng hoặc object)
-        // $arrKhuvuc = [];
-        // if (is_array($provinces)) {
-        //     $arrKhuvuc = $provinces['khuvuc'] ?? [];
-        // } elseif (is_object($provinces)) {
-        //     $arrKhuvuc = $provinces->khuvuc ?? [];
-        // }
+        $provinces = config('tinhthanh', []);
+        // lấy danh sách khu vực (khi config trả mảng hoặc object)
+        $arrKhuvuc = [];
+        if (is_array($provinces)) {
+            $arrKhuvuc = $provinces['khuvuc'] ?? [];
+        } elseif (is_object($provinces)) {
+            $arrKhuvuc = $provinces->khuvuc ?? [];
+        }
 
-        // // nếu arrKhuvuc là mảng, chuyển sang chuỗi cho rule in:
-        // $inKhuvuc = is_array($arrKhuvuc) && count($arrKhuvuc) ? implode(',', $arrKhuvuc) : '';
+        // nếu arrKhuvuc là mảng, chuyển sang chuỗi cho rule in:
+        $inKhuvuc = is_array($arrKhuvuc) && count($arrKhuvuc) ? implode(',', $arrKhuvuc) : '';
 
         // Bước 1: Validate dữ liệu đầu vào
         $validator = Validator::make($request->only(
             'ma_phuongthuc',
             'ma_magiamgia',
             'id_diachinguoidung',
-            // 'nguoinhan',
-            // 'diachinhan',
-            // 'sodienthoai',
-            // 'khuvucgiao'
+            'nguoinhan',
+            'diachinhan',
+            'sodienthoai',
+            'khuvucgiao'
         ), [
             'ma_phuongthuc'     => 'required|string|exists:phuongthuc,maphuongthuc',
             'ma_magiamgia'      => 'nullable|string|exists:magiamgia,magiamgia',
             'id_diachinguoidung'=> 'required|integer|exists:diachi_nguoidung,id',
-            // 'nguoinhan'         => 'required|string',
-            // 'diachinhan'        => 'required|string',
-            // 'sodienthoai'       => 'required|string|max:10',
-            // // nếu không có khu vực hợp lệ thì bỏ rule in: để không gây fail
-            // 'khuvucgiao'        => $inKhuvuc ? 'required|string|in:' . $inKhuvuc : 'required|string',
+            'nguoinhan'         => 'required|string',
+            'diachinhan'        => 'required|string',
+            'sodienthoai'       => 'required|string|max:10',
+            // nếu không có khu vực hợp lệ thì bỏ rule in: để không gây fail
+            'khuvucgiao'        => $inKhuvuc ? 'required|string|in:' . $inKhuvuc : 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -297,9 +297,9 @@ class DonHangWebApi extends BaseFrontendController
             $thanhtien = $tamtinh - $giatriMagiamgia;
             if ($thanhtien < 0) $thanhtien = 0; // tránh âm
 
-            // $sodienthoai = $validated['sodienthoai'];
-            // $diachinhan = $validated['diachinhan'];
-            // $nguoinhan = $validated['nguoinhan'];
+            $sodienthoai = $validated['sodienthoai'];
+            $diachinhan = $validated['diachinhan'];
+            $nguoinhan = $validated['nguoinhan'];
             $ma_magiamgia = MagiamgiaModel::find($id_magiamgia) ?? null;
 
             $ma_phuongthuc = $validated['ma_phuongthuc'];
@@ -330,12 +330,12 @@ class DonHangWebApi extends BaseFrontendController
             }
 
             // $khuvucgiao
-            // $khuvucgiao = $validated['khuvucgiao'];
+            $khuvucgiao = $validated['khuvucgiao'];
 
-            $nguoinhan   = $diachiGiaoHang->hoten ?? $user->hoten;
-            $diachinhan  = $diachiGiaoHang->diachi ?? $diachiGiaoHang->diachi;
-            $sodienthoai = $diachiGiaoHang->sodienthoai ?? $user->sodienthoai;
-            $khuvucgiao = $diachiGiaoHang->tinhthanh;
+            // $nguoinhan   = $diachiGiaoHang->hoten ?? $user->hoten;
+            // $diachinhan  = $diachiGiaoHang->diachi ?? $diachiGiaoHang->diachi;
+            // $sodienthoai = $diachiGiaoHang->sodienthoai ?? $user->sodienthoai;
+            // $khuvucgiao = $diachiGiaoHang->tinhthanh;
 
             $donhang = DonhangModel::create([
                 'id_phuongthuc'       => $phuongthuc->id,
