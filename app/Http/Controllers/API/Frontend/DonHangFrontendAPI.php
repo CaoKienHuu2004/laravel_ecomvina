@@ -285,10 +285,6 @@ class DonHangFrontendAPI extends BaseFrontendController
      *             @OA\Property(property="ma_phuongthuc", type="string", example="cod", description="Mã phương thức thanh toán, ví dụ 'cod', 'paypal', ..."),
      *             @OA\Property(property="ma_magiamgia", type="string", nullable=true, example=null, description="Mã giảm giá (nếu có)"),
      *             @OA\Property(property="id_diachinguoidung", type="int", example=19, description="id dia chỉ ngươi dùng FE lấy được trước đó rồi truyền vào component donhang (nếu có)"),
-     *             @OA\Property(property="nguoinhan", type="string", example="Lê văn B", description="Họ tên người nhận"),
-     *             @OA\Property(property="diachinhan", type="string", example="123 pham văn trị, q.bình thạnh, Thành phố hồ chí minh", description="địa chỉ người nhận hàng"),
-     *             @OA\Property(property="sodienthoai", type="string", example="1234567890", description="10 chử số "),
-     *             @OA\Property(property="khuvucgiao", type="string", example="Thành phố Hồ Chí Minh", description="thuộc enum tỉnh thành việt nam")
      *         )
      *     ),
      *     @OA\Response(
@@ -365,36 +361,36 @@ class DonHangFrontendAPI extends BaseFrontendController
      */
     public function store(Request $request)
     {
-        $provinces = config('tinhthanh', []);
-        // lấy danh sách khu vực (khi config trả mảng hoặc object)
-        $arrKhuvuc = [];
-        if (is_array($provinces)) {
-            $arrKhuvuc = $provinces['khuvuc'] ?? [];
-        } elseif (is_object($provinces)) {
-            $arrKhuvuc = $provinces->khuvuc ?? [];
-        }
+        // $provinces = config('tinhthanh', []);
+        // // lấy danh sách khu vực (khi config trả mảng hoặc object)
+        // $arrKhuvuc = [];
+        // if (is_array($provinces)) {
+        //     $arrKhuvuc = $provinces['khuvuc'] ?? [];
+        // } elseif (is_object($provinces)) {
+        //     $arrKhuvuc = $provinces->khuvuc ?? [];
+        // }
 
-        // nếu arrKhuvuc là mảng, chuyển sang chuỗi cho rule in:
-        $inKhuvuc = is_array($arrKhuvuc) && count($arrKhuvuc) ? implode(',', $arrKhuvuc) : '';
+        // // nếu arrKhuvuc là mảng, chuyển sang chuỗi cho rule in:
+        // $inKhuvuc = is_array($arrKhuvuc) && count($arrKhuvuc) ? implode(',', $arrKhuvuc) : '';
 
         // Bước 1: Validate dữ liệu đầu vào
         $validator = Validator::make($request->only(
             'ma_phuongthuc',
             'ma_magiamgia',
             'id_diachinguoidung',
-            'nguoinhan',
-            'diachinhan',
-            'sodienthoai',
-            'khuvucgiao'
+            // 'nguoinhan',
+            // 'diachinhan',
+            // 'sodienthoai',
+            // 'khuvucgiao'
         ), [
             'ma_phuongthuc'     => 'required|string|exists:phuongthuc,maphuongthuc',
             'ma_magiamgia'      => 'nullable|string|exists:magiamgia,magiamgia',
             'id_diachinguoidung'=> 'required|integer|exists:diachi_nguoidung,id',
-            'nguoinhan'         => 'required|string',
-            'diachinhan'        => 'required|string',
-            'sodienthoai'       => 'required|string|max:10',
-            // nếu không có khu vực hợp lệ thì bỏ rule in: để không gây fail
-            'khuvucgiao'        => $inKhuvuc ? 'required|string|in:' . $inKhuvuc : 'required|string',
+            // 'nguoinhan'         => 'required|string',
+            // 'diachinhan'        => 'required|string',
+            // 'sodienthoai'       => 'required|string|max:10',
+            // // nếu không có khu vực hợp lệ thì bỏ rule in: để không gây fail
+            // 'khuvucgiao'        => $inKhuvuc ? 'required|string|in:' . $inKhuvuc : 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -493,9 +489,9 @@ class DonHangFrontendAPI extends BaseFrontendController
             $thanhtien = $tamtinh - $giatriMagiamgia;
             if ($thanhtien < 0) $thanhtien = 0; // tránh âm
 
-            $sodienthoai = $validated['sodienthoai'];
-            $diachinhan = $validated['diachinhan'];
-            $nguoinhan = $validated['nguoinhan'];
+            // $sodienthoai = $validated['sodienthoai'];
+            // $diachinhan = $validated['diachinhan'];
+            // $nguoinhan = $validated['nguoinhan'];
             $ma_magiamgia = MagiamgiaModel::find($id_magiamgia) ?? null;
 
             $ma_phuongthuc = $validated['ma_phuongthuc'];
@@ -526,12 +522,12 @@ class DonHangFrontendAPI extends BaseFrontendController
             }
 
             // $khuvucgiao
-            $khuvucgiao = $validated['khuvucgiao'];
+            // $khuvucgiao = $validated['khuvucgiao'];
 
-            // $nguoinhan   = $diachiGiaoHang->hoten ?? $user->hoten;
-            // $diachinhan  = $diachiGiaoHang->diachi ?? $diachiGiaoHang->diachi;
-            // $sodienthoai = $diachiGiaoHang->sodienthoai ?? $user->sodienthoai;
-            // $khuvucgiao = $diachiGiaoHang->tinhthanh;
+            $nguoinhan   = $diachiGiaoHang->hoten ?? $user->hoten;
+            $diachinhan  = $diachiGiaoHang->diachi ?? $diachiGiaoHang->diachi;
+            $sodienthoai = $diachiGiaoHang->sodienthoai ?? $user->sodienthoai;
+            $khuvucgiao = $diachiGiaoHang->tinhthanh;
 
             $donhang = DonhangModel::create([
                 'id_phuongthuc'       => $phuongthuc->id,
@@ -550,12 +546,15 @@ class DonHangFrontendAPI extends BaseFrontendController
                 'diachinhan'          => $diachinhan,
                 'nguoinhan'           => $nguoinhan,
                 'khuvucgiao'          => $khuvucgiao,
+                // 'sodienthoai'         => $sodienthoai,
+                // 'diachinhan'          => $diachinhan,
+                // 'nguoinhan'           => $nguoinhan,
+                // 'khuvucgiao'          => $khuvucgiao,
                 // thông tin vận chuyển / voucher
-
                 'hinhthucvanchuyen'   => $ten_phivanchuyen ?? 'Không xác định',
                 'phigiaohang'         => $phigia,
                 'hinhthucthanhtoan'   => $hinhthucthanhtoan,
-                'mavoucher'           => $ma_magiamgia ? $ma_magiamgia->magiamgia : null,
+                'mavoucher'           =>  $ma_magiamgia ? $ma_magiamgia->magiamgia : null,
                 'giagiam'             => $giatriMagiamgia
             ]);
 
@@ -566,13 +565,17 @@ class DonHangFrontendAPI extends BaseFrontendController
                 }
                 $tenloaibienthe = $bienthe->loaibienthe->ten ?? "Không có";
                 $tensanpham = $bienthe->sanpham->ten ?? "Không có";
+                $dongia = 0;
+                if ($item->thanhtien > 0 && $item->soluong > 0) {
+                    $dongia = intval($item->thanhtien / $item->soluong);
+                }
                 ChitietdonhangModel::create([
-                    'id_bienthe' => $item->id_bienthe,
+                    'id_donhang'     => $donhang->id,
+                    'id_bienthe'     => $item->id_bienthe,
+                    'tensanpham'     => $tensanpham,
                     'tenloaibienthe' => $tenloaibienthe,
-                    'tensanpham' => $tensanpham,
-                    'id_donhang' => $donhang->id,
-                    'soluong'    => $item->soluong,
-                    'dongia'     => $item->bienthe->giagoc ?? 0,
+                    'soluong'        => $item->soluong,
+                    'dongia'         => $dongia,
                 ]);
             }
 
@@ -621,7 +624,6 @@ class DonHangFrontendAPI extends BaseFrontendController
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-
     // public function store(Request $request)
     // {
     //     // Bước 1: Validate dữ liệu đầu vào
@@ -803,141 +805,319 @@ class DonHangFrontendAPI extends BaseFrontendController
 
 
     /**
-     * @OA\Put(
-     *     path="/api/tai-khoan/donhangs/{id}",
-     *     summary="Cập nhật thông tin và trạng thái đơn hàng (đồng bộ chi tiết)",
+     * @OA\Patch(
+     *     path="/api/tai-khoan/donhangs/{id}/trang-thai",
+     *     summary="Khách hàng cập nhật trạng thái đơn hàng (Đã giao hàng / Đã hủy)",
      *     description="
-     *     ✅ Cho phép người dùng:
-     *     - Cập nhật `id_phuongthuc`, `id_magiamgia` khi đơn còn ở trạng thái **'Chờ xử lý'**.
-     *     - Cập nhật `trangthai` (Đã chấp nhận, Đang giao hàng, Đã giao hàng, Đã hủy đơn).
+     *     ✅ Chức năng dành cho **khách hàng đã đăng nhập**:
+     *     - Cho phép cập nhật **trạng thái đơn hàng** sang:
+     *       • **Đã giao hàng**
+     *       • **Đã hủy**
      *
-     *     🔁 Khi thay đổi `trangthai`:
-     *     - Hệ thống tự **đồng bộ tất cả chi tiết đơn hàng** (`chitiet_donhang.trangthai` = trạng thái mới).
-     *     - Nếu trạng thái là **'Đã giao hàng'** → `DonhangObserver` sẽ tự động trừ kho (`bienthe.soluong -= chitietdonhang.soluong`) và tăng `luotmua`.
-     *     - Nếu trạng thái là **'Đã hủy đơn'** → `DonhangObserver` sẽ tự động hoàn lại tồn kho (`bienthe.soluong += chitietdonhang.soluong`).
+     *     🔒 Điều kiện:
+     *     - Đơn hàng phải thuộc về người dùng hiện tại.
+     *     - Không cho phép chuyển trạng thái ngược lại
+     *       (ngoại trừ chuyển sang **Đã hủy**).
+     *
+     *     🔁 Khi cập nhật trạng thái:
+     *     - Tự động **đồng bộ trạng thái tất cả chi tiết đơn hàng**.
+     *     - Nếu trạng thái là **Đã giao hàng**:
+     *         • Gửi thông báo cho admin.
+     *         • Nếu phương thức thanh toán là **COD** → gửi thêm thông báo nhắc admin nhận tiền từ đơn vị vận chuyển.
+     *     - Nếu trạng thái là **Đã hủy**:
+     *         • Gửi thông báo hủy đơn cho admin.
+     *
+     *     ⚙️ Xử lý nền:
+     *     - `DonhangObserver` sẽ tự động:
+     *         • Trừ kho & tăng lượt mua khi **Đã giao hàng**.
+     *         • Hoàn kho khi **Đã hủy**.
      *     ",
      *     tags={"Đơn hàng (Tài khoản)"},
      *     security={{"bearerAuth":{}}},
+     *
      *     @OA\Parameter(
      *         name="id",
      *         in="path",
      *         required=true,
-     *         description="ID đơn hàng cần cập nhật",
-     *         @OA\Schema(type="integer", example=1)
+     *         description="ID đơn hàng cần cập nhật trạng thái",
+     *         @OA\Schema(type="integer", example=12)
      *     ),
+     *
      *     @OA\RequestBody(
-     *         required=false,
+     *         required=true,
      *         @OA\JsonContent(
-     *             @OA\Property(property="id_phuongthuc", type="integer", example=2),
-     *             @OA\Property(property="id_magiamgia", type="integer", nullable=true, example=null),
-     *             @OA\Property(property="trangthai", type="string", enum={"Chờ xử lý","Đã chấp nhận","Đang giao hàng","Đã giao hàng","Đã hủy đơn"}, example="Đã giao hàng")
+     *             required={"trangthai"},
+     *             @OA\Property(
+     *                 property="trangthai",
+     *                 type="string",
+     *                 enum={"Đã giao hàng","Đã hủy"},
+     *                 example="Đã giao hàng"
+     *             )
      *         )
      *     ),
-     *     @OA\Response(response=200, description="Cập nhật đơn hàng và chi tiết thành công"),
-     *     @OA\Response(response=400, description="Trạng thái không hợp lệ hoặc không thể cập nhật"),
-     *     @OA\Response(response=404, description="Không tìm thấy đơn hàng hoặc không có quyền"),
-     *     @OA\Response(response=500, description="Lỗi hệ thống khi xử lý đơn hàng")
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Cập nhật trạng thái đơn hàng thành công"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Không thể chuyển trạng thái không hợp lệ"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Chưa xác thực người dùng"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Không tìm thấy đơn hàng hoặc không có quyền"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Dữ liệu đầu vào không hợp lệ"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Lỗi hệ thống khi xử lý đơn hàng"
+     *     )
      * )
      */
-    public function update(Request $request, $id)
+
+    public function update_trangthai(Request $request, $id)
     {
-        $enumTrangthai = DonhangModel::getEnumValues('trangthai');
         $user = $request->get('auth_user');
-
-        // Giả sử bạn có cách kiểm tra admin, ví dụ:
-        $isAdmin = $user->role === 'admin'; // hoặc tùy cách bạn định nghĩa quyền
-
-        // Validate input, các trường có thể không bắt buộc nếu người dùng không update
-        $validated = $request->validate([
-            'ma_phuongthuc'      => 'sometimes|string|exists:phuongthuc,maphuongthuc',
-            'ma_magiamgia'       => 'nullable|string|exists:magiamgia,magiamgia',
-            'trangthai'     => ['sometimes', Rule::in($enumTrangthai)],
-        ]);
-
-        $donhang = DonhangModel::with('chitietdonhang.bienthe')
-            ->where('id', $id)
-            ->where('id_nguoidung', $user->id)
-            ->first();
-
-        if (!$donhang) {
+        if (!$user) {
             return $this->jsonResponse([
-                'status'  => false,
-                'message' => 'Không tìm thấy đơn hàng hoặc bạn không có quyền!',
+                'status' => false,
+                'message' => 'Không xác thực được user.',
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $donhang = DonhangModel::with('chitietdonhang')->find($id);
+
+        if (!$donhang || $donhang->id_nguoidung !== $user->id) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Không tìm thấy đơn hàng hoặc bạn không có quyền.',
+            ], Response::HTTP_NOT_FOUND);
+        }
+        try {
+            $validated = $request->validate([
+                'trangthai' => 'required|string|in:Đã giao hàng,Đã hủy',
+            ]);
+        }  catch (\Illuminate\Validation\ValidationException $e) {
+
+            return $this->jsonResponse([
+                'error' => true,
+                'message' => 'Dữ liệu đầu vào không hợp lệ',
+                'errors' => $e->errors()
+            ], 422);
+        }
+
+        // Định nghĩa thứ tự trạng thái hợp lệ
+        $orderStates = [
+            'Chờ xử lý' => 1,
+            'Đã xác nhận' => 2,
+            'Đang chuẩn bị hàng' => 3,
+            'Đang giao hàng' => 4,
+            'Đã giao hàng' => 5,
+            'Đã hủy' => 6,
+            'Thành công' => 7,
+        ];
+
+        $currentStatus = $donhang->trangthai;
+        $newStatus = $validated['trangthai'];
+
+        // Kiểm tra trạng thái mới có hợp lệ không (không được lùi lại, trừ trường hợp là "Đã hủy")
+        if ($newStatus !== 'Đã hủy' && $orderStates[$newStatus] < $orderStates[$currentStatus]) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Không thể chuyển trạng thái ngược lại.',
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        $chiTietTrangThai = ($newStatus === 'Đã hủy') ? 'Đã hủy' : 'Đã đặt';
+
+        DB::transaction(function () use ($donhang, $newStatus, $chiTietTrangThai) {
+            $donhang->trangthai = $newStatus;
+            $donhang->save();
+
+            foreach ($donhang->chitietdonhang as $chitiet) {
+                $chitiet->trangthai = $chiTietTrangThai;
+                $chitiet->save();
+            }
+        });
+        // đã giao hàng thanh công với COD thì thangthaithanhtoan là Chưa thanh toán phải gửi kèm thông báo lấy tiền đơn vị vận chuyển và chuyển trangthaithanhtoan về Đã thanh toán
+
+        $message = "Vui lòng kiểm tra và gọi điện cho khách hàng để xác nhận và xử lý đơn hàng kịp thời.";
+        // Nếu trạng thái là "Đã giao hàng", gửi thông báo cho admin
+        if ($newStatus === 'Đã giao hàng') {
+
+            // Thông báo khách nhận hàng thành công
+            $tieude = "Thông báo khách hàng đã nhân hàng thành công {$donhang->madon}";
+            $noidung = "Đơn hàng #{$donhang->id} - {$donhang->madon} của người dùng #{$user->hoten} đã cập nhật nhân hàng thành công.".$message;
+            $lienket = $this->domain . "donhang/edit/{$donhang->id}";
+            $this->sentMessToAdmin($tieude,$noidung,$lienket,"Đơn hàng");
+
+            // Nếu phương thức thanh toán là COD (3), nhắc admin gọi đơn vị vận chuyển nhận tiề
+            if ($donhang->id_phuongthuc == 3) {
+                $tieudeCod = "Nhắc nhận tiền từ đơn vị vận chuyển cho đơn hàng {$donhang->madon}";
+                $noidungCod = "Đơn hàng #{$donhang->id} - {$donhang->madon} đã được khách nhận. Vui lòng liên hệ đơn vị vận chuyển để nhận tiền thanh toán COD.";
+                $lienket = $this->domain . "donhang/edit/{$donhang->id}";
+                $this->sentMessToAdmin($tieudeCod, $noidungCod, $lienket,"Đơn hàng");
+            }
+        }
+
+        // Nếu trạng thái là "Đã hủy", gửi thông báo cho admin
+        if ($newStatus === 'Đã hủy') {
+            $tieude = "Thông báo hủy đơn hàng {$donhang->madon}";
+            $noidung = "Đơn hàng #{$donhang->id} - {$donhang->madon} của người dùng #{$user->hoten} đã cập nhật hủy đơn hàng.".$message;
+
+            $lienket = $this->domain . "donhang/edit/{$donhang->id}";
+
+            $this->sentMessToAdmin($tieude,$noidung,$lienket,"Đơn hàng");
+        }
+
+        $donhang->load(['chitietdonhang.bienthe.loaibienthe', 'chitietdonhang.bienthe.sanpham','chitietdonhang.bienthe.sanpham.hinhanhsanpham']);
+
+        return response()->json(new TheoDoiDonHangDetailResource($donhang), Response::HTTP_OK);
+    }
+
+
+    /**
+     * @OA\Patch(
+     *     path="/api/tai-khoan/donhangs/{id}/phuong-thuc",
+     *     summary="Khách hàng thay đổi phương thức thanh toán của đơn hàng",
+     *     description="
+     *     ✅ Chức năng dành cho **khách hàng đã đăng nhập**:
+     *     - Cho phép thay đổi **phương thức thanh toán** của đơn hàng.
+     *
+     *     🔒 Điều kiện:
+     *     - Đơn hàng phải thuộc về người dùng hiện tại.
+     *     - **Chỉ được thay đổi khi đơn hàng đang ở trạng thái _Chờ xử lý_.**
+     *
+     *     ⚠️ Lưu ý:
+     *     - API này **KHÔNG** thay đổi trạng thái đơn hàng.
+     *     - KHÔNG tác động đến chi tiết đơn hàng hay tồn kho.
+     *
+     *     🔔 Sau khi cập nhật:
+     *     - Hệ thống gửi thông báo cho admin để theo dõi đơn hàng.
+     *     ",
+     *     tags={"Đơn hàng (Tài khoản)"},
+     *     security={{"bearerAuth":{}}},
+     *
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID đơn hàng cần cập nhật phương thức thanh toán",
+     *         @OA\Schema(type="integer", example=12)
+     *     ),
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"ma_phuongthuc"},
+     *             @OA\Property(
+     *                 property="ma_phuongthuc",
+     *                 type="string",
+     *                 example="COD",
+     *                 description="Mã phương thức thanh toán (thuộc bảng phuongthuc)"
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Cập nhật phương thức thanh toán thành công"
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Không thể thay đổi phương thức thanh toán do trạng thái đơn hàng"
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Chưa xác thực người dùng"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Không tìm thấy đơn hàng hoặc không có quyền"
+     *     ),
+     *     @OA\Response(
+     *         response=422,
+     *         description="Dữ liệu đầu vào không hợp lệ"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Lỗi hệ thống"
+     *     )
+     * )
+     */
+    public function update_phuongthuc(Request $request, $id)
+    {
+        $user = $request->get('auth_user');
+        if (!$user) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Không xác thực được user.',
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        // Lấy đơn hàng
+        $donhang = DonhangModel::find($id);
+
+        if (!$donhang || $donhang->id_nguoidung !== $user->id) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Không tìm thấy đơn hàng hoặc bạn không có quyền.',
             ], Response::HTTP_NOT_FOUND);
         }
 
-        DB::beginTransaction();
-        try {
-            // Chỉ cho phép cập nhật id_phuongthuc hoặc id_magiamgia khi đơn hàng đang "Chờ xử lý"
-            if ((isset($validated['id_phuongthuc']) || array_key_exists('id_magiamgia', $validated))
-                && $donhang->trangthai !== 'Chờ xử lý') {
-                DB::rollBack();
-                return $this->jsonResponse([
-                    'status'  => false,
-                    'message' => 'Chỉ có thể thay đổi thông tin thanh toán khi đơn hàng đang ở trạng thái "Chờ xử lý".',
-                ], Response::HTTP_BAD_REQUEST);
-            }
-
-            // Kiểm tra trạng thái mới (nếu có) có hợp lệ (không được lùi trạng thái trừ admin)
-            if (isset($validated['trangthai'])) {
-                $currentStatus = $donhang->trangthai;
-                $newStatus = $validated['trangthai'];
-
-                // Danh sách thứ tự trạng thái (giả định theo quy trình)
-                $statusOrder = [
-                    'Chờ xử lý'    => 1,
-                    'Đã chấp nhận' => 2,
-                    'Đang giao hàng'=> 3,
-                    'Đã giao hàng' => 4,
-                    'Đã hủy đơn'   => 5,
-                ];
-
-                if (!$isAdmin && $statusOrder[$newStatus] < $statusOrder[$currentStatus]) {
-                    DB::rollBack();
-                    return $this->jsonResponse([
-                        'status'  => false,
-                        'message' => 'Không được phép thay đổi trạng thái lùi lại trừ khi có quyền quản trị.',
-                    ], Response::HTTP_FORBIDDEN);
-                }
-            }
-
-            // Cập nhật thông tin đơn hàng
-            $donhang->update($validated);
-
-            // Đồng bộ trạng thái thanh toán theo id_phuongthuc (nếu có thay đổi)
-            if (isset($validated['id_phuongthuc'])) {
-                if (in_array($validated['id_phuongthuc'], [1, 2])) {
-                    $donhang->trangthaithanhtoan = 'Đã thanh toán';
-                } elseif ($validated['id_phuongthuc'] == 3) {
-                    $donhang->trangthaithanhtoan = 'Chưa thanh toán';
-                }
-                $donhang->save();
-            }
-
-            // Đồng bộ trạng thái chi tiết nếu cập nhật trạng thái đơn hàng
-            if (isset($validated['trangthai'])) {
-                foreach ($donhang->chitietdonhang as $ct) {
-                    $ct->update(['trangthai' => $validated['trangthai']]);
-                }
-            }
-
-            DB::commit();
-
+        // ❌ Không cho đổi nếu đơn đã xử lý
+        if ($donhang->trangthai !== 'Chờ xử lý') {
             return $this->jsonResponse([
-                'status'  => true,
-                'message' => 'Cập nhật đơn hàng và chi tiết thành công!',
-                'data'    => $donhang->fresh('chitietdonhang.bienthe'),
-            ], Response::HTTP_OK);
-
-        } catch (\Throwable $e) {
-            DB::rollBack();
-
-            return $this->jsonResponse([
-                'status'  => false,
-                'message' => 'Lỗi khi cập nhật đơn hàng!',
-                'error'   => $e->getMessage(),
-            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+                'status' => false,
+                'message' => 'Chỉ được thay đổi phương thức thanh toán khi đơn đang ở trạng thái Chờ xử lý.',
+            ], Response::HTTP_BAD_REQUEST);
         }
+
+        // Validate
+        try {
+            $validated = $request->validate([
+                'ma_phuongthuc' => 'required|exists:phuongthuc,ma_phuongthuc',
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Dữ liệu đầu vào không hợp lệ.',
+                'errors' => $e->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        // Lấy phương thức thanh toán
+        $phuongthuc = PhuongThucModel::where('ma_phuongthuc', $validated['ma_phuongthuc'])->first();
+
+        // Update
+        $donhang->id_phuongthuc = $phuongthuc->id;
+        $donhang->save();
+
+        // Gửi thông báo admin
+        $tieude = "Khách hàng thay đổi phương thức thanh toán - {$donhang->madon}";
+        $noidung = "Đơn hàng #{$donhang->id} ({$donhang->madon}) của khách {$user->hoten} đã thay đổi phương thức thanh toán sang: {$phuongthuc->ten_phuongthuc}.";
+        $lienket = $this->domain . "donhang/show/{$donhang->id}";
+        $this->sentMessToAdmin($tieude, $noidung, $lienket, "Đơn hàng");
+
+        // Load lại quan hệ cần thiết
+        $donhang->load([
+            'phuongthuc',
+            'chitietdonhang.bienthe.sanpham'
+        ]);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Cập nhật phương thức thanh toán thành công.',
+            'data' => new TheoDoiDonHangDetailResource($donhang)
+        ], Response::HTTP_OK);
     }
 
 
@@ -1333,6 +1513,7 @@ class DonHangFrontendAPI extends BaseFrontendController
     // #end------------------- Tích hợp thanh toán VietQR ----------------------//
 
 
+
     // #begin------------------- Mua Lại Đơn Hàng Và Đặt hàng lại đơn hàng ----------------------//
     public function thanhToanLaiDonHang(Request $request, $id)
     {
@@ -1434,6 +1615,4 @@ class DonHangFrontendAPI extends BaseFrontendController
         }
     }
     // #end------------------- Mua Lại Đơn Hàng Và Đặt hàng lại đơn hàng ----------------------//
-
-
 }

@@ -795,7 +795,14 @@ class GioHangWebApi extends Controller
                     $item = GiohangModel::where('id_nguoidung', $userId)
                         ->where('id', $id)
                         ->lockForUpdate()
-                        ->firstOrFail();
+                        ->first();
+                    if (!$item) {
+                        DB::rollBack();
+                        return $this->jsonResponse([
+                            'status' => false,
+                            'message' => 'Giỏ hàng không tồn tại hoặc không thuộc người dùng',
+                        ], Response::HTTP_BAD_REQUEST); // hoặc 404 nếu bạn muốn
+                    }
 
                     $id_bienthe = $item->id_bienthe;
 
@@ -843,7 +850,7 @@ class GioHangWebApi extends Controller
                     if ($id_chuongtrinh !== null) {
                     $promotion = DB::table('quatang_sukien as qs')
                         ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
-                        ->where('qs.id_bienthe', $id)
+                        ->where('qs.id_bienthe', $id_bienthe)
                         ->where('qs.id_chuongtrinh', $id_chuongtrinh)
                         ->where('qs.dieukiensoluong', '<=', $soluongNew)
                         ->where('qs.dieukiengiatri', '<=', $tongGiaGioHang) //edit
@@ -928,125 +935,151 @@ class GioHangWebApi extends Controller
                     ], Response::HTTP_INTERNAL_SERVER_ERROR);
                 }
             } else {
-                // Cập nhật trong session, có xử lý quà tặng
+                // =========================
+                // UPDATE GIỎ HÀNG SESSION
+                // =========================
 
                 $sessionCart = $request->session()->get($this->cart_session, []);
 
-                // Tìm sản phẩm chính trong session (thanhtien != 0)
-                $foundKey = null;
-                foreach ($sessionCart as $key => $item) {
-                    if ($item['id_bienthe'] == $id && ($item['thanhtien'] ?? null) !== 0) {
-                        $foundKey = $key;
-                        break;
-                    }
-                }
-
-                if ($foundKey === null) {
+                // $id chính là key của item trong session
+                if (!isset($sessionCart[$id])) {
                     return $this->jsonResponse([
                         'status' => false,
                         'message' => 'Sản phẩm không tồn tại trong giỏ hàng session',
                     ], Response::HTTP_NOT_FOUND);
                 }
 
-                if ($soluongNew == 0) {
+                $foundKey = $id;
+                $mainItem = $sessionCart[$foundKey];
+                $id_bienthe = $mainItem['id_bienthe'];
+                $soluongNew = (int) $soluongNew;
+
+                // =========================
+                // TRƯỜNG HỢP GIẢM VỀ 0
+                // =========================
+                if ($soluongNew === 0) {
                     // Xóa sản phẩm chính
                     unset($sessionCart[$foundKey]);
 
-                    // Đồng thời xóa quà tặng liên quan (thanhtien = 0)
+                    // Xóa toàn bộ quà tặng liên quan
                     foreach ($sessionCart as $key => $item) {
-                        if ($item['id_bienthe'] == $id && ($item['thanhtien'] ?? null) === 0) {
+                        if (
+                            $item['id_bienthe'] == $id_bienthe &&
+                            ($item['thanhtien'] ?? 0) === 0
+                        ) {
                             unset($sessionCart[$key]);
                         }
                     }
-                } else {
-                    // Lấy biến thể và khuyến mãi
-                    $variant = BientheModel::find($id);
-                    $priceUnit = $variant ? $variant->giagoc : 0;
 
-                    // 👉 Tính tổng giỏ hàng session hiện tại (chỉ tính sản phẩm có thanhtien > 0)
-                    // $sessionCart = $request->session()->get($this->cart_session, []);
-                    $tongGiaGioHangSession = 0;
-                    foreach ($sessionCart as $item) {
-                        if (($item['thanhtien'] ?? 0) > 0) {
-                            $tongGiaGioHangSession += $item['thanhtien'];
-                        }
-                    }
+                    // Reset index
+                    $sessionCart = array_values($sessionCart);
 
-                    // Trừ đi giá cũ của sản phẩm đang cập nhật
-                    $tongGiaGioHangSession -= $sessionCart[$foundKey]['thanhtien'] ?? 0;
+                    $request->session()->put($this->cart_session, $sessionCart);
 
-                    // Cộng thêm giá mới
-                    $tongGiaGioHangSession += $soluongNew * $priceUnit;
+                    return $this->jsonResponse([
+                        'status' => true,
+                        'message' => 'Đã xóa sản phẩm và quà tặng khỏi giỏ hàng (session)',
+                        'data' => $sessionCart,
+                    ], Response::HTTP_OK);
+                }
 
-                    $promotion = null;
-                    if ($id_chuongtrinh !== null) {
-                    $promotion = DB::table('quatang_sukien as qs')
-                        ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
-                        ->where('qs.id_bienthe', $id)
-                        ->where('qs.id_chuongtrinh', $id_chuongtrinh)
-                        ->where('qs.dieukiensoluong', '<=', $soluongNew)
-                        ->where('qs.dieukiengiatri', '<=', $tongGiaGioHangSession) //edit
-                        ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
-                        ->select('qs.dieukiensoluong as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
-                        ->first();
-                    }
+                // =========================
+                // LẤY GIÁ BIẾN THỂ
+                // =========================
+                $variant = BientheModel::find($id_bienthe);
+                $priceUnit = $variant ? (float) $variant->giagoc : 0;
 
-                    $numFreeNew = 0;
-                    $thanhtien = $soluongNew * $priceUnit;
-
-                    if ($promotion === null) {
-                        foreach ($sessionCart as $key => $item) {
-                            if ($item['id_bienthe'] == $id && ($item['thanhtien'] ?? 0) === 0) {
-                                unset($sessionCart[$key]);
-                            }
-                        }
-                        // Reset lại key sau khi xóa hết
-                        $sessionCart = array_values($sessionCart);
-                    }
-
-                    if ($promotion) {
-                        $promotionCount = floor($soluongNew / $promotion->discount_multiplier);
-                        // $numFreeNew = min($promotionCount, $promotion->current_luottang);
-                        $numFreeNew = $promotionCount;
-                        $numToPay = $soluongNew - $numFreeNew;
-                        $thanhtien = $numToPay * $promotion->giagoc;
-                    }
-
-                    // Cập nhật sản phẩm chính
-                    $sessionCart[$foundKey]['soluong'] = $soluongNew;
-                    $sessionCart[$foundKey]['thanhtien'] = $thanhtien;
-
-                    // Tìm quà tặng trong session
-                    $freeKey = null;
-                    foreach ($sessionCart as $key => $item) {
-                        if ($item['id_bienthe'] == $id && ($item['thanhtien'] ?? null) === 0) {
-                            $freeKey = $key;
-                            break;
-                        }
-                    }
-
-                    if ($numFreeNew > 0) {
-                        if ($freeKey !== null) {
-                            $sessionCart[$freeKey]['soluong'] = $numFreeNew;
-                        } else {
-                            // Thêm quà tặng mới
-                            $sessionCart[] = [
-                                'id_bienthe' => $id,
-                                'soluong' => $numFreeNew,
-                                'thanhtien' => 0,
-                            ];
-                        }
-                    } else {
-                        if ($freeKey !== null) {
-                            unset($sessionCart[$freeKey]);
-                        }
+                // =========================
+                // TÍNH TỔNG GIỎ HIỆN TẠI
+                // =========================
+                $tongGiaGioHangSession = 0;
+                foreach ($sessionCart as $item) {
+                    if (($item['thanhtien'] ?? 0) > 0) {
+                        $tongGiaGioHangSession += $item['thanhtien'];
                     }
                 }
 
-                // Reset lại key mảng
+                // Trừ giá cũ item đang update
+                $tongGiaGioHangSession -= $mainItem['thanhtien'];
+
+                // Cộng giá mới
+                $tongGiaGioHangSession += $soluongNew * $priceUnit;
+
+                // =========================
+                // TÌM KHUYẾN MÃI
+                // =========================
+                $promotion = null;
+                if (!empty($id_chuongtrinh)) {
+                    $promotion = DB::table('quatang_sukien as qs')
+                        ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
+                        ->where('qs.id_bienthe', $id_bienthe)
+                        ->where('qs.id_chuongtrinh', $id_chuongtrinh)
+                        ->where('qs.dieukiensoluong', '<=', $soluongNew)
+                        ->where('qs.dieukiengiatri', '<=', $tongGiaGioHangSession)
+                        ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
+                        ->select(
+                            'qs.dieukiensoluong as discount_multiplier',
+                            'bt.giagoc'
+                        )
+                        ->first();
+                }
+
+                // =========================
+                // TÍNH GIÁ & QUÀ TẶNG
+                // =========================
+                $numFreeNew = 0;
+                $thanhtien = $soluongNew * $priceUnit;
+
+                if ($promotion) {
+                    $promotionCount = floor($soluongNew / $promotion->discount_multiplier);
+                    $numFreeNew = max(0, $promotionCount);
+                    $numToPay = max(0, $soluongNew - $numFreeNew);
+                    $thanhtien = $numToPay * $promotion->giagoc;
+                }
+
+                // =========================
+                // CẬP NHẬT ITEM CHÍNH
+                // =========================
+                $sessionCart[$foundKey]['soluong'] = $soluongNew;
+                $sessionCart[$foundKey]['thanhtien'] = $thanhtien;
+
+                // =========================
+                // TÌM QUÀ TẶNG
+                // =========================
+                $freeKey = null;
+                foreach ($sessionCart as $key => $item) {
+                    if (
+                        $item['id_bienthe'] == $id_bienthe &&
+                        ($item['thanhtien'] ?? 0) === 0
+                    ) {
+                        $freeKey = $key;
+                        break;
+                    }
+                }
+
+                // =========================
+                // CẬP NHẬT / XÓA / THÊM QUÀ
+                // =========================
+                if ($numFreeNew > 0) {
+                    if ($freeKey !== null) {
+                        $sessionCart[$freeKey]['soluong'] = $numFreeNew;
+                    } else {
+                        $sessionCart[] = [
+                            'id_bienthe' => $id_bienthe,
+                            'soluong' => $numFreeNew,
+                            'thanhtien' => 0,
+                        ];
+                    }
+                } else {
+                    if ($freeKey !== null) {
+                        unset($sessionCart[$freeKey]);
+                    }
+                }
+
+                // Reset index
                 $sessionCart = array_values($sessionCart);
 
-                // Lưu lại session mới
+                // Lưu session
                 $request->session()->put($this->cart_session, $sessionCart);
 
                 return $this->jsonResponse([
@@ -1103,56 +1136,98 @@ class GioHangWebApi extends Controller
      *     )
      * )
      */
-
     public function destroy(Request $request, $id)
     {
         $user = $this->get_user_from_token($request);
 
+        /**
+         * =====================================================
+         * TRƯỜNG HỢP ĐÃ ĐĂNG NHẬP → XÓA TRONG DATABASE
+         * =====================================================
+         */
         if ($user) {
-            // Đã đăng nhập: xóa trong DB
             $userId = $user->id;
 
-            $item = GiohangModel::where('id_nguoidung', $userId)
-                ->where('id', $id)
-                ->firstOrFail();
+            DB::beginTransaction();
+            try {
+                // 1️⃣ Lấy item chính theo id_giohang
+                $item = GiohangModel::where('id_nguoidung', $userId)
+                    ->where('id', $id)
+                    ->lockForUpdate()
+                    ->firstOrFail();
 
-            $item->delete();
+                $id_bienthe = $item->id_bienthe;
 
-            return $this->jsonResponse([
-                'status' => true,
-                'message' => 'Xóa sản phẩm khỏi giỏ hàng thành công',
-            ]);
-        } else {
-            // Chưa đăng nhập: xóa trong session
-            $sessionCart = $request->session()->get($this->cart_session, []);
+                // 2️⃣ Xóa item chính
+                $item->delete();
 
-            // Tìm sản phẩm trong session dựa theo id biến thể (giả định $id là id_bienthe)
-            $foundKey = null;
-            foreach ($sessionCart as $key => $item) {
-                if ($item['id_bienthe'] == $id) {
-                    $foundKey = $key;
-                    break;
-                }
-            }
+                // 3️⃣ Xóa toàn bộ quà tặng liên quan (thanhtien = 0)
+                GiohangModel::where('id_nguoidung', $userId)
+                    ->where('id_bienthe', $id_bienthe)
+                    ->where('thanhtien', 0)
+                    ->delete();
 
-            if ($foundKey === null) {
+                DB::commit();
+
+                return $this->jsonResponse([
+                    'status' => true,
+                    'message' => 'Đã xóa sản phẩm và quà tặng khỏi giỏ hàng',
+                ]);
+
+            } catch (\Throwable $e) {
+                DB::rollBack();
+
                 return $this->jsonResponse([
                     'status' => false,
-                    'message' => 'Sản phẩm không tồn tại trong giỏ hàng session',
-                ], 404);
+                    'message' => 'Lỗi khi xóa sản phẩm khỏi giỏ hàng',
+                    'error' => $e->getMessage(),
+                ], 500);
             }
-
-            // Xóa sản phẩm khỏi session
-            unset($sessionCart[$foundKey]);
-
-            // Cập nhật lại session (reset key mảng)
-            $request->session()->put($this->cart_session, array_values($sessionCart));
-
-            return $this->jsonResponse([
-                'status' => true,
-                'message' => 'Xóa sản phẩm khỏi giỏ hàng thành công (phiên chưa đăng nhập)',
-                'data' => $request->session()->get($this->cart_session),
-            ]);
         }
+
+        /**
+         * =====================================================
+         * TRƯỜNG HỢP CHƯA ĐĂNG NHẬP → XÓA TRONG SESSION
+         * =====================================================
+         */
+        $sessionCart = $request->session()->get($this->cart_session, []);
+
+        // $id = key session
+        if (!isset($sessionCart[$id])) {
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Sản phẩm không tồn tại trong giỏ hàng session',
+            ], 404);
+        }
+
+        // 1️⃣ Lấy item chính
+        $mainItem = $sessionCart[$id];
+        $id_bienthe = $mainItem['id_bienthe'];
+
+        // 2️⃣ Xóa item chính
+        unset($sessionCart[$id]);
+
+        // 3️⃣ Xóa toàn bộ quà tặng liên quan
+        foreach ($sessionCart as $key => $item) {
+            if (
+                $item['id_bienthe'] == $id_bienthe &&
+                ($item['thanhtien'] ?? 0) === 0
+            ) {
+                unset($sessionCart[$key]);
+            }
+        }
+
+        // Reset index
+        $sessionCart = array_values($sessionCart);
+
+        // Lưu session
+        $request->session()->put($this->cart_session, $sessionCart);
+
+        return $this->jsonResponse([
+            'status' => true,
+            'message' => 'Đã xóa sản phẩm và quà tặng khỏi giỏ hàng (session)',
+            'data' => $sessionCart,
+        ]);
     }
+
 }

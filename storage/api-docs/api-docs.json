@@ -1393,26 +1393,6 @@
                                         "description": "id dia chỉ ngươi dùng FE lấy được trước đó rồi truyền vào component donhang (nếu có)",
                                         "type": "integer",
                                         "example": 19
-                                    },
-                                    "nguoinhan": {
-                                        "description": "Họ tên người nhận",
-                                        "type": "string",
-                                        "example": "Lê văn B"
-                                    },
-                                    "diachinhan": {
-                                        "description": "địa chỉ người nhận hàng",
-                                        "type": "string",
-                                        "example": "123 pham văn trị, q.bình thạnh, Thành phố hồ chí minh"
-                                    },
-                                    "sodienthoai": {
-                                        "description": "10 chử số ",
-                                        "type": "string",
-                                        "example": "1234567890"
-                                    },
-                                    "khuvucgiao": {
-                                        "description": "thuộc enum tỉnh thành việt nam",
-                                        "type": "string",
-                                        "example": "Thành phố Hồ Chí Minh"
                                     }
                                 },
                                 "type": "object"
@@ -1641,49 +1621,42 @@
                         "bearerAuth": []
                     }
                 ]
-            },
-            "put": {
+            }
+        },
+        "/api/tai-khoan/donhangs/{id}/trang-thai": {
+            "patch": {
                 "tags": [
                     "Đơn hàng (Tài khoản)"
                 ],
-                "summary": "Cập nhật thông tin và trạng thái đơn hàng (đồng bộ chi tiết)",
-                "description": "\n     *     ✅ Cho phép người dùng:\n     *     - Cập nhật `id_phuongthuc`, `id_magiamgia` khi đơn còn ở trạng thái **'Chờ xử lý'**.\n     *     - Cập nhật `trangthai` (Đã chấp nhận, Đang giao hàng, Đã giao hàng, Đã hủy đơn).\n     *\n     *     🔁 Khi thay đổi `trangthai`:\n     *     - Hệ thống tự **đồng bộ tất cả chi tiết đơn hàng** (`chitiet_donhang.trangthai` = trạng thái mới).\n     *     - Nếu trạng thái là **'Đã giao hàng'** → `DonhangObserver` sẽ tự động trừ kho (`bienthe.soluong -= chitietdonhang.soluong`) và tăng `luotmua`.\n     *     - Nếu trạng thái là **'Đã hủy đơn'** → `DonhangObserver` sẽ tự động hoàn lại tồn kho (`bienthe.soluong += chitietdonhang.soluong`).\n     *     ",
-                "operationId": "eeddeedd30e5acc51b7ba60181352833",
+                "summary": "Khách hàng cập nhật trạng thái đơn hàng (Đã giao hàng / Đã hủy)",
+                "description": "\n     *     ✅ Chức năng dành cho **khách hàng đã đăng nhập**:\n     *     - Cho phép cập nhật **trạng thái đơn hàng** sang:\n     *       • **Đã giao hàng**\n     *       • **Đã hủy**\n     *\n     *     🔒 Điều kiện:\n     *     - Đơn hàng phải thuộc về người dùng hiện tại.\n     *     - Không cho phép chuyển trạng thái ngược lại\n     *       (ngoại trừ chuyển sang **Đã hủy**).\n     *\n     *     🔁 Khi cập nhật trạng thái:\n     *     - Tự động **đồng bộ trạng thái tất cả chi tiết đơn hàng**.\n     *     - Nếu trạng thái là **Đã giao hàng**:\n     *         • Gửi thông báo cho admin.\n     *         • Nếu phương thức thanh toán là **COD** → gửi thêm thông báo nhắc admin nhận tiền từ đơn vị vận chuyển.\n     *     - Nếu trạng thái là **Đã hủy**:\n     *         • Gửi thông báo hủy đơn cho admin.\n     *\n     *     ⚙️ Xử lý nền:\n     *     - `DonhangObserver` sẽ tự động:\n     *         • Trừ kho & tăng lượt mua khi **Đã giao hàng**.\n     *         • Hoàn kho khi **Đã hủy**.\n     *     ",
+                "operationId": "25c9a13e6b1ea4cfbc1e808a4b1dce54",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "ID đơn hàng cần cập nhật",
+                        "description": "ID đơn hàng cần cập nhật trạng thái",
                         "required": true,
                         "schema": {
                             "type": "integer",
-                            "example": 1
+                            "example": 12
                         }
                     }
                 ],
                 "requestBody": {
-                    "required": false,
+                    "required": true,
                     "content": {
                         "application/json": {
                             "schema": {
+                                "required": [
+                                    "trangthai"
+                                ],
                                 "properties": {
-                                    "id_phuongthuc": {
-                                        "type": "integer",
-                                        "example": 2
-                                    },
-                                    "id_magiamgia": {
-                                        "type": "integer",
-                                        "example": null,
-                                        "nullable": true
-                                    },
                                     "trangthai": {
                                         "type": "string",
                                         "enum": [
-                                            "Chờ xử lý",
-                                            "Đã chấp nhận",
-                                            "Đang giao hàng",
                                             "Đã giao hàng",
-                                            "Đã hủy đơn"
+                                            "Đã hủy"
                                         ],
                                         "example": "Đã giao hàng"
                                     }
@@ -1695,16 +1668,89 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "Cập nhật đơn hàng và chi tiết thành công"
+                        "description": "Cập nhật trạng thái đơn hàng thành công"
                     },
                     "400": {
-                        "description": "Trạng thái không hợp lệ hoặc không thể cập nhật"
+                        "description": "Không thể chuyển trạng thái không hợp lệ"
+                    },
+                    "401": {
+                        "description": "Chưa xác thực người dùng"
                     },
                     "404": {
                         "description": "Không tìm thấy đơn hàng hoặc không có quyền"
                     },
+                    "422": {
+                        "description": "Dữ liệu đầu vào không hợp lệ"
+                    },
                     "500": {
                         "description": "Lỗi hệ thống khi xử lý đơn hàng"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/tai-khoan/donhangs/{id}/phuong-thuc": {
+            "patch": {
+                "tags": [
+                    "Đơn hàng (Tài khoản)"
+                ],
+                "summary": "Khách hàng thay đổi phương thức thanh toán của đơn hàng",
+                "description": "\n     *     ✅ Chức năng dành cho **khách hàng đã đăng nhập**:\n     *     - Cho phép thay đổi **phương thức thanh toán** của đơn hàng.\n     *\n     *     🔒 Điều kiện:\n     *     - Đơn hàng phải thuộc về người dùng hiện tại.\n     *     - **Chỉ được thay đổi khi đơn hàng đang ở trạng thái _Chờ xử lý_.**\n     *\n     *     ⚠️ Lưu ý:\n     *     - API này **KHÔNG** thay đổi trạng thái đơn hàng.\n     *     - KHÔNG tác động đến chi tiết đơn hàng hay tồn kho.\n     *\n     *     🔔 Sau khi cập nhật:\n     *     - Hệ thống gửi thông báo cho admin để theo dõi đơn hàng.\n     *     ",
+                "operationId": "d2d19e3d740169ae6edf8ac8d5df1de7",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID đơn hàng cần cập nhật phương thức thanh toán",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 12
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "ma_phuongthuc"
+                                ],
+                                "properties": {
+                                    "ma_phuongthuc": {
+                                        "description": "Mã phương thức thanh toán (thuộc bảng phuongthuc)",
+                                        "type": "string",
+                                        "example": "COD"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Cập nhật phương thức thanh toán thành công"
+                    },
+                    "400": {
+                        "description": "Không thể thay đổi phương thức thanh toán do trạng thái đơn hàng"
+                    },
+                    "401": {
+                        "description": "Chưa xác thực người dùng"
+                    },
+                    "404": {
+                        "description": "Không tìm thấy đơn hàng hoặc không có quyền"
+                    },
+                    "422": {
+                        "description": "Dữ liệu đầu vào không hợp lệ"
+                    },
+                    "500": {
+                        "description": "Lỗi hệ thống"
                     }
                 },
                 "security": [

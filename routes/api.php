@@ -279,7 +279,8 @@ use App\Http\Controllers\API\ThongBaoAPI;
         Route::get('/tai-khoan/donhangs', [DonHangFrontendAPI::class, 'index']);
         Route::get('/tai-khoan/donhangs/{id}', [DonHangFrontendAPI::class, 'show']);
         Route::post('/tai-khoan/donhangs', [DonHangFrontendAPI::class, 'store']);
-        Route::put('/tai-khoan/donhangs/{id}', [DonHangFrontendAPI::class, 'update']);
+        Route::patch('/tai-khoan/donhangs/{id}/trang-thai', [DonHangFrontendAPI::class, 'update_trangthai']);
+        Route::patch('/tai-khoan/donhangs/{id}/phuong-thuc', [DonHangFrontendAPI::class, 'update_phuongthuc']);
         Route::patch('/tai-khoan/donhangs/{id}/huy', [DonHangFrontendAPI::class, 'cancel']);
 
         // Thanh Toán Lại Đơn Hàng và Mua Lại (Trạng Thái Thành Công)

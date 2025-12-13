@@ -756,7 +756,14 @@ class GioHangFrontendAPI extends BaseFrontendController
             $item = GiohangModel::where('id_nguoidung', $userId)
                 ->where('id', $id)
                 ->lockForUpdate()
-                ->firstOrFail();
+                ->first();
+            if (!$item) {
+                DB::rollBack();
+                return $this->jsonResponse([
+                    'status' => false,
+                    'message' => 'Giỏ hàng không tồn tại hoặc không thuộc người dùng',
+                ], Response::HTTP_BAD_REQUEST); // hoặc 404 nếu bạn muốn
+            }
 
             $id_bienthe = $item->id_bienthe;
             $soluongNew = $validated['soluong'];
@@ -809,7 +816,7 @@ class GioHangFrontendAPI extends BaseFrontendController
             if ($id_chuongtrinh !== null) {
             $promotion = DB::table('quatang_sukien as qs')
                 ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
-                ->where('qs.id_bienthe', $id)
+                ->where('qs.id_bienthe', $id_bienthe)
                 ->where('qs.id_chuongtrinh', $id_chuongtrinh)
                 ->where('qs.dieukiensoluong', '<=', $soluongNew)
                 ->where('qs.dieukiengiatri', '<=', $tongGiaGioHang) //edit
@@ -1088,16 +1095,41 @@ class GioHangFrontendAPI extends BaseFrontendController
         $user = $request->get('auth_user');
         $userId = $user->id;
 
-        $item = GiohangModel::where('id_nguoidung', $userId)
-            ->where('id', $id)
-            ->firstOrFail();
+        DB::beginTransaction();
+        try {
+            // 1️⃣ Lấy item giỏ hàng theo id_giohang
+            $item = GiohangModel::where('id_nguoidung', $userId)
+                ->where('id', $id)
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        $item->delete();
+            $id_bienthe = $item->id_bienthe;
 
-        return $this->jsonResponse([
-            'status' => true,
-            'message' => 'Xóa sản phẩm khỏi giỏ hàng thành công',
-            'data' => [],
-        ], Response::HTTP_OK);
+            // 2️⃣ Xóa item chính
+            $item->delete();
+
+            // 3️⃣ Xóa toàn bộ quà tặng liên quan (thanhtien = 0)
+            GiohangModel::where('id_nguoidung', $userId)
+                ->where('id_bienthe', $id_bienthe)
+                ->where('thanhtien', 0)
+                ->delete();
+
+            DB::commit();
+
+            return $this->jsonResponse([
+                'status' => true,
+                'message' => 'Đã xóa sản phẩm và quà tặng khỏi giỏ hàng',
+                'data' => [],
+            ], Response::HTTP_OK);
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
+            return $this->jsonResponse([
+                'status' => false,
+                'message' => 'Lỗi khi xóa sản phẩm khỏi giỏ hàng',
+                'error' => $e->getMessage(),
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
     }
 }

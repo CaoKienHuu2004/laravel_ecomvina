@@ -450,7 +450,8 @@ Route::middleware(['auth.api'])->group(function () {
     Route::get('/tai-khoan/donhang', [DonHangWebApi::class, 'index']);
     Route::post('/tai-khoan/donhang', [DonHangWebApi::class, 'store']);
     Route::get('/tai-khoan/donhang/{id}', [DonHangWebApi::class, 'show']);
-    Route::put('/tai-khoan/donhang/{id}', [DonHangWebApi::class, 'update']);
+    Route::patch('/tai-khoan/donhang/{id}/trang-thai', [DonHangWebApi::class, 'update_trangthai']);
+    Route::patch('/tai-khoan/donhang/{id}/phuong-thuc', [DonHangWebApi::class, 'update_phuongthuc']);
     Route::patch('/tai-khoan/donhang/{id}/huy', [DonHangWebApi::class, 'cancel']);
     // // Tích hợp vietqr
     //     Route::post('/tai-khoan/donhang/{id}/vietqr-url', [DonHangWebApi::class, 'createVietqrtUrl']);
