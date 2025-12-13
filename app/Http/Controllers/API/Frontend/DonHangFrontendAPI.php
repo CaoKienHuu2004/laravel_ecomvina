@@ -1084,7 +1084,7 @@ class DonHangFrontendAPI extends BaseFrontendController
         // Validate
         try {
             $validated = $request->validate([
-                'ma_phuongthuc' => 'required|exists:phuongthuc,ma_phuongthuc',
+                'ma_phuongthuc' => 'required|exists:phuongthuc,maphuongthuc',
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return $this->jsonResponse([
@@ -1095,7 +1095,7 @@ class DonHangFrontendAPI extends BaseFrontendController
         }
 
         // Lấy phương thức thanh toán
-        $phuongthuc = PhuongThucModel::where('ma_phuongthuc', $validated['ma_phuongthuc'])->first();
+        $phuongthuc = PhuongThucModel::where('maphuongthuc', $validated['ma_phuongthuc'])->first();
 
         // Update
         $donhang->id_phuongthuc = $phuongthuc->id;
