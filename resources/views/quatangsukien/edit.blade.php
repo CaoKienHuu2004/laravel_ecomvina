@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Chỉnh sửa Quà Tặng Sự Kiện | Quản trị hệ thống Siêu Thị Vina')
-
+{{-- bỏ slug -> label ko phải input --}}
 @section('content')
 <div class="page-wrapper">
   <div class="content container-fluid">

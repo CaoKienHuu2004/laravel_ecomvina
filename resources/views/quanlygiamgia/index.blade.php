@@ -2,7 +2,7 @@
 @extends('layouts.app')
 
 @section('title', 'Danh sách mã giảm giá | Quản trị hệ thống Siêu Thị Vina')
-
+{{-- thoigian 1 td, bỏ mota --}}
 @section('content')
 <div class="page-wrapper">
     <div class="content">

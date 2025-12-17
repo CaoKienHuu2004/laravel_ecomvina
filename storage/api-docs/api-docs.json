@@ -2014,6 +2014,174 @@
                 ]
             }
         },
+        "/api/tai-khoan/donhangs/{id}/thanh-toan-lai-don-hang": {
+            "patch": {
+                "tags": [
+                    "Đơn hàng (Tài khoản)"
+                ],
+                "summary": "Thanh toán lại đơn hàng đã bị hủy",
+                "description": "\n     *         API cho phép người dùng thanh toán lại đơn hàng đã bị hủy.\n     *         - Chỉ áp dụng cho đơn hàng có trạng thái **Đã hủy**\n     *         - Hệ thống sẽ cập nhật trạng thái đơn hàng về **Chờ xử lý**\n     *         - Sau đó người dùng có thể tiếp tục quy trình thanh toán\n     *     ",
+                "operationId": "3c13798f3dba044b76bf234b0b9380ac",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID đơn hàng cần thanh toán lại",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 125
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thanh toán lại đơn hàng thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Đơn hàng đã được cập nhật trạng thái, bạn có thể tiến hành thanh toán lại"
+                                        },
+                                        "id_donhang": {
+                                            "type": "integer",
+                                            "example": 125
+                                        },
+                                        "trangthai": {
+                                            "type": "string",
+                                            "example": "Chờ xử lý"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Đơn hàng chưa bị hủy nên không thể thanh toán lại",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Đơn hàng chưa bị hủy không thể thanh toán lại"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Không tìm thấy đơn hàng",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Đơn hàng không tồn tại"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Chưa đăng nhập hoặc token không hợp lệ"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/tai-khoan/donhangs/{id}/mua-lai-don-hang": {
+            "patch": {
+                "tags": [
+                    "Đơn hàng (Tài khoản)"
+                ],
+                "summary": "Mua lại đơn hàng đã hoàn thành",
+                "description": "\n     *         API cho phép người dùng mua lại một đơn hàng đã **Thành công**.\n     *         - Hệ thống sẽ tạo **đơn hàng mới**\n     *         - Sao chép toàn bộ chi tiết đơn hàng cũ\n     *         - Trạng thái đơn hàng mới:\n     *           + trangthai: Chờ xử lý\n     *           + trangthaithanhtoan: Chưa thanh toán\n     *     ",
+                "operationId": "175989dc6e40fc3783a06134a8bf9adf",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID đơn hàng đã hoàn thành cần mua lại",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "example": 100
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Tạo đơn hàng mới từ đơn hàng cũ thành công",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Id đơn hàng mới 153"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Đơn hàng không tồn tại hoặc chưa hoàn thành",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Đơn hàng không tồn tại hoặc chưa thành công"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Lỗi khi tạo đơn hàng mới",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Lỗi khi tạo đơn hàng mới"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Chưa đăng nhập hoặc token không hợp lệ"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/tai-khoan/giohang": {
             "get": {
                 "tags": [

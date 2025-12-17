@@ -108,8 +108,11 @@
 @endsection
 
 @section('scripts')
+{{-- phải có ckeditor  --}}
+
 <!-- CKEditor 5 -->
-<script src="https://cdn.ckeditor.com/ckeditor5/41.0.0/classic/ckeditor.js"></script>
+{{-- // khải báo domain mới dùng được  --}}
+
 <script>
     let editor;
     ClassicEditor

@@ -69,7 +69,9 @@
                         <tbody>
                             @forelse ($hinhanhs as $item)
                                 <tr>
+                                    {{-- id --}}
                                     <td>{{ $item->id }}</td>
+                                    {{-- thông tin sản phẩm --}}
                                     <td style="max-width: 250px; word-wrap: break-word; white-space: normal;">
                                         @php
                                             $bientheList = [];
@@ -91,8 +93,9 @@
                                             true
                                         ) !!}
                                     </td>
+                                    {{-- hình ảnh sản phẩm --}}
                                     <td>
-                                        @php
+                                        {{-- @php
                                             $imagePath = $item->hinhanh;
                                         @endphp
 
@@ -100,8 +103,30 @@
                                             <img src="{{ $imagePath }}" width="80px" alt="Hình ảnh">
                                         @else
                                             <span class="text-muted">Không có hình</span>
+                                        @endif --}}
+                                        @php
+                                            $meta = $item->image_meta;
+                                        @endphp
+
+                                        @if ($item->hinhanh && $meta)
+                                            <img
+                                                src="{{ $item->hinhanh }}"
+                                                width="80"
+                                                height="{{ intval(80 * $meta['height'] / $meta['width']) }}"
+                                                alt="Hình ảnh"
+                                                loading="lazy"
+                                            >
+
+                                            <div class="text-muted" style="font-size:12px">
+                                                {{ $meta['width'] }}x{{ $meta['height'] }} • {{ strtoupper($meta['type']) }}
+                                            </div>
+                                        @elseif($item->hinhanh)
+                                            <img src="{{ $item->hinhanh }}" width="80" alt="Hình ảnh">
+                                        @else
+                                            <span class="text-muted">Không có hình</span>
                                         @endif
                                     </td>
+                                    {{-- trạng thái hình ảnh sản phẩm --}}
                                     <td>
                                         <span class="badge bg-{{ $item->trangthai == 'Hiển thị' ? 'success' : 'warning' }}">
                                             {{ $item->trangthai }}

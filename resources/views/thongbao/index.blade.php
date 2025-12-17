@@ -7,7 +7,7 @@
 {{-- Đối với image default  $thongbao->nguoidung->avatar: Link http://148.230.100.215/assets/client/images/thumbs/khachhang.jpg --}}
 {{-- Đối với image được upload qua profile  $thongbao->nguoidung->avatar: Link http://148.230.100.215/storage/assets/client/images/profiles/avatar.jpg --}}
 
-
+{{-- client bỏ nguoi nhan avtar, bỏ loaithongbao, loai chia tab, bỏ tab admin --}}
 @section('content')
 <div class="page-wrapper">
     <div class="content">

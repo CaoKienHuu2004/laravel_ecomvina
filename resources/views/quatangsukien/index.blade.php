@@ -4,6 +4,7 @@
 {{-- // controller truyền xuống $quatangs,$trangthais  --}}
 {{-- // các route sư dụng quatangsukien.create quatangsukien.trash quatangsukien.show quatangsukien.edit quatangsukien.destroy   --}}
 {{--  $quatangs->hihanh: Link http://148.230.100.215/assets/client/images/thumbs/sieu-thi-mung-ngay-di-san-van-hoa-viet-nam-23-11.png --}}
+{{-- mota lên hinhanh lên, thoi gian(1 div ngaybatdau, ngaykethuc), luot xem, trangthai; ko cần info bienthe --}}
 @section('content')
 <div class="page-wrapper">
   <div class="content">

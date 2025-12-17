@@ -7,6 +7,7 @@
     $danhmucs->logo chứa đường dẫn URL đầy đủ, ví dụ:
     http://148.230.100.215/assets/client/images/categories/tenfilehinhanh.web
 --}}
+{{-- bỏ id, show --}}
 @section('content')
 <div class="page-wrapper">
     <div class="content">

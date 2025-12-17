@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Chi tiết Quà Tặng Sự Kiện | Quản trị hệ thống Siêu Thị Vina')
-
+{{-- bor slug, bienthe -> quatang(nhu show sanpham), format vnđ và năm d-flex r, thongtin sau tieude --}}
 @section('content')
 <div class="page-wrapper">
   <div class="content container-fluid">

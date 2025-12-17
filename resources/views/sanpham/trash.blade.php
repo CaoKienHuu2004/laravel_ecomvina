@@ -54,7 +54,7 @@
                                     @endforeach
                                 </td>
                                 <td>
-                                    @if ($item->hinhanhsanpham)
+                                    @if ( !empty($sp->hinhanhsanpham) && !empty($sp->hinhanhsanpham->first()->hinhanh))
                                         <img src="{{ $item->hinhanhsanpham->first()->hinhanh }}" width="80" alt="Hình ảnh">
                                     @else
                                         <span class="text-muted fst-italic">Không có hình</span>

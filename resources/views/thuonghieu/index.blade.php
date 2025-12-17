@@ -4,6 +4,7 @@
 {{-- // controller truyền xuống $thuonghieus --}}
 {{-- // các route sư dụng thuonghieu.create  thuonghieu.show thuonghieu.edit thuonghieu.destroy   --}}
 {{-- $thuonghieus->logo: Link http://148.230.100.215/assets/client/images/brands/tenfilehinhanh.jpg --}}
+{{-- bỏ id, bỏ show, them sl sanpham --}}
 @section('content')
 <div class="page-wrapper">
     <div class="content">

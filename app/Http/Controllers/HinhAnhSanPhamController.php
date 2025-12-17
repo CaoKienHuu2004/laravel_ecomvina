@@ -6,6 +6,11 @@ use App\Models\HinhanhsanphamModel;
 use App\Models\SanphamModel;
 use Illuminate\Http\Request;
 
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
+
+use Illuminate\Support\Str;
+
 class HinhAnhSanphamController extends Controller
 {
     protected $uploadDir = "assets/client/images/thumbs";// thư mục lưu file, relative so với public
@@ -105,8 +110,17 @@ class HinhAnhSanphamController extends Controller
         $fileName = null;
         if ($request->hasFile('hinhanh')) {
             $file = $request->file('hinhanh');
-            $fileName = $file->getClientOriginalName(); // giữ nguyên tên gốc (cẩn thận trùng tên)
-            $file->move($dir_path, $fileName);
+            // $fileName = $file->getClientOriginalName(); // giữ nguyên tên gốc (cẩn thận trùng tên)
+            // $file->move($dir_path, $fileName);
+            $manager = new ImageManager(new Driver());
+                $image = $manager->read($file->getPathname());
+                $image->cover(1080, 1080);
+                $image->toWebp(85);
+                // tên file PHẢI là .webp
+
+                $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $fileName = $originalName . '.webp'; // ko muốn đè thì + time (); ko thì uuid   $fileName = Str::uuid() . '.webp';
+                $image->save($dir_path . '/' . $fileName);
         }
 
         // Lưu đường dẫn URL đầy đủ (domain + relative path)
@@ -150,8 +164,18 @@ class HinhAnhSanphamController extends Controller
             }
 
             $file = $request->file('hinhanh');
-            $fileName = $file->getClientOriginalName(); // giữ nguyên tên gốc
-            $file->move($dir_path, $fileName);
+            // $fileName = $file->getClientOriginalName(); // giữ nguyên tên gốc
+
+            // $file->move($dir_path, $fileName);
+            $manager = new ImageManager(new Driver());
+                $image = $manager->read($file->getPathname());
+                $image->cover(1080, 1080);
+                $image->toWebp(85);
+                // tên file PHẢI là .webp
+                $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                $fileName = $originalName . '.webp'; // ko muốn đè thì + time ()
+
+                $image->save($dir_path . '/' . $fileName);
             $hinhanh->hinhanh = $this->domain . $this->uploadDir . '/' . $fileName;
         }
 

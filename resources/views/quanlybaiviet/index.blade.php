@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Danh sách bài viết | Quản trị hệ thống Siêu Thị Vina')
-
+{{-- timetamp only client FE --}}
 @section('content')
 <div class="page-wrapper">
   <div class="content">
@@ -142,6 +142,7 @@
 @endsection
 
 @section('scripts')
+{{-- phải có ckeditor  --}}
 <style>
   .dt-buttons {
     display: none !important;

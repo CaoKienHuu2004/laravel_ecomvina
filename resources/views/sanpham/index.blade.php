@@ -9,6 +9,10 @@
 {{-- bản củ // controller truyền xuống $sanphams,$thuonghieus danhmucs  --}}
 {{-- {{-- dir_part asset storage/uploads/anh_sanpham/media/anh_sanpham.png --}}
 {{--  tao-san-pham danh-sach xoa-san-pham chinh-sua-san-pham chi-tiet-san-pham   --}}
+
+
+
+{{-- bỏ luottang , them trangthai, danh muc tren gia--}}
 @section('content')
 <div class="page-wrapper">
   <div class="content">
@@ -182,10 +186,17 @@
                 </style>
                 <td class="productimgname center-cell" >
                     <a href="{{ url('/') }}" class="product-img">
-                        <img
-                            src="{{ $sp->hinhanhsanpham->first()->hinhanh }}"
-                            alt="{{ $sp->ten ?? 'Sản phẩm' }}"
-                        />
+                        @if (!empty($sp->hinhanhsanpham) && !empty($sp->hinhanhsanpham->first()->hinhanh) )
+                            <img
+                                src="{{ $sp->hinhanhsanpham->first()->hinhanh }}"
+                                alt="{{ $sp->ten ?? 'Sản phẩm' }}"
+                            />
+                        @else
+                            <Sản phẩm không có hình ảnh>
+                        @endif
+
+
+
                     </a>
                   <a href="{{url('/')}}" >{!! wordwrap($sp->ten, 25, '<br>') !!}</a>
                 </td>

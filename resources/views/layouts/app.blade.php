@@ -49,6 +49,11 @@
     <link rel="stylesheet" href="{{asset('plugins/fontawesome/css/all.min.css')}}" />
 
     <link rel="stylesheet" href="{{asset('css/style.css')}}" />
+    <style>
+        .dt-buttons {
+            display: none !important;
+        }
+    </style>
   </head>
   @php
 

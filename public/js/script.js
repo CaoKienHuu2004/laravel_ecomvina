@@ -58,7 +58,8 @@ $(document).ready(function () {
       bFilter: true,
       sDom: "fBtlpi",
       pagingType: "numbers",
-      ordering: true,
+    //   ordering: true,
+      ordering: false,
       language: {
         search: " ",
         sLengthMenu: "_MENU_",

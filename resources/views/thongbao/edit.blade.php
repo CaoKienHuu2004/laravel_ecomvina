@@ -7,6 +7,8 @@
 {{-- // controller truyền xuống $nguoidungs, $thongbao, $trangthais  --}}
 {{-- // các route sư dụng thongbao.update --- của breadcrumb thongbao.index trang-chu  --}}
 
+{{-- selet form và chọn nhiều --}}
+
 @section('content')
 <div class="page-wrapper">
     <div class="content">

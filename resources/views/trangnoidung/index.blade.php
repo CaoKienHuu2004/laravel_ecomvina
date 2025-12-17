@@ -1,7 +1,8 @@
 @extends('layouts.app')
 
 @section('title', 'Danh sách trang nội dung | Quản trị hệ thống Siêu Thị Vina')
-
+{{-- bỏ delete  --}}
+{{-- bỏ hinh anh, slug  --}}
 @section('content')
 <div class="page-wrapper">
   <div class="content">

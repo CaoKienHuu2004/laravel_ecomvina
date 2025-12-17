@@ -634,6 +634,7 @@ class SanphamController extends Controller
             $q->onlyTrashed();
         }])->findOrFail($id);
 
+        $sanpham->danhmuc()->detach();
         // Xóa file ảnh vật lý và bản ghi ảnh vĩnh viễn
         foreach ($sanpham->hinhanhsanpham as $anh) {
             $filePath = public_path(parse_url($anh->hinhanh, PHP_URL_PATH));

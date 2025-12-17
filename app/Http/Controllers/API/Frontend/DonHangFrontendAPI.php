@@ -1515,6 +1515,58 @@ class DonHangFrontendAPI extends BaseFrontendController
 
 
     // #begin------------------- Mua Lại Đơn Hàng Và Đặt hàng lại đơn hàng ----------------------//
+
+
+
+
+    /**
+     * @OA\Patch(
+     *     path="/api/tai-khoan/donhangs/{id}/thanh-toan-lai-don-hang",
+     *     summary="Thanh toán lại đơn hàng đã bị hủy",
+     *     description="
+     *         API cho phép người dùng thanh toán lại đơn hàng đã bị hủy.
+     *         - Chỉ áp dụng cho đơn hàng có trạng thái **Đã hủy**
+     *         - Hệ thống sẽ cập nhật trạng thái đơn hàng về **Chờ xử lý**
+     *         - Sau đó người dùng có thể tiếp tục quy trình thanh toán
+     *     ",
+     *     tags={"Đơn hàng (Tài khoản)"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID đơn hàng cần thanh toán lại",
+     *         required=true,
+     *         @OA\Schema(type="integer", example=125)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Thanh toán lại đơn hàng thành công",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Đơn hàng đã được cập nhật trạng thái, bạn có thể tiến hành thanh toán lại"),
+     *             @OA\Property(property="id_donhang", type="integer", example=125),
+     *             @OA\Property(property="trangthai", type="string", example="Chờ xử lý")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Đơn hàng chưa bị hủy nên không thể thanh toán lại",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Đơn hàng chưa bị hủy không thể thanh toán lại")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Không tìm thấy đơn hàng",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Đơn hàng không tồn tại")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Chưa đăng nhập hoặc token không hợp lệ"
+     *     )
+     * )
+     */
     public function thanhToanLaiDonHang(Request $request, $id)
     {
         $user = $request->get('auth_user');
@@ -1560,6 +1612,55 @@ class DonHangFrontendAPI extends BaseFrontendController
         ]);
     }
 
+
+    /**
+     * @OA\Patch(
+     *     path="/api/tai-khoan/donhangs/{id}/mua-lai-don-hang",
+     *     summary="Mua lại đơn hàng đã hoàn thành",
+     *     description="
+     *         API cho phép người dùng mua lại một đơn hàng đã **Thành công**.
+     *         - Hệ thống sẽ tạo **đơn hàng mới**
+     *         - Sao chép toàn bộ chi tiết đơn hàng cũ
+     *         - Trạng thái đơn hàng mới:
+     *           + trangthai: Chờ xử lý
+     *           + trangthaithanhtoan: Chưa thanh toán
+     *     ",
+     *     tags={"Đơn hàng (Tài khoản)"},
+     *     security={{"bearerAuth":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         description="ID đơn hàng đã hoàn thành cần mua lại",
+     *         required=true,
+     *         @OA\Schema(type="integer", example=100)
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Tạo đơn hàng mới từ đơn hàng cũ thành công",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Id đơn hàng mới 153")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Đơn hàng không tồn tại hoặc chưa hoàn thành",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Đơn hàng không tồn tại hoặc chưa thành công")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Lỗi khi tạo đơn hàng mới",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Lỗi khi tạo đơn hàng mới")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="Chưa đăng nhập hoặc token không hợp lệ"
+     *     )
+     * )
+     */
     public function muaLaiDonHang(Request $request, $id)
     {
         $user = $request->get('auth_user');

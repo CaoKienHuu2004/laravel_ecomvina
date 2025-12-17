@@ -43,4 +43,31 @@ class HinhanhsanphamModel extends Model
     {
         return $this->belongsTo(SanphamModel::class, 'id_sanpham', 'id');
     }
+
+    /**
+     * Lấy thông tin ảnh từ URL (width, height, mime)
+     * Sau bước này, mỗi $item sẽ có: $item->image_meta
+     */
+    public function getImageMetaAttribute()
+    {
+        if (!$this->hinhanh) {
+            return null;
+        }
+
+        try {
+            $info = @getimagesize($this->hinhanh);
+
+            if (!$info) return null;
+
+            return [
+                'width'  => $info[0],
+                'height' => $info[1],
+                'mime'   => $info['mime'],
+                'type'   => image_type_to_extension($info[2], false), // jpg, png, webp
+                // 'type'   => image_type_to_extension($info[2], true),
+            ];
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
 }
