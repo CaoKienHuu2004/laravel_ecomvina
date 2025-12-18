@@ -53,6 +53,7 @@ class DonHangWebApi extends BaseFrontendController
     {
         $user = $request->get('auth_user');
 
+        // ❌ Chưa đăng nhập
         if (!$user) {
             return $this->jsonResponse([
                 'status' => false,
@@ -60,64 +61,168 @@ class DonHangWebApi extends BaseFrontendController
             ], Response::HTTP_UNAUTHORIZED);
         }
 
-        // Danh sách trạng thái thực tế trong DB
-        $validTrangThai = [
-            'Chờ xử lý',
-            'Đã xác nhận',
-            'Đang chuẩn bị hàng',
-            'Đang giao hàng',
-            'Đã giao hàng',
-            'Đã hủy',
+        /*
+        |--------------------------------------------------------------------------
+        | Nhóm trạng thái hiển thị cho FE
+        |--------------------------------------------------------------------------
+        | Thứ tự:
+        | 1. Chờ xác nhận
+        | 2. Đang xử lý (Đã xác nhận + Đang chuẩn bị hàng)
+        | 3. Đang vận chuyển
+        | 4. Đã giao
+        | 5. Đã hoàn thành
+        | 6. Đã hủy
+        */
+        $statusGroups = [
+            [
+                'label' => 'Chờ xác nhận',
+                'trangthai' => ['Chờ xử lý'],
+            ],
+            [
+                'label' => 'Đang xử lý',
+                'trangthai' => ['Đã xác nhận', 'Đang chuẩn bị hàng'],
+            ],
+            [
+                'label' => 'Đang vận chuyển',
+                'trangthai' => ['Đang giao hàng'],
+            ],
+            [
+                'label' => 'Đã giao',
+                'trangthai' => ['Đã giao hàng'],
+            ],
+            [
+                'label' => 'Đã hoàn thành',
+                'trangthai' => ['Thành công'],
+            ],
+            [
+                'label' => 'Đã hủy',
+                'trangthai' => ['Đã hủy'],
+            ],
         ];
 
-        // Label hiển thị tương ứng
-        $labels = [
-            'Chờ xử lý' => 'Chờ thanh toán',
-            'Đã xác nhận' => 'Đang xác nhận',
-            'Đang chuẩn bị hàng' => 'Đang đóng gói',
-            'Đang giao hàng' => 'Đang giao hàng',
-            'Đã giao hàng' => 'Đã giao',
-            'Đã hủy' => 'Đã hủy',
-        ];
-
+        /*
+        |--------------------------------------------------------------------------
+        | Query đơn hàng của user
+        |--------------------------------------------------------------------------
+        */
         $query = DonhangModel::with([
             'chitietdonhang.bienthe.sanpham',
             'chitietdonhang.bienthe.loaibienthe',
             'chitietdonhang.bienthe.sanpham.hinhanhsanpham'
         ])->where('id_nguoidung', $user->id);
 
-        // Lọc theo trạng thái (nếu có)
-        if ($request->filled('trangthai') && in_array($request->trangthai, $validTrangThai)) {
+        // Lọc theo trạng thái DB (nếu FE truyền)
+        if ($request->filled('trangthai')) {
             $query->where('trangthai', $request->trangthai);
         }
 
-        // Lọc theo mã đơn hàng (nếu có)
+        // Lọc theo mã đơn
         if ($request->filled('madon')) {
             $query->where('madon', $request->madon);
         }
+
         $donhangs = $query->latest()->get();
 
-        // Gom nhóm theo trạng thái và đếm số lượng
+        /*
+        |--------------------------------------------------------------------------
+        | Gom nhóm đơn hàng theo trạng thái hiển thị
+        |--------------------------------------------------------------------------
+        */
         $grouped = [];
-        foreach ($validTrangThai as $status) {
-            $donTheoTrangThai = $donhangs->where('trangthai', $status);
+
+        foreach ($statusGroups as $group) {
+            $donTheoTrangThai = $donhangs->filter(function ($don) use ($group) {
+                return in_array($don->trangthai, $group['trangthai']);
+            });
+
             $grouped[] = [
-                'label' => $labels[$status] ?? $status,
-                'trangthai' => $status,
+                'label' => $group['label'],
+                'trangthai' => $group['trangthai'],
                 'soluong' => $donTheoTrangThai->count(),
                 'donhang' => TheoDoiDonHangResource::collection($donTheoTrangThai),
             ];
         }
 
-        // ✅ Trả về theo định dạng chuẩn { status, message, data }
+        /*
+        |--------------------------------------------------------------------------
+        | Response chuẩn API
+        |--------------------------------------------------------------------------
+        */
         return $this->jsonResponse([
             'status' => true,
-            'message' => "Danh Sách Đơn Hàng Theo Trạng Thái Đơn Hàng Của Khách Hàng #{$user->id}: {$user->hoten}",
+            'message' => "Danh sách đơn hàng của khách hàng #{$user->id}: {$user->hoten}",
             'data' => $grouped
         ], Response::HTTP_OK);
-        // DonHangResource::withoutWrapping(); // Bỏ "data" bọc ngoài
-        // return response()->json(DonHangResource::collection($donhang), Response::HTTP_OK);
     }
+    // public function index(Request $request)
+    // {
+    //     $user = $request->get('auth_user');
+
+    //     if (!$user) {
+    //         return $this->jsonResponse([
+    //             'status' => false,
+    //             'message' => 'Không xác thực được user.',
+    //         ], Response::HTTP_UNAUTHORIZED);
+    //     }
+
+    //     // Danh sách trạng thái thực tế trong DB
+    //     $validTrangThai = [
+    //         'Chờ xử lý',
+    //         'Đã xác nhận',
+    //         'Đang chuẩn bị hàng',
+    //         'Đang giao hàng',
+    //         'Đã giao hàng',
+    //         'Đã hủy',
+    //     ];
+
+    //     // Label hiển thị tương ứng
+    //     $labels = [
+    //         'Chờ xử lý' => 'Chờ thanh toán',
+    //         'Đã xác nhận' => 'Đang xác nhận',
+    //         'Đang chuẩn bị hàng' => 'Đang đóng gói',
+    //         'Đang giao hàng' => 'Đang giao hàng',
+    //         'Đã giao hàng' => 'Đã giao',
+    //         'Đã hủy' => 'Đã hủy',
+    //     ];
+
+    //     $query = DonhangModel::with([
+    //         'chitietdonhang.bienthe.sanpham',
+    //         'chitietdonhang.bienthe.loaibienthe',
+    //         'chitietdonhang.bienthe.sanpham.hinhanhsanpham'
+    //     ])->where('id_nguoidung', $user->id);
+
+    //     // Lọc theo trạng thái (nếu có)
+    //     if ($request->filled('trangthai') && in_array($request->trangthai, $validTrangThai)) {
+    //         $query->where('trangthai', $request->trangthai);
+    //     }
+
+    //     // Lọc theo mã đơn hàng (nếu có)
+    //     if ($request->filled('madon')) {
+    //         $query->where('madon', $request->madon);
+    //     }
+    //     $donhangs = $query->latest()->get();
+
+    //     // Gom nhóm theo trạng thái và đếm số lượng
+    //     $grouped = [];
+    //     foreach ($validTrangThai as $status) {
+    //         $donTheoTrangThai = $donhangs->where('trangthai', $status);
+    //         $grouped[] = [
+    //             'label' => $labels[$status] ?? $status,
+    //             'trangthai' => $status,
+    //             'soluong' => $donTheoTrangThai->count(),
+    //             'donhang' => TheoDoiDonHangResource::collection($donTheoTrangThai),
+    //         ];
+    //     }
+
+    //     // ✅ Trả về theo định dạng chuẩn { status, message, data }
+    //     return $this->jsonResponse([
+    //         'status' => true,
+    //         'message' => "Danh Sách Đơn Hàng Theo Trạng Thái Đơn Hàng Của Khách Hàng #{$user->id}: {$user->hoten}",
+    //         'data' => $grouped
+    //     ], Response::HTTP_OK);
+    //     // DonHangResource::withoutWrapping(); // Bỏ "data" bọc ngoài
+    //     // return response()->json(DonHangResource::collection($donhang), Response::HTTP_OK);
+    // }
 
     public function show(Request $request, $id)
     {
@@ -859,60 +964,181 @@ class DonHangWebApi extends BaseFrontendController
         ]);
     }
 
+
     public function muaLaiDonHang(Request $request, $id)
     {
         $user = $request->get('auth_user');
 
-        $donHangCu = DonHangModel::with('chitietdonhang')->find($id);
+        $donHangCu = DonHangModel::with([
+            'chitietdonhang.bienthe.sanpham'
+        ])
+            ->where('id', $id)
+            ->where('id_nguoidung', $user->id)
+            ->where('trangthai', 'Thành công')
+            ->first();
 
-        if (!$donHangCu || $donHangCu->trangthai != 'Thành công') {
-            return response()->json(['message' => 'Đơn hàng không tồn tại hoặc chưa thành công'], 404);
+        if (!$donHangCu) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Đơn hàng không tồn tại hoặc chưa hoàn thành'
+            ], 404);
         }
 
         DB::beginTransaction();
 
         try {
-            $donHangMoi = $donHangCu->replicate();
-            $donHangMoi->madon = DonHangModel::generateOrderCode();
-            $donHangMoi->trangthaithanhtoan = 'Chưa thanh toán';
-            $donHangMoi->trangthai = 'Chờ xử lý';
-            $donHangMoi->created_at = now();
-            $donHangMoi->updated_at = now();
-            $donHangMoi->save();
 
-            foreach ($donHangCu->chiTietDonHang as $chiTiet) {
-                $chiTietMoi = $chiTiet->replicate();
-                $chiTietMoi->id_donhang = $donHangMoi->id;
-                $chiTietMoi->save();
+            /**
+             * 1️⃣ Xóa toàn bộ giỏ hàng hiện tại
+             */
+            GioHangModel::where('id_nguoidung', $user->id)->delete();
+
+            $tongGiaGioHang = 0;
+            $items = [];
+
+            /**
+             * 2️⃣ Rebuild hàng chính
+             */
+            foreach ($donHangCu->chitietdonhang as $ct) {
+
+                $bienthe = $ct->bienthe;
+                $sanpham = $bienthe?->sanpham;
+
+                if (!$bienthe || !$sanpham) continue;
+                if ($sanpham->trangthai !== 'Công khai') continue;
+
+                $giaGoc  = (int) $bienthe->giagoc;
+                $giamGia = (int) $sanpham->giamgia;
+                $soLuong = (int) $ct->soluong;
+
+                // 🔥 Giá sau giảm %
+                $donGiaSauGiam = $giaGoc;
+                if ($giamGia > 0) {
+                    $donGiaSauGiam = (int) round(
+                        $giaGoc * (100 - $giamGia) / 100
+                    );
+                }
+
+                $thanhtien = $donGiaSauGiam * $soLuong;
+                $tongGiaGioHang += $thanhtien;
+
+                GioHangModel::create([
+                    'id_bienthe'   => $bienthe->id,
+                    'id_nguoidung' => $user->id,
+                    'soluong'      => $soLuong,
+                    'thanhtien'    => $thanhtien,
+                    'trangthai'    => 'Hiển thị',
+                ]);
+
+                $items[] = [
+                    'bienthe' => $bienthe,
+                    'soluong' => $soLuong,
+                ];
             }
 
-            $donhang = $donHangMoi;
-            // gửi thông báo
-            $this->sentMessToAdmin(
-                'Đơn hàng mua lại từ ' . $user->hoten . '-' . $user->sodienthoai,
-                'Người dùng ' . $user->hoten . '-' . $user->sodienthoai . '-' . $user->username . '-' . $user->email . ' vừa tạo đơn hàng mới mã ' . $donhang->madon . '. Vui lòng kiểm tra và gọi điện cho khách hàng để truyền trạng thái đơn hàng từ Chờ xử lý -> Đã xác nhận và xử lý đơn hàng kịp thời.',
-                $this->domain . 'donhang/show/' . $donhang->id,
-                "Đơn hàng"
-            );
+            /**
+             * 3️⃣ Tính & thêm QUÀ TẶNG (thanhtien = 0)
+             */
+            foreach ($items as $item) {
 
-            $this->SentMessToClient(
-                'Xác nhận đơn hàng mới của bạn',
-                'Chào ' . $user->hoten . ', bạn đã tạo thành công đơn hàng mã ' . $donhang->madon .
-                '. Vui lòng chờ nhân viên liên hệ để xác nhận và xử lý đơn hàng. Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!',
-                $this->domainClient . '/' . 'don-hang',
-                "Đơn hàng",
-                $user->id
-            );
+                $bienthe = $item['bienthe'];
+                $soluong = $item['soluong'];
+
+                $promotion = DB::table('quatang_sukien')
+                    ->where('id_bienthe', $bienthe->id)
+                    ->where('trangthai', 'Hiển thị')
+                    ->where('dieukiensoluong', '<=', $soluong)
+                    ->where('dieukiengiatri', '<=', $tongGiaGioHang)
+                    ->whereRaw('NOW() BETWEEN ngaybatdau AND ngayketthuc')
+                    ->first();
+
+                if (!$promotion) continue;
+
+                $soQua = intdiv($soluong, (int) $promotion->dieukiensoluong);
+                if ($soQua <= 0) continue;
+
+                GioHangModel::create([
+                    'id_bienthe'   => $bienthe->id,
+                    'id_nguoidung' => $user->id,
+                    'soluong'      => $soQua,
+                    'thanhtien'    => 0, // 🎁 QUÀ TẶNG
+                    'trangthai'    => 'Hiển thị',
+                ]);
+            }
 
             DB::commit();
 
-            // return redirect()->route('checkout', ['order_id' => $donHangMoi->id]);
-            return response()->json(['message' => 'Id đơn hàng mới '.$donHangMoi->id],200);
-        } catch (\Exception $e) {
+            return response()->json([
+                'status'  => true,
+                'message' => 'Khôi phục giỏ hàng thành công'
+            ], 200);
+
+        } catch (\Throwable $e) {
             DB::rollBack();
-            return response()->json(['message' => 'Lỗi khi tạo đơn hàng mới: ' . $e->getMessage()], 500);
+
+            return response()->json([
+                'status'  => false,
+                'message' => 'Lỗi khi mua lại đơn hàng',
+                'error'   => $e->getMessage()
+            ], 500);
         }
     }
+
+
+    // public function muaLaiDonHang(Request $request, $id)
+    // {
+    //     $user = $request->get('auth_user');
+
+    //     $donHangCu = DonHangModel::with('chitietdonhang')->find($id);
+
+    //     if (!$donHangCu || $donHangCu->trangthai != 'Thành công') {
+    //         return response()->json(['message' => 'Đơn hàng không tồn tại hoặc chưa thành công'], 404);
+    //     }
+
+    //     DB::beginTransaction();
+
+    //     try {
+    //         $donHangMoi = $donHangCu->replicate();
+    //         $donHangMoi->madon = DonHangModel::generateOrderCode();
+    //         $donHangMoi->trangthaithanhtoan = 'Chưa thanh toán';
+    //         $donHangMoi->trangthai = 'Chờ xử lý';
+    //         $donHangMoi->created_at = now();
+    //         $donHangMoi->updated_at = now();
+    //         $donHangMoi->save();
+
+    //         foreach ($donHangCu->chiTietDonHang as $chiTiet) {
+    //             $chiTietMoi = $chiTiet->replicate();
+    //             $chiTietMoi->id_donhang = $donHangMoi->id;
+    //             $chiTietMoi->save();
+    //         }
+
+    //         $donhang = $donHangMoi;
+    //         // gửi thông báo
+    //         $this->sentMessToAdmin(
+    //             'Đơn hàng mua lại từ ' . $user->hoten . '-' . $user->sodienthoai,
+    //             'Người dùng ' . $user->hoten . '-' . $user->sodienthoai . '-' . $user->username . '-' . $user->email . ' vừa tạo đơn hàng mới mã ' . $donhang->madon . '. Vui lòng kiểm tra và gọi điện cho khách hàng để truyền trạng thái đơn hàng từ Chờ xử lý -> Đã xác nhận và xử lý đơn hàng kịp thời.',
+    //             $this->domain . 'donhang/show/' . $donhang->id,
+    //             "Đơn hàng"
+    //         );
+
+    //         $this->SentMessToClient(
+    //             'Xác nhận đơn hàng mới của bạn',
+    //             'Chào ' . $user->hoten . ', bạn đã tạo thành công đơn hàng mã ' . $donhang->madon .
+    //             '. Vui lòng chờ nhân viên liên hệ để xác nhận và xử lý đơn hàng. Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi!',
+    //             $this->domainClient . '/' . 'don-hang',
+    //             "Đơn hàng",
+    //             $user->id
+    //         );
+
+    //         DB::commit();
+
+    //         // return redirect()->route('checkout', ['order_id' => $donHangMoi->id]);
+    //         return response()->json(['message' => 'Id đơn hàng mới '.$donHangMoi->id],200);
+    //     } catch (\Exception $e) {
+    //         DB::rollBack();
+    //         return response()->json(['message' => 'Lỗi khi tạo đơn hàng mới: ' . $e->getMessage()], 500);
+    //     }
+    // }
     // #end------------------- Mua Lại Đơn Hàng Và Đặt hàng lại đơn hàng ----------------------//
 
 }

@@ -19,50 +19,79 @@ use Illuminate\Support\Facades\DB;
  */
 class GioHangObserver
 {
-    /**
-     * Xử lý logic trước khi tạo mới bản ghi giỏ hàng
-     * (tương đương trigger BEFORE INSERT)
-     *
-     * @param GiohangModel $gioHang
-     */
     public function creating(GiohangModel $gioHang)
     {
-        // Lấy thông tin biến thể
-        $bienthe = BientheModel::find($gioHang->id_bienthe);
-        if (!$bienthe) {
+        $this->calculatePrice($gioHang);
+    }
+
+    public function updating(GiohangModel $gioHang)
+    {
+        if ($gioHang->isDirty('soluong')) {
+            $this->calculatePrice($gioHang);
+        }
+    }
+
+    protected function calculatePrice(GiohangModel $gioHang)
+    {
+        // 🔒 Khóa biến thể
+        $bienthe = BientheModel::with('sanpham')
+            ->lockForUpdate()
+            ->find($gioHang->id_bienthe);
+
+        if (!$bienthe || !$bienthe->sanpham) {
             return;
         }
 
-        $priceUnit = $bienthe->giagoc;
-        $quantity = $gioHang->soluong;
+        $quantity = (int) $gioHang->soluong;
 
-        // Tìm sự kiện quà tặng còn hiệu lực
+        /**
+         * 1️⃣ GIÁ GỐC
+         */
+        $giaGoc = (int) $bienthe->giagoc;
+
+        /**
+         * 2️⃣ GIẢM GIÁ % TỪ SẢN PHẨM
+         */
+        $phanTramGiam = (int) $bienthe->sanpham->giamgia; // ví dụ: 10 = 10%
+
+        $donGiaSauGiam = $giaGoc;
+        if ($phanTramGiam > 0) {
+            $donGiaSauGiam = (int) round(
+                $giaGoc * (100 - $phanTramGiam) / 100
+            );
+        }
+
+        /**
+         * 3️⃣ TỔNG GIỎ (runtime, controller set)
+         */
+        $tongGioHang = (int) ($gioHang->tong_gio_hang ?? 0);
+
+        /**
+         * 4️⃣ KIỂM TRA QUÀ TẶNG
+         */
         $promotion = DB::table('quatang_sukien as qs')
-            ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
             ->where('qs.id_bienthe', $gioHang->id_bienthe)
-            ->where('bt.luottang', '>', 0)
-            ->where('qs.dieukien', '<=', $quantity)
+            ->where('qs.trangthai', 'Hiển thị')
+            ->where('qs.dieukiensoluong', '<=', $quantity)
+            ->where('qs.dieukiengiatri', '<=', $tongGioHang)
             ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
-            ->select('qs.dieukien', 'bt.luottang')
             ->first();
 
         if ($promotion) {
-            $promotionCount = floor($quantity / $promotion->dieukien);
-            $numFree = min($promotionCount, $promotion->luottang);
-            $numToPay = $quantity - $numFree;
+            $promotionCount = intdiv(
+                $quantity,
+                (int) $promotion->dieukiensoluong
+            );
 
-            // Cập nhật thanhtien
-            $gioHang->thanhtien = $numToPay * $priceUnit;
+            $numFree = max($promotionCount, 0);
+            $numPay  = max($quantity - $numFree, 0);
 
-            // Cập nhật luottang của biến thể
-            $bienthe->decrement('luottang', $numFree);
+            $gioHang->thanhtien = $numPay * $donGiaSauGiam;
         } else {
-            // Không có ưu đãi, tính bình thường
-            $gioHang->thanhtien = $quantity * $priceUnit;
+            $gioHang->thanhtien = $quantity * $donGiaSauGiam;
         }
     }
 }
-
 ///// mua 2  tặng 1 chỉ trừ tiền tính tiền 1
 
 // DELIMITER //

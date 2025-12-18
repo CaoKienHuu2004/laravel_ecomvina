@@ -1274,14 +1274,14 @@
                 "tags": [
                     "Đơn hàng (Tài khoản)"
                 ],
-                "summary": "Lấy danh sách đơn hàng của người dùng (theo trạng thái)",
-                "description": "API này trả về danh sách các đơn hàng của người dùng hiện tại, được phân loại theo trạng thái (VD: Chờ thanh toán, Đang xác nhận,...).",
+                "summary": "Lấy danh sách đơn hàng của người dùng (nhóm theo trạng thái)",
+                "description": "\n     *     API trả về danh sách đơn hàng của người dùng hiện tại,\n     *     được gom nhóm theo trạng thái hiển thị:\n     *     - Chờ xác nhận\n     *     - Đang xử lý (Đã xác nhận + Đang chuẩn bị hàng)\n     *     - Đang vận chuyển\n     *     - Đã giao\n     *     - Đã hoàn thành\n     *     - Đã hủy\n     *     ",
                 "operationId": "f9547ffa333a6b1faf2186e1ecf58bb9",
                 "parameters": [
                     {
                         "name": "trangthai",
                         "in": "query",
-                        "description": "Lọc đơn hàng theo trạng thái",
+                        "description": "Lọc đơn hàng theo trạng thái thực tế trong DB",
                         "required": false,
                         "schema": {
                             "type": "string",
@@ -1291,6 +1291,7 @@
                                 "Đang chuẩn bị hàng",
                                 "Đang giao hàng",
                                 "Đã giao hàng",
+                                "Thành công",
                                 "Đã hủy"
                             ]
                         }
@@ -1298,7 +1299,7 @@
                     {
                         "name": "madon",
                         "in": "query",
-                        "description": "Tìm kiếm đơn hàng theo mã đơn (VD: DH000123)",
+                        "description": "Tìm kiếm đơn hàng theo mã đơn (VD: VNA1218073)",
                         "required": false,
                         "schema": {
                             "type": "string"
@@ -1318,7 +1319,7 @@
                                         },
                                         "message": {
                                             "type": "string",
-                                            "example": "Danh Sách Đơn Hàng Theo Trạng Thái Đơn Hàng Của Khách Hàng #5: Nguyễn Văn A"
+                                            "example": "Danh sách đơn hàng của khách hàng #20: le huy"
                                         },
                                         "data": {
                                             "type": "array",
@@ -1326,15 +1327,20 @@
                                                 "properties": {
                                                     "label": {
                                                         "type": "string",
-                                                        "example": "Đang xác nhận"
+                                                        "example": "Chờ xác nhận"
                                                     },
                                                     "trangthai": {
-                                                        "type": "string",
-                                                        "example": "Đã xác nhận"
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        },
+                                                        "example": [
+                                                            "Chờ xử lý"
+                                                        ]
                                                     },
                                                     "soluong": {
                                                         "type": "integer",
-                                                        "example": 3
+                                                        "example": 22
                                                     },
                                                     "donhang": {
                                                         "type": "array",
@@ -2107,31 +2113,35 @@
                 "tags": [
                     "Đơn hàng (Tài khoản)"
                 ],
-                "summary": "Mua lại đơn hàng đã hoàn thành",
-                "description": "\n     *         API cho phép người dùng mua lại một đơn hàng đã **Thành công**.\n     *         - Hệ thống sẽ tạo **đơn hàng mới**\n     *         - Sao chép toàn bộ chi tiết đơn hàng cũ\n     *         - Trạng thái đơn hàng mới:\n     *           + trangthai: Chờ xử lý\n     *           + trangthaithanhtoan: Chưa thanh toán\n     *     ",
+                "summary": "Mua lại đơn hàng (khôi phục giỏ hàng)",
+                "description": "\n     *     API cho phép người dùng **mua lại đơn hàng đã hoàn thành (Thành công)** và tính lại điều kiện quà tặng cho giohang.\n     *\n     *     Nghiệp vụ:\n     *     - Xóa toàn bộ giỏ hàng hiện tại của người dùng\n     *     - Khôi phục lại giỏ hàng từ **chi tiết đơn hàng cũ**\n     *     - Giá sản phẩm được lấy theo **giá hiện tại của biến thể**\n     *     - Không áp dụng lại:\n     *       + Voucher cũ\n     *       + Quà tặng cũ\n     *       + Phí vận chuyển cũ\n     *\n     *     Sau khi khôi phục, frontend sẽ điều hướng người dùng sang trang giỏ hàng\n     *     để tiếp tục thanh toán.\n     *     ",
                 "operationId": "175989dc6e40fc3783a06134a8bf9adf",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "ID đơn hàng đã hoàn thành cần mua lại",
+                        "description": "ID đơn hàng đã hoàn thành (trangthai = Thành công)",
                         "required": true,
                         "schema": {
                             "type": "integer",
-                            "example": 100
+                            "example": 156
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Tạo đơn hàng mới từ đơn hàng cũ thành công",
+                        "description": "Khôi phục giỏ hàng thành công",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
                                         "message": {
                                             "type": "string",
-                                            "example": "Id đơn hàng mới 153"
+                                            "example": "Khôi phục giỏ hàng thành công"
                                         }
                                     },
                                     "type": "object"
@@ -2145,25 +2155,13 @@
                             "application/json": {
                                 "schema": {
                                     "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
                                         "message": {
                                             "type": "string",
-                                            "example": "Đơn hàng không tồn tại hoặc chưa thành công"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Lỗi khi tạo đơn hàng mới",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Lỗi khi tạo đơn hàng mới"
+                                            "example": "Đơn hàng không tồn tại hoặc chưa hoàn thành"
                                         }
                                     },
                                     "type": "object"
@@ -2173,6 +2171,26 @@
                     },
                     "401": {
                         "description": "Chưa đăng nhập hoặc token không hợp lệ"
+                    },
+                    "500": {
+                        "description": "Lỗi hệ thống khi khôi phục giỏ hàng",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Lỗi khi mua lại đơn hàng"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -2249,7 +2267,7 @@
                     "Giỏ hàng (Tài khoản)"
                 ],
                 "summary": "Thêm sản phẩm vào giỏ hàng (tự động áp dụng khuyến mãi/quà tặng nếu có)",
-                "description": "\n     *      Chức năng:\n     *      - Thêm sản phẩm vào giỏ hàng của người dùng hiện tại.\n     *      - Nếu có chương trình khuyến mãi/quà tặng (bảng quatang_sukien):\n     *          + Tự động kiểm tra điều kiện số lượng (dieukiensoluong).\n     *          + Tự động kiểm tra điều kiện giá trị (dieukiengiatri) tính theo tổng số tiền trong giỏ có đủ điều kiện của chiến lược này không(soluong và giatri).\n     *          + Tự động kiểm tra điều kiện giá trị (dieukiengiatri) tính theo tổng số tiền trong giỏ có đủ điều kiện của chiến lược này không(soluong và giatri).\n     *          + **RULE 3:** Quà theo chương trình cụ thể (id_chuongtrinh) → FE gửi id_chuongtrinh để áp dụng đúng chương trình sự kiện.\n     *          + Áp dụng đúng mô hình 'Mua X tặng 1'.\n     *          + Thêm dòng quà tặng vào giỏ (thanhtien = 0) hoặc tự động cập nhật/xóa nếu không còn thỏa điều kiện.\n     *      - Tính toán lại thành tiền theo số lượng phải trả.\n     *      - Trả về toàn bộ giỏ hàng sau khi cập nhật.\n     *\n     *      Lưu ý:\n     *      - Không còn sử dụng trường luottang trong bảng biến thể để quản lý số lượng quà.\n     *      - Toàn bộ xử lý được khóa transaction + lockForUpdate() để chống race condition.\n     *     ",
+                "description": "\n     *      Chức năng:\n     *      - Thêm sản phẩm vào giỏ hàng của người dùng hiện tại.\n     *      - Nếu có chương trình khuyến mãi/quà tặng (bảng quatang_sukien):\n     *          + Tự động kiểm tra điều kiện số lượng (dieukiensoluong).\n     *          + Tự động kiểm tra điều kiện giá trị (dieukiengiatri) tính theo tổng số tiền trong giỏ có đủ điều kiện của chiến lược này không(soluong và giatri).\n     *          + Tự động kiểm tra điều kiện giá trị (dieukiengiatri) tính theo tổng số tiền trong giỏ có đủ điều kiện của chiến lược này không(soluong và giatri).\n     *          + Áp dụng đúng mô hình 'Mua X tặng 1'.\n     *          + Thêm dòng quà tặng vào giỏ (thanhtien = 0) hoặc tự động cập nhật/xóa nếu không còn thỏa điều kiện.\n     *      - Tính toán lại thành tiền theo số lượng phải trả.\n     *      - Trả về toàn bộ giỏ hàng sau khi cập nhật.\n     *\n     *      Lưu ý:\n     *      - Không còn sử dụng trường luottang trong bảng biến thể để quản lý số lượng quà.\n     *      - Toàn bộ xử lý được khóa transaction + lockForUpdate() để chống race condition.\n     *     ",
                 "operationId": "f62cc3d7f6191c98bede952c549b6761",
                 "requestBody": {
                     "description": "Dữ liệu để thêm hoặc cập nhật sản phẩm trong giỏ hàng",
@@ -2269,11 +2287,6 @@
                                     },
                                     "soluong": {
                                         "description": "Số lượng muốn thêm vào giỏ (phải >= 1)",
-                                        "type": "integer",
-                                        "example": 2
-                                    },
-                                    "id_chuongtrinh": {
-                                        "description": "ID chương trình sự kiện để áp dụng rule 3. FE tự chọn chương trình khi có nhiều chương trình trùng biến thể.",
                                         "type": "integer",
                                         "example": 2
                                     }
@@ -2356,7 +2369,7 @@
                     "Giỏ hàng (Tài khoản)"
                 ],
                 "summary": "Cập nhật số lượng sản phẩm trong giỏ hàng (tự động áp dụng khuyến mãi/quà tặng nếu có)",
-                "description": "\n     *     - Cập nhật số lượng sản phẩm trong giỏ hàng.\n     *     - Nếu số lượng mới bằng 0, sản phẩm sẽ bị xóa khỏi giỏ hàng cùng các quà tặng liên quan.\n     *     - Tự động áp dụng chương trình quà tặng/sự kiện nếu thỏa điều kiện (số lượng sản phẩm >= điều kiện số lượng) và trong thời gian hiệu lực.\n     *     -Tự động kiểm tra điều kiện giá trị (dieukiengiatri) tính theo tổng số tiền trong giỏ có đủ điều kiện của chiến lược này không(soluong và giatri).\n     *     - **RULE 3:** Quà theo chương trình cụ thể (id_chuongtrinh) → FE gửi id_chuongtrinh để áp dụng đúng chương trình sự kiện.\n     *     - Tự động thêm hoặc xóa quà tặng miễn phí tương ứng với số lượng sản phẩm trong giỏ.\n     *     - Không còn quản lý số lượng lượt tặng (`luottang`) trong bảng biến thể.\n     *     ",
+                "description": "\n     *     - Cập nhật số lượng sản phẩm trong giỏ hàng.\n     *     - Nếu số lượng mới bằng 0, sản phẩm sẽ bị xóa khỏi giỏ hàng cùng các quà tặng liên quan.\n     *     - Tự động áp dụng chương trình quà tặng/sự kiện nếu thỏa điều kiện (số lượng sản phẩm >= điều kiện số lượng) và trong thời gian hiệu lực.\n     *     -Tự động kiểm tra điều kiện giá trị (dieukiengiatri) tính theo tổng số tiền trong giỏ có đủ điều kiện của chiến lược này không(soluong và giatri).\n     *     - Tự động thêm hoặc xóa quà tặng miễn phí tương ứng với số lượng sản phẩm trong giỏ.\n     *     - Không còn quản lý số lượng lượt tặng (`luottang`) trong bảng biến thể.\n     *     ",
                 "operationId": "86219681d0e422ae5a4d17f33c1dd6ad",
                 "parameters": [
                     {
@@ -4881,14 +4894,14 @@
                 "tags": [
                     "Tra cứu đơn hàng (web)"
                 ],
-                "summary": "Lấy danh sách đơn hàng của người dùng (theo trạng thái)",
-                "description": "API cho phép người dùng xem tất cả các đơn hàng của họ, được phân loại theo từng trạng thái. Mỗi trạng thái bao gồm nhãn hiển thị, mã trạng thái, tổng số đơn và danh sách chi tiết các đơn hàng tương ứng.",
+                "summary": "Tra cứu danh sách theo dõi đơn hàng (Web)",
+                "description": "\n     *     API cho phép người dùng tra cứu và theo dõi đơn hàng theo mã đơn.\n     *     Kết quả trả về là danh sách các nhóm trạng thái hiển thị:\n     *     - Chờ xác nhận\n     *     - Đang xử lý (Đã xác nhận + Đang chuẩn bị hàng)\n     *     - Đang vận chuyển\n     *     - Đã giao\n     *     - Đã hoàn thành\n     *     - Đã hủy\n     *     ",
                 "operationId": "990e0553df52f4e8e441526926b474c4",
                 "parameters": [
                     {
                         "name": "madon",
                         "in": "query",
-                        "description": "Mã đơn hàng của người dùng, bắt buộc để xác thực quyền truy cập",
+                        "description": "Mã đơn hàng dùng để xác thực và tra cứu (VD: VNA1218073)",
                         "required": true,
                         "schema": {
                             "type": "string"
@@ -4897,7 +4910,7 @@
                     {
                         "name": "trangthai",
                         "in": "query",
-                        "description": "(Tùy chọn) Lọc đơn hàng theo trạng thái. Giá trị hợp lệ: Chờ xử lý, Đã xác nhận, Đang chuẩn bị hàng, Đang giao hàng, Đã giao hàng, Đã hủy",
+                        "description": "(Tùy chọn) Lọc đơn hàng theo trạng thái thực tế trong DB",
                         "required": false,
                         "schema": {
                             "type": "string",
@@ -4907,6 +4920,7 @@
                                 "Đang chuẩn bị hàng",
                                 "Đang giao hàng",
                                 "Đã giao hàng",
+                                "Thành công",
                                 "Đã hủy"
                             ]
                         }
@@ -4914,44 +4928,62 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Danh sách đơn hàng được nhóm theo trạng thái",
+                        "description": "Danh sách theo dõi đơn hàng được nhóm theo trạng thái",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "properties": {
-                                            "label": {
-                                                "description": "Tên hiển thị của trạng thái",
-                                                "type": "string",
-                                                "example": "Đang xác nhận"
-                                            },
-                                            "trangthai": {
-                                                "description": "Tên trạng thái thực tế trong cơ sở dữ liệu",
-                                                "type": "string",
-                                                "example": "Đã xác nhận"
-                                            },
-                                            "soluong": {
-                                                "description": "Tổng số đơn hàng thuộc trạng thái này",
-                                                "type": "integer",
-                                                "example": 3
-                                            },
-                                            "donhang": {
-                                                "description": "Danh sách đơn hàng thuộc trạng thái này",
-                                                "type": "array",
-                                                "items": {
-                                                    "$ref": "#/components/schemas/TheoDoiDonHangResource"
-                                                }
-                                            }
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
                                         },
-                                        "type": "object"
-                                    }
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Danh sách theo dõi đơn hàng"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "label": {
+                                                        "description": "Tên nhóm trạng thái hiển thị",
+                                                        "type": "string",
+                                                        "example": "Chờ xác nhận"
+                                                    },
+                                                    "trangthai": {
+                                                        "description": "Danh sách trạng thái thực tế trong DB thuộc nhóm này",
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        },
+                                                        "example": [
+                                                            "Chờ xử lý"
+                                                        ]
+                                                    },
+                                                    "soluong": {
+                                                        "description": "Số lượng đơn hàng trong nhóm trạng thái",
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "donhang": {
+                                                        "description": "Danh sách đơn hàng thuộc nhóm trạng thái",
+                                                        "type": "array",
+                                                        "items": {
+                                                            "$ref": "#/components/schemas/TheoDoiDonHangResource"
+                                                        }
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
                                 }
                             }
                         }
                     },
                     "401": {
-                        "description": "Thiếu hoặc không xác thực được người dùng (username hoặc madon sai hoặc thiếu)",
+                        "description": "Thiếu hoặc không xác thực được người dùng",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -4971,7 +5003,7 @@
                         }
                     },
                     "403": {
-                        "description": "Không có quyền truy cập đơn hàng (madon không thuộc user này)",
+                        "description": "Không có quyền truy cập đơn hàng (madon không thuộc user)",
                         "content": {
                             "application/json": {
                                 "schema": {

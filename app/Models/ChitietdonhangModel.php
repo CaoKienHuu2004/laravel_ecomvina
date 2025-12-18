@@ -22,8 +22,8 @@ class ChitietdonhangModel extends Model
     // Các cột được phép gán hàng loạt
     protected $fillable = [
         'id_bienthe',
-        'tenloaibienthe', //new
-        'tensanpham', //new
+        // 'tenloaibienthe', //new
+        // 'tensanpham', //new
         'id_donhang',
         'soluong',
         'dongia',

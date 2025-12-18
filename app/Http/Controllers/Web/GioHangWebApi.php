@@ -361,7 +361,6 @@ class GioHangWebApi extends Controller
      *     API tự động tính khuyến mãi theo 3 rule:
      *     **RULE 1: Khuyến mãi theo số lượng (quatang_sukien) → tặng FREE item.**
      *     **RULE 2: Quà theo giá trị giỏ hàng (quangcao) → tặng 1 biến thể.**
-     *     **RULE 3: Quà theo Chương trình của quà tặng(id_chuongtrinh) → chỉ có thêm quà tặng có cùng chương trình sự kiện, chương trình nào do FE quyết định qua req id_chuongtrinh.**
      *     ",
      *
      *     @OA\RequestBody(
@@ -380,12 +379,6 @@ class GioHangWebApi extends Controller
      *                 minimum=1,
      *                 example=3,
      *                 description="Số lượng sản phẩm muốn thêm."
-     *             ),
-     *              @OA\Property(
-     *                 property="id_chuongtrinh",
-     *                 type="integer",
-     *                 example=12,
-     *                 description="Param req quyết định điều kiện tặng quà, cụ thể là cụ thể là cùng 1 chương trình."
      *             ),
      *         )
      *     ),
@@ -453,12 +446,12 @@ class GioHangWebApi extends Controller
         $validated = $request->validate([
             'id_bienthe' => 'required|exists:bienthe,id',
             'soluong' => 'required|integer|min:1',
-            'id_chuongtrinh' => 'sometimes|exists:chuongtrinh,id',
+            // 'id_chuongtrinh' => 'sometimes|exists:chuongtrinh,id',
         ]);
 
         $id_bienthe = $validated['id_bienthe'];
         $soluongNew = $validated['soluong'];
-        $id_chuongtrinh = $validated['id_chuongtrinh'] ?? null;
+        // $id_chuongtrinh = $validated['id_chuongtrinh'] ?? null;
 
         $user = $this->get_user_from_token($request);
 
@@ -492,11 +485,26 @@ class GioHangWebApi extends Controller
 
                 // Kiểm tra khuyến mãi (có thể giữ nguyên logic hiện tại)
                 $promotion = null;
-                if ($id_chuongtrinh !== null) {
-                    $promotion = DB::table('quatang_sukien as qs')
+                // if ($id_chuongtrinh !== null) {
+                //     $promotion = DB::table('quatang_sukien as qs')
+                //         ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
+                //         ->where('qs.id_bienthe', $id_bienthe)
+                //         ->where('qs.id_chuongtrinh', $id_chuongtrinh)
+                //         ->where('qs.dieukiensoluong', '<=', $totalQuantity)
+                //         ->where('qs.dieukiengiatri', '<=', $tongGiaGioHang)
+                //         ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
+                //         ->where('qs.trangthai', 'Hiển thị')
+                //         ->select(
+                //             'qs.dieukiensoluong as discount_multiplier',
+                //             'bt.luottang as current_luottang',
+                //             'bt.giagoc'
+                //         )
+                //         ->first();
+                // }
+                $promotion = DB::table('quatang_sukien as qs')
                         ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
                         ->where('qs.id_bienthe', $id_bienthe)
-                        ->where('qs.id_chuongtrinh', $id_chuongtrinh)
+                        // ->where('qs.id_chuongtrinh', $id_chuongtrinh)
                         ->where('qs.dieukiensoluong', '<=', $totalQuantity)
                         ->where('qs.dieukiengiatri', '<=', $tongGiaGioHang)
                         ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
@@ -507,7 +515,6 @@ class GioHangWebApi extends Controller
                             'bt.giagoc'
                         )
                         ->first();
-                }
 
                 $numFree = 0;
                 $thanhtien = $totalQuantity * $priceUnit;
@@ -622,17 +629,26 @@ class GioHangWebApi extends Controller
             $tongGiaGioHangSession += ($soluongNew * $priceUnit);
 
             $promotion = null;
-            if ($id_chuongtrinh !== null) {
+            // if ($id_chuongtrinh !== null) {
+            // $promotion = DB::table('quatang_sukien as qs')
+            //     ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
+            //     ->where('qs.id_bienthe', $id_bienthe)
+            //     ->where('qs.id_chuongtrinh', $id_chuongtrinh)
+            //     ->where('qs.dieukiensoluong', '<=', $totalQty)
+            //     ->where('qs.dieukiengiatri', '<=', $tongGiaGioHangSession) //edit
+            //     ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
+            //     ->select('qs.dieukiensoluong as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
+            //     ->first();
+            // }
             $promotion = DB::table('quatang_sukien as qs')
                 ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
                 ->where('qs.id_bienthe', $id_bienthe)
-                ->where('qs.id_chuongtrinh', $id_chuongtrinh)
+                // ->where('qs.id_chuongtrinh', $id_chuongtrinh)
                 ->where('qs.dieukiensoluong', '<=', $totalQty)
                 ->where('qs.dieukiengiatri', '<=', $tongGiaGioHangSession) //edit
                 ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
                 ->select('qs.dieukiensoluong as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
                 ->first();
-            }
 
             $numFree = 0;
             $thanhtien = $totalQty * $priceUnit;
@@ -721,7 +737,6 @@ class GioHangWebApi extends Controller
          * **API tự động xử lý 3 rule khuyến mãi:**
          * - **RULE 1:** Khuyến mãi theo số lượng (quatang_sukien) → tặng FREE item tương ứng.
          * - **RULE 2:** Quà theo giá trị giỏ hàng (quangcao) → hệ thống tự động kiểm tra và thêm quà.
-         * - **RULE 3:** Quà theo chương trình cụ thể (id_chuongtrinh) → FE gửi id_chuongtrinh để áp dụng đúng chương trình sự kiện.
          *
          * Nếu `soluong = 0` → sản phẩm bị xóa và quà tặng liên quan cũng bị xóa.
          *     ",
@@ -744,13 +759,6 @@ class GioHangWebApi extends Controller
          *                 example=5,
          *                 description="Số lượng mới của sản phẩm. Nếu = 0 → xóa sản phẩm"
          *             ),
-         *             @OA\Property(
-         *                 property="id_chuongtrinh",
-         *                 type="integer",
-         *                 nullable=true,
-         *                 example=3,
-         *                 description="ID chương trình sự kiện để áp dụng rule 3. FE tự chọn chương trình khi có nhiều chương trình trùng biến thể."
-         *             )
          *         )
          *     ),
          *
@@ -778,11 +786,11 @@ class GioHangWebApi extends Controller
         {
             $validated = $request->validate([
                 'soluong' => 'required|integer|min:0',
-                'id_chuongtrinh' => 'sometimes|exists:chuongtrinh,id'
+                // 'id_chuongtrinh' => 'sometimes|exists:chuongtrinh,id'
             ]);
 
             $soluongNew = $validated['soluong'];
-            $id_chuongtrinh = $validated['id_chuongtrinh'] ?? null;
+            // $id_chuongtrinh = $validated['id_chuongtrinh'] ?? null;
 
             $user = $this->get_user_from_token($request);
 
@@ -847,17 +855,26 @@ class GioHangWebApi extends Controller
                     $tongGiaGioHang = $tongGiaHienTai + ($soluongNew * $priceUnit);
 
                     $promotion = null;
-                    if ($id_chuongtrinh !== null) {
+                    // if ($id_chuongtrinh !== null) {
+                    // $promotion = DB::table('quatang_sukien as qs')
+                    //     ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
+                    //     ->where('qs.id_bienthe', $id_bienthe)
+                    //     ->where('qs.id_chuongtrinh', $id_chuongtrinh)
+                    //     ->where('qs.dieukiensoluong', '<=', $soluongNew)
+                    //     ->where('qs.dieukiengiatri', '<=', $tongGiaGioHang) //edit
+                    //     ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
+                    //     ->select('qs.dieukiensoluong as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
+                    //     ->first();
+                    // }
                     $promotion = DB::table('quatang_sukien as qs')
                         ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
                         ->where('qs.id_bienthe', $id_bienthe)
-                        ->where('qs.id_chuongtrinh', $id_chuongtrinh)
+                        // ->where('qs.id_chuongtrinh', $id_chuongtrinh)
                         ->where('qs.dieukiensoluong', '<=', $soluongNew)
                         ->where('qs.dieukiengiatri', '<=', $tongGiaGioHang) //edit
                         ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
                         ->select('qs.dieukiensoluong as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
                         ->first();
-                    }
 
                     $numFreeNew = 0;
                     $thanhtien = $soluongNew * $priceUnit;
@@ -1009,11 +1026,24 @@ class GioHangWebApi extends Controller
                 // TÌM KHUYẾN MÃI
                 // =========================
                 $promotion = null;
-                if (!empty($id_chuongtrinh)) {
-                    $promotion = DB::table('quatang_sukien as qs')
+                // if (!empty($id_chuongtrinh)) {
+                //     $promotion = DB::table('quatang_sukien as qs')
+                //         ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
+                //         ->where('qs.id_bienthe', $id_bienthe)
+                //         ->where('qs.id_chuongtrinh', $id_chuongtrinh)
+                //         ->where('qs.dieukiensoluong', '<=', $soluongNew)
+                //         ->where('qs.dieukiengiatri', '<=', $tongGiaGioHangSession)
+                //         ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
+                //         ->select(
+                //             'qs.dieukiensoluong as discount_multiplier',
+                //             'bt.giagoc'
+                //         )
+                //         ->first();
+                // }
+                $promotion = DB::table('quatang_sukien as qs')
                         ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
                         ->where('qs.id_bienthe', $id_bienthe)
-                        ->where('qs.id_chuongtrinh', $id_chuongtrinh)
+                        // ->where('qs.id_chuongtrinh', $id_chuongtrinh)
                         ->where('qs.dieukiensoluong', '<=', $soluongNew)
                         ->where('qs.dieukiengiatri', '<=', $tongGiaGioHangSession)
                         ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
@@ -1022,7 +1052,6 @@ class GioHangWebApi extends Controller
                             'bt.giagoc'
                         )
                         ->first();
-                }
 
                 // =========================
                 // TÍNH GIÁ & QUÀ TẶNG

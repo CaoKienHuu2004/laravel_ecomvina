@@ -3,6 +3,9 @@
 namespace App\Observers;
 
 use App\Models\DonhangModel;
+use App\Models\NguoidungModel;
+use App\Models\ThongbaoModel;
+// use CanhBaoTonKhoNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -59,10 +62,44 @@ class DonhangObserver
                 }
 
                 // 🟢 Nếu đơn hàng giao thành công → trừ tồn kho, tăng lượt mua, giảm lượt tặng
+                // if ($trangThaiMoi === 'Thành công') {
+                //     $bienthe->decrement('soluong', $ct->soluong);
+                //     $bienthe->increment('luotban', $ct->soluong);
+                //     $bienthe->increment('luottang', $ct->soluong);
+                // }
                 if ($trangThaiMoi === 'Thành công') {
+
+                    // Reload biến thể mới nhất để tránh race condition
+                    $bienthe->refresh();
+
+                    if ($bienthe->soluong < $ct->soluong) {
+                        throw new \Exception('Số lượng tồn kho không đủ');
+                    }
+
                     $bienthe->decrement('soluong', $ct->soluong);
                     $bienthe->increment('luotban', $ct->soluong);
                     $bienthe->increment('luottang', $ct->soluong);
+                }
+                // if ($trangThaiMoi === 'Đang chuẩn bị hàng' && $bienthe->soluong <= 5) {
+
+                //     // Reload biến thể mới nhất để tránh race condition
+                //     $admins = NguoidungModel::where('vaitro', 'admin')->get();
+
+                //     foreach ($admins as $admin) {
+                //         $admin->notify(new CanhBaoTonKhoNotification(
+                //             $bienthe,
+                //             $donhang
+                //         ));
+                //     }
+
+                // }
+                if ($trangThaiMoi === 'Đang chuẩn bị hàng') {
+
+                    $bienthe->refresh(); // lấy số lượng mới nhất
+
+                    if ($bienthe->soluong <= 5) {
+                        $this->taoThongBaoCanhBaoTonKho($bienthe, $donhang);
+                    }
                 }
                 // if ($trangThaiMoi === 'Đã giao hàng') {
                 //     $bienthe->decrement('soluong', $ct->soluong);
@@ -73,13 +110,34 @@ class DonhangObserver
                 // 🔴 Nếu đơn hàng bị hủy → hoàn lại kho, giảm lượt mua (nếu đã từng giao)
                 if ($trangThaiMoi === 'Đã hủy') {
                     $bienthe->increment('soluong', $ct->soluong);
-                    $bienthe->decrement('luotban', $ct->soluong);
-                    $bienthe->decrement('luottang', $ct->soluong);
+                    // $bienthe->decrement('luotban', $ct->soluong);
+                    // $bienthe->decrement('luottang', $ct->soluong);
                 }
 
                 // Cập nhật trạng thái chi tiết đơn hàng để đồng bộ
                 $ct->update(['trangthai' => $trangThaiMoi]);
             }
         });
+    }
+
+    /**
+     * 🛎 TẠO THÔNG BÁO TỒN KHO
+     */
+    protected function taoThongBaoCanhBaoTonKho($bienthe, $donhang)
+    {
+        $admins = NguoidungModel::where('vaitro', 'admin')->get();
+
+        foreach ($admins as $admin) {
+            ThongbaoModel::create([
+                'id_nguoidung' => $admin->id,
+                'tieude'       => '⚠️ Cảnh báo tồn kho',
+                'noidung'      =>
+                    'Biến thể "' . $bienthe->sanpham->ten .
+                    '" sắp hết hàng. Còn lại: ' . $bienthe->soluong,
+                'lienket' => env('DOMAIN', 'http://148.230.100.215/'). 'donhang/show/' . $donhang->id,
+                'loaithongbao' => 'Hệ thống',
+                'trangthai'    => 'Chưa đọc',
+            ]);
+        }
     }
 }
