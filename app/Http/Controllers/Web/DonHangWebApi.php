@@ -1008,7 +1008,7 @@ class DonHangWebApi extends BaseFrontendController
                 if ($sanpham->trangthai !== 'Công khai') continue;
 
                 $giaGoc  = (int) $bienthe->giagoc;
-                $giamGia = (int) $sanpham->giamgia;
+                $giamGia = (int) $bienthe->giamgia;
                 $soLuong = (int) $ct->soluong;
 
                 // 🔥 Giá sau giảm %

@@ -66,7 +66,7 @@ class SanphamAllWebAPI extends BaseFrontendController
                 });
             })
             ->with(['bienthe' => function ($q) {
-                $q->orderByDesc('giagoc');
+                $q->orderBy('giagoc');
                 // $q->orderByDesc('giagoc')->limit(1);
             }]);
         // Sắp xếp:  rồi giagiam, rồi số lượng bán, rồi lượt xem
@@ -104,7 +104,7 @@ class SanphamAllWebAPI extends BaseFrontendController
                 });
             })
             ->with(['bienthe' => function ($q) {
-                $q->orderByDesc('giagoc');
+                $q->orderBy('giagoc');
                 // $q->orderByDesc('giagoc')->limit(1);
             }]);
 
@@ -142,7 +142,7 @@ class SanphamAllWebAPI extends BaseFrontendController
                 });
             })
             ->with(['bienthe' => function ($q) {
-                $q->orderByDesc('giagoc');
+                $q->orderBy('giagoc');
                 // $q->orderByDesc('giagoc')->limit(1);
             }])
             // chỉ lấy sản phẩm được cập nhật gần đây
@@ -170,7 +170,7 @@ class SanphamAllWebAPI extends BaseFrontendController
             ->withAvg('danhgia as avg_rating', 'diem')             // điểm trung bình
             ->withCount('danhgia as review_count')                 // số lượng đánh giá
             ->with(['bienthe' => function ($q) {
-                $q->orderByDesc('giagoc');
+                $q->orderBy('giagoc');
                 // $q->orderByDesc('giagoc')->limit(1);
             }]);
 
@@ -335,6 +335,7 @@ class SanphamAllWebAPI extends BaseFrontendController
         $sanphams = $query->paginate($perPage, ['*'], 'page', $currentPage);
 
         $sanphams->getCollection()->transform(function ($item) {
+            $bienthe = optional($item->bienthe->where('giagoc', '>', 0)->sortBy('giagoc')->first());
             return [
                 'id' => $item->id,
                 'name' => $item->ten,
@@ -346,8 +347,8 @@ class SanphamAllWebAPI extends BaseFrontendController
                 //         ->first()
                 //         ->chuongtrinh ?? null
                 // )->id,
-                'originalPrice' => (int)optional($item->bienthe->where('giagoc', '>', 0)->sortBy('giagoc')->first())->giagoc,
-                'discount' => (int)$item->giamgia,
+                'originalPrice' => (int)$bienthe->giagoc,
+                'discount' => (int)$bienthe->giamgia,
                 'sold' => (int)$item->total_sold,
                 'rating' => round($item->avg_rating, 1),
                 'brand' => $item->thuonghieu->ten ?? null,
@@ -387,7 +388,7 @@ class SanphamAllWebAPI extends BaseFrontendController
                 });
             }])
             ->with(['bienthe' => function ($q) {
-                $q->orderByDesc('giagoc');
+                $q->orderBy('giagoc');
                 // $q->orderByDesc('giagoc')->limit(1);
             }]);
             if (is_numeric($id)) {
@@ -424,7 +425,7 @@ class SanphamAllWebAPI extends BaseFrontendController
                 });
             }])
             ->with(['bienthe' => function ($q) {
-                $q->orderByDesc('giagoc');
+                $q->orderBy('giagoc');
             }])
             ->whereHas('danhmuc', function ($q) use ($query) {
                 $q->whereIn('danhmuc.id', $query->danhmuc->pluck('id')->toArray());
@@ -441,7 +442,7 @@ class SanphamAllWebAPI extends BaseFrontendController
                 return [
                     'id' => $bt->id,
                     'id_variant_types' => $bt->id_loaibienthe,
-                    'discount' => (int)$bt->sanpham->giamgia,
+                    'discount' => (int)$bt->giamgia,
                     'originalPrice' => (int)$bt->giagoc,
                     'sold' => (int)$bt->luotban,
                 ];

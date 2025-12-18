@@ -63,11 +63,11 @@ class SanPhamAllResources extends JsonResource
     public function toArray(Request $request): array
     {
         // $mainImageUrl = optional($this->anhSanPham->first())->media;
-        $firstVariant = $this->bienthe->sortByDesc('giagoc')->first(); // Lấy biến thể có giá gốc cao nhất
+        $firstVariant = $this->bienthe->sortBy('giagoc')->first(); // Lấy biến thể có giá gốc cao nhất
         $priceBeforeDiscount = optional($firstVariant)->giagoc ?? 0;   // Giá gốc
 
         // Tính giá sau giảm theo % (giamgia là phần trăm)
-        $currentPrice = $priceBeforeDiscount * (1 - (($this->giamgia ?? 0) / 100));
+        $currentPrice = $priceBeforeDiscount * (1 - (($firstVariant->giamgia ?? 0) / 100));
 
         // Dữ liệu đánh giá: 'avg_rating' và tổng số lượng đánh giá (17k)
         $averageRating = round($this->avg_rating ?? 0, 1);

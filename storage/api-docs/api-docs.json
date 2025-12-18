@@ -4585,7 +4585,7 @@
                     "Giỏ Hàng (web)"
                 ],
                 "summary": "Thêm sản phẩm vào giỏ hàng (Hỗ trợ cả user đăng nhập & khách).",
-                "description": "\n     *     API này dùng để thêm sản phẩm (biến thể) vào giỏ hàng.\n     *     - Nếu người dùng **đăng nhập**, giỏ hàng sẽ lưu trong **database**.\n     *     - Nếu **chưa đăng nhập**, giỏ hàng lưu trong **session**.\n     *\n     *     API tự động tính khuyến mãi theo 3 rule:\n     *     **RULE 1: Khuyến mãi theo số lượng (quatang_sukien) → tặng FREE item.**\n     *     **RULE 2: Quà theo giá trị giỏ hàng (quangcao) → tặng 1 biến thể.**\n     *     **RULE 3: Quà theo Chương trình của quà tặng(id_chuongtrinh) → chỉ có thêm quà tặng có cùng chương trình sự kiện, chương trình nào do FE quyết định qua req id_chuongtrinh.**\n     *     ",
+                "description": "\n     *     API này dùng để thêm sản phẩm (biến thể) vào giỏ hàng.\n     *     - Nếu người dùng **đăng nhập**, giỏ hàng sẽ lưu trong **database**.\n     *     - Nếu **chưa đăng nhập**, giỏ hàng lưu trong **session**.\n     *\n     *     API tự động tính khuyến mãi theo 3 rule:\n     *     **RULE 1: Khuyến mãi theo số lượng (quatang_sukien) → tặng FREE item.**\n     *     **RULE 2: Quà theo giá trị giỏ hàng (quangcao) → tặng 1 biến thể.**\n     *     ",
                 "operationId": "0714c3d334146c724c8033b39b5c701b",
                 "requestBody": {
                     "required": true,
@@ -4607,11 +4607,6 @@
                                         "type": "integer",
                                         "minimum": 1,
                                         "example": 3
-                                    },
-                                    "id_chuongtrinh": {
-                                        "description": "Param req quyết định điều kiện tặng quà, cụ thể là cụ thể là cùng 1 chương trình.",
-                                        "type": "integer",
-                                        "example": 12
                                     }
                                 },
                                 "type": "object"
@@ -4743,7 +4738,7 @@
                     "Giỏ Hàng (web)"
                 ],
                 "summary": "Cập nhật số lượng sản phẩm trong giỏ hàng",
-                "description": "\n         * **API tự động xử lý 3 rule khuyến mãi:**\n         * - **RULE 1:** Khuyến mãi theo số lượng (quatang_sukien) → tặng FREE item tương ứng.\n         * - **RULE 2:** Quà theo giá trị giỏ hàng (quangcao) → hệ thống tự động kiểm tra và thêm quà.\n         * - **RULE 3:** Quà theo chương trình cụ thể (id_chuongtrinh) → FE gửi id_chuongtrinh để áp dụng đúng chương trình sự kiện.\n         *\n         * Nếu `soluong = 0` → sản phẩm bị xóa và quà tặng liên quan cũng bị xóa.\n         *     ",
+                "description": "\n         * **API tự động xử lý 3 rule khuyến mãi:**\n         * - **RULE 1:** Khuyến mãi theo số lượng (quatang_sukien) → tặng FREE item tương ứng.\n         * - **RULE 2:** Quà theo giá trị giỏ hàng (quangcao) → hệ thống tự động kiểm tra và thêm quà.\n         *\n         * Nếu `soluong = 0` → sản phẩm bị xóa và quà tặng liên quan cũng bị xóa.\n         *     ",
                 "operationId": "39ba601484435d3a36dd8f3141f2c363",
                 "parameters": [
                     {
@@ -4765,12 +4760,6 @@
                                         "description": "Số lượng mới của sản phẩm. Nếu = 0 → xóa sản phẩm",
                                         "type": "integer",
                                         "example": 5
-                                    },
-                                    "id_chuongtrinh": {
-                                        "description": "ID chương trình sự kiện để áp dụng rule 3. FE tự chọn chương trình khi có nhiều chương trình trùng biến thể.",
-                                        "type": "integer",
-                                        "example": 3,
-                                        "nullable": true
                                     }
                                 },
                                 "type": "object"
@@ -5641,23 +5630,6 @@
                     "thoigian_conlai": {
                         "type": "string",
                         "example": "Còn lại 32 ngày 5 giờ"
-                    },
-                    "chuongtrinh": {
-                        "properties": {
-                            "id": {
-                                "type": "integer",
-                                "example": 1
-                            },
-                            "tieude": {
-                                "type": "string",
-                                "example": "Sinh Nhật 13/10"
-                            },
-                            "hinhanh": {
-                                "type": "string",
-                                "example": "http://148.230.100.215/assets/client/images/thumbs/sinh-nhat-13-10.jpg"
-                            }
-                        },
-                        "type": "object"
                     }
                 },
                 "type": "object"
@@ -6098,10 +6070,6 @@
                     "have_gift": {
                         "type": "boolean",
                         "example": "true"
-                    },
-                    "id_chuongtrinh": {
-                        "type": "integer",
-                        "example": 1
                     },
                     "": {
                         "type": "string",

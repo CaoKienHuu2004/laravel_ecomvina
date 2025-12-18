@@ -16,6 +16,7 @@ class YeuThichResource extends JsonResource
     {
         $sanpham = $this->sanpham;
         $giaList = $sanpham->bienthe->pluck('giagoc');
+        $bienthe = $sanpham->bienthe->orderBy('giagoc');
         $min = $giaList->min();
         $max = $giaList->max();
         // return parent::toArray($request);
@@ -23,10 +24,10 @@ class YeuThichResource extends JsonResource
             'id' => $this->id,
             'ten' =>$this->sanpham->ten,
             'id_sanpham' =>$this->sanpham->id,
-            // 'giagiam_min' => $sanpham->giamgia ? $sanpham->giamgia * $min : $min,
-            // 'giagiam_max' => $sanpham->giamgia ? $sanpham->giamgia * $max : $max,
-            'gia_min' => $sanpham->giamgia ? $sanpham->giamgia * $min : $min,
-            // 'gia_max' => $sanpham->giamgia ? $sanpham->giamgia * $max : $max,
+            // 'giagiam_min' => $bienthe->giamgia ? $bienthe->giamgia * $min : $min,
+            // 'giagiam_max' => $bienthe->giamgia ? $bienthe->giamgia * $max : $max,
+            'gia_min' => $bienthe->giamgia ? $bienthe->giamgia * $min : $min,
+            // 'gia_max' => $bienthe->giamgia ? $bienthe->giamgia * $max : $max,
             'hinhanh' =>$sanpham->hinhanhsanpham->first()->hinhanh,
             //
             // id?: number | string;

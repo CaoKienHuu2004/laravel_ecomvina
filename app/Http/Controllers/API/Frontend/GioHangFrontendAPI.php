@@ -378,7 +378,8 @@ class GioHangFrontendAPI extends BaseFrontendController
         try {
             // Khóa biến thể để tránh race condition
             $variant = BientheModel::lockForUpdate()->findOrFail($id_bienthe);
-            $priceUnit = $variant->giagoc;
+            // $priceUnit = $variant->giagoc;
+            $priceUnit = $variant->giagoc - ($variant->giagoc * $variant->giamgia / 100);
 
             // Lấy sản phẩm chính hiện tại trong giỏ (nếu có)
             $existingItem = GiohangModel::where('id_nguoidung', $userId)
@@ -788,12 +789,11 @@ class GioHangFrontendAPI extends BaseFrontendController
             }
 
             // ✅ Lấy biến thể sản phẩm và khóa để cập nhật an toàn
-            $variant = BientheModel::lockForUpdate()->findOrFail($id_bienthe);
-            $priceUnit = $variant->giagoc;
 
             // Cập nhật sản phẩm (giữ nguyên logic khuyến mãi như bạn đã có)
             $variant = BientheModel::lockForUpdate()->findOrFail($id_bienthe);
-            $priceUnit = $variant->giagoc;
+            // $priceUnit = $variant->giagoc;
+            $priceUnit = $variant->giagoc - ($variant->giagoc * $variant->giamgia / 100);
 
             // Tổng giỏ hiện tại (chỉ tính hàng có thanhtien > 0)
             $tongGiaHienTai = GiohangModel::where('id_nguoidung', $userId)

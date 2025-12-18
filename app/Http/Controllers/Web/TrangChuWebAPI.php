@@ -62,15 +62,16 @@ class TrangChuWebAPI extends BaseFrontendController
         }
 
         return $products->map(function ($item) {
+            $bienthe = $item->bienthe->where('giagoc', '>', 0)->orderBy('giagoc', 'asc')->first();
             return [
                 'id' => $item->id,
                 'name' => $item->ten,
                 'slug' => $item->slug,
                 'have_gift' => $item->have_gift ?? false,
                 'originalPrice' => (int) optional(
-                    $item->bienthe->where('giagoc', '>', 0)->sortBy('giagoc')->first()
+                    $bienthe
                 )->giagoc,
-                'discount' => (int) $item->giamgia,
+                'discount' => (int) $bienthe->giamgia,
                 'sold' => (int) $item->total_sold,
                 'rating' => round($item->avg_rating ?? 5, 1),
                 'brand' => $item->thuonghieu->ten ?? null,
@@ -105,11 +106,11 @@ class TrangChuWebAPI extends BaseFrontendController
                 'start_date' => $item->ngaybatdau,
                 'end_date' => $item->ngayketthuc,
                 'time_remaining' => $remainingDays,
-                'program' => $item->chuongtrinh ? [
-                    'id' => $item->chuongtrinh->id,
-                    'title' => $item->chuongtrinh->tieude,
-                    'image' => $item->chuongtrinh->hinhanh,
-                ] : null,
+                // 'program' => $item->chuongtrinh ? [
+                //     'id' => $item->chuongtrinh->id,
+                //     'title' => $item->chuongtrinh->tieude,
+                //     'image' => $item->chuongtrinh->hinhanh,
+                // ] : null,
             ];
         });
     }
@@ -122,15 +123,16 @@ class TrangChuWebAPI extends BaseFrontendController
         return $categories->map(function ($category) {
             // Transform danh sách sản phẩm trong mỗi danh mục
             $category->sanpham = $category->sanpham->map(function ($item) {
+                $bienthe = $item->bienthe->where('giagoc', '>', 0)->sortBy('giagoc')->first();
                 return [
                     'id' => $item->id,
                     'name' => $item->ten,
                     'slug' => $item->slug,
                     'have_gift' => $item->have_gift ?? false,
                     'originalPrice' => (int)optional(
-                        $item->bienthe->where('giagoc', '>', 0)->sortBy('giagoc')->first()
+                        $bienthe
                     )->giagoc,
-                    'discount' => (int)$item->giamgia,
+                    'discount' => (int)$bienthe->giamgia,
                     'sold' => (int)$item->total_sold,
                     'rating' => round($item->avg_rating ?? 5, 1),
                     'brand' => $item->thuonghieu->ten ?? null,

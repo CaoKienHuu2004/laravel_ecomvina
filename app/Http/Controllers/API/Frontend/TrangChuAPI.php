@@ -204,13 +204,6 @@ class TrangChuAPI extends BaseFrontendController
     *     @OA\Property(property="ngaybatdau", type="string", format="date", example="2025-10-13"),
     *     @OA\Property(property="ngayketthuc", type="string", format="date", example="2025-12-31"),
     *     @OA\Property(property="thoigian_conlai", type="string", example="Còn lại 32 ngày 5 giờ"),
-    *     @OA\Property(
-    *         property="chuongtrinh",
-    *         type="object",
-    *         @OA\Property(property="id", type="integer", example=1),
-    *         @OA\Property(property="tieude", type="string", example="Sinh Nhật 13/10"),
-    *         @OA\Property(property="hinhanh", type="string", example="http://148.230.100.215/assets/client/images/thumbs/sinh-nhat-13-10.jpg")
-    *     )
     * )
      * * @OA\Schema(
     *     schema="NewBannerItem",

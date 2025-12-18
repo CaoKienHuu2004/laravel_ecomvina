@@ -34,13 +34,13 @@ class GiftHotResource extends JsonResource
             'ngaybatdau' => $this->ngaybatdau,
             'ngayketthuc' => $this->ngayketthuc,
             'thoigian_conlai' => $remainingDays,
-            'chuongtrinh' => $this->whenLoaded('chuongtrinh', function () {
-                return [
-                    'id' => $this->chuongtrinh->id,
-                    'tieude' => $this->chuongtrinh->tieude,
-                    'hinhanh' => $this->chuongtrinh->hinhanh,
-                ];
-            }),
+            // 'chuongtrinh' => $this->whenLoaded('chuongtrinh', function () {
+            //     return [
+            //         'id' => $this->chuongtrinh->id,
+            //         'tieude' => $this->chuongtrinh->tieude,
+            //         'hinhanh' => $this->chuongtrinh->hinhanh,
+            //     ];
+            // }),
         ];
     }
 }

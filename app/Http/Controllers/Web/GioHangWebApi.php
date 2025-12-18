@@ -311,7 +311,9 @@ class GioHangWebApi extends Controller
             $cartItems = collect($sessionCart)->map(function ($item) use ($variants) {
             $variant = $variants->get($item['id_bienthe']);
 
-            $priceUnit = $variant ? $variant->giagoc : 0;
+            // $priceUnit = $variant ? $variant->giagoc : 0;
+            $priceUnit = $variant ? ($variant->giagoc - ($variant->giagoc * $variant->giamgia / 100)) : 0;
+
             $soluong = $item['soluong'] ?? 0;
 
             // Lấy khuyến mãi áp dụng cho biến thể này
@@ -463,7 +465,8 @@ class GioHangWebApi extends Controller
             try {
                 // Khóa biến thể để tránh race condition
                 $variant = BientheModel::lockForUpdate()->findOrFail($id_bienthe);
-                $priceUnit = $variant->giagoc;
+                // $priceUnit = $variant->giagoc;
+                $priceUnit = $variant->giagoc - ($variant->giagoc * $variant->giamgia / 100);
 
                 // Lấy sản phẩm chính hiện tại trong giỏ (nếu có)
                 $existingItem = GiohangModel::where('id_nguoidung', $userId)
@@ -616,7 +619,8 @@ class GioHangWebApi extends Controller
 
             // Lấy biến thể và khuyến mãi
             $variant = BientheModel::find($id_bienthe);
-            $priceUnit = $variant ? $variant->giagoc : 0;
+            // $priceUnit = $variant ? $variant->giagoc : 0;
+            $priceUnit = $variant ? ($variant->giagoc - ($variant->giagoc * $variant->giamgia / 100)) : 0;
 
             // 👉 Tính tổng giỏ hàng session hiện tại (chỉ tính sản phẩm có thanhtien > 0)
             // $sessionCart = $request->session()->get($this->cart_session, []);
@@ -841,7 +845,8 @@ class GioHangWebApi extends Controller
 
                     // Cập nhật sản phẩm (giữ nguyên logic khuyến mãi như bạn đã có)
                     $variant = BientheModel::lockForUpdate()->findOrFail($id_bienthe);
-                    $priceUnit = $variant->giagoc;
+                    // $priceUnit = $variant->giagoc;
+                    $priceUnit = $variant->giagoc - ($variant->giagoc * $variant->giamgia / 100);
 
                     // Tổng giỏ hiện tại (chỉ tính hàng có thanhtien > 0)
                     $tongGiaHienTai = GiohangModel::where('id_nguoidung', $userId)

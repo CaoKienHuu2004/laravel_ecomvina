@@ -21,7 +21,6 @@ use Illuminate\Support\Str;
  *     @OA\Property(property="ten", type="string", example="Bánh quy ABC"),
  *     @OA\Property(property="slug", type="string", example="banh-quy-abc"),
  *     @OA\Property(property="have_gift", type="boolean", example="true"),
- *     @OA\Property(property="id_chuongtrinh", type="integer", example=1),
  *     @OA\Property(property="", type="string", example="banh-quy-abc"),
  *     @OA\Property(
  *         property="rating",
@@ -94,11 +93,11 @@ class SanPhamAllDetailResources extends JsonResource
     public function toArray(Request $request): array
     {
         // $mainImageUrl = optional($this->anhSanPham->first())->media;
-        $firstVariant = $this->bienthe->sortByDesc('giagoc')->first(); // Lấy biến thể có giá gốc cao nhất
+        $firstVariant = $this->bienthe->sortBy('giagoc')->first();
         $priceBeforeDiscount = optional($firstVariant)->giagoc ?? 0;   // Giá gốc
 
         // Tính giá sau giảm theo % (giamgia là phần trăm)
-        $currentPrice = $priceBeforeDiscount * (1 - (($this->giamgia ?? 0) / 100));         // Giá hiện tại: 300.000 đ
+        $currentPrice = $priceBeforeDiscount * (1 - (($firstVariant->giamgia ?? 0) / 100));         // Giá hiện tại: 300.000 đ
 
         // Dữ liệu đánh giá: 'avg_rating' và tổng số lượng đánh giá (17k)
         $averageRating = round($this->avg_rating ?? 0, 1);
@@ -110,12 +109,12 @@ class SanPhamAllDetailResources extends JsonResource
             'ten' => $this->ten,
             'slug'          => $this->slug,
             'have_gift' => (bool) $this->have_gift?? false,
-            'id_chuongtrinh' => optional(
-                $this->bienthe
-                    ->flatMap(fn($bt) => $bt->quatangsukien)
-                    ->first()
-                    ->chuongtrinh ?? null
-            )->id,
+            // 'id_chuongtrinh' => optional(
+            //     $this->bienthe
+            //         ->flatMap(fn($bt) => $bt->quatangsukien)
+            //         ->first()
+            //         ->chuongtrinh ?? null
+            // )->id,
             'danhmuc' => $this->danhmuc
             ? $this->danhmuc->map(function ($item) {
                 return [
@@ -228,7 +227,7 @@ class SanPhamAllDetailResources extends JsonResource
                     'id_bienthe' => $item->id,
                     'loai_bien_the' => $item->loaibienthe->id,
                     'giagoc' => $item->giagoc,
-                    'giamgia' => $item->sanpham->giamgia,
+                    'giamgia' => $item->giamgia,
                     'giahientai' => $item->giagoc * (1 - (($item->sanpham->giamgia ?? 0) / 100)),
                     'luotban' => $item->luotban,
                     // 'id_chuongtrinh' => $item->quatangsukien->map(function($qt) {

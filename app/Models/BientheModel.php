@@ -25,6 +25,7 @@ class BientheModel extends Model
         'id_sanpham',
         'id_loaibienthe',
         'giagoc',
+        'giamgia',
         'soluong',
         'luottang',
         'luotban',

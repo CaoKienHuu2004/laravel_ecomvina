@@ -80,7 +80,7 @@ class GioHangResource extends JsonResource
                 'thuonghieu' => optional($this->bienthe->sanpham->thuonghieu)->ten,
                 'tensanpham' => optional($this->bienthe->sanpham)->ten,
                 'loaisanpham' => optional($this->bienthe->loaibienthe)->ten,
-                'giamgia' => $this->bienthe->sanpham->giamgia ? $this->bienthe->sanpham->giamgia . '%' : '0%',
+                'giamgia' => $this->bienthe->giamgia ? $this->bienthe->giamgia . '%' : '0%',
                 'giagoc' => $this->bienthe->giagoc,
                 'giaban' => $this->bienthe->giagoc * (1 - ($this->bienthe->sanpham->giamgia ?? 0) / 100),
                 'hinhanh' => optional($this->bienthe->sanpham->hinhanhsanpham->first())->hinhanh,

@@ -98,7 +98,7 @@ class SanPhamAllFrontendAPI extends BaseFrontendController
             // $query->orderByRaw('COALESCE((SELECT giamgia FROM sanpham
             //                         WHERE id_sanpham = sanpham.id
             //                         ORDER BY uutien ASC LIMIT 1), 0) DESC')
-            $query->orderByDesc('giamgia')
+            $query->orderBy('giamgia')
             ->orderByDesc('total_sold')
             ->orderByDesc('luotxem'); // thêm lượt xem để tính "phổ biến"
 
@@ -468,7 +468,7 @@ class SanPhamAllFrontendAPI extends BaseFrontendController
             switch ($request->sortby) {
                 case 'topdeals':
                     // Sản phẩm có giảm giá cao nhất → giamgia giảm dần
-                    $query->orderByDesc('giamgia')
+                    $query->orderBy('giamgia')
                         ->orderByDesc('total_sold')
                         ->orderByDesc('avg_rating');
                     break;
@@ -495,7 +495,7 @@ class SanPhamAllFrontendAPI extends BaseFrontendController
                     // Nếu sortby không hợp lệ thì dùng thứ tự mặc định
                     $query->orderByDesc('luotxem')
                         ->orderByRaw('COALESCE((SELECT MIN(giagoc) FROM bienthe WHERE id_sanpham = sanpham.id), 0) ASC')
-                        ->orderByDesc('giamgia')
+                        ->orderBy('giamgia')
                         ->orderByDesc('total_sold')
                         ->orderByDesc('avg_rating');
                     break;
@@ -504,7 +504,7 @@ class SanPhamAllFrontendAPI extends BaseFrontendController
             // --- Sắp xếp mặc định ---
             $query->orderByDesc('luotxem')
                 ->orderByRaw('COALESCE((SELECT MIN(giagoc) FROM bienthe WHERE id_sanpham = sanpham.id), 0) ASC')
-                ->orderByDesc('giamgia')
+                ->orderBy('giamgia')
                 ->orderByDesc('total_sold')
                 ->orderByDesc('avg_rating');
         }
