@@ -351,12 +351,14 @@ class DonhangController extends Controller
     ==============================*/
     public function show($id)
     {
+        $trangthais = DonhangModel::getEnumValues('trangthai');
+        $trangthais_thanhtoan = DonhangModel::getEnumValues('trangthaithanhtoan');
         $donhang = DonhangModel::with([
             'nguoidung',
             'chitiet.bienthe.sanpham'
         ])->findOrFail($id);
 
-        return view('donhang.show', compact('donhang'));
+        return view('donhang.show', compact('donhang','trangthais','trangthais_thanhtoan'));
     }
 
     /* ===========================

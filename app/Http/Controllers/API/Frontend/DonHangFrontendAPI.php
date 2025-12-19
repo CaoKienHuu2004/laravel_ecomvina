@@ -733,17 +733,18 @@ class DonHangFrontendAPI extends BaseFrontendController
                 if (!$bienthe) {
                     continue; // Nếu biến thể không tồn tại thì bỏ qua
                 }
-                $tenloaibienthe = $bienthe->loaibienthe->ten ?? "Không có";
-                $tensanpham = $bienthe->sanpham->ten ?? "Không có";
+                // $tenloaibienthe = $bienthe->loaibienthe->ten ?? "Không có";
+                // $tensanpham = $bienthe->sanpham->ten ?? "Không có";
                 $dongia = 0;
                 if ($item->thanhtien > 0 && $item->soluong > 0) {
-                    $dongia = intval($item->thanhtien / $item->soluong);
+                    // $dongia = intval($item->thanhtien / $item->soluong);
+                    $dongia = $bienthe->giagoc;
                 }
                 ChitietdonhangModel::create([
                     'id_donhang'     => $donhang->id,
                     'id_bienthe'     => $item->id_bienthe,
-                    'tensanpham'     => $tensanpham,
-                    'tenloaibienthe' => $tenloaibienthe,
+                    // 'tensanpham'     => $tensanpham,
+                    // 'tenloaibienthe' => $tenloaibienthe,
                     'soluong'        => $item->soluong,
                     'dongia'         => $dongia,
                 ]);

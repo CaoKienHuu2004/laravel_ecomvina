@@ -432,8 +432,7 @@ class GioHangFrontendAPI extends BaseFrontendController
                         ->first();
 
                 $numFree = 0;
-                $thanhtien = $totalQuantity * $priceUnit;
-
+                $thanhtien = ($totalQuantity * $priceUnit);
                 if ($promotion === null) {
                     GiohangModel::where('id_nguoidung', $userId)
                         ->where('id_bienthe', $id_bienthe)
@@ -446,7 +445,8 @@ class GioHangFrontendAPI extends BaseFrontendController
                 // $numFree = min($promotionCount, $promotion->current_luottang);
                 $numFree = $promotionCount;
                 $numToPay = $totalQuantity - $numFree;
-                $thanhtien = $numToPay * $promotion->giagoc;
+                $thanhtien = $numToPay * $priceUnit;
+                // $thanhtien = $numToPay * $promotion->giagoc;
 
                 // Lấy quà tặng hiện có (nếu có)
                 $existingFreeItem = GiohangModel::where('id_nguoidung', $userId)
@@ -514,7 +514,7 @@ class GioHangFrontendAPI extends BaseFrontendController
             DB::commit();
 
             GioHangResource::withoutWrapping();
-            $cartItems = GiohangModel::with(['bienthe.sanpham.thuonghieu', 'bienthe.loaibienthe', 'bienthe.sanpham.hinhanhsanpham'])
+            $cartItems = GiohangModel::with(['bienthe','bienthe.sanpham.thuonghieu', 'bienthe.loaibienthe', 'bienthe.sanpham.hinhanhsanpham'])
                 ->where('id_nguoidung', $userId)
                 ->where('trangthai', 'Hiển thị')
                 ->get();
@@ -843,7 +843,8 @@ class GioHangFrontendAPI extends BaseFrontendController
                 // $numFreeNew = min($promotionCount, $promotion->current_luottang);
                 $numFreeNew = $promotionCount;
                 $numToPay = $soluongNew - $numFreeNew;
-                $thanhtien = $numToPay * $promotion->giagoc;
+                $thanhtien = $numToPay * $priceUnit;
+                // $thanhtien = $numToPay * $promotion->giagoc;
             }
 
             // ✅ Lấy số quà tặng cũ (nếu có)

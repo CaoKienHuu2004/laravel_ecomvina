@@ -100,6 +100,8 @@ class AuthWebController extends Controller
         }
 
         // ko khi xác thực đăng nhập thành công nếu cart_session có sp thì merge vào giỏ hàng của user
+        // var_dump($sessionCart = session($this->cart_session, [])); // do lên https có cả www và ko www mới bị
+        // exit;
         $this->merge_cart_from_session_after_login($user->id);
         // trả về void á nên khá khó debug
 

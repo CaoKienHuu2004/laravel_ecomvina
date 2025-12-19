@@ -288,65 +288,60 @@ class GioHangWebApi extends Controller
             GioHangResource::withoutWrapping();
             return response()->json(GioHangResource::collection($giohang), Response::HTTP_OK);
         } else {
-            // Chưa đăng nhập, lấy giỏ hàng từ session
             $sessionCart = $request->session()->get($this->cart_session, []);
 
-            // Chuyển mảng session thành collection ảo để dùng Resource
-            // Vì session không phải model, ta cần tạo 1 collection ảo giả lập
-
-            // Cách đơn giản: map mảng session thành các object tương tự GiohangModel (hoặc stdClass)
-            // Tuy nhiên, vì bạn dùng GioHangResource có thể phụ thuộc quan hệ (bienthe.sanpham),
-            // nên ta cần lấy thêm dữ liệu biến thể từ DB dựa vào id_bienthe.
-
-            // Lấy tất cả id_bienthe trong giỏ hàng session
-            $variantIds = array_column($sessionCart, 'id_bienthe');
-
-            // Lấy dữ liệu biến thể & quan hệ liên quan
-            $variants = BientheModel::with(['sanpham', 'sanpham.hinhanhsanpham', 'loaibienthe'])
-                ->whereIn('id', $variantIds)
-                ->get()
-                ->keyBy('id');
-
-            // Ghép dữ liệu session với biến thể (giá trị) tạo object giả lập cho Resource
-            $cartItems = collect($sessionCart)->map(function ($item) use ($variants) {
-            $variant = $variants->get($item['id_bienthe']);
-
-            // $priceUnit = $variant ? $variant->giagoc : 0;
-            $priceUnit = $variant ? ($variant->giagoc - ($variant->giagoc * $variant->giamgia / 100)) : 0;
-
-            $soluong = $item['soluong'] ?? 0;
-
-            // Lấy khuyến mãi áp dụng cho biến thể này
-            $promotion = DB::table('quatang_sukien as qs')
-                ->join('bienthe as bt', 'qs.id_bienthe', '=', 'bt.id')
-                ->where('qs.id_bienthe', $item['id_bienthe'])
-                ->where('qs.dieukiensoluong', '<=', $soluong)
-                ->whereRaw('NOW() BETWEEN qs.ngaybatdau AND qs.ngayketthuc')
-                ->select('qs.dieukiensoluong as discount_multiplier', 'bt.luottang as current_luottang', 'bt.giagoc')
-                ->first();
-
-            $thanhtien = $soluong * $priceUnit; // mặc định không khuyến mãi
-            if ($promotion) {
-                $promotionCount = floor($soluong / $promotion->discount_multiplier);
-                $numFree = min($promotionCount, $promotion->current_luottang);
-                $numToPay = $soluong - $numFree;
-                $thanhtien = $numToPay * $promotion->giagoc;
+            if (empty($sessionCart)) {
+                return response()->json([], Response::HTTP_OK);
             }
 
-            return (object) [
+            $variantIds = array_column($sessionCart, 'id_bienthe');
+
+            $variants = BientheModel::with([
+                'sanpham',
+                'sanpham.hinhanhsanpham',
+                'loaibienthe'
+            ])
+            ->whereIn('id', $variantIds)
+            ->get()
+            ->keyBy('id');
+
+            $cartItems = collect($sessionCart)->map(function ($item) use ($variants) {
+
+                $variant = $variants->get($item['id_bienthe']);
+                if (!$variant) return null;
+
+                $soluong = (int) ($item['soluong'] ?? 0);
+
+                $giagoc  = (float) $variant->giagoc;
+                $giamgia = (int) ($variant->giamgia ?? 0);
+                $priceUnit = $giagoc - ($giagoc * $giamgia / 100);
+
+                // ⭐ ƯU TIÊN thanhtien trong session
+                $thanhtien = isset($item['thanhtien'])
+                    ? (float) $item['thanhtien']
+                    : $soluong * $priceUnit;
+
+                return (object) [
                     'id' => null,
                     'id_nguoidung' => null,
-                    'id_bienthe' => $item['id_bienthe'],
+                    'id_bienthe' => $variant->id,
                     'soluong' => $soluong,
                     'thanhtien' => $thanhtien,
+                    'is_gift' => $thanhtien == 0,
                     'trangthai' => 'Hiển thị',
                     'bienthe' => $variant,
                 ];
-            });
+            })
+            ->filter()
+            ->values();
 
             GioHangResource::withoutWrapping();
-            return response()->json(GioHangResource::collection($cartItems), Response::HTTP_OK);
+            return response()->json(
+                GioHangResource::collection($cartItems),
+                Response::HTTP_OK
+            );
         }
+
     }
 
 
@@ -534,7 +529,8 @@ class GioHangWebApi extends Controller
                     // $numFree = min($promotionCount, $promotion->current_luottang);
                     $numFree = $promotionCount;
                     $numToPay = $totalQuantity - $numFree;
-                    $thanhtien = $numToPay * $promotion->giagoc;
+                    $thanhtien = $numToPay * $priceUnit;
+                    // $thanhtien = $numToPay * $promotion->giagoc;
 
                     $existingFreeItem = GiohangModel::where('id_nguoidung', $userId)
                         ->where('id_bienthe', $id_bienthe)
@@ -672,7 +668,8 @@ class GioHangWebApi extends Controller
                 // $numFree = min($promotionCount, $promotion->current_luottang);
                 $numFree = $promotionCount;
                 $numToPay = $totalQty - $numFree;
-                $thanhtien = $numToPay * $promotion->giagoc;
+                $thanhtien = $numToPay * $priceUnit;
+                // $thanhtien = $numToPay * $promotion->giagoc;
             }
 
             // Cập nhật hoặc thêm sản phẩm chính (thanhtien > 0)
@@ -896,7 +893,8 @@ class GioHangWebApi extends Controller
                         // $numFreeNew = min($promotionCount, $promotion->current_luottang);
                         $numFreeNew = $promotionCount;
                         $numToPay = $soluongNew - $numFreeNew;
-                        $thanhtien = $numToPay * $promotion->giagoc;
+                        $thanhtien = $numToPay * $priceUnit;
+                        // $thanhtien = $numToPay * $promotion->giagoc;
                     }
 
                     $freeItem = GiohangModel::where('id_nguoidung', $userId)
@@ -1068,7 +1066,8 @@ class GioHangWebApi extends Controller
                     $promotionCount = floor($soluongNew / $promotion->discount_multiplier);
                     $numFreeNew = max(0, $promotionCount);
                     $numToPay = max(0, $soluongNew - $numFreeNew);
-                    $thanhtien = $numToPay * $promotion->giagoc;
+                    $thanhtien = $numToPay * $priceUnit;
+                    // $thanhtien = $numToPay * $promotion->giagoc;
                 }
 
                 // =========================

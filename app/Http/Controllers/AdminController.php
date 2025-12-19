@@ -43,31 +43,129 @@ class AdminController extends Controller
 
 
     // begin: method của Nguyên
+    // public function trangchu()
+    // {
+    //     // Tính tổng doanh thu tất cả thời gian
+    //     $tongDoanhThu = ChitietdonhangModel::sum('dongia');
+    //     // Tính tổng doanh thu hôm nay
+    //     $tongDoanhThuNgay = ChitietdonhangModel::whereHas('donhang', function($query) {
+    //         $query->whereDate('created_at', Carbon::today());
+    //     })->sum('dongia');
+    //     // Tính tổng doanh thu trong tuần
+    //     $startOfWeek = Carbon::now()->startOfWeek(); // Ngày bắt đầu của tuần
+    //     $endOfWeek = Carbon::now()->endOfWeek(); // Ngày kết thúc của tuần
+    //     $tongDoanhThuTuan = ChitietdonhangModel::whereHas('donhang', function($query) use ($startOfWeek, $endOfWeek) {
+    //         $query->whereBetween('created_at', [$startOfWeek, $endOfWeek]);
+    //     })->sum('dongia');
+    //     // Tính tổng doanh thu trong tháng
+    //     $tongDoanhThuThang = ChitietdonhangModel::whereHas('donhang', function($query) {
+    //         $query->whereMonth('created_at', Carbon::now()->month)
+    //               ->whereYear('created_at', Carbon::now()->year);
+    //     })->sum('dongia');
+    //     $donHangsMoi = DonhangModel::orderBy('created_at', 'desc')->take(3)->get();
+    //     $sanPhamHetHang = BientheModel::with('sanpham','sanpham.hinhanhsanpham')->where('soluong', '<=', 5)->take(2)->get();
+    //     $sanPhamTonKho = BientheModel::with('sanpham','sanpham.hinhanhsanpham')->where('soluong', '>',100)->take(2) ->get();
+    //     return view('trangchu', compact('tongDoanhThu', 'tongDoanhThuNgay', 'tongDoanhThuTuan', 'tongDoanhThuThang', 'donHangsMoi', 'sanPhamHetHang', 'sanPhamTonKho')); // Truyền tổng doanh thu vào view
+    // }
+    // end: method của Nguyên
+
+    // theo model DonhangModel hơn chuối, vì chitiet_donhang ko tính được các giảm giá cho đơn hàng
+    // public function trangchu()
+    // {
+    //     // Điều kiện chung áp dụng cho các query doanh thu
+    //     $commonConditions = function ($query) {
+    //         $query->where('trangthaithanhtoan', 'Đã thanh toán')
+    //             ->where(function($q) {
+    //                 $q->where('trangthai', 'Đã giao hàng')
+    //                     ->orWhere('trangthai', 'Thành công');
+    //             });
+    //     };
+
+    //     // Tính tổng doanh thu tất cả thời gian
+    //     $tongDoanhThu = ChitietdonhangModel::whereHas('donhang', $commonConditions)->sum('dongia');
+
+    //     // Tính tổng doanh thu hôm nay
+    //     $tongDoanhThuNgay = ChitietdonhangModel::whereHas('donhang', function($query) use ($commonConditions) {
+    //         $query->whereDate('created_at', Carbon::today());
+    //         $commonConditions($query);
+    //     })->sum('dongia');
+
+    //     // Tính tổng doanh thu trong tuần
+    //     $startOfWeek = Carbon::now()->startOfWeek(); // Ngày bắt đầu của tuần
+    //     $endOfWeek = Carbon::now()->endOfWeek();     // Ngày kết thúc của tuần
+    //     $tongDoanhThuTuan = ChitietdonhangModel::whereHas('donhang', function($query) use ($startOfWeek, $endOfWeek, $commonConditions) {
+    //         $query->whereBetween('created_at', [$startOfWeek, $endOfWeek]);
+    //         $commonConditions($query);
+    //     })->sum('dongia');
+
+    //     // Tính tổng doanh thu trong tháng
+    //     $tongDoanhThuThang = ChitietdonhangModel::whereHas('donhang', function($query) use ($commonConditions) {
+    //         $query->whereMonth('created_at', Carbon::now()->month)
+    //             ->whereYear('created_at', Carbon::now()->year);
+    //         $commonConditions($query);
+    //     })->sum('dongia');
+
+    //     $donHangsMoi = DonhangModel::orderBy('created_at', 'desc')->take(3)->get();
+    //     $sanPhamHetHang = BientheModel::with('sanpham', 'sanpham.hinhanhsanpham')->where('soluong', '<=', 5)->take(2)->get();
+    //     $sanPhamTonKho = BientheModel::with('sanpham', 'sanpham.hinhanhsanpham')->where('soluong', '>', 100)->take(2)->get();
+
+    //     return view('trangchu', compact(
+    //         'tongDoanhThu',
+    //         'tongDoanhThuNgay',
+    //         'tongDoanhThuTuan',
+    //         'tongDoanhThuThang',
+    //         'donHangsMoi',
+    //         'sanPhamHetHang',
+    //         'sanPhamTonKho'
+    //     ));
+    // }
+
     public function trangchu()
     {
+        // Điều kiện chung áp dụng cho các query doanh thu trên DonhangModel
+        $commonConditions = function ($query) {
+            $query->where('trangthaithanhtoan', 'Đã thanh toán')
+                ->where(function($q) {
+                    $q->where('trangthai', 'Đã giao hàng')
+                        ->orWhere('trangthai', 'Thành công');
+                });
+        };
+
         // Tính tổng doanh thu tất cả thời gian
-        $tongDoanhThu = ChitietdonhangModel::sum('dongia');
+        $tongDoanhThu = DonhangModel::where($commonConditions)->sum('thanhtien');
+
         // Tính tổng doanh thu hôm nay
-        $tongDoanhThuNgay = ChitietdonhangModel::whereHas('donhang', function($query) {
-            $query->whereDate('created_at', Carbon::today());
-        })->sum('dongia');
+        $tongDoanhThuNgay = DonhangModel::whereDate('created_at', Carbon::today())
+            ->where($commonConditions)
+            ->sum('thanhtien');
+
         // Tính tổng doanh thu trong tuần
-        $startOfWeek = Carbon::now()->startOfWeek(); // Ngày bắt đầu của tuần
-        $endOfWeek = Carbon::now()->endOfWeek(); // Ngày kết thúc của tuần
-        $tongDoanhThuTuan = ChitietdonhangModel::whereHas('donhang', function($query) use ($startOfWeek, $endOfWeek) {
-            $query->whereBetween('created_at', [$startOfWeek, $endOfWeek]);
-        })->sum('dongia');
+        $startOfWeek = Carbon::now()->startOfWeek();
+        $endOfWeek = Carbon::now()->endOfWeek();
+        $tongDoanhThuTuan = DonhangModel::whereBetween('created_at', [$startOfWeek, $endOfWeek])
+            ->where($commonConditions)
+            ->sum('thanhtien');
+
         // Tính tổng doanh thu trong tháng
-        $tongDoanhThuThang = ChitietdonhangModel::whereHas('donhang', function($query) {
-            $query->whereMonth('created_at', Carbon::now()->month)
-                  ->whereYear('created_at', Carbon::now()->year);
-        })->sum('dongia');
+        $tongDoanhThuThang = DonhangModel::whereMonth('created_at', Carbon::now()->month)
+            ->whereYear('created_at', Carbon::now()->year)
+            ->where($commonConditions)
+            ->sum('thanhtien');
+
         $donHangsMoi = DonhangModel::orderBy('created_at', 'desc')->take(3)->get();
-        $sanPhamHetHang = BientheModel::with('sanpham','sanpham.hinhanhsanpham')->where('soluong', '<=', 5)->take(2)->get();
-        $sanPhamTonKho = BientheModel::with('sanpham','sanpham.hinhanhsanpham')->where('soluong', '>',100)->take(2) ->get();
-        return view('trangchu', compact('tongDoanhThu', 'tongDoanhThuNgay', 'tongDoanhThuTuan', 'tongDoanhThuThang', 'donHangsMoi', 'sanPhamHetHang', 'sanPhamTonKho')); // Truyền tổng doanh thu vào view
+        $sanPhamHetHang = BientheModel::with('sanpham', 'sanpham.hinhanhsanpham')->where('soluong', '<=', 5)->take(2)->get();
+        $sanPhamTonKho = BientheModel::with('sanpham', 'sanpham.hinhanhsanpham')->where('soluong', '>', 100)->take(2)->get();
+
+        return view('trangchu', compact(
+            'tongDoanhThu',
+            'tongDoanhThuNgay',
+            'tongDoanhThuTuan',
+            'tongDoanhThuThang',
+            'donHangsMoi',
+            'sanPhamHetHang',
+            'sanPhamTonKho'
+        ));
     }
-    // end: method của Nguyên
 
     public function showLoginForm()
     {
