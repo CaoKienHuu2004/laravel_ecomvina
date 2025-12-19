@@ -70,6 +70,7 @@ class DonHangWebApi extends BaseFrontendController
             'Đang giao hàng',
             'Đã giao hàng',
             'Đã hủy',
+            'Thành công'
         ];
 
         // Label hiển thị tương ứng
@@ -78,10 +79,10 @@ class DonHangWebApi extends BaseFrontendController
             'Chờ xử lý' => 'Đang xử lý',
             'Đã xác nhận' => 'Đang xử lý',
             'Đang chuẩn bị hàng' => 'Đang xử lý',
-            'Đang giao hàng' => 'Đang giao hàng',
+            'Đang giao hàng' => 'Đang vận chuyển',
             'Đã giao hàng' => 'Đã giao',
             'Đã hủy' => 'Đã hủy',
-            'Thành công' => 'Đã giao',
+            'Thành công' => 'Đã hoàn thành',
         ];
 
         $query = DonhangModel::with([
@@ -1027,40 +1028,43 @@ class DonHangWebApi extends BaseFrontendController
              * 2️⃣ Rebuild hàng chính
              */
             foreach ($donHangCu->chitietdonhang as $ct) {
+                if($ct->dongia > 0)
+                {
+                    $bienthe = $ct->bienthe;
+                    $sanpham = $bienthe?->sanpham;
 
-                $bienthe = $ct->bienthe;
-                $sanpham = $bienthe?->sanpham;
+                    if (!$bienthe || !$sanpham) continue;
+                    if ($sanpham->trangthai !== 'Công khai') continue;
 
-                if (!$bienthe || !$sanpham) continue;
-                if ($sanpham->trangthai !== 'Công khai') continue;
+                    $giaGoc  = (int) $bienthe->giagoc;
+                    $giamGia = (int) $bienthe->giamgia;
+                    $soLuong = (int) $ct->soluong;
 
-                $giaGoc  = (int) $bienthe->giagoc;
-                $giamGia = (int) $bienthe->giamgia;
-                $soLuong = (int) $ct->soluong;
+                    // 🔥 Giá sau giảm %
+                    $donGiaSauGiam = $giaGoc;
+                    if ($giamGia > 0) {
+                        $donGiaSauGiam = (int) round(
+                            $giaGoc * (100 - $giamGia) / 100
+                        );
+                    }
 
-                // 🔥 Giá sau giảm %
-                $donGiaSauGiam = $giaGoc;
-                if ($giamGia > 0) {
-                    $donGiaSauGiam = (int) round(
-                        $giaGoc * (100 - $giamGia) / 100
-                    );
+                    $thanhtien = $donGiaSauGiam * $soLuong;
+                    $tongGiaGioHang += $thanhtien;
+
+                    GioHangModel::create([
+                        'id_bienthe'   => $bienthe->id,
+                        'id_nguoidung' => $user->id,
+                        'soluong'      => $soLuong,
+                        'thanhtien'    => $thanhtien,
+                        'trangthai'    => 'Hiển thị',
+                    ]);
+
+                    $items[] = [
+                        'bienthe' => $bienthe,
+                        'soluong' => $soLuong,
+                    ];
                 }
 
-                $thanhtien = $donGiaSauGiam * $soLuong;
-                $tongGiaGioHang += $thanhtien;
-
-                GioHangModel::create([
-                    'id_bienthe'   => $bienthe->id,
-                    'id_nguoidung' => $user->id,
-                    'soluong'      => $soLuong,
-                    'thanhtien'    => $thanhtien,
-                    'trangthai'    => 'Hiển thị',
-                ]);
-
-                $items[] = [
-                    'bienthe' => $bienthe,
-                    'soluong' => $soLuong,
-                ];
             }
 
             /**

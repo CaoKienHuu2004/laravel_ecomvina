@@ -4,6 +4,281 @@
 
 @section('content')
 <div class="page-wrapper">
+      <div class="content">
+        <div class="page-header">
+          <div class="page-title">
+            <h4>Danh sách đơn hàng</h4>
+            <h6>Danh sách những đơn hàng đang có trên hệ thống.</h6>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-lg-3 col-sm-6 col-12">
+            <a href="#" class="dash-widget dash1">
+              <div class="dash-widgetimg">
+                <span><i data-feather="package" style="color: #1fb163;"></i></span>
+              </div>
+              <div class="dash-widgetcontent">
+                <h5>
+                  <span class="counters">100</span>
+                </h5>
+                <h6>Tổng số đơn hàng</h6>
+              </div>
+            </a>
+          </div>
+          <div class="col-lg-3 col-sm-6 col-12">
+            <a href="#" class="dash-widget dash2">
+              <div class="dash-widgetimg">
+                <span><i data-feather="share" style="color: #0093e8;"></i></span>
+              </div>
+              <div class="dash-widgetcontent">
+                <h5>
+                  <span class="counters">80</span>
+                </h5>
+                <h6>Đơn hoàn thành</h6>
+              </div>
+            </a>
+          </div>
+          <div class="col-lg-3 col-sm-6 col-12">
+            <a href="#" class="dash-widget dash3">
+              <div class="dash-widgetimg">
+                <span><i data-feather="x-circle" style="color:#ea5454;"></i></span>
+              </div>
+              <div class="dash-widgetcontent">
+                <h5>
+                  <span class="counters">20</span>
+                </h5>
+                <h6>Đã hủy đơn</h6>
+              </div>
+            </a>
+          </div>
+          <div class="col-lg-3 col-sm-6 col-12">
+            <a href="#" class="dash-widget dash">
+              <div class="dash-widgetimg">
+                <span><i data-feather="alert-circle" style="color:#ff8f07;"></i></span>
+              </div>
+              <div class="dash-widgetcontent">
+                <h5>
+                  <span class="counters">76</span>
+                </h5>
+                <h6>Chờ xác nhận đơn</h6>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body">
+            <div class="table-top">
+              <div class="search-set">
+                <div class="search-path">
+
+                </div>
+                <div class="search-input">
+                  <a class="btn btn-searchset"><img src="{{asset('img/icons/search-white.svg')}}" alt="img" /></a>
+                </div>
+              </div>
+              <div class="wordset">
+                <ul>
+                  <li>
+                    <button id="export-pdf-button" class="bg-white border-0 p-0" data-bs-toggle="tooltip"
+                      data-bs-placement="top" title="pdf"><img src="{{asset('img/icons/pdf.svg')}}" alt="img" /></button>
+                      {{-- data-bs-placement="top" title="pdf"><img src="assets/img/icons/pdf.svg" alt="img" /></button> --}}
+                  </li>
+                  <li>
+                    <button id="export-excel-button" class="bg-white border-0 p-0" data-bs-toggle="tooltip"
+                      data-bs-placement="top" title="excel"><img src="{{asset('img/icons/excel.svg')}}" alt="img" /></button>
+                      {{-- data-bs-placement="top" title="excel"><img src="assets/img/icons/excel.svg" alt="img" /></button> --}}
+                  </li>
+                  <li>
+                    <button id="print-button" class="bg-white border-0 p-0" data-bs-toggle="tooltip"
+                      data-bs-placement="top" title="printer"><img src="{{asset('img/icons/printer.svg')}}"
+                      {{-- data-bs-placement="top" title="printer"><img src="assets/img/icons/printer.svg" --}}
+                        alt="img" /></button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table datanew">
+                <!-- có thể thêm datanew sau class table -->
+                <thead>
+                  <tr>
+                    <th class="text-start">Mã đơn</th>
+                    <th class="text-start" style="width: 20px !important;">Địa chỉ giao hàng</th>
+                    <th class="text-start">Tổng cộng</th>
+                    <th class="text-start">Ngày đặt hàng</th>
+                    <th class="text-center">Trạng thái</th>
+                    <th class="text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="text-start">
+                      <a class="fw-bold" href="javascript:void(0);">#STV25120944</a>
+                    </td>
+                    <td class="text-start">
+                      <p class="fw-bold text-black m-0" style="font-size: 14px;">Trần Bá Hộ</p>
+                      <div class="text-black" style="font-size: 14px; width: 340px; white-space: break-spaces; overflow: hidden; text-overflow: ellipsis;">801/2A Phạm Thế Hiển, Phường 4, Quận 8, Thành phố Hồ Chí Minh</div>
+                    </td>
+                    <td class="text-start text-black fw-bold"><span class="text-danger">300.000 đ</span></td>
+                    <td class="text-start text-black" style="width: 50px;">
+                      09/12/2025 - 16:59
+                    </td>
+                    <td class="text-center"><span class="badges bg-lightyellow">Chờ xác nhận</span></td>
+                    <td class="text-center">
+                      <a class="me-3" href="sales-details.html">
+                        <i data-feather="eye" class="text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Xem chi tiết đơn hàng"></i>
+                      </a>
+                      <!-- <a href="javascript: void(0);" id="alert-confirm"
+                                    class="btn btn-primary waves-effect waves-light">Click me</a> -->
+                      <a class="" href="javascript:void(0);">
+                        <i data-feather="x-circle" class="text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Xác nhận hủy đơn"></i>
+                      </a>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="text-start">
+                      <a class="fw-bold" href="javascript:void(0);">#STV25120944</a>
+                    </td>
+                    <td class="text-start">
+                      <p class="fw-bold text-black m-0" style="font-size: 14px;">Trần Bá Hộ</p>
+                      <div class="text-black" style="font-size: 14px; width: 340px; white-space: break-spaces; overflow: hidden; text-overflow: ellipsis;">801/2A Phạm Thế Hiển, Phường 4, Quận 8, Thành phố Hồ Chí Minh</div>
+                    </td>
+                    <td class="text-start text-black fw-bold"><span class="text-danger">300.000 đ</span></td>
+                    <td class="text-start text-black" style="width: 50px;">
+                      09/12/2025 - 16:59
+                    </td>
+                    <td class="text-center"><span class="badges bg-lightpurple">Chờ thanh toán</span></td>
+                    <td class="text-center">
+                      <a class="me-3" href="sales-details.html">
+                        <i data-feather="eye" class="text-primary" data-bs-toggle="tooltip" data-bs-placement="top" title="Xem chi tiết đơn hàng"></i>
+                      </a>
+                      <a class="" href="javascript:void(0);">
+                        <i data-feather="x-circle" class="text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Xác nhận hủy đơn"></i>
+                      </a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+@endsection
+
+@section('scripts')
+
+@endsection
+
+{{-- <div class="page-wrapper">
+    <div class="content">
+    <div class="page-header">
+        <div class="page-title">
+        <h4>Xác nhận đơn hàng <span class="bg-danger text-white text-center rounded-circle blinking-flash px-2 py-1" style="font-size: 13px;">!</span></h4>
+        <h6>Những đơn hàng đang chờ xác nhận từ bạn</h6>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-body">
+        <div class="table-top">
+            <div class="search-set">
+            <div class="search-path">
+
+            </div>
+            <div class="search-input">
+                <a class="btn btn-searchset"><img src="assets/img/icons/search-white.svg" alt="img" /></a>
+            </div>
+            </div>
+            <div class="wordset">
+            <ul>
+                <li>
+                <button id="export-pdf-button" class="bg-white border-0 p-0" data-bs-toggle="tooltip"
+                    data-bs-placement="top" title="pdf"><img src="assets/img/icons/pdf.svg" alt="img" /></button>
+                </li>
+                <li>
+                <button id="export-excel-button" class="bg-white border-0 p-0" data-bs-toggle="tooltip"
+                    data-bs-placement="top" title="excel"><img src="assets/img/icons/excel.svg" alt="img" /></button>
+                </li>
+                <li>
+                <button id="print-button" class="bg-white border-0 p-0" data-bs-toggle="tooltip"
+                    data-bs-placement="top" title="printer"><img src="assets/img/icons/printer.svg"
+                    alt="img" /></button>
+                </li>
+            </ul>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table datanew">
+            <!-- có thể thêm datanew sau class table -->
+            <thead>
+                <tr>
+                <th class="text-start">Mã đơn</th>
+                <th class="text-start" style="width: 20px !important;">Địa chỉ giao hàng</th>
+                <th class="text-start">Tổng cộng</th>
+                <th class="text-start">Ngày đặt hàng</th>
+                <th class="text-center">Trạng thái</th>
+                <th class="text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                <td class="text-start">
+                    <a class="fw-bold" href="javascript:void(0);">#STV25120944</a>
+                </td>
+                <td class="text-start">
+                    <p class="fw-bold text-black m-0" style="font-size: 14px;">Trần Bá Hộ</p>
+                    <div class="text-black" style="font-size: 14px; width: 340px; white-space: break-spaces; overflow: hidden; text-overflow: ellipsis;">801/2A Phạm Thế Hiển, Phường 4, Quận 8, Thành phố Hồ Chí Minh</div>
+                </td>
+                <td class="text-start text-black fw-bold"><span class="text-danger">300.000 đ</span></td>
+                <td class="text-start text-black" style="width: 50px;">
+                    09/12/2025 - 16:59
+                </td>
+                <td class="text-center"><span class="badges bg-lightyellow">Chờ xác nhận</span></td>
+                <td class="text-center">
+                    <a class="me-3" href="editproduct.html">
+                    <i data-feather="check-circle" class="text-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Xác nhận đơn hàng"></i>
+                    </a>
+                    <a class="confirm-text" href="javascript:void(0);">
+                    <i data-feather="x-circle" class="text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Từ chối và hủy đơn"></i>
+                    </a>
+                </td>
+                </tr>
+                <tr>
+                <td class="text-start">
+                    <a class="fw-bold" href="javascript:void(0);">#STV25120944</a>
+                </td>
+                <td class="text-start">
+                    <p class="fw-bold text-black m-0" style="font-size: 14px;">Trần Bá Hộ</p>
+                    <div class="text-black" style="font-size: 14px; width: 340px; white-space: break-spaces; overflow: hidden; text-overflow: ellipsis;">801/2A Phạm Thế Hiển, Phường 4, Quận 8, Thành phố Hồ Chí Minh</div>
+                </td>
+                <td class="text-start text-black fw-bold"><span class="text-danger">300.000 đ</span></td>
+                <td class="text-start text-black" style="width: 50px;">
+                    09/12/2025 - 16:59
+                </td>
+                <td class="text-center"><span class="badges bg-lightpurple">Chờ thanh toán</span></td>
+                <td class="text-center">
+                    <a class="me-3" href="editproduct.html">
+                    <i data-feather="check-circle" class="text-success" data-bs-toggle="tooltip" data-bs-placement="top" title="Xác nhận đơn hàng"></i>
+                    </a>
+                    <a class="confirm-text" href="javascript:void(0);">
+                    <i data-feather="x-circle" class="text-danger" data-bs-toggle="tooltip" data-bs-placement="top" title="Từ chối và hủy đơn"></i>
+                    </a>
+                </td>
+                </tr>
+            </tbody>
+            </table>
+        </div>
+        </div>
+    </div>
+    </div>
+</div> --}}
+{{-- <div class="page-wrapper">
   <div class="content">
     <div class="page-header">
       <div class="page-title">
@@ -112,9 +387,4 @@
       @endif
     </div>
   </div>
-</div>
-@endsection
-
-@section('scripts')
-<style>.dt-buttons{display:none!important;}</style>
-@endsection
+</div> --}}

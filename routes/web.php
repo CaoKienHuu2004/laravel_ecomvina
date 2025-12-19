@@ -168,36 +168,84 @@ Route::middleware(['auth', 'admin'])->group(function () {
 
 
     /* ===================== ĐƠN HÀNG ===================== */
-    Route::prefix('don-hang')->group(function () {
-        // Danh sách
-        Route::get('/danh-sach', [DonhangController::class, 'index'])->name('danh-sach-don-hang');
-        Route::get('/', [DonhangController::class, 'index']);
+    // Route::prefix('don-hang')->group(function () {
+    //     // Danh sách
+    //     Route::get('/danh-sach', [DonhangController::class, 'index'])->name('danh-sach-don-hang');
+    //     Route::get('/', [DonhangController::class, 'index']);
 
-        // Tạo mới
-        Route::get('/tao-don-hang', [DonhangController::class, 'create'])->name('tao-don-hang');
-        Route::post('/luu', [DonhangController::class, 'store'])->name('luu-don-hang');
+    //     // Tạo mới
+    //     Route::get('/tao-don-hang', [DonhangController::class, 'create'])->name('tao-don-hang');
+    //     Route::post('/luu', [DonhangController::class, 'store'])->name('luu-don-hang');
 
-        // Chỉnh sửa
-        Route::get('/{id}/chinh-sua', [DonhangController::class, 'edit'])->name('chinh-sua-don-hang');
-        Route::put('/{id}/cap-nhat', [DonhangController::class, 'update'])->name('cap-nhat-don-hang');
+    //     // Chỉnh sửa
+    //     Route::get('/{id}/chinh-sua', [DonhangController::class, 'edit'])->name('chinh-sua-don-hang');
+    //     Route::put('/{id}/cap-nhat', [DonhangController::class, 'update'])->name('cap-nhat-don-hang');
 
-        // Xem chi tiết (View)
-        Route::get('/{id}', [DonhangController::class, 'show'])->name('chi-tiet-don-hang');
+    //     // Xem chi tiết (View)
+    //     Route::get('/{id}', [DonhangController::class, 'show'])->name('chi-tiet-don-hang');
 
-        // Xóa
-        Route::delete('/{id}/xoa', [DonhangController::class, 'destroy'])->name('xoa-don-hang');
+    //     // Xóa
+    //     Route::delete('/{id}/xoa', [DonhangController::class, 'destroy'])->name('xoa-don-hang');
+
+    //     /* ----------- API phụ để làm chức năng nâng cao ----------- */
+
+    //     // Lấy chi tiết đơn hàng kèm tổng giá (JSON)
+    //     Route::get('/api/{id}', [DonhangController::class, 'showApi']);
+
+    //     // Cập nhật số lượng sản phẩm trong đơn hàng
+    //     Route::post('/api/{orderId}/items/{itemId}/quantity', [DonhangController::class, 'updateItemQuantity']);
+
+    //     // Tìm kiếm sản phẩm autocomplete
+    //     Route::get('/api/search-products', [DonhangController::class, 'searchProducts']);
+    // });
+
+    /* ===================== ĐƠN HÀNG ===================== */
+    Route::prefix('donhang')->group(function () {
+        Route::get('/', [DonhangController::class, 'index'])->name('donhang.index');
+        Route::get('/create', [DonhangController::class, 'create'])->name('donhang.create');
+        Route::post('/store', [DonhangController::class, 'store'])->name('donhang.store');
+        Route::get('/show/{id}', [DonhangController::class, 'show'])->name('donhang.show');
+        Route::get('/edit/{id}', [DonhangController::class, 'edit'])->name('donhang.edit');
+        Route::put('/update/{id}', [DonhangController::class, 'update'])->name('donhang.update');
+        Route::delete('/delete/{id}', [DonhangController::class, 'destroy'])->name('donhang.destroy');
+
+        // 🗑️ Thùng rác
+        Route::get('/trash', [DonhangController::class, 'trash'])->name('donhang.trash');
+        Route::post('/restore/{id}', [DonhangController::class, 'restore'])->name('donhang.restore');
+        Route::delete('/force-delete/{id}', [DonhangController::class, 'forceDelete'])->name('donhang.forceDelete');
 
         /* ----------- API phụ để làm chức năng nâng cao ----------- */
-
-        // Lấy chi tiết đơn hàng kèm tổng giá (JSON)
-        Route::get('/api/{id}', [DonhangController::class, 'showApi']);
-
-        // Cập nhật số lượng sản phẩm trong đơn hàng
-        Route::post('/api/{orderId}/items/{itemId}/quantity', [DonhangController::class, 'updateItemQuantity']);
-
-        // Tìm kiếm sản phẩm autocomplete
-        Route::get('/api/search-products', [DonhangController::class, 'searchProducts']);
+        // // Lấy chi tiết đơn hàng kèm tổng giá (JSON)
+        // Route::get('/api/{id}', [DonhangController::class, 'showApi']);
+        // // Cập nhật số lượng sản phẩm trong đơn hàng
+        // Route::post('/api/{orderId}/items/{itemId}/quantity', [DonhangController::class, 'updateItemQuantity']);
+        // // Tìm kiếm sản phẩm autocomplete
+        // Route::get('/api/search-products', [DonhangController::class, 'searchProducts']);
     });
+
+    // Route::prefix(config('routes.donhang'))->group(function () {
+    //     Route::get('/', [DonhangController::class, 'index'])->name(config('routes.donhang.index'));
+    //     Route::get('/create', [DonhangController::class, 'create'])->name(config('routes.donhang.create'));
+    //     Route::post('/store', [DonhangController::class, 'store'])->name(config('routes.donhang.store'));
+    //     Route::get('/show/{id}', [DonhangController::class, 'show'])->name(config('routes.donhang.show'));
+    //     Route::get('/edit/{id}', [DonhangController::class, 'edit'])->name(config('routes.donhang.edit'));
+    //     Route::put('/update/{id}', [DonhangController::class, 'update'])->name(config('routes.donhang.update'));
+    //     Route::delete('/delete/{id}', [DonhangController::class, 'destroy'])->name('donhang.destroy');
+
+    //     // 🗑️ Thùng rác
+    //     Route::get('/trash', [DonhangController::class, 'trash'])->name(config('routes.donhang.trash'));
+    //     Route::post('/restore/{id}', [DonhangController::class, 'restore'])->name(config('routes.donhang.restore'));
+    //     Route::delete('/force-delete/{id}', [DonhangController::class, 'forceDelete'])->name(config('routes.donhang.forceDelete'));
+
+    //     /* ----------- API phụ để làm chức năng nâng cao ----------- */
+    //     // // Lấy chi tiết đơn hàng kèm tổng giá (JSON)
+    //     // Route::get('/api/{id}', [DonhangController::class, 'showApi']);
+    //     // // Cập nhật số lượng sản phẩm trong đơn hàng
+    //     // Route::post('/api/{orderId}/items/{itemId}/quantity', [DonhangController::class, 'updateItemQuantity']);
+    //     // // Tìm kiếm sản phẩm autocomplete
+    //     // Route::get('/api/search-products', [DonhangController::class, 'searchProducts']);
+    // });
+
 
 
     /* ===================== Hình Ảnh Sản Phẩm ===================== */
@@ -448,8 +496,8 @@ Route::apiResource('api-ma-giam-gia', MaGiamGiaWebApi::class)->only(['index']);
 
 Route::middleware(['auth.api'])->group(function () {
     Route::get('/tai-khoan/donhang', [DonHangWebApi::class, 'index']);
-    Route::post('/tai-khoan/donhang', [DonHangWebApi::class, 'store']);
     Route::get('/tai-khoan/donhang/{id}', [DonHangWebApi::class, 'show']);
+    Route::post('/tai-khoan/donhang', [DonHangWebApi::class, 'store']);
     Route::patch('/tai-khoan/donhang/{id}/trang-thai', [DonHangWebApi::class, 'update_trangthai']);
     Route::patch('/tai-khoan/donhang/{id}/phuong-thuc', [DonHangWebApi::class, 'update_phuongthuc']);
     Route::patch('/tai-khoan/donhang/{id}/huy', [DonHangWebApi::class, 'cancel']);

@@ -19,7 +19,7 @@
     <link
       rel="shortcut icon"
       type="image/x-icon"
-      href="{{asset('img/favicon_tayninhquan.png')}}"
+      href="{{asset('img/logo_nguyenban.png')}}"
     />
 
     <link rel="stylesheet" href="{{asset('css/bootstrap.min.css')}}" />
@@ -67,6 +67,24 @@
     <div class="main-wrapper">
       <div class="header">
         <div class="header-left active">
+            <a href="{{ route('trang-chu')}}" class="logo">
+
+            <img class="logo-header" src="{{asset('img/logo_nguyenban.png')}}" />
+            </a>
+            <a href="{{ route('trang-chu')}}" class="logo-small">
+            <img src="{{asset('img/logo_nguyenban.png')}}" alt style="width: 60%" />
+            </a>
+            <a id="toggle_btn" href="javascript:void(0);"> </a>
+        </div>
+
+        <a id="mobile_btn" class="mobile_btn" href="#sidebar">
+            <span class="bar-icon">
+            <span></span>
+            <span></span>
+            <span></span>
+            </span>
+        </a>
+        {{-- <div class="header-left active">
           <a href="{{ route ('trang-chu') }}" class="logo">
             <img src="{{asset('img/logo.png')}}" alt="" />
           </a>
@@ -76,13 +94,15 @@
           <a id="toggle_btn" href="javascript:void(0);"> </a>
         </div>
 
+
+
         <a id="mobile_btn" class="mobile_btn" href="#sidebar">
           <span class="bar-icon">
             <span></span>
             <span></span>
             <span></span>
           </span>
-        </a>
+        </a> --}}
 
         <ul class="nav user-menu">
 
@@ -117,7 +137,8 @@
               data-bs-toggle="dropdown"
             >
               <span class="user-img"
-                ><img src="{{asset('img/favicon_tayninhquan.png')}}" alt="" />
+                ><img src="{{auth()->user()->avatar}}" alt="" />
+                {{-- ><img src="{{asset('img/favicon_tayninhquan.png')}}" alt="" /> --}}
                 <span class="status online"></span
               ></span>
             </a>
@@ -125,7 +146,9 @@
               <div class="profilename">
                 <div class="profileset">
                   <span class="user-img"
-                    ><img src="{{asset('img/favicon_tayninhquan.png')}}" alt="" />
+                    >
+                    <img src="{{auth()->user()->avatar}}" alt="" />
+                    {{-- <img src="{{asset('img/favicon_tayninhquan.png')}}" alt="" /> --}}
                     <span class="status online"></span
                   ></span>
                   <div class="profilesets">
@@ -137,8 +160,8 @@
                 <a class="dropdown-item" href="{{ route('thong-tin-tai-khoan') }} ">
                   <i class="me-2" data-feather="user"></i> Hồ sơ</a
                 >
-                <a class="dropdown-item" href="generalsettings.html"
-                  ><i class="me-2" data-feather="settings"></i>Cài đặt</a
+                <a class="dropdown-item" href="https://sieuthivina.com"
+                  ><i class="me-2" data-feather="settings"></i>sieuthivina.com</a
                 >
                 <hr class="m-0" />
                 <a class="dropdown-item logout pb-0" href="{{ route('dang-xuat') }}"
@@ -165,7 +188,7 @@
           ></a>
           <div class="dropdown-menu dropdown-menu-right">
             <a class="dropdown-item" href="{{ route('thong-tin-tai-khoan') }}">Hồ sơ</a>
-            <a class="dropdown-item" href="generalsettings.html">Cài đặt</a>
+            <a class="dropdown-item" href="https://sieuthivina.com">sieuthivina.com</a>
             <a class="dropdown-item" href="{{ route('dang-xuat') }}">Đăng xuất</a>
           </div>
         </div>
@@ -267,13 +290,15 @@
               </li>
 
               {{-- // -- Quản lý đơn hàng --// --}}
-              <li class="submenu">
+              @include('layouts.child_layouts.orderstatus')
+              {{-- <li class="submenu">
                 <a href="javascript:void(0);"
                   ><img src="{{asset('img/icons/expense1.svg')}}" alt="img" /><span>
                     Quản lý đơn hàng</span
                   >
                   <span class="menu-arrow"></span
                 ></a>
+
                 <ul>
                   <li><a href="saleslist.html">Voucher</a></li>
                   <li><a href="pos.html">Ưu đãi sản phẩm</a></li>
@@ -282,7 +307,7 @@
                   <li><a href="pos.html">Danh sách đơn hàng</a></li>
 
                 </ul>
-              </li>
+              </li> --}}
 
               {{-- // -- Quản lý thương hiệu --// --}}
               <li class="submenu">
@@ -514,7 +539,7 @@
         } = window.CKEDITOR;
 
         const LICENSE_KEY =
-          'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3ODczNTY3OTksImp0aSI6IjM3OTJmZDBhLTgxOTQtNDRlZi05MDFmLTRhMjAwOWQ2NDAyMiIsImxpY2Vuc2VkSG9zdHMiOlsiMTI3LjAuMC4xIiwibG9jYWxob3N0IiwiMTkyLjE2OC4qLioiLCIxMC4qLiouKiIsIjE3Mi4qLiouKiIsIioudGVzdCIsIioubG9jYWxob3N0IiwiKi5sb2NhbCJdLCJ1c2FnZUVuZHBvaW50IjoiaHR0cHM6Ly9wcm94eS1ldmVudC5ja2VkaXRvci5jb20iLCJkaXN0cmlidXRpb25DaGFubmVsIjpbImNsb3VkIiwiZHJ1cGFsIl0sImxpY2Vuc2VUeXBlIjoiZGV2ZWxvcG1lbnQiLCJmZWF0dXJlcyI6WyJEUlVQIiwiRTJQIiwiRTJXIl0sInZjIjoiNDExMjYxNTkifQ.9YG3z9toN0pcTRdXGXTj42xVsK5KTxt-ZUqJpw-6QeaoPtDbkgbY3CjMdxWNi7Dorln7D8yWImhoSrcWHIqZEg';
+          'eyJhbGciOiJFUzI1NiJ9.eyJleHAiOjE3OTc2MzgzOTksImp0aSI6ImZiNTlhZDU3LWVmZGItNDhjZS05OTBjLWRlYjBmMWNkZDlmNSIsImxpY2Vuc2VkSG9zdHMiOlsid3d3LnNpZXV0aGl2aW5hLmNsb3VkIiwic2lldXRoaXZpbmEuY2xvdWQiXSwidXNhZ2VFbmRwb2ludCI6Imh0dHBzOi8vcHJveHktZXZlbnQuY2tlZGl0b3IuY29tIiwiZGlzdHJpYnV0aW9uQ2hhbm5lbCI6WyJjbG91ZCIsImRydXBhbCJdLCJmZWF0dXJlcyI6WyJEUlVQIiwiRTJQIiwiRTJXIl0sInJlbW92ZUZlYXR1cmVzIjpbIlBCIiwiUkYiLCJTQ0giLCJUQ1AiLCJUTCIsIlRDUiIsIklSIiwiU1VBIiwiQjY0QSIsIkxQIiwiSEUiLCJSRUQiLCJQRk8iLCJXQyIsIkZBUiIsIkJLTSIsIkZQSCIsIk1SRSJdLCJ2YyI6Ijg1MGU1MTU1In0.9YG3z9toN0pcTRdXGXTj42xVsK5KTxt-ZUqJpw-6QeaoPtDbkgbY3CjMdxWNi7Dorln7D8yWImhoSrcWHIqZEg';
 
         const editorConfig = {
           toolbar: {

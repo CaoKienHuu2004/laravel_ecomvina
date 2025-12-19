@@ -5,7 +5,6 @@ namespace App\Http\Resources\Toi\TheoDoiDonHangDetail;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 
-
 class BienTheResource extends JsonResource
 {
     public function toArray($request)

@@ -484,7 +484,9 @@
                                                 <td>{{ $dh->created_at->format('d/m/Y - H:i') }}</td>
                                                 <td class="text-end">{{ number_format($dh->thanhtien) }} đ</td>
                                                 <td class="text-center">
-                                                    <a href="{{ route('chi-tiet-don-hang', $dh->id) }}">
+                                                    <a href="{{ route('donhang.show', $dh->id) }}">
+                                                    {{-- <a href="{{ route(config('routes.donhang.show'), $dh->id) }}"> --}}
+
                                                         <i data-feather="clipboard" data-bs-toggle="tooltip"
                                                         data-bs-placement="top" title="Xem chi tiết"
                                                         style="color:#ea5454;"></i>

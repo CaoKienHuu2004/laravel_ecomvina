@@ -182,6 +182,7 @@ class DonHangFrontendAPI extends BaseFrontendController
             'Đang giao hàng',
             'Đã giao hàng',
             'Đã hủy',
+            'Thành công'
         ];
 
         // Label hiển thị tương ứng
@@ -190,10 +191,10 @@ class DonHangFrontendAPI extends BaseFrontendController
             'Chờ xử lý' => 'Đang xử lý',
             'Đã xác nhận' => 'Đang xử lý',
             'Đang chuẩn bị hàng' => 'Đang xử lý',
-            'Đang giao hàng' => 'Đang giao hàng',
+            'Đang giao hàng' => 'Đang vận chuyển',
             'Đã giao hàng' => 'Đã giao',
             'Đã hủy' => 'Đã hủy',
-            'Thành công' => 'Đã giao',
+            'Thành công' => 'Đã hoàn thành',
         ];
 
         $query = DonhangModel::with([
@@ -359,7 +360,7 @@ class DonHangFrontendAPI extends BaseFrontendController
      *     @OA\Response(
      *         response=200,
      *         description="Chi tiết đơn hàng",
-     *         @OA\JsonContent(ref="#/components/schemas/TheoDoiDonHangResource")
+     *         @OA\JsonContent(ref="#/components/schemas/TheoDoiDonHangDetailResource")
      *     ),
      *     @OA\Response(response=401, description="Không xác thực được user"),
      *     @OA\Response(response=403, description="Không có quyền xem đơn hàng này"),
@@ -1886,39 +1887,42 @@ class DonHangFrontendAPI extends BaseFrontendController
              */
             foreach ($donHangCu->chitietdonhang as $ct) {
 
-                $bienthe = $ct->bienthe;
-                $sanpham = $bienthe?->sanpham;
+                if($ct->dongia > 0)
+                {
+                    $bienthe = $ct->bienthe;
+                    $sanpham = $bienthe?->sanpham;
 
-                if (!$bienthe || !$sanpham) continue;
-                if ($sanpham->trangthai !== 'Công khai') continue;
+                    if (!$bienthe || !$sanpham) continue;
+                    if ($sanpham->trangthai !== 'Công khai') continue;
 
-                $giaGoc  = (int) $bienthe->giagoc;
-                $giamGia = (int) $bienthe->giamgia;
-                $soLuong = (int) $ct->soluong;
+                    $giaGoc  = (int) $bienthe->giagoc;
+                    $giamGia = (int) $bienthe->giamgia;
+                    $soLuong = (int) $ct->soluong;
 
-                // 🔥 Giá sau giảm %
-                $donGiaSauGiam = $giaGoc;
-                if ($giamGia > 0) {
-                    $donGiaSauGiam = (int) round(
-                        $giaGoc * (100 - $giamGia) / 100
-                    );
+                    // 🔥 Giá sau giảm %
+                    $donGiaSauGiam = $giaGoc;
+                    if ($giamGia > 0) {
+                        $donGiaSauGiam = (int) round(
+                            $giaGoc * (100 - $giamGia) / 100
+                        );
+                    }
+
+                    $thanhtien = $donGiaSauGiam * $soLuong;
+                    $tongGiaGioHang += $thanhtien;
+
+                    GioHangModel::create([
+                        'id_bienthe'   => $bienthe->id,
+                        'id_nguoidung' => $user->id,
+                        'soluong'      => $soLuong,
+                        'thanhtien'    => $thanhtien,
+                        'trangthai'    => 'Hiển thị',
+                    ]);
+
+                    $items[] = [
+                        'bienthe' => $bienthe,
+                        'soluong' => $soLuong,
+                    ];
                 }
-
-                $thanhtien = $donGiaSauGiam * $soLuong;
-                $tongGiaGioHang += $thanhtien;
-
-                GioHangModel::create([
-                    'id_bienthe'   => $bienthe->id,
-                    'id_nguoidung' => $user->id,
-                    'soluong'      => $soLuong,
-                    'thanhtien'    => $thanhtien,
-                    'trangthai'    => 'Hiển thị',
-                ]);
-
-                $items[] = [
-                    'bienthe' => $bienthe,
-                    'soluong' => $soLuong,
-                ];
             }
 
             /**

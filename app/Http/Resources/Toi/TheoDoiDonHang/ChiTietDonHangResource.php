@@ -15,7 +15,6 @@ use App\Http\Resources\Toi\TheoDoiDonHang\BienTheResource;
  *     @OA\Property(property="id", type="integer", example=101, description="ID chi tiết đơn hàng"),
  *     @OA\Property(property="soluong", type="integer", example=2, description="Số lượng sản phẩm trong chi tiết đơn hàng"),
  *     @OA\Property(property="dongia", type="number", format="float", example=150000, description="Đơn giá của sản phẩm tại thời điểm mua"),
- *     @OA\Property(property="trangthai", type="string", example="Đang giao hàng", description="Trạng thái của chi tiết đơn hàng"),
  *     @OA\Property(property="tong_tien", type="number", format="float", example=300000, description="Tổng tiền (số lượng x đơn giá) của chi tiết đơn hàng"),
  *     @OA\Property(
  *         property="bienthe",
@@ -33,7 +32,7 @@ class ChiTietDonHangResource extends JsonResource
             'id' => $this->id,
             'soluong' => $this->soluong,
             'dongia' => $this->dongia,
-            'trangthai' => $this->trangthai,
+            // 'trangthai' => $this->trangthai,
             'tong_tien' => $this->soluong * $this->dongia,
             'bienthe' => new BienTheResource($this->bienthe),
         ];

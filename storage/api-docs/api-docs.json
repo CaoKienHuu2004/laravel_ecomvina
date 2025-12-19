@@ -1607,7 +1607,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/TheoDoiDonHangResource"
+                                    "$ref": "#/components/schemas/TheoDoiDonHangDetailResource"
                                 }
                             }
                         }
@@ -6628,6 +6628,185 @@
                 },
                 "type": "object"
             },
+            "DiaChiGiaoHangResource": {
+                "title": "Địa chỉ giao hàng",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 17
+                    },
+                    "id_nguoidung": {
+                        "type": "integer",
+                        "example": 20
+                    },
+                    "hoten": {
+                        "type": "string",
+                        "example": "lee huy"
+                    },
+                    "sodienthoai": {
+                        "type": "string",
+                        "example": "0983914069"
+                    },
+                    "diachi": {
+                        "type": "string",
+                        "example": "175/19 đường số 20 Gò Vấp"
+                    },
+                    "tinhthanh": {
+                        "type": "string",
+                        "example": "Thành phố Hồ Chí Minh"
+                    },
+                    "trangthai": {
+                        "type": "string",
+                        "example": "Khác"
+                    }
+                },
+                "type": "object"
+            },
+            "PhiVanChuyenResource": {
+                "title": "Phí vận chuyển",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "ten": {
+                        "type": "string",
+                        "example": "Nội thành"
+                    },
+                    "phi": {
+                        "type": "integer",
+                        "example": 25000
+                    },
+                    "trangthai": {
+                        "type": "string",
+                        "example": "hiển thị"
+                    }
+                },
+                "type": "object"
+            },
+            "PhuongThucThanhToanResource": {
+                "title": "Phương thức thanh toán",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "ten": {
+                        "type": "string",
+                        "example": "Chuyển khoản ngân hàng trực tiếp"
+                    },
+                    "maphuongthuc": {
+                        "type": "string",
+                        "example": "dbt"
+                    },
+                    "trangthai": {
+                        "type": "string",
+                        "example": "Hoạt động"
+                    }
+                },
+                "type": "object"
+            },
+            "TheoDoiDonHangDetailResource": {
+                "title": "Theo dõi đơn hàng",
+                "description": "Thông tin chi tiết đơn hàng theo từng trạng thái",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 109
+                    },
+                    "madon": {
+                        "type": "string",
+                        "example": "VNA1212497"
+                    },
+                    "tongsoluong": {
+                        "type": "integer",
+                        "example": 2
+                    },
+                    "tamtinh": {
+                        "type": "integer",
+                        "example": 1783000
+                    },
+                    "thanhtien": {
+                        "type": "integer",
+                        "example": 1783000
+                    },
+                    "trangthaithanhtoan": {
+                        "type": "string",
+                        "example": "Chưa thanh toán"
+                    },
+                    "trangthai": {
+                        "type": "string",
+                        "example": "Chờ xử lý"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-12-09T12:49:28+07:00"
+                    },
+                    "chitietdonhang": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/ChiTietDonHangResource"
+                        }
+                    },
+                    "phuongthuc": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PhuongThucThanhToanResource"
+                        }
+                    },
+                    "phivanchuyen": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/PhiVanChuyenResource"
+                        }
+                    },
+                    "diachigiaohang": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/DiaChiGiaoHangResource"
+                        }
+                    },
+                    "nguoinhan": {
+                        "type": "string",
+                        "example": "lee huy"
+                    },
+                    "diachinhan": {
+                        "type": "string",
+                        "example": "175/19 đường số 20 Gò Vấp"
+                    },
+                    "sodienthoai": {
+                        "type": "string",
+                        "example": "0983914069"
+                    },
+                    "khuvucgiao": {
+                        "type": "string",
+                        "example": "Thành phố Hồ Chí Minh"
+                    },
+                    "hinhthucvanchuyen": {
+                        "type": "string",
+                        "example": "Nội thành"
+                    },
+                    "phigiaohang": {
+                        "type": "integer",
+                        "example": 25000
+                    },
+                    "hinhthucthanhtoan": {
+                        "type": "string",
+                        "example": "Chuyển khoản trực tiếp."
+                    },
+                    "mavoucher": {
+                        "type": "string",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "giagiam": {
+                        "type": "integer",
+                        "example": 0
+                    }
+                },
+                "type": "object"
+            },
             "BienTheResource": {
                 "title": "BienTheResource",
                 "description": "Thông tin biến thể của sản phẩm trong chi tiết đơn hàng",
@@ -6710,11 +6889,6 @@
                         "format": "float",
                         "example": 150000
                     },
-                    "trangthai": {
-                        "description": "Trạng thái của chi tiết đơn hàng",
-                        "type": "string",
-                        "example": "Đang giao hàng"
-                    },
                     "tong_tien": {
                         "description": "Tổng tiền (số lượng x đơn giá) của chi tiết đơn hàng",
                         "type": "number",
@@ -6772,15 +6946,15 @@
                     },
                     "nguoinhan": {
                         "type": "string",
-                        "example": "Vợ Huy"
+                        "example": "lee huy"
                     },
                     "diachinhan": {
                         "type": "string",
-                        "example": "nhà vợ Huy"
+                        "example": "175/19 đường số 20 Gò Vấp"
                     },
                     "sodienthoai": {
                         "type": "string",
-                        "example": "9876543120"
+                        "example": "0983914069"
                     },
                     "khuvucgiao": {
                         "type": "string",

@@ -167,6 +167,7 @@ class TheoDoiDonHangWebApi extends Controller
             'Đang giao hàng',
             'Đã giao hàng',
             'Đã hủy',
+            'Thành công'
         ];
 
         // Label hiển thị tương ứng
@@ -175,10 +176,10 @@ class TheoDoiDonHangWebApi extends Controller
             'Chờ xử lý' => 'Đang xử lý',
             'Đã xác nhận' => 'Đang xử lý',
             'Đang chuẩn bị hàng' => 'Đang xử lý',
-            'Đang giao hàng' => 'Đang giao hàng',
+            'Đang giao hàng' => 'Đang vận chuyển',
             'Đã giao hàng' => 'Đã giao',
             'Đã hủy' => 'Đã hủy',
-            'Thành công' => 'Đã giao',
+            'Thành công' => 'Đã hoàn thành',
         ];
 
         $query = DonhangModel::with([

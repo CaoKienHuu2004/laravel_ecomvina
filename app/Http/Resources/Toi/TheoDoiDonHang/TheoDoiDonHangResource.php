@@ -31,9 +31,9 @@ use App\Http\Resources\Toi\TheoDoiDonHang\ChiTietDonHangResource;
  *         @OA\Items(ref="#/components/schemas/ChiTietDonHangResource")
  *     ),
  *
- *     @OA\Property(property="nguoinhan", type="string", example="Vợ Huy"),
- *     @OA\Property(property="diachinhan", type="string", example="nhà vợ Huy"),
- *     @OA\Property(property="sodienthoai", type="string", example="9876543120"),
+ *     @OA\Property(property="nguoinhan", type="string", example="lee huy"),
+ *     @OA\Property(property="diachinhan", type="string", example="175/19 đường số 20 Gò Vấp"),
+ *     @OA\Property(property="sodienthoai", type="string", example="0983914069"),
  *     @OA\Property(property="khuvucgiao", type="string", example="Thành phố Hồ Chí Minh"),
  *
  *     @OA\Property(property="hinhthucvanchuyen", type="string", example="Nội thành"),
