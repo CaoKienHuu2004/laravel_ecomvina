@@ -49,11 +49,11 @@ class DonHangWebApi extends BaseFrontendController
     // .. UI Shoppee : Chờ xác nhận, Chờ lấy hang,  chờ giaohang, Đã giao, trả hàng, Đã hủy
     // .. UI sieuthivina : Chờ xác nhận, Chờ lấy hang,  chờ giaohang, Đã giao, trả hàng, Đã hủy
 
+
     public function index(Request $request)
     {
         $user = $request->get('auth_user');
 
-        // ❌ Chưa đăng nhập
         if (!$user) {
             return $this->jsonResponse([
                 'status' => false,
@@ -61,103 +61,73 @@ class DonHangWebApi extends BaseFrontendController
             ], Response::HTTP_UNAUTHORIZED);
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Nhóm trạng thái hiển thị cho FE
-        |--------------------------------------------------------------------------
-        | Thứ tự:
-        | 1. Chờ xác nhận
-        | 2. Đang xử lý (Đã xác nhận + Đang chuẩn bị hàng)
-        | 3. Đang vận chuyển
-        | 4. Đã giao
-        | 5. Đã hoàn thành
-        | 6. Đã hủy
-        */
-        $statusGroups = [
-            [
-                'label' => 'Chờ xác nhận',
-                'trangthai' => ['Chờ xử lý'],
-            ],
-            [
-                'label' => 'Đang xử lý',
-                'trangthai' => ['Đã xác nhận', 'Đang chuẩn bị hàng'],
-            ],
-            [
-                'label' => 'Đang vận chuyển',
-                'trangthai' => ['Đang giao hàng'],
-            ],
-            [
-                'label' => 'Đã giao',
-                'trangthai' => ['Đã giao hàng'],
-            ],
-            [
-                'label' => 'Đã hoàn thành',
-                'trangthai' => ['Thành công'],
-            ],
-            [
-                'label' => 'Đã hủy',
-                'trangthai' => ['Đã hủy'],
-            ],
+        // Danh sách trạng thái thực tế trong DB
+        $validTrangThai = [
+            'Chờ thanh toán',
+            'Chờ xử lý',
+            'Đã xác nhận',
+            'Đang chuẩn bị hàng',
+            'Đang giao hàng',
+            'Đã giao hàng',
+            'Đã hủy',
         ];
 
-        /*
-        |--------------------------------------------------------------------------
-        | Query đơn hàng của user
-        |--------------------------------------------------------------------------
-        */
+        // Label hiển thị tương ứng
+        $labels = [
+            'Chờ thanh toán' => 'Chờ thanh toán',
+            'Chờ xử lý' => 'Đang xử lý',
+            'Đã xác nhận' => 'Đang xử lý',
+            'Đang chuẩn bị hàng' => 'Đang xử lý',
+            'Đang giao hàng' => 'Đang giao hàng',
+            'Đã giao hàng' => 'Đã giao',
+            'Đã hủy' => 'Đã hủy',
+            'Thành công' => 'Đã giao',
+        ];
+
         $query = DonhangModel::with([
             'chitietdonhang.bienthe.sanpham',
             'chitietdonhang.bienthe.loaibienthe',
             'chitietdonhang.bienthe.sanpham.hinhanhsanpham'
         ])->where('id_nguoidung', $user->id);
 
-        // Lọc theo trạng thái DB (nếu FE truyền)
-        if ($request->filled('trangthai')) {
+        // Lọc theo trạng thái (nếu có)
+        if ($request->filled('trangthai') && in_array($request->trangthai, $validTrangThai)) {
             $query->where('trangthai', $request->trangthai);
         }
 
-        // Lọc theo mã đơn
+        // Lọc theo mã đơn hàng (nếu có)
         if ($request->filled('madon')) {
             $query->where('madon', $request->madon);
         }
-
         $donhangs = $query->latest()->get();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Gom nhóm đơn hàng theo trạng thái hiển thị
-        |--------------------------------------------------------------------------
-        */
+        // Gom nhóm theo trạng thái và đếm số lượng
         $grouped = [];
-
-        foreach ($statusGroups as $group) {
-            $donTheoTrangThai = $donhangs->filter(function ($don) use ($group) {
-                return in_array($don->trangthai, $group['trangthai']);
-            });
-
+        foreach ($validTrangThai as $status) {
+            $donTheoTrangThai = $donhangs->where('trangthai', $status);
             $grouped[] = [
-                'label' => $group['label'],
-                'trangthai' => $group['trangthai'],
+                'label' => $labels[$status] ?? $status,
+                'trangthai' => $status,
                 'soluong' => $donTheoTrangThai->count(),
                 'donhang' => TheoDoiDonHangResource::collection($donTheoTrangThai),
             ];
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Response chuẩn API
-        |--------------------------------------------------------------------------
-        */
+        // ✅ Trả về theo định dạng chuẩn { status, message, data }
         return $this->jsonResponse([
             'status' => true,
-            'message' => "Danh sách đơn hàng của khách hàng #{$user->id}: {$user->hoten}",
+            'message' => "Danh Sách Đơn Hàng Theo Trạng Thái Đơn Hàng Của Khách Hàng #{$user->id}: {$user->hoten}",
             'data' => $grouped
         ], Response::HTTP_OK);
+        // DonHangResource::withoutWrapping(); // Bỏ "data" bọc ngoài
+        // return response()->json(DonHangResource::collection($donhang), Response::HTTP_OK);
     }
+
     // public function index(Request $request)
     // {
     //     $user = $request->get('auth_user');
 
+    //     // ❌ Chưa đăng nhập
     //     if (!$user) {
     //         return $this->jsonResponse([
     //             'status' => false,
@@ -165,63 +135,102 @@ class DonHangWebApi extends BaseFrontendController
     //         ], Response::HTTP_UNAUTHORIZED);
     //     }
 
-    //     // Danh sách trạng thái thực tế trong DB
-    //     $validTrangThai = [
-    //         'Chờ xử lý',
-    //         'Đã xác nhận',
-    //         'Đang chuẩn bị hàng',
-    //         'Đang giao hàng',
-    //         'Đã giao hàng',
-    //         'Đã hủy',
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | Nhóm trạng thái hiển thị cho FE
+    //     |--------------------------------------------------------------------------
+    //     | Thứ tự:
+    //     | 1. Chờ xác nhận
+    //     | 2. Đang xử lý (Đã xác nhận + Đang chuẩn bị hàng)
+    //     | 3. Đang vận chuyển
+    //     | 4. Đã giao
+    //     | 5. Đã hoàn thành
+    //     | 6. Đã hủy
+    //     */
+    //     $statusGroups = [
+    //         [
+    //             'label' => 'Chờ thanh toán',
+    //             'trangthai' => ['Chờ thanh toán'],
+    //         ],
+    //         [
+    //             'label' => 'Chờ xác nhận',
+    //             'trangthai' => ['Chờ xử lý'],
+    //         ],
+    //         [
+    //             'label' => 'Đang xử lý',
+    //             'trangthai' => ['Đã xác nhận', 'Đang chuẩn bị hàng'],
+    //         ],
+    //         [
+    //             'label' => 'Đang vận chuyển',
+    //             'trangthai' => ['Đang giao hàng'],
+    //         ],
+    //         [
+    //             'label' => 'Đã giao',
+    //             'trangthai' => ['Đã giao hàng'],
+    //         ],
+    //         [
+    //             'label' => 'Đã hoàn thành',
+    //             'trangthai' => ['Thành công'],
+    //         ],
+    //         [
+    //             'label' => 'Đã hủy',
+    //             'trangthai' => ['Đã hủy'],
+    //         ],
     //     ];
 
-    //     // Label hiển thị tương ứng
-    //     $labels = [
-    //         'Chờ xử lý' => 'Chờ thanh toán',
-    //         'Đã xác nhận' => 'Đang xác nhận',
-    //         'Đang chuẩn bị hàng' => 'Đang đóng gói',
-    //         'Đang giao hàng' => 'Đang giao hàng',
-    //         'Đã giao hàng' => 'Đã giao',
-    //         'Đã hủy' => 'Đã hủy',
-    //     ];
-
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | Query đơn hàng của user
+    //     |--------------------------------------------------------------------------
+    //     */
     //     $query = DonhangModel::with([
     //         'chitietdonhang.bienthe.sanpham',
     //         'chitietdonhang.bienthe.loaibienthe',
     //         'chitietdonhang.bienthe.sanpham.hinhanhsanpham'
     //     ])->where('id_nguoidung', $user->id);
 
-    //     // Lọc theo trạng thái (nếu có)
-    //     if ($request->filled('trangthai') && in_array($request->trangthai, $validTrangThai)) {
+    //     // Lọc theo trạng thái DB (nếu FE truyền)
+    //     if ($request->filled('trangthai')) {
     //         $query->where('trangthai', $request->trangthai);
     //     }
 
-    //     // Lọc theo mã đơn hàng (nếu có)
+    //     // Lọc theo mã đơn
     //     if ($request->filled('madon')) {
     //         $query->where('madon', $request->madon);
     //     }
+
     //     $donhangs = $query->latest()->get();
 
-    //     // Gom nhóm theo trạng thái và đếm số lượng
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | Gom nhóm đơn hàng theo trạng thái hiển thị
+    //     |--------------------------------------------------------------------------
+    //     */
     //     $grouped = [];
-    //     foreach ($validTrangThai as $status) {
-    //         $donTheoTrangThai = $donhangs->where('trangthai', $status);
+
+    //     foreach ($statusGroups as $group) {
+    //         $donTheoTrangThai = $donhangs->filter(function ($don) use ($group) {
+    //             return in_array($don->trangthai, $group['trangthai']);
+    //         });
+
     //         $grouped[] = [
-    //             'label' => $labels[$status] ?? $status,
-    //             'trangthai' => $status,
+    //             'label' => $group['label'],
+    //             'trangthai' => $group['trangthai'],
     //             'soluong' => $donTheoTrangThai->count(),
     //             'donhang' => TheoDoiDonHangResource::collection($donTheoTrangThai),
     //         ];
     //     }
 
-    //     // ✅ Trả về theo định dạng chuẩn { status, message, data }
+    //     /*
+    //     |--------------------------------------------------------------------------
+    //     | Response chuẩn API
+    //     |--------------------------------------------------------------------------
+    //     */
     //     return $this->jsonResponse([
     //         'status' => true,
-    //         'message' => "Danh Sách Đơn Hàng Theo Trạng Thái Đơn Hàng Của Khách Hàng #{$user->id}: {$user->hoten}",
+    //         'message' => "Danh sách đơn hàng của khách hàng #{$user->id}: {$user->hoten}",
     //         'data' => $grouped
     //     ], Response::HTTP_OK);
-    //     // DonHangResource::withoutWrapping(); // Bỏ "data" bọc ngoài
-    //     // return response()->json(DonHangResource::collection($donhang), Response::HTTP_OK);
     // }
 
     public function show(Request $request, $id)
@@ -342,16 +351,33 @@ class DonHangWebApi extends BaseFrontendController
                 ], Response::HTTP_BAD_REQUEST);
             }
 
-            $trangthaiDonhang = 'Chờ xử lý';
+            // $trangthaiDonhang = 'Chờ xử lý';
+            // $trangthaiThanhtoan = 'Chưa thanh toán';
+
+            // if ($ma_phuongthuc != 'cod') {
+            //     $mapTrangthai = [
+            //         'Hoạt động' => 'Chờ xử lý',
+            //         'Tạm khóa' => 'Đã hủy',
+            //         'Dừng hoạt động' => 'Đã hủy',
+            //     ];
+            //     $trangthaiDonhang = $mapTrangthai[$phuongthuc->trangthai] ?? 'Chờ xử lý';
+            // }
             $trangthaiThanhtoan = 'Chưa thanh toán';
 
-            if ($ma_phuongthuc != 'cod') {
+            if ($ma_phuongthuc === 'cp' || $ma_phuongthuc === 'dbt') {
+                // Nếu là chuyển khoản trực tiếp hoặc thanh toán online
+                $trangthaiDonhang = 'Chờ thanh toán';
+            } elseif ($ma_phuongthuc === 'cod') {
+                // Nếu là COD (nhận tiền khi giao hàng)
                 $mapTrangthai = [
                     'Hoạt động' => 'Chờ xử lý',
                     'Tạm khóa' => 'Đã hủy',
                     'Dừng hoạt động' => 'Đã hủy',
                 ];
                 $trangthaiDonhang = $mapTrangthai[$phuongthuc->trangthai] ?? 'Chờ xử lý';
+            } else {
+                // Trường hợp khác nếu có
+                $trangthaiDonhang = 'Chờ xử lý';
             }
 
             $freeship = false;
@@ -568,13 +594,14 @@ class DonHangWebApi extends BaseFrontendController
 
         // Định nghĩa thứ tự trạng thái hợp lệ
         $orderStates = [
-            'Chờ xử lý' => 1,
-            'Đã xác nhận' => 2,
-            'Đang chuẩn bị hàng' => 3,
-            'Đang giao hàng' => 4,
-            'Đã giao hàng' => 5,
-            'Đã hủy' => 6,
-            'Thành công' => 7,
+            'Chờ thanh toán' => 1,
+            'Chờ xử lý' => 2,
+            'Đã xác nhận' => 3,
+            'Đang chuẩn bị hàng' => 4,
+            'Đang giao hàng' => 5,
+            'Đã giao hàng' => 6,
+            'Đã hủy' => 7,
+            'Thành công' => 8,
         ];
 
         $currentStatus = $donhang->trangthai;

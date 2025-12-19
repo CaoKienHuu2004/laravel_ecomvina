@@ -129,12 +129,14 @@ class TheoDoiDonHangFrontendAPI extends Controller
 
         // Định nghĩa thứ tự trạng thái hợp lệ
         $orderStates = [
-            'Chờ xử lý' => 1,
-            'Đã xác nhận' => 2,
-            'Đang chuẩn bị hàng' => 3,
-            'Đang giao hàng' => 4,
-            'Đã giao hàng' => 5,
-            'Đã hủy' => 6,
+            'Chờ thanh toán' => 1,
+            'Chờ xử lý' => 2,
+            'Đã xác nhận' => 3,
+            'Đang chuẩn bị hàng' => 4,
+            'Đang giao hàng' => 5,
+            'Đã giao hàng' => 6,
+            'Đã hủy' => 7,
+            'Thành công' => 8,
         ];
 
         $currentStatus = $donhang->trangthai;
