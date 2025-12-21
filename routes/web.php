@@ -492,6 +492,13 @@ Route::get('/api-tinh-thanh', [TinhThanhVietNamWebApi::class, 'index']);
 Route::apiResource('api-ma-giam-gia', MaGiamGiaWebApi::class)->only(['index']);
 // gọi kèm các routes WebApi khác
 
+// api public
+// Tích hợp thanh toán VNPAY, cần thêm 3 route
+    Route::get('/tai-khoan/donhang/payment-callback', [DonHangWebApi::class, 'handlePaymentCallback'])
+    ->name('tai-khoan.donhang.payment-callback');
+    // ko cần auth vì là hook từ VNPAY gửi về, nếu auth có thể dẫn đến lỗi 401 Unauthorized
+//
+
 //-------------------------------------------------- Guest User authetication --------------------------------//
 
 Route::middleware(['auth.api'])->group(function () {
@@ -512,10 +519,10 @@ Route::middleware(['auth.api'])->group(function () {
     Route::post('/tai-khoan/donhang/{id}/payment-url', [DonHangWebApi::class, 'createPaymentUrl']);
     Route::get('/tai-khoan/donhang/{id}/status', [DonHangWebApi::class, 'getPaymentStatus']);
 });
-    // Tích hợp thanh toán VNPAY, cần thêm 3 route
-    Route::get('/tai-khoan/donhang/payment-callback', [DonHangWebApi::class, 'handlePaymentCallback'])
-    ->name('tai-khoan.donhang.payment-callback');;
-    // ko cần auth vì là hook từ VNPAY gửi về, nếu auth có thể dẫn đến lỗi 401 Unauthorized
+    // // Tích hợp thanh toán VNPAY, cần thêm 3 route
+    // Route::get('/tai-khoan/donhang/payment-callback', [DonHangWebApi::class, 'handlePaymentCallback'])
+    // ->name('tai-khoan.donhang.payment-callback');
+    // // ko cần auth vì là hook từ VNPAY gửi về, nếu auth có thể dẫn đến lỗi 401 Unauthorized
 
     Route::middleware(['auth.order_code'])->group(function () {
         Route::get('/web/tracuu-donhang', [TheoDoiDonHangWebApi::class, 'index']);

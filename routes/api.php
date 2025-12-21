@@ -201,7 +201,10 @@ use App\Http\Controllers\API\ThongBaoAPI;
 
     // guest
 
-
+    // Tích hợp thanh toán VNPAY, cần thêm 3 route
+    Route::get('/tai-khoan/donhangs/payment-callback', [DonHangFrontendAPI::class, 'handlePaymentCallback'])
+    ->name('api.tai-khoan.donhangs.payment-callback');
+    // ko cần auth vì là hook từ VNPAY gửi về, nếu auth có thể dẫn đến lỗi 401 Unauthorized
 
     //page HTML tỉnh
     Route::apiResource('trang-dieu-khoan', TrangDieuKhoan::class)->only(['index']);
@@ -293,10 +296,10 @@ use App\Http\Controllers\API\ThongBaoAPI;
         // Tích hợp vietqr
         // Route::post('/tai-khoan/donhangs/{id}/vietqr-url', [DonHangFrontendAPI::class, 'createVietqrtUrl']);
     });
-        // Tích hợp thanh toán VNPAY, cần thêm 3 route
-        Route::get('/tai-khoan/donhangs/payment-callback', [DonHangFrontendAPI::class, 'handlePaymentCallback'])
-        ->name('api.tai-khoan.donhangs.payment-callback');
-        // ko cần auth vì là hook từ VNPAY gửi về, nếu auth có thể dẫn đến lỗi 401 Unauthorized
+        // // Tích hợp thanh toán VNPAY, cần thêm 3 route
+        // Route::get('/tai-khoan/donhangs/payment-callback', [DonHangFrontendAPI::class, 'handlePaymentCallback'])
+        // ->name('api.tai-khoan.donhangs.payment-callback');
+        // // ko cần auth vì là hook từ VNPAY gửi về, nếu auth có thể dẫn đến lỗi 401 Unauthorized
 
         // Route::middleware(['auth.api'])->group(function () {
         //     Route::get('/tai-khoan/theodoi-donhang', [TheoDoiDonHangFrontendAPI::class, 'index']);

@@ -13,6 +13,12 @@ class ApiAuthMiddleware
     use ApiResponse;
     public function handle(Request $request, Closure $next)
     {
+        if ($request->is('api/tai-khoan/donhangs/payment-callback')) {
+            return $next($request);
+        } // thêm vào để fix bug cực lạ là ko bọc trong middeleware auth.api mà vần bị chặn bới midlleware này
+        if ($request->is('tai-khoan/donhang/payment-callback')) {
+            return $next($request);
+        } // thêm vào để fix bug cực lạ là ko bọc trong middeleware auth.api mà vần bị chặn bới midlleware này
         $token = $request->bearerToken();
 
         if (!$token) {
