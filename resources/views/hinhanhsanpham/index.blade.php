@@ -18,12 +18,12 @@
                         alt="img"
                         class="me-1" />Tạo mới hình ảnh sản phẩm</a>
                 </div>
-                <div class="page-btn ms-1">
+                {{-- <div class="page-btn ms-1">
                     <a href="{{route('hinhanhsanpham.trash')}}" class="btn btn-added"><img
                         src="{{asset('img/icons/delete.svg')}}"
                         alt="img"
                         class="me-1" />Thùng Rác</a>
-                </div>
+                </div> --}}
             </div>
         </div>
 
@@ -140,13 +140,13 @@
                                             <a href="{{ route('hinhanhsanpham.edit', $item->id) }}" title="Chỉnh sửa" class="me-2">
                                                 <img src="{{ asset('img/icons/edit.svg') }}" alt="Sửa" />
                                             </a>
-                                            <form action="{{ route('hinhanhsanpham.destroy', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa hình ảnh này không?');">
+                                            {{-- <form action="{{ route('hinhanhsanpham.destroy', $item->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa hình ảnh này không?');">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-link p-0 m-0 align-baseline" title="Xóa">
                                                 <img src="{{ asset('img/icons/delete.svg') }}" alt="Xóa" />
                                                 </button>
-                                            </form>
+                                            </form> --}}
                                         </div>
                                     </td>
                                     {{-- <td class="text-center">

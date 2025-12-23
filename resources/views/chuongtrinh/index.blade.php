@@ -111,7 +111,7 @@
                     <a href="{{ route('chuongtrinh.edit', $ct->id) }}" title="Chỉnh sửa" class="me-2">
                       <img src="{{ asset('img/icons/edit.svg') }}" alt="Sửa" />
                     </a>
-                    <a href="#"
+                    {{-- <a href="#"
                       onclick="event.preventDefault(); if(confirm('Bạn có chắc chắn muốn xóa chương trình này?')) { document.getElementById('delete-form-{{ $ct->id }}').submit(); }"
                       title="Xóa"
                     >
@@ -120,7 +120,7 @@
                     <form id="delete-form-{{ $ct->id }}" action="{{ route('chuongtrinh.destroy', $ct->id) }}" method="POST" style="display:none;">
                       @csrf
                       @method('DELETE')
-                    </form>
+                    </form> --}}
                   </td>
                 </tr>
               @empty

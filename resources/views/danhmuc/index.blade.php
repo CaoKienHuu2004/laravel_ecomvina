@@ -87,13 +87,13 @@
                                         <a href="{{ route('danhmuc.edit', $dm->id) }}" title="Chỉnh sửa" class="me-2">
                                             <img src="{{ asset('img/icons/edit.svg') }}" alt="Sửa" />
                                         </a>
-                                        <form action="{{ route('danhmuc.destroy', $dm->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa danh mục này không?');">
+                                        {{-- <form action="{{ route('danhmuc.destroy', $dm->id) }}" method="POST" class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa danh mục này không?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-link p-0 m-0 align-baseline" title="Xóa">
                                             <img src="{{ asset('img/icons/delete.svg') }}" alt="Xóa" />
                                             </button>
-                                        </form>
+                                        </form> --}}
                                     </div>
                                 </td>
 

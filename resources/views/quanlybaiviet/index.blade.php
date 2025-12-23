@@ -123,9 +123,9 @@
                   <a class="me-3" href="{{ route('baiviet.edit',$bv->id) }}">
                     <img src="{{asset('img/icons/edit.svg')}}" alt="img" />
                   </a>
-                  <a class="me-3" href="{{route('baiviet.destroy', $bv->id)}}" onclick="return confirm('Bạn có chắc chắn muốn xóa bài viết này?');">
+                  {{-- <a class="me-3" href="{{route('baiviet.destroy', $bv->id)}}" onclick="return confirm('Bạn có chắc chắn muốn xóa bài viết này?');">
                     <img src="{{asset('img/icons/delete.svg')}}" alt="img" />
-                  </a>
+                  </a> --}}
                 </td>
               </tr>
               @endforeach

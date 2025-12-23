@@ -16,11 +16,11 @@
                     <img src="{{ asset('img/icons/plus.svg') }}" alt="img" class="me-1" /> Tạo mã giảm giá
                 </a>
                 </div>
-                <div class="page-btn ms-1">
+                {{-- <div class="page-btn ms-1">
                 <a href="{{ route('magiamgia.trash') }}" class="btn btn-added">
                     <img src="{{ asset('img/icons/delete.svg') }}" alt="img" class="me-1" /> Thùng rác
                 </a>
-                </div>
+                </div> --}}
             </div>
         </div>
 
@@ -89,14 +89,14 @@
                                         </a>
 
                                         <!-- NÚT XÓA -->
-                                        <form action="{{ route('delete.magiamgia', $item->id) }}" method="POST" style="display:inline">
+                                        {{-- <form action="{{ route('delete.magiamgia', $item->id) }}" method="POST" style="display:inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="border-0 bg-transparent ms-2"
                                                     onclick="return confirm('Xóa mã {{ $item->magiamgia }} ?')">
                                                 <img src="{{ asset('img/icons/delete.svg') }}" alt="delete" width="18">
                                             </button>
-                                        </form>
+                                        </form> --}}
                                     </td>
                                 </tr>
                             @empty

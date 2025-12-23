@@ -32,11 +32,11 @@
             <img src="{{ asset('img/icons/plus.svg') }}" alt="img" class="me-1" /> Tạo quà tặng
           </a>
         </div>
-        <div class="page-btn ms-1">
+        {{-- <div class="page-btn ms-1">
           <a href="{{ route('quatangsukien.trash') }}" class="btn btn-added">
             <img src="{{ asset('img/icons/delete.svg') }}" alt="img" class="me-1" /> Thùng rác
           </a>
-        </div>
+        </div> --}}
       </div>
     </div>
 
@@ -126,7 +126,7 @@
                     <a href="{{ route('quatangsukien.edit', $qt->id) }}" title="Chỉnh sửa" class="me-2">
                       <img src="{{ asset('img/icons/edit.svg') }}" alt="Sửa" />
                     </a>
-                    <a href="#"
+                    {{-- <a href="#"
                       onclick="event.preventDefault(); if(confirm('Bạn có chắc chắn muốn xóa quà tặng này?')) { document.getElementById('delete-form-{{ $qt->id }}').submit(); }"
                       title="Xóa"
                     >
@@ -135,7 +135,7 @@
                     <form id="delete-form-{{ $qt->id }}" action="{{ route('quatangsukien.destroy', $qt->id) }}" method="POST" style="display:none;">
                       @csrf
                       @method('DELETE')
-                    </form>
+                    </form> --}}
                   </td>
                 </tr>
               @empty

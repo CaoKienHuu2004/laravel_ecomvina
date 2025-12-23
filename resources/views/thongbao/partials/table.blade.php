@@ -59,13 +59,13 @@
                             <a href="{{ route('thongbao.edit', $tb->id) }}" class="me-2" title="Chỉnh sửa">
                                 <img src="{{ asset('img/icons/edit.svg') }}">
                             </a>
-                            <a href="#" title="Xóa" onclick="event.preventDefault();if(confirm('Bạn có chắc muốn xóa thông báo này?')){document.getElementById('delete-form-{{ $tb->id }}').submit();}">
+                            {{-- <a href="#" title="Xóa" onclick="event.preventDefault();if(confirm('Bạn có chắc muốn xóa thông báo này?')){document.getElementById('delete-form-{{ $tb->id }}').submit();}">
                                 <img src="{{ asset('img/icons/delete.svg') }}">
                             </a>
                             <form id="delete-form-{{ $tb->id }}" action="{{ route('thongbao.destroy', $tb->id) }}" method="POST" style="display:none;">
                                 @csrf
                                 @method('DELETE')
-                            </form>
+                            </form> --}}
                         </td>
                     </tr>
                     @endforeach

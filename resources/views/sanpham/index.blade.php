@@ -43,12 +43,12 @@
                 alt="img"
                 class="me-1" />Tạo sản phẩm</a>
         </div>
-        <div class="page-btn ms-1">
+        {{-- <div class="page-btn ms-1">
             <a href="{{route('sanpham.trash')}}" class="btn btn-added"><img
                 src="{{asset('img/icons/delete.svg')}}"
                 alt="img"
                 class="me-1" />Thùng Rác</a>
-        </div>
+        </div> --}}
       </div>
     </div>
     @if(session('success'))
@@ -288,7 +288,7 @@
                         <img src="{{asset('img/icons/edit.svg')}}" alt="img" />
                     </a>
                   </div>
-                  <a href="#"
+                    {{-- <a href="#"
                         class="me-3 d-flex justify-content-center align-items-center"
                         title="Xóa"
                         onclick="event.preventDefault();
@@ -300,7 +300,7 @@
                     <form id="delete-form-{{ $sp->id }}" action="{{ route('sanpham.destroy', $sp->id) }}" method="POST" style="display: none;">
                     @csrf
                     @method('DELETE')
-                    </form>
+                    </form> --}}
 
 
                 </td>

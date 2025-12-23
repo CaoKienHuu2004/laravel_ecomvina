@@ -105,7 +105,7 @@
                       </a>
 
                       <!-- Xóa -->
-                      <a href="#" class="me-3" title="Xóa"
+                      {{-- <a href="#" class="me-3" title="Xóa"
                         onclick="event.preventDefault();
                           if(confirm('Bạn có chắc chắn muốn xóa trang này?')) {
                               document.getElementById('delete-form-{{ $tn->id }}').submit();
@@ -116,7 +116,7 @@
                       <form id="delete-form-{{ $tn->id }}" action="{{ route('trangnoidung.destroy', $tn->id) }}" method="POST" style="display: none;">
                           @csrf
                           @method('DELETE')
-                      </form>
+                      </form> --}}
                   </div>
                 </td>
               </tr>

@@ -103,16 +103,16 @@
                         <img src="{{ asset('img/icons/delete.svg') }}" alt="Xóa" />
                       </a> --}}
                         {{-- Nút xóa dạng <a> --}}
-                      <a href="#" class="btn-delete" data-id="{{ $lbt->id }}" title="Xóa">
+                      {{-- <a href="#" class="btn-delete" data-id="{{ $lbt->id }}" title="Xóa">
                         <img src="{{ asset('img/icons/delete.svg') }}" alt="Xóa" />
                       </a>
 
-                      {{-- Form ẩn kèm modal nằm trong form --}}
+
                       <form id="delete-form-{{ $lbt->id }}" method="POST" action="{{ route('loaibienthe.destroy', $lbt->id) }}">
                         @csrf
                         @method('DELETE')
 
-                        {{-- Modal nằm trong form --}}
+
                         <div class="modal fade" id="confirmDeleteModal-{{ $lbt->id }}" tabindex="-1" aria-labelledby="confirmDeleteModalLabel-{{ $lbt->id }}" aria-hidden="true">
                           <div class="modal-dialog">
                             <div class="modal-content">
@@ -139,8 +139,8 @@
                             </div>
                           </div>
                         </div>
-                        {{-- Modal nằm trong form --}}
-                      </form>
+
+                      </form> --}}
 
                     </div>
                   </td>
@@ -168,7 +168,7 @@
 <style>
   .dt-buttons { display: none !important; }
 </style>
-<script>
+{{-- <script>
   document.addEventListener('DOMContentLoaded', function () {
     const deleteButtons = document.querySelectorAll('.btn-delete');
 
@@ -183,5 +183,5 @@
       });
     });
   });
-</script>
+</script> --}}
 @endsection

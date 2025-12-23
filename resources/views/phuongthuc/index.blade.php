@@ -102,7 +102,7 @@
                   <a href="{{ route('phuongthuc.edit', $pt->id) }}" class="me-3" title="Chỉnh sửa">
                     <img src="{{ asset('img/icons/edit.svg') }}" alt="Sửa" />
                   </a>
-                  <a href="#"
+                  {{-- <a href="#"
                      onclick="event.preventDefault(); if(confirm('Bạn có chắc chắn muốn xóa?')) { document.getElementById('delete-form-{{ $pt->id }}').submit(); }"
                      title="Xóa">
                     <img src="{{ asset('img/icons/delete.svg') }}" alt="Xóa" />
@@ -110,7 +110,7 @@
                   <form id="delete-form-{{ $pt->id }}" action="{{ route('phuongthuc.destroy', $pt->id) }}" method="POST" style="display:none;">
                     @csrf
                     @method('DELETE')
-                  </form>
+                  </form> --}}
                 </td>
               </tr>
               @endforeach
